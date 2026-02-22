@@ -35,6 +35,7 @@ services:
 
   node:
     image: node:20-alpine
+    container_name: besucherportal-node
     working_dir: /var/www/html/backend
     volumes:
       - ./:/var/www/html
