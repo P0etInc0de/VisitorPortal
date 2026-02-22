@@ -70,6 +70,9 @@ docker compose exec web bash -lc "cd backend && php artisan migrate"
 * App: [http://localhost:8080](http://localhost:8080)
 * Mailhog UI: [http://localhost:8025](http://localhost:8025)
 
+Um zu sehen, ob die Container laufen:
+* docker compose ps
+
 ## Stop / Reset
 
 Stoppen:
