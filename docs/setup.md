@@ -112,6 +112,11 @@ chown -R www-data:www-data storage bootstrap/cache 2>/dev/null || true
 docker compose exec web bash -lc "cd backend && php artisan view:clear"
 ```
 
+- Wenn Dropdowns/Buttons im Breeze-Layout (z.B. User-Menü/Logout) nicht reagieren: Breeze nutzt Alpine.js. Prüfen, ob Alpine installiert ist und in `resources/js/app.js` gestartet wird. Danach Vite neu starten.
+  - Install: `npm install -D alpinejs @alpinejs/focus`
+  - `resources/js/app.js` muss Alpine starten (siehe Repo-Stand)
+  - Vite neu starten: `docker compose restart node`
+
 ## LAMP (ohne Docker)
 
 Die Anwendung soll zusätzlich zu Docker auch auf einem klassischen LAMP-Server (PHP + Webserver + Datenbank) lauffähig sein.
