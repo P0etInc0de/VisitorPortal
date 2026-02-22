@@ -93,7 +93,7 @@ docker compose down -v
   * `php artisan cache:clear`
   * Hinweis: In der Entwicklung `config:cache` möglichst nicht verwenden.
 * In Docker ist `DB_HOST` der Service-Name aus `docker-compose.yml` (bei uns `db`), nicht `127.0.0.1`.
-* Wenn `SESSION_DRIVER=database` aktiv ist, benötigt Laravel sofort eine funktionierende DB (sonst schlagen auch `cache:clear`/Logins etc. fehl). Für die erste Inbetriebnahme ist `SESSION_DRIVER=file` einfacher.
+* Wenn `SESSION_DRIVER=database` aktiv ist, benötigt Laravel sofort eine funktionierende DB (sonst schlagen auch `cache:clear`/Logins etc. fehl).
 * Wenn die Startseite einen Fehler mit `tempnam()` / Blade-Compile zeigt, fehlen meist Schreibrechte/Ordner:
 
 ```bash
