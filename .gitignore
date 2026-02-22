@@ -1,5 +1,7 @@
 /vendor/
+backend/vendor/
 node_modules/
+backend/node_modules/
 npm-debug.log
 yarn-error.log
 
@@ -17,6 +19,8 @@ public_html/hot
 
 storage/*.key
 .env
+backend/.env
+backend/.env.*
 Homestead.yaml
 Homestead.json
 /.vagrant
