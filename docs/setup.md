@@ -149,6 +149,4 @@ php artisan migrate
 
 Hinweis: Produktive Mail-Konfiguration (SMTP) kommt aus der Server-Umgebung. Mailhog ist nur für lokale Entwicklung gedacht.
 
-```
-::contentReference[oaicite:0]{index=0}
-```
+
