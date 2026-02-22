@@ -14,10 +14,15 @@ export default defineConfig({
   host: '0.0.0.0',
   port: 5173,
   strictPort: true,
+
+  // URL, die in backend/public/hot landet
+  origin: 'http://localhost:5173',
+
   hmr: {
     host: 'localhost',
     port: 5173,
   },
+
   watch: {
     ignored: ['**/storage/framework/views/**'],
   },
