@@ -1,15 +1,15 @@
 ````md
-# Setup (Docker-first)
+# Setup
 
 Dieses Projekt ist für lokale Entwicklung/Testbetrieb per Docker Compose ausgelegt (Apache + PHP + MySQL + Mailhog).  
 Laravel liegt im Ordner `backend/`.
 
-## Voraussetzungen
+## Voraussetzungen (Docker)
 - Docker Desktop installiert und gestartet
 - Git installiert
 - Repository lokal geklont
 
-## Start (lokal)
+## Start (Docker, lokal)
 
 1) Container bauen und starten
 ```bash
@@ -70,8 +70,11 @@ docker compose exec web bash -lc "cd backend && php artisan migrate"
 * App: [http://localhost:8080](http://localhost:8080)
 * Mailhog UI: [http://localhost:8025](http://localhost:8025)
 
-Um zu sehen, ob die Container laufen:
-* docker compose ps
+Optional: Container-Status prüfen
+
+```bash
+docker compose ps
+```
 
 ## Stop / Reset
 
@@ -108,6 +111,43 @@ chown -R www-data:www-data storage bootstrap/cache 2>/dev/null || true
 "
 docker compose exec web bash -lc "cd backend && php artisan view:clear"
 ```
+
+## LAMP (ohne Docker)
+
+Die Anwendung soll zusätzlich zu Docker auch auf einem klassischen LAMP-Server (PHP + Webserver + Datenbank) lauffähig sein.
+
+### Voraussetzungen
+
+* PHP 8.x (Extensions: pdo_mysql, mbstring, intl, zip)
+* Webserver: Apache oder Nginx
+* MySQL 8.x (oder kompatibel)
+* Composer verfügbar
+
+### Deployment (Kurzablauf)
+
+1. Projekt auf den Server kopieren (inkl. `backend/`).
+2. DocumentRoot des Webservers auf `backend/public` setzen.
+3. In `backend/` Abhängigkeiten installieren:
+
+```bash
+composer install --no-dev
+```
+
+4. `.env` anlegen/konfigurieren (DB/Mail/APP_URL) und Key generieren:
+
+```bash
+php artisan key:generate
+```
+
+5. Migrationen ausführen (optional inkl. Seeds, falls vorhanden):
+
+```bash
+php artisan migrate
+# optional später:
+# php artisan db:seed
+```
+
+Hinweis: Produktive Mail-Konfiguration (SMTP) kommt aus der Server-Umgebung. Mailhog ist nur für lokale Entwicklung gedacht.
 
 ```
 ::contentReference[oaicite:0]{index=0}
