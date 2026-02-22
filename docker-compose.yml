@@ -33,5 +33,16 @@ services:
       - "8025:8025"
       - "1025:1025"
 
+  node:
+    image: node:20-alpine
+    working_dir: /var/www/html/backend
+    volumes:
+      - ./:/var/www/html
+    ports:
+      - "5173:5173"
+    environment:
+      - CHOKIDAR_USEPOLLING=true
+    command: sh -lc "npm install && npm run dev -- --host 0.0.0.0 --port 5173"
+
 volumes:
   dbdata:
