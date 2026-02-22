@@ -1,0 +1,37 @@
+services:
+  web:
+    build:
+      context: .
+      dockerfile: docker/apache/Dockerfile
+    container_name: besucherportal-web
+    ports:
+      - "8080:80"
+    volumes:
+      - ./:/var/www/html
+    depends_on:
+      - db
+      - mailhog
+
+  db:
+    image: mysql:8.0
+    container_name: besucherportal-db
+    command: --default-authentication-plugin=mysql_native_password
+    environment:
+      MYSQL_DATABASE: visitorportal
+      MYSQL_USER: visitor
+      MYSQL_PASSWORD: visitor_pw
+      MYSQL_ROOT_PASSWORD: root_pw
+    ports:
+      - "3306:3306"
+    volumes:
+      - dbdata:/var/lib/mysql
+
+  mailhog:
+    image: mailhog/mailhog:latest
+    container_name: besucherportal-mailhog
+    ports:
+      - "8025:8025"
+      - "1025:1025"
+
+volumes:
+  dbdata:
