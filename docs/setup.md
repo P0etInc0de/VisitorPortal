@@ -17,6 +17,7 @@ docker compose up -d --build
 ````
 
 2. (Nur beim ersten Setup) Laravel-Projekt erzeugen
+   Bei uns liegt das Projekt in GitHub, Befehl nicht ausführen!
 
 ```bash
 docker compose exec web composer create-project laravel/laravel backend
