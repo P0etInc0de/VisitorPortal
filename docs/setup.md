@@ -53,6 +53,11 @@ MAIL_ENCRYPTION=null
 MAIL_FROM_ADDRESS=visitorportal@example.test
 MAIL_FROM_NAME="Besucherportal"
 ```
+installiert alle PHP-Abhängigkeiten, die in composer.json definiert sind
+```bash
+docker compose exec web bash -lc "cd backend && composer install"
+```
+Ergebnis: Alle Laravel-Pakete sind im Container verfügbar.
 
 4. App-Key generieren
 
@@ -151,6 +156,18 @@ php artisan key:generate
 php artisan migrate
 # optional später:
 # php artisan db:seed
+```
+
+## Cache leeren
+
+View-Cache leeren
+```bash
+docker compose exec web bash -lc "cd backend && php artisan view:clear"
+```
+
+Config-Cache leeren
+```bash
+docker compose exec web bash -lc "cd backend && php artisan config:clear"
 ```
 
 Hinweis: Produktive Mail-Konfiguration (SMTP) kommt aus der Server-Umgebung. Mailhog ist nur für lokale Entwicklung gedacht.
