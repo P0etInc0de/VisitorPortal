@@ -98,3 +98,30 @@ Kurze Architekturentscheidungen und Begründungen für das Projekt **Besucherpor
   - GitHub Repository Mary UI: https://github.com/robsontenorio/mary
 
 ---
+
+## ADR-005 Admin-Panel für interne Verwaltungsfunktionen
+
+- **Datum:** 2026-03-19
+- **Status:** Accepted
+- **Entscheidung:**
+  - Einsatz von **MoonShine** als Admin-Panel für interne Verwaltungsfunktionen unter `/admin`
+  - Einsatzbereich insbesondere für:
+    - Benutzerverwaltung
+    - Rollen- und Rechteverwaltung
+    - Standard-CRUD für administrative Daten
+    - interne Übersichts- und Pflegeoberflächen
+- **Begründung:**
+  - Für das Projekt werden interne Adminfunktionen benötigt, z. B. Benutzer bearbeiten, Datensätze verwalten und administrative Standardprozesse umsetzen
+  - MoonShine ist speziell als **Laravel Admin Panel** ausgelegt
+  - bringt bereits zentrale Bausteine für Admin-Oberflächen mit, z. B. **CRUD-Ressourcen, Formulare, Tabellen, Authentication und Authorization**
+  - reduziert den Aufwand gegenüber einer vollständigen Eigenentwicklung des Adminbereichs
+  - gut geeignet für schnelle und wartbare Backoffice-Oberflächen
+  - **MIT-lizenziert** und damit frei nutzbar, auch für spätere kommerzielle Weiterentwicklung
+  - aktive Weiterentwicklung des Projekts
+- **Abgrenzung:**
+  - MoonShine wird als Lösung für den **internen Adminbereich** eingesetzt
+  - Die eigentliche Portaloberfläche für reguläre Nutzer bleibt davon getrennt und wird nicht auf MoonShine aufgebaut
+
+- **Quellen:**
+  - MoonShine offizielle Website und Dokumentation
+  - MoonShine GitHub-Repository
