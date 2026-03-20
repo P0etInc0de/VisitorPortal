@@ -3,36 +3,47 @@
 namespace Database\Seeders;
 
 use App\Models\User;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Schema;
+use Spatie\Permission\Models\Permission;
+use Spatie\Permission\Models\Role;
+use Spatie\Permission\PermissionRegistrar;
 
 class DemoSeeder extends Seeder
 {
     public function run(): void
     {
-        $hasRoleColumn = Schema::hasColumn('users', 'role');
-        $hasDepartmentColumn = Schema::hasColumn('users', 'department');
+        // Reset cached roles and permissions
+        app()[PermissionRegistrar::class]->forgetCachedPermissions();
 
+        // Make Roles
+        $this->command?->info('Create Roles');
+
+        $roleEmployee = Role::firstOrCreate(['name' => 'employee']);
+        $roleAdmin = Role::firstOrCreate(['name' => 'super_admin']);
+
+
+
+        // Make Users
+        $hasDepartmentColumn = Schema::hasColumn('users', 'department');
         $defaultPassword = 'Passwort123!';
 
         $this->createOrUpdateUser(
             name: 'Admin Demo',
             email: 'admin@demo.local',
             password: $defaultPassword,
-            role: 'admin',
             department: 'IT/Administration',
-            hasRoleColumn: $hasRoleColumn,
             hasDepartmentColumn: $hasDepartmentColumn,
-        );
+        )->assignRole($roleAdmin);
 
         $this->createOrUpdateUser(
             name: 'Empfang Demo',
             email: 'empfang@demo.local',
             password: $defaultPassword,
-            role: 'reception',
             department: 'Empfang',
-            hasRoleColumn: $hasRoleColumn,
             hasDepartmentColumn: $hasDepartmentColumn,
         );
 
@@ -40,11 +51,9 @@ class DemoSeeder extends Seeder
             name: 'Mitarbeiter Demo',
             email: 'mitarbeiter@demo.local',
             password: $defaultPassword,
-            role: 'employee',
             department: 'Vertrieb',
-            hasRoleColumn: $hasRoleColumn,
             hasDepartmentColumn: $hasDepartmentColumn,
-        );
+        )->assignRole($roleEmployee);
 
         $this->command?->info('DemoSeeder ausgeführt.');
         $this->command?->info('Demo-Login (alle): Passwort123!');
@@ -57,26 +66,20 @@ class DemoSeeder extends Seeder
         string $name,
         string $email,
         string $password,
-        string $role,
         string $department,
-        bool $hasRoleColumn,
         bool $hasDepartmentColumn
-    ): void {
+    ):User|Model {
         $data = [
             'name' => $name,
             'email_verified_at' => now(),
             'password' => Hash::make($password),
         ];
 
-        if ($hasRoleColumn) {
-            $data['role'] = $role;
-        }
-
         if ($hasDepartmentColumn) {
             $data['department'] = $department;
         }
 
-        User::query()->updateOrCreate(
+        return User::query()->updateOrCreate(
             ['email' => $email],
             $data
         );
