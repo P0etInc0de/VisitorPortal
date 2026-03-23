@@ -1,5 +1,3 @@
-
-```md
 # Rollenmodell (für MVP)
 
 Das System nutzt ein Rollen- und Rechtesystem zur Trennung von Standard- und Administrationsfunktionen.
@@ -23,3 +21,4 @@ Das System nutzt ein Rollen- und Rechtesystem zur Trennung von Standard- und Adm
 - Mitarbeiter: nur eigene Besuche sichtbar/editierbar (sofern Status “geplant”).
 - Empfang: Zugriff auf Today-Queue und Check-in/Badge-Funktionen.
 - Admin: Zugriff auf alles.
+

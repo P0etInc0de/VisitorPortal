@@ -1,5 +1,4 @@
 
-```md
 # Konfiguration
 
 Konfiguration erfolgt über `backend/.env`. Diese Datei wird nicht versioniert und darf nicht committed werden.

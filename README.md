@@ -15,6 +15,7 @@ Webbasiertes Besucherportal (Laravel) zur Planung und Abwicklung von Firmenbesuc
 ## Doku
 - Setup: `docs/setup.md`
 - Entscheidungen (ADR): `docs/decisions.md` (in Arbeit)
+- Rollen und Berechtigungen: `docs/Rollenmodell.md`
 
 ## Projektorganisation
 Weitere Arbeitsdokumente (Protokolle/Entwürfe) liegen in MS Teams. Der reproduzierbare Projektstand (Code + zentrale Doku) liegt in diesem Repository.
