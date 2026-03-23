@@ -29,6 +29,7 @@ Kurze Architekturentscheidungen und Begründungen für das Projekt **Besucherpor
 - **Status:** Accepted
 - **Entscheidung:**
   - Einsatz von **spatie/laravel-permission** als Basis für Rollen und Berechtigungen
+  - Verwaltung der Rollen im Admin-Panel über Filament Shield
 - **Begründung:**
   - etablierte Standardlösung im Laravel-Umfeld
   - **MIT-lizenziert**
@@ -41,6 +42,7 @@ Kurze Architekturentscheidungen und Begründungen für das Projekt **Besucherpor
   - Spatie Laravel Permission, Blade Directives: https://spatie.be/docs/laravel-permission/v7/basic-usage/blade-directives
   - Spatie Laravel Permission, Using Policies: https://spatie.be/docs/laravel-permission/v7/best-practices/using-policies
   - GitHub Repository: https://github.com/spatie/laravel-permission
+  - Filament Shield: https://filamentphp.com/plugins/bezhansalleh-shield
 
 ---
 
@@ -104,24 +106,24 @@ Kurze Architekturentscheidungen und Begründungen für das Projekt **Besucherpor
 - **Datum:** 2026-03-19
 - **Status:** Accepted
 - **Entscheidung:**
-  - Einsatz von **MoonShine** als Admin-Panel für interne Verwaltungsfunktionen unter `/admin`
+  - Einsatz von **Laravel Filament** als Admin-Panel für interne Verwaltungsfunktionen unter `/admin`
   - Einsatzbereich insbesondere für:
     - Benutzerverwaltung
-    - Rollen- und Rechteverwaltung
+    - Rollen- und Rechteverwaltung (mittels Plugin Filament Shield / Spatie)
     - Standard-CRUD für administrative Daten
     - interne Übersichts- und Pflegeoberflächen
 - **Begründung:**
   - Für das Projekt werden interne Adminfunktionen benötigt, z. B. Benutzer bearbeiten, Datensätze verwalten und administrative Standardprozesse umsetzen
-  - MoonShine ist speziell als **Laravel Admin Panel** ausgelegt
-  - bringt bereits zentrale Bausteine für Admin-Oberflächen mit, z. B. **CRUD-Ressourcen, Formulare, Tabellen, Authentication und Authorization**
-  - reduziert den Aufwand gegenüber einer vollständigen Eigenentwicklung des Adminbereichs
-  - gut geeignet für schnelle und wartbare Backoffice-Oberflächen
-  - **MIT-lizenziert** und damit frei nutzbar, auch für spätere kommerzielle Weiterentwicklung
-  - aktive Weiterentwicklung des Projekts
+  - Das riesige Plugin-Ökosystem (z. B. Filament Shield für eine sofort einsatzbereite Spatie-Rechteverwaltung) reduziert den Entwicklungsaufwand massiv
+  - Filament bringt extrem mächtige Kernkomponenten mit (Form Builder, Table Builder), die komplexe Anforderungen (Filter, Relationen, Repeater) out-of-the-box abdecken
+  - Filament ist MIT-lizenziert und damit frei nutzbar, auch für spätere kommerzielle Weiterentwicklung
+  - Sehr große, aktive Community, was langfristigen Support garantiert
 - **Abgrenzung:**
-  - MoonShine wird als Lösung für den **internen Adminbereich** eingesetzt
-  - Die eigentliche Portaloberfläche für reguläre Nutzer bleibt davon getrennt und wird nicht auf MoonShine aufgebaut
-
+  - Filament wird als Lösung für den **internen Adminbereich** eingesetzt
+  - Die eigentliche Portaloberfläche für reguläre Nutzer bleibt davon getrennt und wird nicht auf Laravel Filament aufgebaut
+- **Verworfene Alternativen:**
+  - MoonShine: Wurde als leichtgewichtige Alternative evaluiert. Die Entscheidung fiel jedoch gegen MoonShine und für Filament, da Filament ein deutlich größeres Plugin-Ökosystem bietet. Zudem ist die Verbreitung von Filament im Laravel-Umfeld spürbar höher. 
+  - Vollständige Eigenentwicklung: Wurde verworfen, da der initiale Entwicklungs- und spätere Wartungsaufwand für Standard-Admin-Funktionen (Tabellen, Formulare, Auth) in keinem wirtschaftlichen Verhältnis zum Nutzen steht.
 - **Quellen:**
-  - MoonShine offizielle Website und Dokumentation
-  - MoonShine GitHub-Repository
+  - Filament offizielle Website und Dokumentation (filamentphp.com)
+  - Filament GitHub-Repository

@@ -1,4 +1,4 @@
-````md
+
 # Setup
 
 Dieses Projekt ist für lokale Entwicklung/Testbetrieb per Docker Compose ausgelegt (Apache + PHP + MySQL + Mailhog).  
@@ -71,7 +71,13 @@ docker compose exec web php backend/artisan key:generate
 docker compose exec web bash -lc "cd backend && php artisan migrate"
 ```
 
-6. Browser öffnen
+6. Datenbank mit Test-Daten befüllen (Seeding)
+
+```bash
+docker compose exec web php artisan migrate:fresh --seed
+```
+
+7. Browser öffnen
 
 * App: [http://localhost:8080](http://localhost:8080)
 * Mailhog UI: [http://localhost:8025](http://localhost:8025)

@@ -14,9 +14,13 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        $this->call([
-            ShieldSeeder::class,
-            DemoSeeder::class,
-        ]);
+        /*
+        * The ShieldSeeder is auto generated:
+        * - Scan the app/Filament folder for resources and generate CRUD permissions: `php artisan shield:generate --all`
+        * - Auto-Generate a Seeder for the current shield database: `php artisan shield:seeder`
+        */
+        $this->call(ShieldSeeder::class);
+
+        $this->call(DemoSeeder::class);
     }
 }
