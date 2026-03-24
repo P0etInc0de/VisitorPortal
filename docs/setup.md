@@ -17,10 +17,10 @@ docker compose up -d --build
 ````
 
 2. (Nur beim ersten Setup) Laravel-Projekt erzeugen
-   Bei uns liegt das Projekt in GitHub, Befehl nicht ausführen!
+   Bei uns liegt das Projekt in GitHub, *Befehl nicht ausführen!*
 
 ```bash
-docker compose exec web composer create-project laravel/laravel backend
+docker compose exec web composer create-project laravel/laravel .
 ```
 
 3. `.env` anlegen und konfigurieren
@@ -55,26 +55,26 @@ MAIL_FROM_NAME="Besucherportal"
 ```
 installiert alle PHP-Abhängigkeiten, die in composer.json definiert sind
 ```bash
-docker compose exec web bash -lc "cd backend && composer install"
+docker compose exec web bash -lc "composer install"
 ```
 Ergebnis: Alle Laravel-Pakete sind im Container verfügbar.
 
 4. App-Key generieren
 
 ```bash
-docker compose exec web php backend/artisan key:generate
+docker compose exec web php artisan key:generate
 ```
 
 5. Migrationen ausführen
 
 ```bash
-docker compose exec web bash -lc "cd backend && php artisan migrate"
+docker compose exec web bash -lc "php artisan migrate"
 ```
 
 6. Datenbank mit Test-Daten befüllen (Seeding)
 
 ```bash
-docker compose exec web php artisan migrate:fresh --seed
+docker compose exec web php bash -lc "artisan migrate:fresh --seed"
 ```
 
 7. Browser öffnen
@@ -116,12 +116,11 @@ docker compose down -v
 
 ```bash
 docker compose exec web bash -lc "
-cd backend &&
 mkdir -p storage/framework/{cache,sessions,views} bootstrap/cache &&
 chmod -R 775 storage bootstrap/cache &&
 chown -R www-data:www-data storage bootstrap/cache 2>/dev/null || true
 "
-docker compose exec web bash -lc "cd backend && php artisan view:clear"
+docker compose exec web bash -lc "php artisan view:clear"
 ```
 
 - Wenn Dropdowns/Buttons im Breeze-Layout (z.B. User-Menü/Logout) nicht reagieren: Breeze nutzt Alpine.js. Prüfen, ob Alpine installiert ist und in `resources/js/app.js` gestartet wird. Danach Vite neu starten.
@@ -159,21 +158,24 @@ php artisan key:generate
 5. Migrationen ausführen (optional inkl. Seeds, falls vorhanden):
 
 ```bash
-php artisan migrate
-# optional später:
-# php artisan db:seed
+docker compose exec web php bash -lc "artisan migrate:fresh --seed"
 ```
 
 ## Cache leeren
 
+Clear: View, Config, Routes, Events, App-Cache
+```bash
+docker compose exec web php artisan optimize:clear
+```
+
 View-Cache leeren
 ```bash
-docker compose exec web bash -lc "cd backend && php artisan view:clear"
+docker compose exec web php artisan view:clear
 ```
 
 Config-Cache leeren
 ```bash
-docker compose exec web bash -lc "cd backend && php artisan config:clear"
+docker compose exec web php artisan config:clear
 ```
 
 Hinweis: Produktive Mail-Konfiguration (SMTP) kommt aus der Server-Umgebung. Mailhog ist nur für lokale Entwicklung gedacht.

@@ -17,13 +17,7 @@ COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 # Apache vHost für Laravel in /backend/public
 COPY docker/apache/000-default.conf /etc/apache2/sites-available/000-default.conf
 
-#Launch entry script
-COPY docker/apache/entrypoint.sh /usr/local/bin/entrypoint.sh
-RUN chmod +x /usr/local/bin/entrypoint.sh
-
 WORKDIR /var/www/html/backend
-
-ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
 
 #Start Apache
 CMD ["apache2-foreground"]

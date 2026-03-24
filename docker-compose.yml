@@ -11,6 +11,7 @@ services:
     depends_on:
       - db
       - mailhog
+    user: "${UID:-1000}:${GID:-1000}"
 
   db:
     image: mysql:8.0
