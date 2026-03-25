@@ -3,7 +3,9 @@
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
-    return view('public.home');
+    return auth()->check()
+        ? redirect()->route('dashboard')
+        : redirect()->route('login');
 })->name('home');
 
 Route::middleware(['auth', 'verified'])->group(function () {
@@ -14,8 +16,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     Route::view('/reception', 'reception.dashboard')->name('reception.dashboard');
 
+    Route::view('/monitor/live', 'monitor.show')->name('monitor.live');
     Route::view('/monitor/editor', 'monitor.editor')->name('monitor.editor');
-    Route::view('/monitor/live', 'monitor.show')->name('monitor.show');
 });
 
-require __DIR__.'/auth.php';
+require __DIR__ . '/auth.php';
