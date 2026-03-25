@@ -1,6 +1,6 @@
 <?php
 
-namespace app\Mail\Host;
+namespace app\Mail\Guest;
 
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
@@ -8,7 +8,7 @@ use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
 
-class SingleVisitReminder extends Mailable
+class SingleVisitReminderMail extends Mailable
 {
     use Queueable, SerializesModels;
 
@@ -26,7 +26,7 @@ class SingleVisitReminder extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Host Single Visit Reminder',
+            subject: 'Guest Single Visit Reminder',
         );
     }
 
@@ -36,7 +36,7 @@ class SingleVisitReminder extends Mailable
     public function content(): Content
     {
         return new Content(
-            markdown: 'mail.host.singleVisitReminder',
+            markdown: 'mail.guest.singleVisitReminder',
         );
     }
 

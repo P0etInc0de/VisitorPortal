@@ -2,7 +2,9 @@
 
 namespace app\Notifications\Host;
 
+use app\Mail\Host\GuestCheckedInMail;
 use Illuminate\Bus\Queueable;
+use Illuminate\Mail\Mailable;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
@@ -31,12 +33,9 @@ class GuestCheckedIn extends Notification
     /**
      * Get the mail representation of the notification.
      */
-    public function toMail(object $notifiable): MailMessage
+    public function toMail(object $notifiable): Mailable
     {
-        return (new MailMessage)
-            ->line('The introduction to the notification.')
-            ->action('Notification Action', url('/'))
-            ->line('Thank you for using our application!');
+        return (new GuestCheckedInMail())->to($notifiable->email);
     }
 
     /**

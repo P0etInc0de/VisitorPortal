@@ -8,7 +8,7 @@ use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
 
-class VisitReminderDaily extends Mailable
+class SingleVisitReminderMail extends Mailable
 {
     use Queueable, SerializesModels;
 
@@ -26,7 +26,7 @@ class VisitReminderDaily extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Host Visit Reminder Daily',
+            subject: 'Host Single Visit Reminder',
         );
     }
 
@@ -36,7 +36,7 @@ class VisitReminderDaily extends Mailable
     public function content(): Content
     {
         return new Content(
-            markdown: 'mail.host.visitReminderDaily',
+            markdown: 'mail.host.singleVisitReminder',
         );
     }
 
