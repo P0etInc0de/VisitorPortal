@@ -8,7 +8,7 @@ use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
 
-class visitCreated extends Mailable
+class VisitCreated extends Mailable
 {
     use Queueable, SerializesModels;
 
@@ -36,7 +36,7 @@ class visitCreated extends Mailable
     public function content(): Content
     {
         return new Content(
-            markdown: 'mail.reminder.guestVisitCreated',
+            markdown: 'mail.guest.visitCreated',
         );
     }
 

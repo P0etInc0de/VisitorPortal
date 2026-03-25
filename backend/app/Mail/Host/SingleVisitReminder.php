@@ -36,7 +36,7 @@ class SingleVisitReminder extends Mailable
     public function content(): Content
     {
         return new Content(
-            markdown: 'mail.reminder.hostSingleVisitReminder',
+            markdown: 'mail.host.singleVisitReminder',
         );
     }
 
