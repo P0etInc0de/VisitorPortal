@@ -36,7 +36,7 @@ class VisitCreated extends Mailable
     public function content(): Content
     {
         return new Content(
-            markdown: 'mail.reminder.hostVisitCreated',
+            markdown: 'mail.host.visitCreated',
         );
     }
 

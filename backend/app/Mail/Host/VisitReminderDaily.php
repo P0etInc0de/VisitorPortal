@@ -36,7 +36,7 @@ class VisitReminderDaily extends Mailable
     public function content(): Content
     {
         return new Content(
-            markdown: 'mail.reminder.hostVisitReminderDaily',
+            markdown: 'mail.host.visitReminderDaily',
         );
     }
 
