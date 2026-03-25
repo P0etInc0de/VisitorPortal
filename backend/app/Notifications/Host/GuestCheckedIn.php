@@ -1,14 +1,12 @@
 <?php
 
-namespace App\Notifications\Host;
+namespace app\Notifications\Host;
 
-use App\Mail\Host\GuestCheckedInMail;
 use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Mail\Mailable;
+use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
-class GuestCheckedIn extends Notification implements ShouldQueue
+class GuestCheckedIn extends Notification
 {
     use Queueable;
 
@@ -33,9 +31,12 @@ class GuestCheckedIn extends Notification implements ShouldQueue
     /**
      * Get the mail representation of the notification.
      */
-    public function toMail(object $notifiable): Mailable
+    public function toMail(object $notifiable): MailMessage
     {
-        return (new GuestCheckedInMail)->to($notifiable->email);
+        return (new MailMessage)
+            ->line('The introduction to the notification.')
+            ->action('Notification Action', url('/'))
+            ->line('Thank you for using our application!');
     }
 
     /**

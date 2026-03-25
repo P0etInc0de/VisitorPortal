@@ -1,14 +1,12 @@
 <?php
 
-namespace App\Notifications\Host;
+namespace app\Notifications\Host;
 
-use App\Mail\Host\VisitCreatedMail;
 use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Mail\Mailable;
+use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
-class VisitCreated extends Notification implements ShouldQueue
+class VisitCreated extends Notification
 {
     use Queueable;
 
@@ -33,9 +31,12 @@ class VisitCreated extends Notification implements ShouldQueue
     /**
      * Get the mail representation of the notification.
      */
-    public function toMail(object $notifiable): Mailable
+    public function toMail(object $notifiable): MailMessage
     {
-        return (new VisitCreatedMail)->to($notifiable->email);
+        return (new MailMessage)
+            ->line('The introduction to the notification.')
+            ->action('Notification Action', url('/'))
+            ->line('Thank you for using our application!');
     }
 
     /**
