@@ -52,12 +52,12 @@ return [
 
     'channels' => [
 
-        // TODO: define log-environment variables (LOG_LEVEL, LOG_DAYS)
+        // TODO: define log-environment variables (LOG_LEVEL, LOG_DAYS): set LOG_CHANNEL=daily, add LOG_DAYS=14
 
         // Combines database, daily and error logs
         'db' => [
             'driver' => 'stack',
-            'channels' => ['database_log', 'daily', 'error_log'],
+            'channels' => ['database_log', 'daily'],
             'ignore_exceptions' => false, // If something goes wrong while logging → throw Exception
             // Change it to 'true' when development finished
         ],
@@ -65,14 +65,14 @@ return [
         // Combines web, daily and error logs
         'web' => [
             'driver' => 'stack',
-            'channels' => ['web_log', 'daily', 'error_log'],
+            'channels' => ['web_log', 'daily'],
             'ignore_exceptions' => false,
         ],
 
         // Combines mail, daily and error logs
         'mail' => [
             'driver' => 'stack',
-            'channels' => ['mail_log', 'daily', 'error_log'],
+            'channels' => ['mail_log', 'daily'],
             'ignore_exceptions' => false,
         ],
 
@@ -81,7 +81,7 @@ return [
         'database_log' => [
             'driver' => 'daily',
             'name' => 'DATABASE',
-            'path' => storage_path('logs/database.log'),
+            'path' => storage_path('logs/database/database.log'),
             'level' => env('LOG_LEVEL', 'info'),
             'days' => env('LOG_DAYS', 14),
             'replace_placeholders' => true,
@@ -91,7 +91,7 @@ return [
         'web_log' => [
             'driver' => 'daily',
             'name' => 'WEB',
-            'path' => storage_path('logs/web.log'),
+            'path' => storage_path('logs/web/web.log'),
             'level' => env('LOG_LEVEL', 'info'),
             'days' => env('LOG_DAYS', 14),
             'replace_placeholders' => true,
@@ -101,7 +101,7 @@ return [
         'mail_log' => [
             'driver' => 'daily',
             'name' => 'MAIL',
-            'path' => storage_path('logs/mail.log'),
+            'path' => storage_path('logs/mail/mail.log'),
             'level' => env('LOG_LEVEL', 'info'),
             'days' => env('LOG_DAYS', 14),
             'replace_placeholders' => true,
@@ -124,7 +124,7 @@ return [
 
         'daily' => [
             'driver' => 'daily',
-            'path' => storage_path('logs/laravel.log'),
+            'path' => storage_path('logs/daily/laravel.log'),
             'level' => env('LOG_LEVEL', 'debug'),
             'days' => env('LOG_DAILY_DAYS', 14),
             'replace_placeholders' => true,
