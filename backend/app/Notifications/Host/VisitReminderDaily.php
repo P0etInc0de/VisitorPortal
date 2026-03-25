@@ -1,12 +1,12 @@
 <?php
 
-namespace app\Notifications\Guest;
+namespace app\Notifications\Host;
 
 use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
-class VisitReminder extends Notification
+class VisitReminderDaily extends Notification
 {
     use Queueable;
 

@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Notifications;
+namespace app\Notifications;
 
 use App\Mail\MarkdownMail;
 use App\Models\User;

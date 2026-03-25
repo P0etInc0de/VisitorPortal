@@ -6,7 +6,7 @@ use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
-class VisitReminder extends Notification
+class SingleVisitReminder extends Notification
 {
     use Queueable;
 
