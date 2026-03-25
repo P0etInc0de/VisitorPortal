@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Mail\Host;
+namespace app\Mail\Host;
 
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
@@ -26,7 +26,7 @@ class GuestCheckedInMail extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Gast eingecheckt',
+            subject: 'Guest Checked In',
         );
     }
 

@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Mail\Guest;
+namespace app\Mail\Guest;
 
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
@@ -26,7 +26,7 @@ class VisitCreatedMail extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Ihr Besuch bei [Company] wurde registriert',
+            subject: 'Guest Visit Created',
         );
     }
 
