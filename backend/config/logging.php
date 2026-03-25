@@ -52,9 +52,7 @@ return [
 
     'channels' => [
 
-        // TODO: define log-environment variables (LOG_LEVEL, LOG_DAYS): set LOG_CHANNEL=daily, add LOG_DAYS=14
-
-        // Combines database, daily and error logs
+        // Combines database and error
         'db' => [
             'driver' => 'stack',
             'channels' => ['database_log', 'daily'],
@@ -62,14 +60,14 @@ return [
             // Change it to 'true' when development finished
         ],
 
-        // Combines web, daily and error logs
+        // Combines web and daily
         'web' => [
             'driver' => 'stack',
             'channels' => ['web_log', 'daily'],
             'ignore_exceptions' => false,
         ],
 
-        // Combines mail, daily and error logs
+        // Combines mail and daily
         'mail' => [
             'driver' => 'stack',
             'channels' => ['mail_log', 'daily'],
