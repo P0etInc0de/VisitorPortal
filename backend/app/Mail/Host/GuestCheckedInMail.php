@@ -26,7 +26,7 @@ class GuestCheckedInMail extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Guest Checked In',
+            subject: 'Gast eingecheckt',
         );
     }
 

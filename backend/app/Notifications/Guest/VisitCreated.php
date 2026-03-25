@@ -2,7 +2,7 @@
 
 namespace app\Notifications\Guest;
 
-use app\Mail\Guest\VisitCreatedMail;
+use App\Mail\Guest\VisitCreatedMail;
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
 use Illuminate\Notifications\Messages\MailMessage;

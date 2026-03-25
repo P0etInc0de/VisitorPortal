@@ -2,7 +2,7 @@
 
 namespace app\Notifications\Host;
 
-use app\Mail\Host\GuestCheckedInMail;
+use App\Mail\Host\GuestCheckedInMail;
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
 use Illuminate\Notifications\Messages\MailMessage;

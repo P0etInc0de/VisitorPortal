@@ -2,7 +2,7 @@
 
 namespace app\Notifications\Host;
 
-use app\Mail\Host\VisitCreatedMail;
+use App\Mail\Host\VisitCreatedMail;
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
 use Illuminate\Notifications\Notification;

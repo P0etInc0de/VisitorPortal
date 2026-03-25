@@ -1,11 +1,21 @@
 <x-mail::message>
-# Introduction
+# Termin für Ihren Besuch
 
-The body of your message.
+Sehr geehrter [Kunde],
+
+wir freuen und sehr über Ihren Besuch.
+
+<x-mail::table>
+    | Eigenschaft   | Information   |
+    | ------------- | :-----------: |
+    | Name          | test          |
+    | Firma         | test          |
+</x-mail::table>
 
 <x-mail::button :url="''">
-Button Text
+    Weiter Informationen
 </x-mail::button>
+
 
 Thanks,<br>
 {{ config('app.name') }}

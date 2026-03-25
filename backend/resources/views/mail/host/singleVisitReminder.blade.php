@@ -1,11 +1,19 @@
 <x-mail::message>
-# Introduction
+# Besuch Erinnerung
 
-The body of your message.
+Sie haben bald folgenden Besuch:
+
+<x-mail::table>
+    | Eigenschaft   | Information   |
+    | ------------- | :-----------: |
+    | Name          | test          |
+    | Firma         | test          |
+</x-mail::table>
 
 <x-mail::button :url="''">
-Button Text
+    Weiter Informationen
 </x-mail::button>
+
 
 Thanks,<br>
 {{ config('app.name') }}

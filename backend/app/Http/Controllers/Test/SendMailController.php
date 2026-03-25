@@ -3,7 +3,10 @@
 namespace app\Http\Controllers\Test;
 
 use App\Http\Controllers\Controller;
+use App\Mail\Host\SingleVisitReminderMail;
 use App\Mail\MarkdownMail;
+use App\Models\User;
+use App\Notifications\Host\GuestCheckedIn;
 use App\Notifications\TestNotification;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Notification;

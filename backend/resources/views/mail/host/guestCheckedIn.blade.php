@@ -1,10 +1,17 @@
 <x-mail::message>
-# Introduction
+# Besuch eingetroffen
 
-The body of your message.
+Soeben ist folgender Besuch bei uns eingetroffen
+
+<x-mail::table>
+    | Eigenschaft   | Information   |
+    | ------------- | :-----------: |
+    | Name          | test          |
+    | Firma         | test          |
+</x-mail::table>
 
 <x-mail::button :url="''">
-Button Text
+    Weiter Informationen
 </x-mail::button>
 
 Thanks,<br>
