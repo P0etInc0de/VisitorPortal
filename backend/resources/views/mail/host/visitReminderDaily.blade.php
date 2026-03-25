@@ -1,21 +1,11 @@
 <x-mail::message>
-# Anstehende Besuche
+# Introduction
 
-Guten Morgen [Mitarbeiter],
-
-Sie bekommen heute Folgende Besuche:
-
-<x-mail::table>
-    | Name          | Uhrzeit       | Notizen       |
-    | ------------- | :-----------: | ------------: |
-    | Col 2 is      | Centered      | test          |
-    | Col 3 is      | Right-Aligned | test          |
-</x-mail::table>
+The body of your message.
 
 <x-mail::button :url="''">
-    Weiter Informationen
+Button Text
 </x-mail::button>
-
 
 Thanks,<br>
 {{ config('app.name') }}
