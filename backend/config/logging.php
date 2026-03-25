@@ -52,6 +52,43 @@ return [
 
     'channels' => [
 
+        // TODO: define log-environment variables (LOG_LEVEL, LOG_DAYS)
+        // Individual channels:
+
+
+        // Channel combining all individual channels
+        'combining_log' => [
+            'driver' => 'stack',
+            'channels' => ['database_log', 'web_log', 'mail_log'],
+            'ignore_exceptions' => false,   // If something goes wrong while logging → throw Exception
+            // Change it to 'true' when development finished
+        ],
+
+
+        // Database channel
+        'database_log' => [
+            'driver' => 'daily',
+            'path' => storage_path('logs/database.log'),
+            'level' => env('LOG_LEVEL', 'error'),
+            'days' => env('LOG_DAYS', 14),
+        ],
+
+        // Web channel
+        'web_log' => [
+            'driver' => 'daily',
+            'path' => storage_path('logs/web.log'),
+            'level' => env('LOG_LEVEL', 'error'),
+            'days' => env('LOG_DAYS', 14),
+        ],
+
+        // Mail channel
+        'mail_log' => [
+            'driver' => 'daily',
+            'path' => storage_path('logs/mail.log'),
+            'level' => env('LOG_LEVEL', 'error'),
+            'days' => env('LOG_DAYS', 14),
+        ],
+
         'stack' => [
             'driver' => 'stack',
             'channels' => explode(',', (string) env('LOG_STACK', 'single')),
