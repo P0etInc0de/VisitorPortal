@@ -69,7 +69,7 @@ return [
         'database_log' => [
             'driver' => 'daily',
             'path' => storage_path('logs/database.log'),
-            'level' => env('LOG_LEVEL', 'error'),
+            'level' => env('LOG_LEVEL', 'info'),
             'days' => env('LOG_DAYS', 14),
         ],
 
@@ -77,7 +77,7 @@ return [
         'web_log' => [
             'driver' => 'daily',
             'path' => storage_path('logs/web.log'),
-            'level' => env('LOG_LEVEL', 'error'),
+            'level' => env('LOG_LEVEL', 'info'),
             'days' => env('LOG_DAYS', 14),
         ],
 
@@ -85,7 +85,7 @@ return [
         'mail_log' => [
             'driver' => 'daily',
             'path' => storage_path('logs/mail.log'),
-            'level' => env('LOG_LEVEL', 'error'),
+            'level' => env('LOG_LEVEL', 'info'),
             'days' => env('LOG_DAYS', 14),
         ],
 
