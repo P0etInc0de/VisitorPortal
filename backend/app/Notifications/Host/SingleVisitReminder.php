@@ -2,7 +2,7 @@
 
 namespace app\Notifications\Host;
 
-use app\Mail\Host\SingleVisitReminderMail;
+use App\Mail\Host\SingleVisitReminderMail;
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
 use Illuminate\Notifications\Notification;

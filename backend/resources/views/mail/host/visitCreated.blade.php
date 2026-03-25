@@ -1,10 +1,17 @@
 <x-mail::message>
-# Introduction
+# Neuen Besuch erstellt
 
-The body of your message.
+Sie haben soeben folgenden Besuch erstellt:
+
+<x-mail::table>
+    | Eigenschaft   | Information   |
+    | ------------- | :-----------: |
+    | Name          | test          |
+    | Firma         | test          |
+</x-mail::table>
 
 <x-mail::button :url="''">
-Button Text
+    Weiter Informationen
 </x-mail::button>
 
 Thanks,<br>

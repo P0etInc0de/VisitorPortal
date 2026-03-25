@@ -2,7 +2,7 @@
 
 namespace app\Notifications\Guest;
 
-use app\Mail\Guest\SingleVisitReminderMail;
+use App\Mail\Guest\SingleVisitReminderMail;
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
 use Illuminate\Notifications\Messages\MailMessage;
