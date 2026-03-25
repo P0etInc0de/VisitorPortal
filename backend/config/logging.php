@@ -18,7 +18,7 @@ return [
     |
     */
 
-    'default' => env('LOG_CHANNEL', 'stack'),
+    'default' => env('LOG_CHANNEL', 'daily'),
 
     /*
     |--------------------------------------------------------------------------
@@ -53,41 +53,61 @@ return [
     'channels' => [
 
         // TODO: define log-environment variables (LOG_LEVEL, LOG_DAYS)
-        // Individual channels:
 
-
-        // Channel combining all individual channels
-        'combining_log' => [
+        // Combines database, daily and error logs
+        'db' => [
             'driver' => 'stack',
-            'channels' => ['database_log', 'web_log', 'mail_log'],
-            'ignore_exceptions' => false,   // If something goes wrong while logging → throw Exception
+            'channels' => ['database_log', 'daily', 'error_log'],
+            'ignore_exceptions' => false, // If something goes wrong while logging → throw Exception
             // Change it to 'true' when development finished
+        ],
+
+        // Combines web, daily and error logs
+        'web' => [
+            'driver' => 'stack',
+            'channels' => ['web_log', 'daily', 'error_log'],
+            'ignore_exceptions' => false,
+        ],
+
+        // Combines mail, daily and error logs
+        'mail' => [
+            'driver' => 'stack',
+            'channels' => ['mail_log', 'daily', 'error_log'],
+            'ignore_exceptions' => false,
         ],
 
 
         // Database channel
         'database_log' => [
             'driver' => 'daily',
+            'name' => 'DATABASE',
             'path' => storage_path('logs/database.log'),
             'level' => env('LOG_LEVEL', 'info'),
             'days' => env('LOG_DAYS', 14),
+            'replace_placeholders' => true,
         ],
 
         // Web channel
         'web_log' => [
             'driver' => 'daily',
+            'name' => 'WEB',
             'path' => storage_path('logs/web.log'),
             'level' => env('LOG_LEVEL', 'info'),
             'days' => env('LOG_DAYS', 14),
+            'replace_placeholders' => true,
         ],
 
         // Mail channel
         'mail_log' => [
             'driver' => 'daily',
+            'name' => 'MAIL',
             'path' => storage_path('logs/mail.log'),
             'level' => env('LOG_LEVEL', 'info'),
             'days' => env('LOG_DAYS', 14),
+            'replace_placeholders' => true,
         ],
+
+        // Pre-defined channels:
 
         'stack' => [
             'driver' => 'stack',
@@ -151,7 +171,7 @@ return [
 
         'errorlog' => [
             'driver' => 'errorlog',
-            'level' => env('LOG_LEVEL', 'debug'),
+            'level' => env('LOG_LEVEL', 'error'),
             'replace_placeholders' => true,
         ],
 
