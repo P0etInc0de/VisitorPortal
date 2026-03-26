@@ -40,8 +40,9 @@ Innerhalb eines Controllers oder einer PHP-Klasse können wir einfach folgenden 
 
 Standardmäßig verwendet Laravel den Mailer, der in der Konfigurationsdatei als Standard (Default) hinterlegt ist (in unserem Fall **SMTP**). Eine weitere (und oft bessere) Option ist die Verwendung von **Laravel Notifications**.
 
-### Queuing (siehe  docs/Queues.md)
+### Queuing (see [[Laravel Queues]])
 
+_(Siehe auch Abschnitt: Laravel Queues)_
 Um die E-Mail asynchron im Hintergrund zu versenden, nutzt man:
 
 ```php
