@@ -12,17 +12,18 @@ use Illuminate\Support\Facades\Notification;
 
 class DailyVisitorReminder
 {
+    /*
+     * Notify employees if they have visitors today
+     * Shall run at 7am every day
+     * Might be extended to notify the visitor as well...
+     * */
     public function __invoke(): void
     {
-        //Get Visits of today from Model
-        //foreach visit, -> notify the host and the visitor
-
         //Testing
         Notification::send(User::first(), new VisitCreated());
         Notification::send(User::first(), new \App\Notifications\Host\VisitCreated());
         Notification::send(User::first(), new SingleVisitReminder());
         Notification::send(User::first(), new GuestCheckedIn());
         Notification::send(User::first(), new VisitReminderDaily());
-        // In the future, we need to use a queue
     }
 }
