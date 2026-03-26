@@ -8,4 +8,5 @@ Artisan::command('inspire', function () {
     $this->comment(Inspiring::quote());
 })->purpose('Display an inspiring quote');
 
-Schedule::call(new DailyVisitorReminder())->everyMinute();
+//Enable this and connect to mailhog to check if the Scheduler works
+//Schedule::call(new DailyVisitorReminder())->everyMinute();

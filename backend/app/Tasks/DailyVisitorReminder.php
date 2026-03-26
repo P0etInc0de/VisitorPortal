@@ -1,6 +1,6 @@
 <?php
 
-namespace app\Tasks;
+namespace App\Tasks;
 
 
 use App\Models\User;

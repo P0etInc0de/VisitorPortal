@@ -1,13 +1,14 @@
 <?php
 
-namespace app\Notifications\Host;
+namespace App\Notifications\Host;
 
 use App\Mail\Host\SingleVisitReminderMail;
 use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
 use Illuminate\Notifications\Notification;
 
-class SingleVisitReminder extends Notification
+class SingleVisitReminder extends Notification implements ShouldQueue
 {
     use Queueable;
 

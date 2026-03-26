@@ -13,6 +13,34 @@ services:
       - mailhog
     user: "${UID:-1000}:${GID:-1000}"
 
+  queue:
+    build:
+      context: .
+      dockerfile: docker/apache/Dockerfile
+    container_name: besucherportal-queue
+    command: php artisan queue:work
+    volumes:
+      - ./:/var/www/html
+    depends_on:
+      db:
+        condition: service_healthy
+      mailhog:
+        condition: service_started
+    user: "${UID:-1000}:${GID:-1000}"
+
+  scheduler:
+    build:
+      context: .
+      dockerfile: docker/apache/Dockerfile
+    container_name: besucherportal-scheduler
+    command: php artisan schedule:work
+    volumes:
+      - ./:/var/www/html
+    depends_on:
+      db:
+        condition: service_healthy
+    user: "${UID:-1000}:${GID:-1000}"
+
   db:
     image: mysql:8.0
     container_name: besucherportal-db
@@ -26,6 +54,11 @@ services:
       - "3306:3306"
     volumes:
       - dbdata:/var/lib/mysql
+    healthcheck:
+      test: [ "CMD", "mysqladmin" ,"ping", "-h", "localhost" ]
+      interval: 10s
+      timeout: 20s
+      retries: 3
 
   mailhog:
     image: mailhog/mailhog:latest
