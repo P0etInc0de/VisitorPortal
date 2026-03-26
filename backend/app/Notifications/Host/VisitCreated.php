@@ -1,13 +1,14 @@
 <?php
 
-namespace app\Notifications\Host;
+namespace App\Notifications\Host;
 
 use App\Mail\Host\VisitCreatedMail;
 use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
 use Illuminate\Notifications\Notification;
 
-class VisitCreated extends Notification
+class VisitCreated extends Notification implements ShouldQueue
 {
     use Queueable;
 

@@ -1,14 +1,15 @@
 <?php
 
-namespace app\Notifications\Host;
+namespace App\Notifications\Host;
 
 use App\Mail\Host\GuestCheckedInMail;
 use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
-class GuestCheckedIn extends Notification
+class GuestCheckedIn extends Notification implements ShouldQueue
 {
     use Queueable;
 
