@@ -17,9 +17,10 @@ php artisan queue:work
  Notification::send($request->user(), new VisitReminderDaily());
 ```
 
-### Configuration
+### Konfiguration
 
 - Wir verwenden die Standardkonfiguration von Laravel.
+- In der datei `config/queue.php` kann die Konfiguration angepasst werden
 - Die Queue ist lediglich eine Datenbanktabelle namens **"Jobs"**.
 - Alle erforderlichen Datenbanktabellen sind bereits vorhanden.
 

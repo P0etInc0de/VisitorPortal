@@ -12,12 +12,13 @@ Laravel notifications sind einfache PHP Klassen, welche Benachrichtigungen über
 ### Dafür nutzen wir folgende notifications
 
 - Guest
-    - VisitCreated
-    - VisitReminder
+  - VisitCreated
+  - SingleVisitReminder
 - Host
-    - VisitCreated
-    - VisitReminder
-    - GuestCheckedIn
+  - VisitCreated
+  - SingleVisitReminder
+  - VisitReminderDaily
+  - GuestCheckedIn
 
 ### Erstelle eine neue notification:
 
