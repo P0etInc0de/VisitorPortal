@@ -24,6 +24,7 @@ class User extends Authenticatable implements FilamentUser
         'name',
         'email',
         'password',
+        'department_id',
     ];
 
     /**
@@ -36,6 +37,15 @@ class User extends Authenticatable implements FilamentUser
         'remember_token',
     ];
 
+    /**
+     * Relationship of the two tables
+     * Get department that user belogs to via foreign key
+     * Access via $user->department->name/location/...
+     */
+    public function department()
+    {
+        return $this->belongsTo(Department::class);
+    }
     /**
      * Get the attributes that should be cast.
      *
