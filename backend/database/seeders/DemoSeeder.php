@@ -5,10 +5,8 @@ namespace Database\Seeders;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Seeder;
-use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Schema;
-use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
 use Spatie\Permission\PermissionRegistrar;
 
@@ -24,8 +22,6 @@ class DemoSeeder extends Seeder
 
         $roleEmployee = Role::firstOrCreate(['name' => 'employee']);
         $roleAdmin = Role::firstOrCreate(['name' => 'super_admin']);
-
-
 
         // Make Users
         $hasDepartmentColumn = Schema::hasColumn('users', 'department');
@@ -68,7 +64,7 @@ class DemoSeeder extends Seeder
         string $password,
         string $department,
         bool $hasDepartmentColumn
-    ):User|Model {
+    ): User|Model {
         $data = [
             'name' => $name,
             'email_verified_at' => now(),
