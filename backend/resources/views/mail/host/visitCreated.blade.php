@@ -1,4 +1,4 @@
-<x-mail.message :message="$message">
+<x-mail.message_component :message="$message">
 # Neuen Besuch erstellt
 
 Sie haben soeben folgenden Besuch erstellt:
@@ -14,4 +14,4 @@ Sie haben soeben folgenden Besuch erstellt:
     Weiter Informationen
 </x-mail::button>
 
-</x-mail.message>
+</x-mail.message_component>

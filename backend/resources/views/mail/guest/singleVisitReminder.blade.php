@@ -1,4 +1,4 @@
-<x-mail.message :message="$message">
+<x-mail.message_component :message="$message">
 # Introduction
 
 The body of your message.
@@ -7,4 +7,4 @@ The body of your message.
 Button Text
 </x-mail::button>
 
-</x-mail.message>
+</x-mail.message_component>

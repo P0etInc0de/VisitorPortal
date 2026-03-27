@@ -1,4 +1,4 @@
-<x-mail.message :message="$message">
+<x-mail.message_component :message="$message">
 
 # Besuch eingetroffen
 
@@ -15,4 +15,4 @@ Soeben ist folgender Besuch bei uns eingetroffen
     Weiter Informationen
 </x-mail::button>
 
-</x-mail.message>
+</x-mail.message_component>

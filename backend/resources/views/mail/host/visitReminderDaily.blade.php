@@ -1,4 +1,4 @@
-<x-mail.message :message="$message">
+<x-mail.message_component :message="$message">
 # Anstehende Besuche
 
 Guten Morgen [Mitarbeiter],
@@ -16,4 +16,4 @@ Sie bekommen heute Folgende Besuche:
     Weiter Informationen
 </x-mail::button>
 
-</x-mail.message>
+</x-mail.message_component>
