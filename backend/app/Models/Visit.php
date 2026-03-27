@@ -14,9 +14,10 @@ class Visit extends Model
      * @var list<string>
      */
     protected $fillable = [
-        'name',
-        'location',
-        'is_active',
+        'scheduled_from',
+        'scheduled_until',
+        'status',
+        'notes',
     ];
 
     /**
