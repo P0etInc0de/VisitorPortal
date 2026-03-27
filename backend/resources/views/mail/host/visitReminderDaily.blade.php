@@ -1,4 +1,4 @@
-<x-mail::message>
+<x-mail.message :message="$message">
 # Anstehende Besuche
 
 Guten Morgen [Mitarbeiter],
@@ -16,7 +16,4 @@ Sie bekommen heute Folgende Besuche:
     Weiter Informationen
 </x-mail::button>
 
-
-Thanks,<br>
-{{ config('app.name') }}
-</x-mail::message>
+</x-mail.message>

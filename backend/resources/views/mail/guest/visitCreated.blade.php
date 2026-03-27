@@ -1,4 +1,4 @@
-<x-mail::message>
+<x-mail.message :message="$message">
 # Termin für Ihren Besuch
 
 Sehr geehrter [Kunde],
@@ -16,7 +16,4 @@ wir freuen und sehr über Ihren Besuch.
     Weiter Informationen
 </x-mail::button>
 
-
-Thanks,<br>
-{{ config('app.name') }}
-</x-mail::message>
+</x-mail.message>

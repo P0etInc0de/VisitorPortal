@@ -1,4 +1,4 @@
-<x-mail::message>
+<x-mail.message :message="$message">
 # Introduction
 
 The body of your message.
@@ -7,6 +7,4 @@ The body of your message.
 Button Text
 </x-mail::button>
 
-Thanks,<br>
-{{ config('app.name') }}
-</x-mail::message>
+</x-mail.message>
