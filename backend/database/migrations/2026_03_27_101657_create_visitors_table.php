@@ -7,7 +7,7 @@ use Illuminate\Support\Facades\Schema;
 return new class extends Migration
 {
     /**
-     * Migration that creates departments table with all columns
+     * Migration that creates visitors table with all columns
      */
     public function up(): void
     {
