@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('department_id')->nullable()->constrained('departments')->onDelete('set null');
             $table->string('name');
-            $table->string('gender');
+            $table->string('gender')->default('not specified');
             $table->string('email')->unique();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
