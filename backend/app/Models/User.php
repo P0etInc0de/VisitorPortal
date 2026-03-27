@@ -63,6 +63,14 @@ class User extends Authenticatable implements FilamentUser
     {
         return $this->hasMany(Visit::class, 'canceled_user_id'); //Relationship to visits table canceled_user_id
     }
+    public function performedCheckIns(): HasMany
+    {
+        return $this->hasMany(VisitVisitor::class, 'checked_in_by_user_id');
+    }
+    public function performedCheckOuts(): HasMany
+    {
+        return $this->hasMany(VisitVisitor::class, 'checked_out_by_user_id');
+    }
 
     /**
      * Get the attributes that should be cast.

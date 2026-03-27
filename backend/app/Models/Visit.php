@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Visit extends Model
@@ -36,5 +37,22 @@ class Visit extends Model
     public function canceledBy(): BelongsTo
     {
         return $this->belongsTo(User::class, 'canceled_by_user_id');
+    }
+
+    /**
+     * Relationship to table visits via pivot table
+     * INFO: ALL IMPORTANT INFO LIKE CHECKED_IN_AT LIES IN PIVOT OBJECT CALLED PIVOT!!!
+     */
+    public function visitors(): belongsToMany
+    {
+        return $this->belongsToMany(Visitor::class, 'visit_visitor')
+            ->using(VisitVisitor::class)
+            ->withPivot([ //load extra stuff into object called pivot
+                'badge_printed_at',
+                'checked_in_at',
+                'checked_out_at',
+                'checked_in_by_user_id',
+                'checked_out_by_user_id'
+            ]);
     }
 }
