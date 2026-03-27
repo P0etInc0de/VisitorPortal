@@ -43,7 +43,9 @@ class User extends Authenticatable implements FilamentUser
     /**
      * Relationship of  tables
      * EXAMPLE HOW TO ACCESS: Get department that user belogs to via foreign key
-     *                          --> Access via $user->department->name/location/...
+     *                          --> $department = $user->department->name/location/...
+     * EXAMPLE HOW TO ACCESS: Get vists that user is responsible for
+     *                           --> visits = $user->responsibleVisits
      */
     public function department():belongsTo
     {

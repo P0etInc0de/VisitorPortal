@@ -21,6 +21,8 @@ class Visit extends Model
 
     /**
      * Relationships to table users for all foreign keys
+     * EXAMPLE HOW TO ACCESS: Access user who ist responsible for a visit
+     *                         --> $user = $visit->responsibleUser()
      */
     public function creator(): BelongsTo
     {

@@ -19,7 +19,9 @@ class Department extends Model
     ];
 
     /**
-     * Relationship to table users
+     * Relationships to table users for foreign key
+     * EXAMPLE HOW TO ACCESS: Access all users in department
+     *                         --> $users = $department->users()
      */
     public function users(): HasMany
     {
