@@ -11,13 +11,25 @@ Route::get('/', function () {
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::view('/dashboard', 'portal.dashboard')->name('dashboard');
 
-    Route::view('/portal/visits/create', 'portal.visits.create')->name('portal.visits.create');
-    Route::view('/portal/visits/1', 'portal.visits.show')->name('portal.visits.show');
+    Route::prefix('portal')->name('portal.')->group(function () {
+        Route::prefix('visits')->name('visits.')->group(function () {
+            Route::view('/create', 'portal.visits.create')->name('create');
+            Route::view('/{visit}', 'portal.visits.show')
+                ->whereNumber('visit')
+                ->name('show');
+        });
+    });
 
-    Route::view('/reception', 'reception.dashboard')->name('reception.dashboard');
+    Route::prefix('reception')->name('reception.')->group(function () {
+        Route::view('/', 'reception.dashboard')->name('dashboard');
+        Route::view('/all-visits', 'reception.all-visits')->name('all-visits');
+    });
 
-    Route::view('/monitor/live', 'monitor.show')->name('monitor.live');
-    Route::view('/monitor/editor', 'monitor.editor')->name('monitor.editor');
+    Route::prefix('monitor')->name('monitor.')->group(function () {
+        Route::redirect('/', '/monitor/live');
+        Route::view('/live', 'monitor.show')->name('live');
+        Route::view('/editor', 'monitor.editor')->name('editor');
+    });
 });
 
 require __DIR__ . '/auth.php';

@@ -1,20 +1,50 @@
 @php
     $hasLogo = file_exists(public_path('images/logo.png'));
 
+    $user = Auth::user();
+
+    $roleNames = collect(method_exists($user, 'getRoleNames') ? $user->getRoleNames() : [__('Mitarbeitende')])
+        ->map(fn ($role) => (string) $role)
+        ->filter()
+        ->values();
+
+    if ($roleNames->isEmpty()) {
+        $roleNames = collect([__('Mitarbeitende')]);
+    }
+
     $navLinkClasses = function (bool $active): string {
         return $active
-            ? 'flex items-center gap-3 rounded-2xl bg-base-content px-4 py-3 text-base-100 shadow-sm'
-            : 'flex items-center gap-3 rounded-2xl px-4 py-3 text-base-content/75 transition hover:bg-base-200 hover:text-base-content';
+            ? 'bp-nav-link bp-nav-link-active'
+            : 'bp-nav-link';
     };
+
+    $normalizedRoles = $roleNames
+        ->map(fn ($role) => \Illuminate\Support\Str::of($role)->lower()->replace(['ä', 'ö', 'ü', 'ß'], ['ae', 'oe', 'ue', 'ss'])->value())
+        ->values();
+
+    $hasAnyRole = function (array $needles) use ($normalizedRoles): bool {
+        foreach ($needles as $needle) {
+            foreach ($normalizedRoles as $role) {
+                if (str_contains($role, $needle)) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    };
+
+    $canSeeReception = $hasAnyRole(['empfang', 'reception', 'admin']);
+    $canSeeMonitor = $hasAnyRole(['empfang', 'reception', 'admin', 'monitor']);
+    $canSeeAdmin = $hasAnyRole(['admin']);
 @endphp
 
-{{-- Mobile top bar --}}
-<div class="sticky top-0 z-40 border-b border-base-300 bg-base-100/95 backdrop-blur lg:hidden">
+<div class="sticky top-0 z-30 border-b border-base-300/70 bp-topbar-surface lg:hidden">
     <div class="flex items-center justify-between px-4 py-4">
         <div class="flex min-w-0 items-center gap-3">
             <button
                 type="button"
-                class="btn btn-ghost btn-square rounded-2xl"
+                class="btn btn-ghost btn-square rounded-xl"
                 @click="navOpen = true"
                 aria-label="{{ __('Navigation öffnen') }}"
             >
@@ -24,122 +54,147 @@
             </button>
 
             @if ($hasLogo)
-                <img
-                    src="{{ asset('images/logo.png') }}"
-                    alt="{{ __('Logo') }}"
-                    class="max-h-8 w-auto object-contain"
-                >
+                <img src="{{ asset('images/logo.png') }}" alt="{{ __('Logo') }}" class="max-h-9 w-auto object-contain">
             @endif
 
             <div class="min-w-0">
-                <p class="truncate text-sm font-medium">{{ __('Besucherportal') }}</p>
-                <p class="truncate text-xs text-base-content/60">{{ __('Internes Portal') }}</p>
+                <p class="truncate text-sm font-semibold">{{ __('Besucherportal') }}</p>
             </div>
         </div>
 
-        <a href="{{ route('dashboard') }}" class="btn btn-ghost rounded-2xl">
-            {{ __('Dashboard') }}
+        <a href="{{ route('dashboard') }}" class="btn btn-outline btn-sm rounded-xl">
+            {{ __('Start') }}
         </a>
     </div>
 </div>
 
-{{-- Desktop sidebar --}}
-<aside class="fixed inset-y-0 left-0 z-30 hidden w-72 border-r border-base-300 bg-base-100 lg:flex lg:flex-col">
-    <div class="border-b border-base-300 px-6 py-6">
+<aside class="bp-sidebar fixed inset-y-0 left-0 z-30 hidden w-72 border-r border-base-300/70 lg:flex lg:flex-col">
+    <div class="border-b border-base-300/70 px-6 py-6">
         <a href="{{ route('dashboard') }}" class="flex items-center gap-4">
             @if ($hasLogo)
-                <img
-                    src="{{ asset('images/logo.png') }}"
-                    alt="{{ __('Logo') }}"
-                    class="max-h-12 w-auto object-contain"
-                >
+                <img src="{{ asset('images/logo.png') }}" alt="{{ __('Logo') }}" class="max-h-12 w-auto object-contain">
             @endif
 
-                <div class="min-w-0">
-                    <h1 class="truncate text-xl font-semibold tracking-tight">
-                        {{ __('Besucherportal') }}
-                    </h1>
-                </div>
+            <div class="min-w-0">
+                <h1 class="truncate text-xl font-semibold tracking-tight">{{ __('Besucherportal') }}</h1>
+            </div>
         </a>
     </div>
 
     <div class="flex-1 overflow-y-auto px-4 py-5">
+        <nav class="space-y-5">
+            <div>
+                <div class="mb-2 px-3 text-xs font-medium uppercase tracking-[0.16em] text-base-content/45">
+                    {{ __('Start') }}
+                </div>
 
-        <nav class="space-y-2">
-            <a href="{{ route('dashboard') }}" class="{{ $navLinkClasses(request()->routeIs('dashboard')) }}">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M3 12l9-8 9 8" />
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M5 10v10h14V10" />
-                </svg>
-                <span>{{ __('Dashboard') }}</span>
-            </a>
+                <a href="{{ route('dashboard') }}" class="{{ $navLinkClasses(request()->routeIs('dashboard')) }}">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="bp-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M3 12l9-8 9 8" />
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M5 10v10h14V10" />
+                    </svg>
+                    <span>{{ __('Übersicht') }}</span>
+                </a>
+            </div>
 
-            <a href="{{ route('portal.visits.create') }}" class="{{ $navLinkClasses(request()->routeIs('portal.visits.create')) }}">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 5v14M5 12h14" />
-                </svg>
-                <span>{{ __('Besuch erfassen') }}</span>
-            </a>
+            <div>
+                <div class="mb-2 px-3 text-xs font-medium uppercase tracking-[0.16em] text-base-content/45">
+                    {{ __('Portal') }}
+                </div>
 
-            <a href="{{ route('portal.visits.show') }}" class="{{ $navLinkClasses(request()->routeIs('portal.visits.show')) }}">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 6h11M9 12h11M9 18h11M4 6h.01M4 12h.01M4 18h.01" />
-                </svg>
-                <span>{{ __('Besuchsdetail') }}</span>
-            </a>
+                <a href="{{ route('portal.visits.create') }}" class="{{ $navLinkClasses(request()->routeIs('portal.visits.create')) }}">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="bp-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 5v14M5 12h14" />
+                    </svg>
+                    <span>{{ __('Besuch anlegen') }}</span>
+                </a>
+            </div>
 
-            <div class="my-4 border-t border-base-300"></div>
+            @if ($canSeeReception)
+                <div>
+                    <div class="mb-2 px-3 text-xs font-medium uppercase tracking-[0.16em] text-base-content/45">
+                        {{ __('Empfang') }}
+                    </div>
 
-            <a href="{{ route('reception.dashboard') }}" class="{{ $navLinkClasses(request()->routeIs('reception.dashboard')) }}">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M4 7h16M4 12h16M4 17h8" />
-                </svg>
-                <span>{{ __('Rezeption') }}</span>
-            </a>
+                    <a href="{{ route('reception.dashboard') }}" class="{{ $navLinkClasses(request()->routeIs('reception.dashboard')) }}">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="bp-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M4 7h16M4 12h16M4 17h8" />
+                        </svg>
+                        <span>{{ __('Dashboard') }}</span>
+                    </a>
 
-            <a href="{{ route('monitor.live') }}" class="{{ $navLinkClasses(request()->routeIs('monitor.live')) }}">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
-                    <rect x="3" y="4" width="18" height="12" rx="2" />
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M8 20h8M12 16v4" />
-                </svg>
-                <span>{{ __('Monitor anzeigen') }}</span>
-            </a>
+                    <a href="{{ \Illuminate\Support\Facades\Route::has('reception.all-visits') ? route('reception.all-visits') : url('/reception/all-visits') }}" class="{{ $navLinkClasses(request()->routeIs('reception.all-visits') || request()->is('reception/all-visits')) }}">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="bp-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M4 7h16M4 12h16M4 17h16" />
+                        </svg>
+                        <span>{{ __('Alle Besuche') }}</span>
+                    </a>
+                </div>
+            @endif
 
-            <a href="{{ route('monitor.editor') }}" class="{{ $navLinkClasses(request()->routeIs('monitor.editor')) }}">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M4 20h4l10-10a2.12 2.12 0 1 0-3-3L5 17v3Z" />
-                </svg>
-                <span>{{ __('Monitor Editor') }}</span>
-            </a>
+            @if ($canSeeMonitor)
+                <div>
+                    <div class="mb-2 px-3 text-xs font-medium uppercase tracking-[0.16em] text-base-content/45">
+                        {{ __('Monitor') }}
+                    </div>
 
-            <div class="my-4 border-t border-base-300"></div>
+                    <a href="{{ route('monitor.live') }}" class="{{ $navLinkClasses(request()->routeIs('monitor.live')) }}">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="bp-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                            <rect x="3" y="4" width="18" height="12" rx="2" />
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M8 20h8M12 16v4" />
+                        </svg>
+                        <span>{{ __('Live-Anzeige') }}</span>
+                    </a>
 
-            <a href="{{ route('profile.edit') }}" class="{{ $navLinkClasses(request()->routeIs('profile.*')) }}">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M20 21a8 8 0 1 0-16 0" />
-                    <circle cx="12" cy="7" r="4" />
-                </svg>
-                <span>{{ __('Profil') }}</span>
-            </a>
+                    <a href="{{ route('monitor.editor') }}" class="{{ $navLinkClasses(request()->routeIs('monitor.editor')) }}">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="bp-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M4 20h4l10-10a2.12 2.12 0 1 0-3-3L5 17v3Z" />
+                        </svg>
+                        <span>{{ __('Editor') }}</span>
+                    </a>
+                </div>
+            @endif
+
+            <div>
+                <div class="mb-2 px-3 text-xs font-medium uppercase tracking-[0.16em] text-base-content/45">
+                    {{ __('Profil') }}
+                </div>
+
+                <a href="{{ route('profile.edit') }}" class="{{ $navLinkClasses(request()->routeIs('profile.*')) }}">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="bp-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M20 21a8 8 0 1 0-16 0" />
+                        <circle cx="12" cy="7" r="4" />
+                    </svg>
+                    <span>{{ __('Profil') }}</span>
+                </a>
+
+                @if ($canSeeAdmin)
+                    <a href="{{ url('/admin') }}" class="{{ $navLinkClasses(request()->is('admin') || request()->is('admin/*')) }}">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="bp-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M4 7h16M4 12h16M4 17h16" />
+                        </svg>
+                        <span>{{ __('Admin-Bereich') }}</span>
+                    </a>
+                @endif
+            </div>
         </nav>
     </div>
 
-    <div class="border-t border-base-300 px-4 py-4">
-        <div class="mb-3 rounded-2xl bg-base-200/70 px-4 py-3">
-            <p class="text-sm font-medium">{{ Auth::user()->name }}</p>
-            <p class="text-sm text-base-content/65">{{ Auth::user()->email }}</p>
+    <div class="border-t border-base-300/70 px-4 py-4">
+        <div class="rounded-2xl border border-base-300/80 bg-base-100/80 px-4 py-4">
+            <p class="text-sm font-semibold">{{ $user->name }}</p>
+            <p class="mt-1 text-sm text-base-content/65">{{ $user->email }}</p>
         </div>
 
-        <form method="POST" action="{{ route('logout') }}">
+        <form method="POST" action="{{ route('logout') }}" class="mt-3">
             @csrf
-            <button type="submit" class="btn btn-outline w-full rounded-2xl">
+            <button type="submit" class="btn btn-outline w-full rounded-xl">
                 {{ __('Abmelden') }}
             </button>
         </form>
     </div>
 </aside>
 
-{{-- Mobile drawer --}}
 <div x-show="navOpen" x-transition.opacity class="fixed inset-0 z-50 bg-black/30 lg:hidden" style="display: none;" @click="navOpen = false"></div>
 
 <aside
@@ -153,25 +208,21 @@
     class="fixed inset-y-0 left-0 z-50 flex w-80 max-w-[88vw] flex-col border-r border-base-300 bg-base-100 lg:hidden"
     style="display: none;"
 >
-    <div class="flex items-center justify-between border-b border-base-300 px-4 py-4">
-        <div class="flex min-w-0 items-center gap-3">
-            @if ($hasLogo)
-                <img
-                    src="{{ asset('images/logo.png') }}"
-                    alt="{{ __('Logo') }}"
-                    class="max-h-8 w-auto object-contain"
-                >
-            @endif
-
-            <div class="min-w-0">
-                <p class="truncate font-medium">{{ __('Besucherportal') }}</p>
-                <p class="truncate text-xs text-base-content/60">{{ __('Internes Portal') }}</p>
+    <div class="flex items-start justify-between border-b border-base-300 px-4 py-4">
+        <div class="min-w-0">
+            <div class="flex items-center gap-3">
+                @if ($hasLogo)
+                    <img src="{{ asset('images/logo.png') }}" alt="{{ __('Logo') }}" class="max-h-8 w-auto object-contain">
+                @endif
+                <div>
+                    <p class="truncate font-semibold">{{ __('Besucherportal') }}</p>
+                </div>
             </div>
         </div>
 
         <button
             type="button"
-            class="btn btn-ghost btn-square rounded-2xl"
+            class="btn btn-ghost btn-square rounded-xl"
             @click="navOpen = false"
             aria-label="{{ __('Navigation schließen') }}"
         >
@@ -184,29 +235,32 @@
     <div class="flex-1 overflow-y-auto px-4 py-5">
         <nav class="space-y-2">
             <a href="{{ route('dashboard') }}" class="{{ $navLinkClasses(request()->routeIs('dashboard')) }}" @click="navOpen = false">
+                <span>{{ __('Übersicht') }}</span>
+            </a>
+            <a href="{{ route('portal.visits.create') }}" class="{{ $navLinkClasses(request()->routeIs('portal.visits.create')) }}" @click="navOpen = false">
+                <span>{{ __('Besuch anlegen') }}</span>
+            </a>
+            @if ($canSeeReception)
+            <a href="{{ route('reception.dashboard') }}" class="{{ $navLinkClasses(request()->routeIs('reception.dashboard')) }}" @click="navOpen = false">
                 <span>{{ __('Dashboard') }}</span>
             </a>
-
-            <a href="{{ route('portal.visits.create') }}" class="{{ $navLinkClasses(request()->routeIs('portal.visits.create')) }}" @click="navOpen = false">
-                <span>{{ __('Besuch erfassen') }}</span>
+            <a href="{{ \Illuminate\Support\Facades\Route::has('reception.all-visits') ? route('reception.all-visits') : url('/reception/all-visits') }}" class="{{ $navLinkClasses(request()->routeIs('reception.all-visits') || request()->is('reception/all-visits')) }}" @click="navOpen = false">
+                <span>{{ __('Alle Besuche') }}</span>
             </a>
-
-            <a href="{{ route('portal.visits.show') }}" class="{{ $navLinkClasses(request()->routeIs('portal.visits.show')) }}" @click="navOpen = false">
-                <span>{{ __('Besuchsdetail') }}</span>
-            </a>
-
-            <a href="{{ route('reception.dashboard') }}" class="{{ $navLinkClasses(request()->routeIs('reception.dashboard')) }}" @click="navOpen = false">
-                <span>{{ __('Rezeption') }}</span>
-            </a>
-
+            @endif
+            @if ($canSeeMonitor)
             <a href="{{ route('monitor.live') }}" class="{{ $navLinkClasses(request()->routeIs('monitor.live')) }}" @click="navOpen = false">
-                <span>{{ __('Monitor anzeigen') }}</span>
+                <span>{{ __('Live-Anzeige') }}</span>
             </a>
-
             <a href="{{ route('monitor.editor') }}" class="{{ $navLinkClasses(request()->routeIs('monitor.editor')) }}" @click="navOpen = false">
-                <span>{{ __('Monitor Editor') }}</span>
+                <span>{{ __('Editor') }}</span>
             </a>
-
+            @endif
+            @if ($canSeeAdmin)
+            <a href="{{ url('/admin') }}" class="{{ $navLinkClasses(request()->is('admin') || request()->is('admin/*')) }}" @click="navOpen = false">
+                <span>{{ __('Admin-Bereich') }}</span>
+            </a>
+            @endif
             <a href="{{ route('profile.edit') }}" class="{{ $navLinkClasses(request()->routeIs('profile.*')) }}" @click="navOpen = false">
                 <span>{{ __('Profil') }}</span>
             </a>
@@ -214,14 +268,14 @@
     </div>
 
     <div class="border-t border-base-300 px-4 py-4">
-        <div class="mb-3 rounded-2xl bg-base-200/70 px-4 py-3">
-            <p class="text-sm font-medium">{{ Auth::user()->name }}</p>
-            <p class="text-sm text-base-content/65">{{ Auth::user()->email }}</p>
+        <div class="rounded-2xl border border-base-300/80 bg-base-100/80 px-4 py-4">
+            <p class="text-sm font-semibold">{{ $user->name }}</p>
+            <p class="mt-1 text-sm text-base-content/65">{{ $user->email }}</p>
         </div>
 
-        <form method="POST" action="{{ route('logout') }}">
+        <form method="POST" action="{{ route('logout') }}" class="mt-3">
             @csrf
-            <button type="submit" class="btn btn-outline w-full rounded-2xl">
+            <button type="submit" class="btn btn-outline w-full rounded-xl">
                 {{ __('Abmelden') }}
             </button>
         </form>

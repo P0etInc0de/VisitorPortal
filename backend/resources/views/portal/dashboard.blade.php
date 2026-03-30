@@ -1,162 +1,168 @@
 @php
     $stats = [
-        ['label' => __('Heutige Besuche'), 'value' => '12', 'hint' => __('davon 3 in der nächsten Stunde')],
-        ['label' => __('Eingecheckt'), 'value' => '5', 'hint' => __('2 Gäste aktuell im Haus')],
-        ['label' => __('Offen'), 'value' => '7', 'hint' => __('inklusive geplanter Nachmittagsbesuche')],
+        [
+            'label' => __('Meine Besuche heute'),
+            'value' => '4',
+            'meta' => __('1 Termin startet in der nächsten Stunde.'),
+        ],
+        [
+            'label' => __('Nächster Termin'),
+            'value' => '09:30',
+            'meta' => __('Max Mustermann · Beispiel GmbH'),
+        ],
+        [
+            'label' => __('Diese Woche'),
+            'value' => '7',
+            'meta' => __('7 geplant · 2 Entwürfe'),
+        ],
     ];
 
     $visits = [
-        ['time' => '09:30', 'guest' => 'Max Mustermann', 'company' => 'Beispiel GmbH', 'host' => 'Jonathan Läpple', 'status' => __('Geplant'), 'badge' => 'badge-warning'],
-        ['time' => '11:00', 'guest' => 'Anna Becker', 'company' => 'ACME AG', 'host' => 'Lena Beispiel', 'status' => __('Eingecheckt'), 'badge' => 'badge-success'],
-        ['time' => '14:00', 'guest' => 'David Keller', 'company' => 'Tech Solutions', 'host' => 'Peter Beispiel', 'status' => __('Entwurf'), 'badge' => 'badge-neutral'],
+        [
+            'time' => '09:30',
+            'date' => '30.03.',
+            'title' => __('Max Mustermann'),
+            'company' => __('Beispiel GmbH'),
+            'note' => __('Badge vorbereitet · Monitor aktiv'),
+            'status' => __('Geplant'),
+            'statusClass' => 'badge-warning badge-outline',
+        ],
+        [
+            'time' => '11:00',
+            'date' => '30.03.',
+            'title' => __('Anna Becker'),
+            'company' => __('ACME AG'),
+            'note' => __('Ankunft erfolgt · Aufenthalt läuft'),
+            'status' => __('Eingecheckt'),
+            'statusClass' => 'badge-success badge-outline',
+        ],
+        [
+            'time' => '14:00',
+            'date' => '30.03.',
+            'title' => __('David Keller'),
+            'company' => __('Tech Solutions'),
+            'note' => __('Badge offen · Monitorfreigabe noch ausstehend'),
+            'status' => __('Entwurf'),
+            'statusClass' => 'badge-ghost',
+        ],
     ];
 
-    $highlights = [
-        ['title' => __('Rezeption'), 'text' => __('Tagesübersicht, Suche und Check-in im schnellen operativen Zugriff.'), 'route' => route('reception.dashboard'), 'action' => __('Zur Rezeption')],
-        ['title' => __('Willkommensmonitor'), 'text' => __('Aktuelle Anzeige für Besucher, Empfang und Eingangsbereich prüfen.'), 'route' => route('monitor.live'), 'action' => __('Monitor öffnen')],
-        ['title' => __('Profil'), 'text' => __('Eigene Kontodaten, Passwort und persönliche Einstellungen verwalten.'), 'route' => route('profile.edit'), 'action' => __('Profil öffnen')],
+    $notes = [
+        __('Besuch für Sven Maurer noch ohne finalen Zeitraum'),
+        __('Gruppenbesuch Technik benötigt noch Empfangsbriefing'),
+        __('Badge-Ausgabe für David Keller noch nicht bestätigt'),
     ];
 @endphp
 
 <x-app-layout>
     <x-slot name="header">
-        <div class="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+        <div class="bp-screen-head">
             <div>
-                <h1 class="text-2xl font-semibold tracking-tight">
-                    {{ __('Portal-Dashboard') }}
-                </h1>
-                <p class="mt-1 text-sm text-base-content/70">
-                    {{ __('Übersicht über anstehende Besuche, aktuellen Tagesstatus und schnelle Aktionen.') }}
-                </p>
+                <h1 class="bp-screen-title">{{ __('Übersicht') }}</h1>
             </div>
-
         </div>
     </x-slot>
 
-    <div class="py-8">
-        <div class="mx-auto max-w-7xl space-y-6 px-4 sm:px-6 lg:px-8">
-            <section class="grid gap-4 lg:grid-cols-3">
-                @foreach ($stats as $stat)
-                    <div class="card rounded-2xl border border-base-300 bg-base-100 shadow-sm">
-                        <div class="card-body">
-                            <p class="text-sm text-base-content/70">{{ $stat['label'] }}</p>
-                            <div class="mt-2 flex items-end justify-between gap-4">
-                                <p class="text-4xl font-semibold tracking-tight">{{ $stat['value'] }}</p>
-                                <span class="badge badge-ghost">{{ __('Heute') }}</span>
-                            </div>
-                            <p class="text-sm text-base-content/60">{{ $stat['hint'] }}</p>
+    <div class="bp-content">
+        <section class="bp-stat-grid">
+            @foreach ($stats as $stat)
+                <article class="card rounded-[1.75rem] border border-base-300 bg-base-100 shadow-sm">
+                    <div class="card-body p-5">
+                        <div class="text-sm font-medium text-base-content/65">
+                            {{ $stat['label'] }}
+                        </div>
+
+                        <div class="mt-2 text-4xl font-semibold leading-none tracking-tight text-base-content">
+                            {{ $stat['value'] }}
+                        </div>
+
+                        <div class="mt-2 text-sm text-base-content/70">
+                            {{ $stat['meta'] }}
                         </div>
                     </div>
-                @endforeach
-            </section>
+                </article>
+            @endforeach
+        </section>
 
-            <section class="grid gap-6 xl:grid-cols-[1.8fr_1fr]">
-                <div class="card rounded-2xl border border-base-300 bg-base-100 shadow-sm">
-                    <div class="card-body gap-5">
-                        <div class="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-                            <div>
-                                <h2 class="card-title text-xl">{{ __('Meine nächsten Besuche') }}</h2>
-                                <p class="text-sm text-base-content/70">
-                                    {{ __('Geplante, laufende und vorbereitete Besuche im direkten Überblick.') }}
-                                </p>
-                            </div>
+        <section class="bp-main-grid">
+            <article class="card rounded-[1.75rem] border border-base-300 bg-base-100 shadow-sm">
+                <div class="card-body p-5 sm:p-6">
+                    <div class="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                        <h2 class="text-xl font-semibold tracking-tight text-base-content">
+                            {{ __('Anstehende Besuche') }}
+                        </h2>
 
-                            <div class="flex items-center gap-2">
-                                <button type="button" class="btn btn-ghost btn-sm rounded-xl">
-                                    {{ __('Filtern') }}
-                                </button>
-                                <a href="{{ route('portal.visits.create') }}" class="btn btn-outline btn-sm rounded-xl">
-                                    {{ __('Neu') }}
-                                </a>
-                            </div>
-                        </div>
+                        <a
+                            href="{{ \Illuminate\Support\Facades\Route::has('portal.visits.create') ? route('portal.visits.create') : url('/portal/visits/create') }}"
+                            class="btn btn-outline btn-sm rounded-xl"
+                        >
+                            {{ __('Neuen Besuch anlegen') }}
+                        </a>
+                    </div>
 
-                        <div class="overflow-x-auto">
-                            <table class="table">
-                                <thead>
-                                <tr>
-                                    <th>{{ __('Zeit') }}</th>
-                                    <th>{{ __('Gast') }}</th>
-                                    <th>{{ __('Firma') }}</th>
-                                    <th>{{ __('Host') }}</th>
-                                    <th>{{ __('Status') }}</th>
-                                    <th class="text-right">{{ __('Aktion') }}</th>
-                                </tr>
-                                </thead>
-                                <tbody>
-                                @foreach ($visits as $visit)
-                                    <tr>
-                                        <td class="whitespace-nowrap font-medium">{{ $visit['time'] }}</td>
-                                        <td>{{ $visit['guest'] }}</td>
-                                        <td>{{ $visit['company'] }}</td>
-                                        <td>{{ $visit['host'] }}</td>
-                                        <td>
-                                            <span class="badge {{ $visit['badge'] }}">{{ $visit['status'] }}</span>
-                                        </td>
-                                        <td class="text-right">
-                                            <a href="{{ route('portal.visits.show') }}" class="btn btn-ghost btn-xs rounded-lg">
-                                                {{ __('Details') }}
-                                            </a>
-                                        </td>
-                                    </tr>
-                                @endforeach
-                                </tbody>
-                            </table>
-                        </div>
+                    <div class="space-y-4">
+                        @foreach ($visits as $visit)
+                            <article class="rounded-[1.5rem] border border-base-300 bg-base-100 px-5 py-4">
+                                <div class="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+                                    <div class="flex gap-4">
+                                        <div class="min-w-[72px] shrink-0">
+                                            <div class="text-2xl font-semibold leading-none tracking-tight text-base-content">
+                                                {{ $visit['time'] }}
+                                            </div>
+                                            <div class="mt-1 text-sm text-base-content/60">
+                                                {{ $visit['date'] }}
+                                            </div>
+                                        </div>
 
-                        <div class="rounded-2xl border border-base-300 bg-base-200/60 p-4">
-                            <div class="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
-                                <div>
-                                    <p class="font-medium">{{ __('Nächster anstehender Besuch') }}</p>
-                                    <p class="text-sm text-base-content/70">
-                                        {{ __('Max Mustermann, 09:30 Uhr, Beispiel GmbH, Ansprechpartner Jonathan Läpple') }}
-                                    </p>
+                                        <div class="min-w-0">
+                                            <div class="text-xl font-semibold tracking-tight text-base-content">
+                                                {{ $visit['title'] }}
+                                            </div>
+
+                                            <div class="mt-1 text-lg text-base-content/75">
+                                                {{ $visit['company'] }}
+                                            </div>
+
+                                            <div class="mt-3 text-base leading-6 text-base-content/80">
+                                                {{ $visit['note'] }}
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="flex shrink-0 flex-col items-start gap-3 lg:items-end">
+                                        <span class="badge {{ $visit['statusClass'] }} rounded-full px-3 py-3 text-sm font-semibold">
+                                            {{ $visit['status'] }}
+                                        </span>
+
+                                        <a
+                                            href="{{ \Illuminate\Support\Facades\Route::has('portal.visits.show') ? route('portal.visits.show', 1) : url('/portal/visits/1') }}"
+                                            class="btn btn-outline btn-sm rounded-xl"
+                                        >
+                                            {{ __('Details öffnen') }}
+                                        </a>
+                                    </div>
                                 </div>
-                                <a href="{{ route('portal.visits.show') }}" class="btn btn-primary btn-sm rounded-xl">
-                                    {{ __('Besuch öffnen') }}
-                                </a>
-                            </div>
-                        </div>
+                            </article>
+                        @endforeach
                     </div>
                 </div>
+            </article>
 
-                <div class="space-y-6">
-                    <div class="card rounded-2xl border border-base-300 bg-base-100 shadow-sm">
-                        <div class="card-body">
-                            <h2 class="card-title text-xl">{{ __('Schnellzugriff') }}</h2>
+            <aside class="card rounded-[1.75rem] border border-base-300 bg-base-100 shadow-sm">
+                <div class="card-body p-5 sm:p-6">
+                    <h2 class="mb-4 text-xl font-semibold tracking-tight text-base-content">
+                        {{ __('Notizen') }}
+                    </h2>
 
-                            <div class="mt-1 grid gap-3">
-                                <a href="{{ route('portal.visits.create') }}" class="btn btn-primary justify-start rounded-xl">
-                                    {{ __('Neuen Besuch anlegen') }}
-                                </a>
-                                <a href="{{ route('reception.dashboard') }}" class="btn btn-outline justify-start rounded-xl">
-                                    {{ __('Check-in in der Rezeption') }}
-                                </a>
-                                <a href="{{ route('monitor.editor') }}" class="btn btn-outline justify-start rounded-xl">
-                                    {{ __('Monitor bearbeiten') }}
-                                </a>
-                                <a href="{{ route('monitor.live') }}" class="btn btn-outline justify-start rounded-xl">
-                                    {{ __('Monitor anzeigen') }}
-                                </a>
+                    <div class="space-y-3">
+                        @foreach ($notes as $note)
+                            <div class="rounded-[1.35rem] border border-base-300 bg-base-100 px-4 py-4 text-base leading-7 text-base-content/85">
+                                {{ $note }}
                             </div>
-                        </div>
+                        @endforeach
                     </div>
-
-                    @foreach ($highlights as $item)
-                        <div class="card rounded-2xl border border-base-300 bg-base-100 shadow-sm">
-                            <div class="card-body">
-                                <h3 class="text-lg font-semibold">{{ $item['title'] }}</h3>
-                                <p class="text-sm leading-6 text-base-content/70">{{ $item['text'] }}</p>
-                                <div class="pt-2">
-                                    <a href="{{ $item['route'] }}" class="btn btn-ghost btn-sm rounded-xl">
-                                        {{ $item['action'] }}
-                                    </a>
-                                </div>
-                            </div>
-                        </div>
-                    @endforeach
                 </div>
-            </section>
-        </div>
+            </aside>
+        </section>
     </div>
 </x-app-layout>

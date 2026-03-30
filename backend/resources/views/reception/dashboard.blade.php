@@ -1,222 +1,204 @@
 @php
-    $queue = [
-        ['time' => '09:30', 'guest' => 'Max Mustermann', 'company' => 'Beispiel GmbH', 'host' => 'Jonathan Läpple', 'status' => __('Geplant'), 'badge' => 'badge-warning'],
-        ['time' => '11:00', 'guest' => 'Anna Becker', 'company' => 'ACME AG', 'host' => 'Lena Beispiel', 'status' => __('Eingecheckt'), 'badge' => 'badge-success'],
-        ['time' => '13:30', 'guest' => 'David Keller', 'company' => 'Tech Solutions', 'host' => 'Peter Beispiel', 'status' => __('Geplant'), 'badge' => 'badge-warning'],
-        ['time' => '15:00', 'guest' => 'Sven Maurer', 'company' => 'Nordwerk', 'host' => 'Jonathan Läpple', 'status' => __('Ausstehend'), 'badge' => 'badge-neutral'],
+    $stats = [
+        [
+            'label' => __('Ankünfte heute'),
+            'value' => '12',
+            'meta' => __('davon 3 in der nächsten Stunde'),
+        ],
+        [
+            'label' => __('Aktuell im Haus'),
+            'value' => '5',
+            'meta' => __('Personen aktuell im Haus'),
+        ],
+        [
+            'label' => __('Offene Klärungen'),
+            'value' => '2',
+            'meta' => __('Badge-Druck und Rückfrage an Host'),
+        ],
+    ];
+
+    $filters = [__('Alle'), __('Geplant'), __('Im Haus')];
+
+    $visits = [
+        [
+            'time' => '09:30',
+            'date' => '30.03.',
+            'title' => __('Max Mustermann'),
+            'company' => __('Beispiel GmbH'),
+            'host' => __('Host: Jonathan Läpple'),
+            'note' => __('Badge bereit · Monitor aktiv'),
+            'status' => __('Geplant'),
+            'statusClass' => 'badge-warning badge-outline',
+            'action' => __('Check-in'),
+        ],
+        [
+            'time' => '11:00',
+            'date' => '30.03.',
+            'title' => __('Anna Becker'),
+            'company' => __('ACME AG'),
+            'host' => __('Host: Lena Bauer'),
+            'note' => __('Ankunft erfolgt · Aufenthalt läuft'),
+            'status' => __('Eingecheckt'),
+            'statusClass' => 'badge-success badge-outline',
+            'action' => __('Check-out'),
+        ],
+        [
+            'time' => '14:00',
+            'date' => '30.03.',
+            'title' => __('Technik-Rundgang'),
+            'company' => __('Gruppenbesuch'),
+            'host' => __('Host: Peter Hoffmann'),
+            'note' => __('Badge-Satz drucken · Empfang briefen'),
+            'status' => __('Prüfen'),
+            'statusClass' => 'badge-error badge-outline',
+            'action' => __('Details'),
+        ],
     ];
 @endphp
 
 <x-app-layout>
     <x-slot name="header">
-        <div>
-            <h1 class="text-2xl font-semibold tracking-tight">
-                {{ __('Rezeption') }}
-            </h1>
-            <p class="mt-1 text-sm text-base-content/70">
-                {{ __('Operative Tagesansicht für Suche, Check-in, Check-out und laufende Besucherbewegung.') }}
-            </p>
+        <div class="bp-screen-head bp-screen-head-with-actions">
+            <div>
+                <h1 class="bp-screen-title">{{ __('Dashboard') }}</h1>
+            </div>
+
         </div>
     </x-slot>
 
-    <div class="py-8">
-        <div class="mx-auto max-w-7xl space-y-6 px-4 sm:px-6 lg:px-8">
-            <section class="card rounded-2xl border border-base-300 bg-base-100 shadow-sm">
-                <div class="card-body gap-5">
-                    <div class="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
-                        <div>
-                            <h2 class="card-title text-xl">{{ __('Besuch suchen') }}</h2>
-                            <p class="text-sm text-base-content/70">
-                                {{ __('Suche nach Name, Firma oder Ansprechpartner für schnellen Zugriff am Empfang.') }}
-                            </p>
+    <div class="bp-content">
+        <section class="bp-stat-grid">
+            @foreach ($stats as $stat)
+                <article class="card rounded-[1.75rem] border border-base-300 bg-base-100 shadow-sm">
+                    <div class="card-body p-5">
+                        <div class="text-sm font-medium text-base-content/65">
+                            {{ $stat['label'] }}
                         </div>
 
-                        <div class="badge badge-ghost">{{ __('Heute') }}</div>
-                    </div>
-
-                    <div class="grid gap-3 lg:grid-cols-[1fr_auto_auto]">
-                        <input
-                            type="text"
-                            placeholder="{{ __('Name, Firma oder Ansprechpartner') }}"
-                            class="input input-bordered input-lg w-full rounded-2xl"
-                        >
-                        <button type="button" class="btn btn-primary rounded-2xl">
-                            {{ __('Suchen') }}
-                        </button>
-                        <button type="button" class="btn btn-outline rounded-2xl">
-                            {{ __('Scanner / Kiosk') }}
-                        </button>
-                    </div>
-                </div>
-            </section>
-
-            <section class="grid gap-4 md:grid-cols-3 xl:grid-cols-4">
-                <div class="card rounded-2xl border border-base-300 bg-base-100 shadow-sm">
-                    <div class="card-body">
-                        <p class="text-sm text-base-content/70">{{ __('Heute erwartet') }}</p>
-                        <p class="text-4xl font-semibold tracking-tight">18</p>
-                    </div>
-                </div>
-                <div class="card rounded-2xl border border-base-300 bg-base-100 shadow-sm">
-                    <div class="card-body">
-                        <p class="text-sm text-base-content/70">{{ __('Eingecheckt') }}</p>
-                        <p class="text-4xl font-semibold tracking-tight">9</p>
-                    </div>
-                </div>
-                <div class="card rounded-2xl border border-base-300 bg-base-100 shadow-sm">
-                    <div class="card-body">
-                        <p class="text-sm text-base-content/70">{{ __('Offen') }}</p>
-                        <p class="text-4xl font-semibold tracking-tight">9</p>
-                    </div>
-                </div>
-                <div class="card rounded-2xl border border-base-300 bg-base-100 shadow-sm">
-                    <div class="card-body">
-                        <p class="text-sm text-base-content/70">{{ __('Monitorstatus') }}</p>
-                        <div class="mt-2 flex items-center gap-2">
-                            <span class="badge badge-success">{{ __('Aktiv') }}</span>
-                            <span class="text-sm text-base-content/70">{{ __('Template Standard') }}</span>
-                        </div>
-                    </div>
-                </div>
-            </section>
-
-            <section class="grid gap-6 xl:grid-cols-[1.9fr_1fr]">
-                <div class="card rounded-2xl border border-base-300 bg-base-100 shadow-sm">
-                    <div class="card-body gap-5">
-                        <div class="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-                            <div>
-                                <h2 class="card-title text-xl">{{ __('Heutige Besuche') }}</h2>
-                                <p class="text-sm text-base-content/70">
-                                    {{ __('Direkte operative Sicht mit schnellen Aktionen für Empfang und Check-in.') }}
-                                </p>
-                            </div>
-
-                            <div class="flex items-center gap-2">
-                                <button type="button" class="btn btn-ghost btn-sm rounded-xl">{{ __('Aktualisieren') }}</button>
-                                <button type="button" class="btn btn-outline btn-sm rounded-xl">{{ __('Filter') }}</button>
-                            </div>
+                        <div class="mt-2 text-4xl font-semibold leading-none tracking-tight text-base-content">
+                            {{ $stat['value'] }}
                         </div>
 
-                        <div class="overflow-x-auto">
-                            <table class="table table-lg">
-                                <thead>
-                                <tr>
-                                    <th>{{ __('Zeit') }}</th>
-                                    <th>{{ __('Gast') }}</th>
-                                    <th>{{ __('Firma') }}</th>
-                                    <th>{{ __('Host') }}</th>
-                                    <th>{{ __('Status') }}</th>
-                                    <th class="text-right">{{ __('Aktion') }}</th>
-                                </tr>
-                                </thead>
-                                <tbody>
-                                @foreach ($queue as $item)
-                                    <tr>
-                                        <td class="whitespace-nowrap font-medium">{{ $item['time'] }}</td>
-                                        <td>{{ $item['guest'] }}</td>
-                                        <td>{{ $item['company'] }}</td>
-                                        <td>{{ $item['host'] }}</td>
-                                        <td><span class="badge {{ $item['badge'] }}">{{ $item['status'] }}</span></td>
-                                        <td class="text-right">
-                                            <div class="flex justify-end gap-2">
-                                                <button type="button" class="btn btn-primary btn-sm rounded-xl">
-                                                    {{ __('Check-in') }}
-                                                </button>
-                                                <button type="button" class="btn btn-outline btn-sm rounded-xl">
-                                                    {{ __('Check-out') }}
-                                                </button>
-                                            </div>
-                                        </td>
-                                    </tr>
+                        <div class="mt-2 text-sm text-base-content/70">
+                            {{ $stat['meta'] }}
+                        </div>
+                    </div>
+                </article>
+            @endforeach
+        </section>
+
+        <section class="bp-main-grid">
+            <article class="card rounded-[1.75rem] border border-base-300 bg-base-100 shadow-sm">
+                <div class="card-body p-5 sm:p-6">
+                    <div class="mb-4 flex flex-col gap-3">
+                        <div class="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+                            <h2 class="text-xl font-semibold tracking-tight text-base-content">
+                                {{ __('Heutige Besuche') }}
+                            </h2>
+
+                            <div class="flex flex-wrap gap-2">
+                                @foreach ($filters as $index => $filter)
+                                    <button
+                                        type="button"
+                                        class="btn btn-sm rounded-xl {{ $index === 0 ? 'btn-primary' : 'btn-outline' }}"
+                                    >
+                                        {{ $filter }}
+                                    </button>
                                 @endforeach
-                                </tbody>
-                            </table>
+                            </div>
                         </div>
+
+                        <label class="input input-bordered flex h-11 w-full items-center gap-2 rounded-2xl">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" class="h-4 w-4 text-base-content/50">
+                                <circle cx="11" cy="11" r="6" />
+                                <path d="M20 20l-3.5-3.5" />
+                            </svg>
+                            <input
+                                type="search"
+                                class="grow"
+                                placeholder="{{ __('Nach Name, Firma oder Host suchen') }}"
+                            >
+                        </label>
+                    </div>
+
+                    <div class="space-y-4">
+                        @foreach ($visits as $visit)
+                            <article class="rounded-[1.5rem] border border-base-300 bg-base-100 px-5 py-4">
+                                <div class="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+                                    <div class="flex gap-4">
+                                        <div class="min-w-[72px] shrink-0">
+                                            <div class="text-2xl font-semibold leading-none tracking-tight text-base-content">
+                                                {{ $visit['time'] }}
+                                            </div>
+                                            <div class="mt-1 text-sm text-base-content/60">
+                                                {{ $visit['date'] }}
+                                            </div>
+                                        </div>
+
+                                        <div class="min-w-0">
+                                            <div class="text-xl font-semibold tracking-tight text-base-content">
+                                                {{ $visit['title'] }}
+                                            </div>
+
+                                            <div class="mt-1 text-lg text-base-content/75">
+                                                {{ $visit['company'] }}
+                                            </div>
+
+                                            <div class="mt-2 text-sm text-base-content/65">
+                                                {{ $visit['host'] }}
+                                            </div>
+
+                                            <div class="mt-3 text-base leading-6 text-base-content/80">
+                                                {{ $visit['note'] }}
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="flex shrink-0 flex-col items-start gap-3 lg:items-end">
+                                        <span class="badge {{ $visit['statusClass'] }} rounded-full px-3 py-3 text-sm font-semibold">
+                                            {{ $visit['status'] }}
+                                        </span>
+
+                                        <div class="flex flex-wrap gap-2">
+                                            <a
+                                                href="{{ \Illuminate\Support\Facades\Route::has('portal.visits.show') ? route('portal.visits.show', 1) : url('/portal/visits/1') }}"
+                                                class="btn btn-outline btn-sm rounded-xl"
+                                            >
+                                                {{ __('Details') }}
+                                            </a>
+
+                                            <button type="button" class="btn btn-primary btn-sm rounded-xl">
+                                                {{ $visit['action'] }}
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </article>
+                        @endforeach
                     </div>
                 </div>
+            </article>
 
-                <div class="space-y-6">
-                    <div class="card rounded-2xl border border-base-300 bg-base-100 shadow-sm">
-                        <div class="card-body">
-                            <h2 class="card-title text-xl">{{ __('Schnellaktionen') }}</h2>
+            <aside class="card rounded-[1.75rem] border border-base-300 bg-base-100 shadow-sm">
+                <div class="card-body p-5 sm:p-6">
+                    <h2 class="mb-4 text-xl font-semibold tracking-tight text-base-content">
+                        {{ __('Direkter Zugriff') }}
+                    </h2>
 
-                            <div class="grid gap-3">
-                                <button type="button" class="btn btn-primary justify-start rounded-xl">
-                                    {{ __('Spontanen Besuch erfassen') }}
-                                </button>
-                                <button type="button" class="btn btn-outline justify-start rounded-xl">
-                                    {{ __('Badge-Druck öffnen') }}
-                                </button>
-                                <button type="button" class="btn btn-outline justify-start rounded-xl">
-                                    {{ __('Self-Check-in prüfen') }}
-                                </button>
-                                <button type="button" class="btn btn-outline justify-start rounded-xl">
-                                    {{ __('Host benachrichtigen') }}
-                                </button>
-                            </div>
-                        </div>
-                    </div>
+                    <div class="space-y-3">
+                        <a
+                            href="{{ \Illuminate\Support\Facades\Route::has('portal.visits.create') ? route('portal.visits.create') : url('/portal/visits/create') }}"
+                            class="btn btn-primary w-full rounded-xl"
+                        >
+                            {{ __('Spontanen Besuch erfassen') }}
+                        </a>
 
-                    <div class="card rounded-2xl border border-base-300 bg-base-100 shadow-sm">
-                        <div class="card-body">
-                            <h2 class="card-title text-xl">{{ __('Nächste Ankünfte') }}</h2>
-
-                            <div class="space-y-3">
-                                <div class="rounded-2xl border border-base-300 p-4">
-                                    <div class="flex items-start justify-between gap-4">
-                                        <div>
-                                            <p class="font-medium">09:30 · Max Mustermann</p>
-                                            <p class="text-sm text-base-content/70">Beispiel GmbH</p>
-                                        </div>
-                                        <span class="badge badge-warning">{{ __('Geplant') }}</span>
-                                    </div>
-                                </div>
-
-                                <div class="rounded-2xl border border-base-300 p-4">
-                                    <div class="flex items-start justify-between gap-4">
-                                        <div>
-                                            <p class="font-medium">11:00 · Anna Becker</p>
-                                            <p class="text-sm text-base-content/70">ACME AG</p>
-                                        </div>
-                                        <span class="badge badge-success">{{ __('Eingecheckt') }}</span>
-                                    </div>
-                                </div>
-
-                                <div class="rounded-2xl border border-base-300 p-4">
-                                    <div class="flex items-start justify-between gap-4">
-                                        <div>
-                                            <p class="font-medium">13:30 · David Keller</p>
-                                            <p class="text-sm text-base-content/70">Tech Solutions</p>
-                                        </div>
-                                        <span class="badge badge-warning">{{ __('Geplant') }}</span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="card rounded-2xl border border-base-300 bg-base-100 shadow-sm">
-                        <div class="card-body">
-                            <h2 class="card-title text-xl">{{ __('Betriebsstatus') }}</h2>
-
-                            <div class="space-y-3 text-sm">
-                                <div class="flex items-center justify-between rounded-xl border border-base-300 p-3">
-                                    <span>{{ __('Monitor') }}</span>
-                                    <span class="badge badge-success">{{ __('Aktiv') }}</span>
-                                </div>
-                                <div class="flex items-center justify-between rounded-xl border border-base-300 p-3">
-                                    <span>{{ __('Mail-Benachrichtigung') }}</span>
-                                    <span class="badge badge-success">{{ __('Bereit') }}</span>
-                                </div>
-                                <div class="flex items-center justify-between rounded-xl border border-base-300 p-3">
-                                    <span>{{ __('Badge-Ausgabe') }}</span>
-                                    <span class="badge badge-warning">{{ __('Prüfen') }}</span>
-                                </div>
-                            </div>
-                        </div>
+                        <button type="button" class="btn btn-outline w-full rounded-xl">
+                            {{ __('Badge-Druck öffnen') }}
+                        </button>
                     </div>
                 </div>
-            </section>
-        </div>
+            </aside>
+        </section>
     </div>
 </x-app-layout>
