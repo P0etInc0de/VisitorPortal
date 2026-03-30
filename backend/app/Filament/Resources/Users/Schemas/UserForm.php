@@ -13,8 +13,14 @@ class UserForm
     {
         return $schema
             ->components([
+                Select::make('department_id')
+                    ->relationship('department', 'name'),
                 TextInput::make('name')
                     ->required(),
+                Select::make('gender')
+                    ->options(['male'=>'male', 'female'=>'female', 'not specified'=>'not specified'])
+                    ->required()
+                    ->default('not specified'),
                 TextInput::make('email')
                     ->label('Email address')
                     ->email()
@@ -23,11 +29,6 @@ class UserForm
                 TextInput::make('password')
                     ->password()
                     ->required(),
-                Select::make('roles')
-                    ->relationship('roles', 'name')
-                    ->multiple()
-                    ->preload()
-                    ->searchable(),
             ]);
     }
 }

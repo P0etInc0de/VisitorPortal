@@ -33,7 +33,7 @@ class VisitSeeder extends Seeder
                 'notes'               => $notes,
             ]);
 
-            $visit->visitors()->attach([1, 2, 3, 4], [
+            $visit->visitors()->attach([1, 2], [
                 'checked_in_at' => $from,
                 'badge_printed_at' => Carbon::now(),
             ]);
