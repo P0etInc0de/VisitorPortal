@@ -13,15 +13,11 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Spatie\Permission\Traits\HasRoles;
 
+
 class User extends Authenticatable implements FilamentUser
 {
-<<<<<<< 8-adding-pint-to-ci
     /** @use HasFactory<\Database\Factories\UserFactory> */
     use HasFactory, HasRoles, Notifiable;
-=======
-    /** @use HasFactory<UserFactory> */
-    use HasFactory, Notifiable, HasRoles;
->>>>>>> develop
 
     /**
      * The attributes that are mass assignable.
