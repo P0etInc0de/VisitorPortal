@@ -4,10 +4,13 @@ namespace App\Tasks;
 
 
 use App\Models\User;
+use App\Models\Visit;
 use App\Notifications\Guest\VisitCreated;
 use App\Notifications\Host\GuestCheckedIn;
 use App\Notifications\Host\SingleVisitReminder;
 use App\Notifications\Host\VisitReminderDaily;
+use Carbon\Carbon;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Notification;
 
 class DailyVisitorReminder
@@ -19,11 +22,16 @@ class DailyVisitorReminder
      * */
     public function __invoke(): void
     {
-        //Testing
-        Notification::send(User::first(), new VisitCreated());
-        Notification::send(User::first(), new \App\Notifications\Host\VisitCreated());
-        Notification::send(User::first(), new SingleVisitReminder());
-        Notification::send(User::first(), new GuestCheckedIn());
-        Notification::send(User::first(), new VisitReminderDaily());
+        $visitsOfToday = Visit::query()
+            ->whereDate('visits.scheduled_from', Carbon::today())
+            ->get();
+
+        $visitsOfUsers = $visitsOfToday->groupBy('visits.responsible_user_id');
+
+        foreach($visitsOfUsers as $visitCollection)
+        {
+            $user = $visitCollection->first()->responsibleUser;
+            Notification::send($user, new VisitReminderDaily($visitCollection, $user));
+        }
     }
 }

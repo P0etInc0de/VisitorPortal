@@ -20,6 +20,13 @@ Manche Benachrichtigungen müssen zu bestimmten Uhrzeiten angestoßen werden. Da
 Schedule::call(new DailyVisitorReminder())->daily();
 ```
 
+## Manage Scheduler
+
+- `php artisan schedule:list`
+  - Auflisten der Scheduler
+- `php artisan schedule:test`
+  - Ausführen eines Schedulers
+
 ## Quellen
 
 - Laravel Scheduler: https://laravel.com/docs/12.x/scheduling#introduction
