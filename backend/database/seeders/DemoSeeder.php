@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use App\Models\User;
+use App\Models\Department;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
@@ -24,31 +25,31 @@ class DemoSeeder extends Seeder
         $roleAdmin = Role::firstOrCreate(['name' => 'super_admin']);
 
         // Make Users
-        $hasDepartmentColumn = Schema::hasColumn('users', 'department');
         $defaultPassword = 'Passwort123!';
+
 
         $this->createOrUpdateUser(
             name: 'Admin Demo',
+            gender: 'male',
             email: 'admin@demo.local',
             password: $defaultPassword,
             department: 'IT/Administration',
-            hasDepartmentColumn: $hasDepartmentColumn,
         )->assignRole($roleAdmin);
 
         $this->createOrUpdateUser(
             name: 'Empfang Demo',
+            gender: 'male',
             email: 'empfang@demo.local',
             password: $defaultPassword,
             department: 'Empfang',
-            hasDepartmentColumn: $hasDepartmentColumn,
         );
 
         $this->createOrUpdateUser(
             name: 'Mitarbeiter Demo',
+            gender: 'male',
             email: 'mitarbeiter@demo.local',
             password: $defaultPassword,
             department: 'Vertrieb',
-            hasDepartmentColumn: $hasDepartmentColumn,
         )->assignRole($roleEmployee);
 
         $this->command?->info('DemoSeeder ausgeführt.');
@@ -60,20 +61,20 @@ class DemoSeeder extends Seeder
 
     private function createOrUpdateUser(
         string $name,
+        string $gender,
         string $email,
         string $password,
         string $department,
-        bool $hasDepartmentColumn
-    ): User|Model {
+    ):User|Model {
+        //search if department name matches any department in the departments table and get id as foreign key
+        $dept = Department::query()->where('name', $department)->first();
         $data = [
             'name' => $name,
+            'gender' => $gender,
             'email_verified_at' => now(),
             'password' => Hash::make($password),
+            'department_id' => $dept?->id,
         ];
-
-        if ($hasDepartmentColumn) {
-            $data['department'] = $department;
-        }
 
         return User::query()->updateOrCreate(
             ['email' => $email],

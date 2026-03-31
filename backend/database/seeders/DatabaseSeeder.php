@@ -21,6 +21,12 @@ class DatabaseSeeder extends Seeder
         */
         $this->call(ShieldSeeder::class);
 
+        $this->call(DepartmentSeeder::class);
+
         $this->call(DemoSeeder::class);
+
+        $this->call(VisitorSeeder::class);
+
+        $this->call(VisitSeeder::class);
     }
 }

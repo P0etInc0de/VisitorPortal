@@ -3,17 +3,25 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
+use Database\Factories\UserFactory;
 use Filament\Models\Contracts\FilamentUser;
 use Filament\Panel;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Spatie\Permission\Traits\HasRoles;
 
 class User extends Authenticatable implements FilamentUser
 {
+<<<<<<< 8-adding-pint-to-ci
     /** @use HasFactory<\Database\Factories\UserFactory> */
     use HasFactory, HasRoles, Notifiable;
+=======
+    /** @use HasFactory<UserFactory> */
+    use HasFactory, Notifiable, HasRoles;
+>>>>>>> develop
 
     /**
      * The attributes that are mass assignable.
@@ -24,6 +32,8 @@ class User extends Authenticatable implements FilamentUser
         'name',
         'email',
         'password',
+        'department_id',
+        'gender',
     ];
 
     /**
@@ -35,6 +45,38 @@ class User extends Authenticatable implements FilamentUser
         'password',
         'remember_token',
     ];
+
+    /**
+     * Relationship of  tables
+     * EXAMPLE HOW TO ACCESS: Get department that user belogs to via foreign key
+     *                          --> $department = $user->department->name/location/...
+     * EXAMPLE HOW TO ACCESS: Get vists that user is responsible for
+     *                           --> visits = $user->responsibleVisits
+     */
+    public function department():belongsTo
+    {
+        return $this->belongsTo(Department::class, 'department_id'); //Relationship to departments table id
+    }
+    public function visit():hasMany
+    {
+        return $this->hasMany(Visit::class, 'user_id'); //Relationship to visits table id
+    }
+    public function responsibleVisits():hasMany
+    {
+        return $this->hasMany(Visit::class, 'responsible_user_id'); //Relationship to visits table responsible_user_id
+    }
+    public function canceledVisits():hasMany
+    {
+        return $this->hasMany(Visit::class, 'canceled_user_id'); //Relationship to visits table canceled_user_id
+    }
+    public function performedCheckIns(): HasMany
+    {
+        return $this->hasMany(VisitVisitor::class, 'checked_in_by_user_id');
+    }
+    public function performedCheckOuts(): HasMany
+    {
+        return $this->hasMany(VisitVisitor::class, 'checked_out_by_user_id');
+    }
 
     /**
      * Get the attributes that should be cast.
