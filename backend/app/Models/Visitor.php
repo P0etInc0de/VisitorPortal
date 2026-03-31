@@ -32,12 +32,12 @@ class Visitor extends Model
     {
         return $this->belongsToMany(Visit::class, 'visit_visitor')
             ->using(VisitVisitor::class)
-            ->withPivot([ //load extra stuff into object called pivot
+            ->withPivot([ // load extra stuff into object called pivot
                 'badge_printed_at',
                 'checked_in_at',
                 'checked_out_at',
                 'checked_in_by_user_id',
-                'checked_out_by_user_id'
+                'checked_out_by_user_id',
             ]);
     }
 }

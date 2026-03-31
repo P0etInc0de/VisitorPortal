@@ -3,8 +3,8 @@
 namespace Database\Seeders;
 
 use App\Models\Visit;
-use Illuminate\Database\Seeder;
 use Carbon\Carbon;
+use Illuminate\Database\Seeder;
 
 class VisitSeeder extends Seeder
 {
@@ -17,20 +17,21 @@ class VisitSeeder extends Seeder
         $this->createOrUpdateVisit(2, 1, Carbon::yesterday()->setHour(10)->setMinute(0), Carbon::yesterday()->setHour(11)->setMinute(30), 'completed', 'Piratenpizza im Mountainbikepark');
     }
 
-    private function createOrUpdateVisit(int $userId, int $respUserId, Carbon $from, Carbon $until, string $status, ?string $notes): void {
+    private function createOrUpdateVisit(int $userId, int $respUserId, Carbon $from, Carbon $until, string $status, ?string $notes): void
+    {
 
         $visit = Visit::where('user_id', $userId)
             ->where('scheduled_from', $from)
             ->first();
 
-        if (!$visit) {
+        if (! $visit) {
             $visit = Visit::forceCreate([
-                'user_id'             => $userId,
+                'user_id' => $userId,
                 'responsible_user_id' => $respUserId,
-                'scheduled_from'      => $from,
-                'scheduled_until'     => $until,
-                'status'              => $status,
-                'notes'               => $notes,
+                'scheduled_from' => $from,
+                'scheduled_until' => $until,
+                'status' => $status,
+                'notes' => $notes,
             ]);
 
             $visit->visitors()->attach([1, 2, 3, 4], [

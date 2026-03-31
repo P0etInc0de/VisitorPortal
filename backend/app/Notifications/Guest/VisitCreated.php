@@ -6,7 +6,6 @@ use App\Mail\Guest\VisitCreatedMail;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
-use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
 class VisitCreated extends Notification implements ShouldQueue
@@ -36,7 +35,7 @@ class VisitCreated extends Notification implements ShouldQueue
      */
     public function toMail(object $notifiable): Mailable
     {
-        return (new VisitCreatedMail())->to($notifiable->email);
+        return (new VisitCreatedMail)->to($notifiable->email);
     }
 
     /**

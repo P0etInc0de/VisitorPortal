@@ -3,7 +3,6 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
-use Database\Factories\UserFactory;
 use Filament\Models\Contracts\FilamentUser;
 use Filament\Panel;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -12,7 +11,6 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Spatie\Permission\Traits\HasRoles;
-
 
 class User extends Authenticatable implements FilamentUser
 {
@@ -49,26 +47,31 @@ class User extends Authenticatable implements FilamentUser
      * EXAMPLE HOW TO ACCESS: Get vists that user is responsible for
      *                           --> visits = $user->responsibleVisits
      */
-    public function department():belongsTo
+    public function department(): belongsTo
     {
-        return $this->belongsTo(Department::class, 'department_id'); //Relationship to departments table id
+        return $this->belongsTo(Department::class, 'department_id'); // Relationship to departments table id
     }
-    public function visit():hasMany
+
+    public function visit(): hasMany
     {
-        return $this->hasMany(Visit::class, 'user_id'); //Relationship to visits table id
+        return $this->hasMany(Visit::class, 'user_id'); // Relationship to visits table id
     }
-    public function responsibleVisits():hasMany
+
+    public function responsibleVisits(): hasMany
     {
-        return $this->hasMany(Visit::class, 'responsible_user_id'); //Relationship to visits table responsible_user_id
+        return $this->hasMany(Visit::class, 'responsible_user_id'); // Relationship to visits table responsible_user_id
     }
-    public function canceledVisits():hasMany
+
+    public function canceledVisits(): hasMany
     {
-        return $this->hasMany(Visit::class, 'canceled_user_id'); //Relationship to visits table canceled_user_id
+        return $this->hasMany(Visit::class, 'canceled_user_id'); // Relationship to visits table canceled_user_id
     }
+
     public function performedCheckIns(): HasMany
     {
         return $this->hasMany(VisitVisitor::class, 'checked_in_by_user_id');
     }
+
     public function performedCheckOuts(): HasMany
     {
         return $this->hasMany(VisitVisitor::class, 'checked_out_by_user_id');

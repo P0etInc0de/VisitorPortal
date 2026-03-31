@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('visitors', function (Blueprint $table) {
-            $table->id();                                                       //primary key
+            $table->id();                                                       // primary key
             $table->string('first_name');
             $table->string('last_name');
             $table->string('email')->unique();
@@ -20,7 +20,7 @@ return new class extends Migration
             $table->string('company')->nullable();
             $table->string('status')->default('planned');
             $table->text('notes')->nullable();
-            $table->timestamps();                                               //creates created_at and updated_at automatically
+            $table->timestamps();                                               // creates created_at and updated_at automatically
         });
     }
 

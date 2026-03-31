@@ -6,7 +6,6 @@ use App\Mail\Host\GuestCheckedInMail;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
-use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
 class GuestCheckedIn extends Notification implements ShouldQueue
@@ -36,7 +35,7 @@ class GuestCheckedIn extends Notification implements ShouldQueue
      */
     public function toMail(object $notifiable): Mailable
     {
-        return (new GuestCheckedInMail())->to($notifiable->email);
+        return (new GuestCheckedInMail)->to($notifiable->email);
     }
 
     /**

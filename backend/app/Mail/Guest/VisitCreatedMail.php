@@ -26,7 +26,7 @@ class VisitCreatedMail extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: "Ihr Besuch bei [Company] wurde registriert",
+            subject: 'Ihr Besuch bei [Company] wurde registriert',
         );
     }
 
