@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\VisitStatusEnum;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
@@ -21,6 +22,9 @@ class Visit extends Model
         'notes',
     ];
 
+    protected $casts = [
+      'status' => VisitStatusEnum::class,
+    ];
     /**
      * Relationships to table users for all foreign keys
      * EXAMPLE HOW TO ACCESS: Access user who ist responsible for a visit

@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Visitors\Schemas;
 
+use App\Enums\VisitorStatusEnum;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Textarea;
@@ -26,8 +27,8 @@ class VisitorForm
                     ->required(),
                 TextInput::make('company'),
                 Select::make('status')
-                    ->options(['planned'=>'planned', 'checked_in'=>'checked_in', 'checked_out'=>'checked_out'])
-                    ->default('planned'),
+                    ->options(VisitorStatusEnum::class)
+                    ->default(VisitorStatusEnum::Planned),
                 Textarea::make('notes')
                     ->columnSpanFull(),
             ]);

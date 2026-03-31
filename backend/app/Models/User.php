@@ -3,6 +3,7 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
+use App\Enums\GenderEnum;
 use Filament\Models\Contracts\FilamentUser;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -28,6 +29,10 @@ class User extends Authenticatable implements FilamentUser
         'password',
         'department_id',
         'gender',
+    ];
+
+    protected $casts = [
+        'gender' => GenderEnum::class,
     ];
 
     /**

@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Visits\Schemas;
 
+use App\Enums\VisitStatusEnum;
 use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
@@ -25,9 +26,9 @@ class VisitForm
                 DateTimePicker::make('scheduled_until')
                     ->required(),
                 Select::make('status')
-                    ->options(['Planned'=>'Planned','Completed'=>'Completed','Cancelled'=>'Cancelled'])
+                    ->options(VisitStatusEnum::class)
                     ->required()
-                    ->default('Planned'),
+                    ->default(VisitStatusEnum::Planned),
                 Textarea::make('notes')
                     ->columnSpanFull(),
                 DateTimePicker::make('canceled_at'),

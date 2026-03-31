@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Visits\Pages;
 
+use App\Enums\VisitStatusEnum;
 use App\Filament\Resources\Visits\VisitResource;
 use Filament\Actions\Action;
 use Filament\Actions\DeleteAction;
@@ -24,12 +25,12 @@ class EditVisit extends EditRecord
                 ->modalHeading('Cancel Visit')
                 ->modalDescription('Are you sure you want to cancel this visit?')
                 ->modalSubmitActionLabel('Yes, cancel it')
-                ->hidden(fn ($record) => $record->status === 'cancelled') // Hides the button if already cancelled
+                ->hidden(fn ($record) => $record->status === VisitStatusEnum::Cancelled) // Hides the button if already cancelled
                 ->action(function ($record) {
                     // Set the properties directly
                     $record->canceled_at = now();
                     $record->canceled_by_user_id = auth()->id();
-                    $record->status = 'cancelled';
+                    $record->status = VisitStatusEnum::Cancelled;
 
                     // Save the record to the database
                     $record->save();
