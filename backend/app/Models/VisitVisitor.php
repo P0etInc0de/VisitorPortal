@@ -19,6 +19,7 @@ class VisitVisitor extends Pivot
     ];
 
     public $timestamps = true;
+
     /**
      * Relationships to table users for users who did check-in/check-out
      */
@@ -31,5 +32,4 @@ class VisitVisitor extends Pivot
     {
         return $this->belongsTo(User::class, 'checked_out_by_user_id');
     }
-
 }

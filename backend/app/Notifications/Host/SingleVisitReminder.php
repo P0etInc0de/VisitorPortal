@@ -35,7 +35,7 @@ class SingleVisitReminder extends Notification implements ShouldQueue
      */
     public function toMail(object $notifiable): Mailable
     {
-        return (new SingleVisitReminderMail())->to($notifiable->email);
+        return (new SingleVisitReminderMail)->to($notifiable->email);
     }
 
     /**

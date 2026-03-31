@@ -5,7 +5,6 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Visit extends Model
 {
@@ -30,10 +29,12 @@ class Visit extends Model
     {
         return $this->belongsTo(User::class, 'user_id');
     }
+
     public function responsibleUser(): BelongsTo
     {
         return $this->belongsTo(User::class, 'responsible_user_id');
     }
+
     public function canceledBy(): BelongsTo
     {
         return $this->belongsTo(User::class, 'canceled_by_user_id');
@@ -47,12 +48,12 @@ class Visit extends Model
     {
         return $this->belongsToMany(Visitor::class, 'visit_visitor')
             ->using(VisitVisitor::class)
-            ->withPivot([ //load extra stuff into object called pivot
+            ->withPivot([ // load extra stuff into object called pivot
                 'badge_printed_at',
                 'checked_in_at',
                 'checked_out_at',
                 'checked_in_by_user_id',
-                'checked_out_by_user_id'
+                'checked_out_by_user_id',
             ]);
     }
 }

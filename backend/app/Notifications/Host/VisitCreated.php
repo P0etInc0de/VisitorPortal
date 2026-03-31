@@ -35,7 +35,7 @@ class VisitCreated extends Notification implements ShouldQueue
      */
     public function toMail(object $notifiable): Mailable
     {
-        return (new VisitCreatedMail())->to($notifiable->email);
+        return (new VisitCreatedMail)->to($notifiable->email);
     }
 
     /**

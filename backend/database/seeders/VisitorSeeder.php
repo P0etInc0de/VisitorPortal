@@ -21,8 +21,8 @@ class VisitorSeeder extends Seeder
     private function createOrUpdateVisitor(string $first_name, string $last_name, string $email, string $phone, ?string $company, string $status, ?string $notes): void
     {
         Visitor::query()->updateOrCreate(
-            ['email' => $email,], //search criteria
-            ['first_name'=>$first_name, 'last_name' => $last_name, 'phone' => $phone,'company' => $company,'status' => $status, 'notes'=>$notes] //update values
+            ['email' => $email], // search criteria
+            ['first_name' => $first_name, 'last_name' => $last_name, 'phone' => $phone, 'company' => $company, 'status' => $status, 'notes' => $notes] // update values
         );
     }
 }

@@ -2,14 +2,11 @@
 
 namespace Database\Seeders;
 
-use App\Models\User;
 use App\Models\Department;
+use App\Models\User;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Seeder;
-use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Schema;
-use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
 use Spatie\Permission\PermissionRegistrar;
 
@@ -26,11 +23,8 @@ class DemoSeeder extends Seeder
         $roleEmployee = Role::firstOrCreate(['name' => 'employee']);
         $roleAdmin = Role::firstOrCreate(['name' => 'super_admin']);
 
-
-
         // Make Users
         $defaultPassword = 'Passwort123!';
-
 
         $this->createOrUpdateUser(
             name: 'Admin Demo',
@@ -69,8 +63,8 @@ class DemoSeeder extends Seeder
         string $email,
         string $password,
         string $department,
-    ):User|Model {
-        //search if department name matches any department in the departments table and get id as foreign key
+    ): User|Model {
+        // search if department name matches any department in the departments table and get id as foreign key
         $dept = Department::query()->where('name', $department)->first();
         $data = [
             'name' => $name,
