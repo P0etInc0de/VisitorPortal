@@ -20,13 +20,12 @@ class VisitReminderDaily extends Notification implements ShouldQueue
      * Create a new notification instance.
      */
     /**
-     * @param Collection<Visit> $visitCollection
+     * @param  Collection<Visit>  $visitCollection
      */
     public function __construct(
         protected Collection $visitCollection,
         protected User $user,
-    )
-    {
+    ) {
         Log::info('Notifying User from VisitReminderDaily class', [
             'user_id' => $user->id,
             'visit_count' => $visitCollection->count(),

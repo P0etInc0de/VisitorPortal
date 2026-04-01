@@ -44,7 +44,7 @@ class Visit extends Model
      * Relationship to table visits via pivot table
      * INFO: ALL IMPORTANT INFO LIKE CHECKED_IN_AT LIES IN PIVOT OBJECT CALLED PIVOT!!!
      */
-    public function visitors(): belongsToMany
+    public function visitors(): BelongsToMany
     {
         return $this->belongsToMany(Visitor::class, 'visit_visitor')
             ->using(VisitVisitor::class)

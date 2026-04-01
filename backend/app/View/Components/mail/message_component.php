@@ -12,9 +12,7 @@ class message_component extends Component
     /**
      * Create a new component instance.
      */
-    public function __construct(protected Message $message)
-    {
-    }
+    public function __construct(protected Message $message) {}
 
     /**
      * Get the view / contents that represent the component.

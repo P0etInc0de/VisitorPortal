@@ -6,6 +6,7 @@ use App\Models\User;
 use App\Models\Visit;
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
+use Illuminate\Mail\Mailables\Attachment;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
@@ -15,20 +16,20 @@ class VisitReminderDailyMail extends Mailable
 {
     use Queueable, SerializesModels;
 
-    public String $last_name;
-    public String $gender;
+    public string $last_name;
+
+    public string $gender;
 
     /**
      * Create a new message instance.
      */
     /**
-     * @param Collection<Visit> $visitCollection
+     * @param  Collection<Visit>  $visitCollection
      */
     public function __construct(
         protected Collection $visitCollection,
         protected User $user,
-    )
-    {
+    ) {
         $nameParts = explode(' ', $user->name);
         $this->last_name = end($nameParts);
         $this->gender = $user->gender;
@@ -52,7 +53,7 @@ class VisitReminderDailyMail extends Mailable
         return (new Content(
             markdown: 'mail.host.visitReminderDaily',
         ))
-            ->with('visitCollection',$this->visitCollection)
+            ->with('visitCollection', $this->visitCollection)
             ->with('user', $this->user)
             ->with('last_name', $this->last_name)
             ->with('gender', $this->gender);
@@ -61,7 +62,7 @@ class VisitReminderDailyMail extends Mailable
     /**
      * Get the attachments for the message.
      *
-     * @return array<int, \Illuminate\Mail\Mailables\Attachment>
+     * @return array<int, Attachment>
      */
     public function attachments(): array
     {

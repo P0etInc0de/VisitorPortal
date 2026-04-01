@@ -2,7 +2,6 @@
 
 namespace App\Tasks;
 
-
 use App\Models\Visit;
 use App\Notifications\Host\VisitReminderDaily;
 use Carbon\Carbon;
@@ -25,7 +24,6 @@ class DailyVisitorReminder
             'class' => get_class(),
         ]);
 
-
         $visitsOfToday = Visit::query()
             ->whereDate('scheduled_from', Carbon::today())
             ->with('responsibleUser')
@@ -33,8 +31,7 @@ class DailyVisitorReminder
 
         $visitsOfUsers = $visitsOfToday->groupBy('responsible_user_id');
 
-        foreach($visitsOfUsers as $visitCollection)
-        {
+        foreach ($visitsOfUsers as $visitCollection) {
             $user = $visitCollection->first()->responsibleUser;
             Notification::send($user, new VisitReminderDaily($visitCollection, $user));
         }

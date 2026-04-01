@@ -12,7 +12,7 @@ class header_component extends Component
     /**
      * Create a new component instance.
      */
-    public function __construct(protected Message $message, protected String $url)
+    public function __construct(protected Message $message, protected string $url)
     {
         //
     }
