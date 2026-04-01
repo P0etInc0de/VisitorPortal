@@ -28,7 +28,7 @@ class Visitor extends Model
      *                          --> $visit->visitors->first()->pivot->checkedInBy->name
      * INFO: ALL IMPORTANT INFO LIKE CHECKED_IN_AT LIES IN PIVOT OBJECT CALLED PIVOT!!!
      */
-    public function visits(): belongsToMany
+    public function visits(): BelongsToMany
     {
         return $this->belongsToMany(Visit::class, 'visit_visitor')
             ->using(VisitVisitor::class)
