@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests\Feature\Notification;
+namespace Feature\Notification;
 
 use App\Models\User;
 use App\Models\Visit;
