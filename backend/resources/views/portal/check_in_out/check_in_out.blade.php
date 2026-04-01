@@ -1,10 +1,3 @@
-@php
-    $summary = [
-        ['label' => __('Gast'), 'value' => 'Max Mustermann'],
-        ['label' => __('Email'), 'value' => 'Beispiel@gmail.com'],
-    ];
-@endphp
-
 <x-app-layout>
     <x-slot name="header">
         <div class="bp-screen-head">
@@ -13,6 +6,52 @@
             </div>
         </div>
     </x-slot>
+
+    @if(session('success'))
+        <div
+            x-data="{ show: true }"
+            x-init="setTimeout(() => show = false, 5000)"
+            x-show="show"
+            x-transition
+            class="fixed top-5 right-5 z-50 max-w-sm w-full"
+        >
+            <div class="bg-base-100 border-l-4 border-success shadow-xl rounded-xl p-4 flex items-center gap-3">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-success" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                </svg>
+
+                <div class="text-sm">
+                    <p class="font-semibold">{{ __('Erfolgreich!') }}</p>
+                    <p class="text-base-content/70">{{ session('success') }}</p>
+                </div>
+
+                <button @click="show = false" class="ml-auto text-base-content/40">✕</button>
+            </div>
+        </div>
+    @endif
+
+    @if(session('error')||$errors->any())
+        <div
+            x-data="{ show: true }"
+            x-init="setTimeout(() => show = false, 5000)"
+            x-show="show"
+            x-transition
+            class="fixed top-5 right-5 z-50 max-w-sm w-full"
+        >
+            <div class="bg-base-100 border-l-4 border-error shadow-xl rounded-xl p-4 flex items-center gap-3">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-error" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                </svg>
+
+                <div class="text-sm">
+                    <p class="font-semibold">{{ __('Woops!') }}</p>
+                    <p class="text-base-content/70">{{ __('Etwas ist schiefgelaufen') }}</p>
+                </div>
+
+                <button @click="show = false" class="ml-auto text-base-content/40">✕</button>
+            </div>
+        </div>
+    @endif
     <div class="bp-content">
         <section class="bp-main-grid bp-main-grid-wide">
             <article class="card rounded-3xl border border-base-300 bg-base-100 shadow-sm">
