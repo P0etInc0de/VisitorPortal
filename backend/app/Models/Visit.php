@@ -2,12 +2,17 @@
 
 namespace App\Models;
 
+use Database\Factories\VisitFactory;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class Visit extends Model
 {
+    /** @use HasFactory<VisitFactory> */
+    use HasFactory;
+
     /**
      * The attributes that are mass assignable.
      *
