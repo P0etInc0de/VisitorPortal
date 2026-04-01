@@ -22,7 +22,7 @@ class DailyVisitorReminder
     public function __invoke(): void
     {
         Log::info('DailyVisitorReminder started', [
-            'date' => Carbon::today()->toDateString(),
+            'class' => get_class(),
         ]);
 
 
@@ -36,13 +36,11 @@ class DailyVisitorReminder
         foreach($visitsOfUsers as $visitCollection)
         {
             $user = $visitCollection->first()->responsibleUser;
-
-            Log::info('Sending Notification from DailyVisitReminder', [
-                'user_id' => $user->id,
-                'visit_count' => $visitCollection->count(),
-            ]);
-
             Notification::send($user, new VisitReminderDaily($visitCollection, $user));
         }
+
+        Log::info('DailyVisitorReminder finished', [
+            'class' => get_class(),
+        ]);
     }
 }

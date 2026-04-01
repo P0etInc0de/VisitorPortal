@@ -10,6 +10,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
 use Illuminate\Notifications\Notification;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Log;
 
 class VisitReminderDaily extends Notification implements ShouldQueue
 {
@@ -26,7 +27,11 @@ class VisitReminderDaily extends Notification implements ShouldQueue
         protected User $user,
     )
     {
-        //
+        Log::info('Notifying User from VisitReminderDaily class', [
+            'user_id' => $user->id,
+            'visit_count' => $visitCollection->count(),
+            'class' => get_class(),
+        ]);
     }
 
     /**

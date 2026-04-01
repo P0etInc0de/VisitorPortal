@@ -21,7 +21,7 @@ Sie haben heute Folgende Besuche:
 
 </x-mail::table>
 
-<x-mail::button :url={{ route('dashboard') }}>
+<x-mail::button :url='route("dashboard")'>
     Weiter Informationen
 </x-mail::button>
 
