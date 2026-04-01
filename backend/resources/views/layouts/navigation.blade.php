@@ -108,6 +108,13 @@
                     </svg>
                     <span>{{ __('Besuch anlegen') }}</span>
                 </a>
+
+                <a href="{{ route('portal.check_in_out') }}" class="{{ $navLinkClasses(request()->routeIs('portal.check_in_out')) }}">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="bp-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 5v14M5 12h14" />
+                    </svg>
+                    <span>{{ __('Check-In/Out') }}</span>
+                </a>
             </div>
 
             @if ($canSeeReception)
