@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use \App\Http\Controllers\CheckInOutController;
+use \App\Http\Controllers\VisitorBadgeController;
 
 Route::get('/', function () {
     return auth()->check()
@@ -19,13 +20,14 @@ Route::middleware(['auth', 'verified'])->group(function () {
                 ->whereNumber('visit')
                 ->name('show');
         });
-        Route::get('/check_in_out', [CheckInOutController::class, 'index'])->name('check_in_out');        //Routing of get using controller
-        Route::post('/check_in_out', [CheckInOutController::class, 'store'])->name('check_in_out.store'); // Routing of post with filled form using controller
+        Route::get('/check_in_out', [CheckInOutController::class, 'index'])->name('check_in_out');        //Routing of check in get using controller
+        Route::post('/check_in_out', [CheckInOutController::class, 'store'])->name('check_in_out.store'); // Routing of check in post with filled form using controller
     });
 
     Route::prefix('reception')->name('reception.')->group(function () {
         Route::view('/', 'reception.dashboard')->name('dashboard');
         Route::view('/all-visits', 'reception.all-visits')->name('all-visits');
+        Route::get('/badge', [VisitorBadgeController::class, 'index'])->name('badge');   //Routing of badge get using controller
     });
 
     Route::prefix('monitor')->name('monitor.')->group(function () {
