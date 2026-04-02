@@ -77,7 +77,7 @@ class NotificationTest extends TestCase
         // Assert the array is not empty (an email was generated)
         $this->assertCount(1, $messages);
 
-        // Grab the first email from the array
+        // Grab the first E-Mail from the array
         $email = $messages[0];
 
         // Check the recipient
