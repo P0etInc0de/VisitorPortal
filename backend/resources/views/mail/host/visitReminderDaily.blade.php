@@ -1,22 +1,28 @@
-<x-mail::message>
+@php use Carbon\Carbon; @endphp
+<x-mail.message_component :message="$message">
 # Anstehende Besuche
 
-Guten Morgen [Mitarbeiter],
+@if($gender == 'male')
+Guten Morgen Herr {{ $last_name }},
+@elseif($gender == 'female')
+Guten Morgen Frau {{ $last_name }},
+@else
+Guten Morgen,
+@endif
 
-Sie bekommen heute Folgende Besuche:
+Sie haben heute Folgende Besuche:
 
 <x-mail::table>
-    | Name          | Uhrzeit       | Notizen       |
-    | ------------- | :-----------: | ------------: |
-    | Col 2 is      | Centered      | test          |
-    | Col 3 is      | Right-Aligned | test          |
+    | Start | Ende | Notizen |
+    | :-----------: | :------------: | :------------: |
+    @foreach($visitCollection as $visit)
+        | {{ Carbon::parse($visit->scheduled_from)->format('H:i') }} | {{ Carbon::parse($visit->scheduled_until)->format('H:i') }} | {{ $visit->notes }} |
+    @endforeach
+
 </x-mail::table>
 
-<x-mail::button :url="''">
+<x-mail::button :url='route("dashboard")'>
     Weiter Informationen
 </x-mail::button>
 
-
-Thanks,<br>
-{{ config('app.name') }}
-</x-mail::message>
+</x-mail.message_component>
