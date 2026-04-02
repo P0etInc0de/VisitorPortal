@@ -6,7 +6,6 @@ use App\Enums\VisitStatusEnum;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Visit extends Model
 {
@@ -23,8 +22,9 @@ class Visit extends Model
     ];
 
     protected $casts = [
-      'status' => VisitStatusEnum::class,
+        'status' => VisitStatusEnum::class,
     ];
+
     /**
      * Relationships to table users for all foreign keys
      * EXAMPLE HOW TO ACCESS: Access user who ist responsible for a visit
@@ -34,10 +34,12 @@ class Visit extends Model
     {
         return $this->belongsTo(User::class, 'user_id');
     }
+
     public function responsibleUser(): BelongsTo
     {
         return $this->belongsTo(User::class, 'responsible_user_id');
     }
+
     public function canceledBy(): BelongsTo
     {
         return $this->belongsTo(User::class, 'canceled_by_user_id');
@@ -47,16 +49,16 @@ class Visit extends Model
      * Relationship to table visits via pivot table
      * INFO: ALL IMPORTANT INFO LIKE CHECKED_IN_AT LIES IN PIVOT OBJECT CALLED PIVOT!!!
      */
-    public function visitors(): belongsToMany
+    public function visitors(): BelongsToMany
     {
         return $this->belongsToMany(Visitor::class, 'visit_visitor')
             ->using(VisitVisitor::class)
-            ->withPivot([ //load extra stuff into object called pivot
+            ->withPivot([ // load extra stuff into object called pivot
                 'badge_printed_at',
                 'checked_in_at',
                 'checked_out_at',
                 'checked_in_by_user_id',
-                'checked_out_by_user_id'
+                'checked_out_by_user_id',
             ]);
     }
 }

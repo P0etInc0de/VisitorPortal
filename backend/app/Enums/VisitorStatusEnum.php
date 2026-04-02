@@ -2,7 +2,7 @@
 
 namespace App\Enums;
 
-enum VisitorStatusEnum:String
+enum VisitorStatusEnum: string
 {
     case Planned = 'Planned';
     case Checked_In = 'Checked_In';

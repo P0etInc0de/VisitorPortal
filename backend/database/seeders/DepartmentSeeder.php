@@ -12,7 +12,7 @@ class DepartmentSeeder extends Seeder
      */
     public function run(): void
     {
-        $this->createOrUpdateDept('IT/Administration', 'Achstetten', true); //NOTE: is active is true by default, can be changed here if wanted
+        $this->createOrUpdateDept('IT/Administration', 'Achstetten', true); // NOTE: is active is true by default, can be changed here if wanted
         $this->createOrUpdateDept('Empfang', 'Achstetten', true);
         $this->createOrUpdateDept('Vertrieb', null, true);
     }
@@ -20,8 +20,8 @@ class DepartmentSeeder extends Seeder
     private function createOrUpdateDept(string $name, ?string $location, ?bool $is_active): void
     {
         Department::query()->updateOrCreate(
-            ['name' => $name,], //search criteria
-            ['location' => $location, 'is_active' => $is_active] //update values
+            ['name' => $name], // search criteria
+            ['location' => $location, 'is_active' => $is_active] // update values
         );
     }
 }

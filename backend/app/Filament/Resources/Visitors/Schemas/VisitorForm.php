@@ -4,8 +4,8 @@ namespace App\Filament\Resources\Visitors\Schemas;
 
 use App\Enums\VisitorStatusEnum;
 use Filament\Forms\Components\Select;
-use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Textarea;
+use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Schema;
 
 class VisitorForm

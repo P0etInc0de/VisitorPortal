@@ -35,7 +35,7 @@ class VisitReminderDaily extends Notification implements ShouldQueue
      */
     public function toMail(object $notifiable): Mailable
     {
-        return (new VisitReminderDailyMail())->to($notifiable->email);
+        return (new VisitReminderDailyMail)->to($notifiable->email);
     }
 
     /**

@@ -4,6 +4,7 @@ namespace App\Mail\Guest;
 
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
+use Illuminate\Mail\Mailables\Attachment;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
@@ -26,7 +27,7 @@ class VisitCreatedMail extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: "Ihr Besuch bei [Company] wurde registriert",
+            subject: 'Ihr Besuch bei [Company] wurde registriert',
         );
     }
 
@@ -43,7 +44,7 @@ class VisitCreatedMail extends Mailable
     /**
      * Get the attachments for the message.
      *
-     * @return array<int, \Illuminate\Mail\Mailables\Attachment>
+     * @return array<int, Attachment>
      */
     public function attachments(): array
     {

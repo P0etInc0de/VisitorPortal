@@ -6,7 +6,6 @@ use App\Mail\Guest\SingleVisitReminderMail;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
-use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
 class SingleVisitReminder extends Notification implements ShouldQueue
@@ -36,7 +35,7 @@ class SingleVisitReminder extends Notification implements ShouldQueue
      */
     public function toMail(object $notifiable): Mailable
     {
-        return (new SingleVisitReminderMail())->to($notifiable->email);
+        return (new SingleVisitReminderMail)->to($notifiable->email);
     }
 
     /**

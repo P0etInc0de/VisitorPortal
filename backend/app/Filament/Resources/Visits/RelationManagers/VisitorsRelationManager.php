@@ -3,11 +3,8 @@
 namespace App\Filament\Resources\Visits\RelationManagers;
 
 use App\Filament\Resources\Visitors\VisitorResource;
-use Filament\Actions\AttachAction;
 use Filament\Actions\CreateAction;
-use Filament\Actions\DetachAction;
 use Filament\Resources\RelationManagers\RelationManager;
-use Filament\Schemas\Schema;
 use Filament\Tables\Table;
 
 class VisitorsRelationManager extends RelationManager
