@@ -20,9 +20,12 @@ class VisitorFactory extends Factory
      */
     public function definition(): array
     {
+        $name = fake()->name;
+        $nameParts = explode(' ', $name);
+
         return [
-            'first_name' => fake()->name(),
-            'last_name' => fake()->name(),
+            'first_name' => $nameParts[0],
+            'last_name' => $nameParts[1],
             'email' => fake()->email(),
             'phone' => fake()->phoneNumber(),
             'company' => fake()->company(),
