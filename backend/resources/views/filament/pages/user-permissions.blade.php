@@ -1,24 +1,20 @@
-<?php
-
 <x-filament-panels::page>
 
     @php $data = $this->getUserData() @endphp
 
-    {{-- User header --}}
-    <div class="flex items-center gap-4 mb-6">
-        <div>
-            <h2 class="text-xl font-bold text-gray-900 dark:text-white">
-                {{ $data['name'] }}
-            </h2>
-            <div class="flex gap-2 mt-1">
-                @foreach ($data['roles'] as $role)
-                    <span class="px-2 py-1 text-xs font-semibold rounded-full
-                                 bg-primary-100 text-primary-700
-                                 dark:bg-primary-900 dark:text-primary-300">
-                        {{ $role }}
-                    </span>
-                @endforeach
-            </div>
+    {{-- User name and roles --}}
+    <div class="mb-6">
+        <h2 class="text-xl font-bold text-gray-900 dark:text-white">
+            {{ $data['name'] }}
+        </h2>
+        <div class="flex gap-2 mt-1">
+            @foreach ($data['roles'] as $role)
+                <span class="px-2 py-1 text-xs font-semibold rounded-full
+                             bg-primary-100 text-primary-700
+                             dark:bg-primary-900 dark:text-primary-300">
+                    {{ $role }}
+                </span>
+            @endforeach
         </div>
     </div>
 
@@ -27,12 +23,10 @@
         @forelse ($data['permissions'] as $resource => $permissions)
             <div class="rounded-xl border border-gray-200 dark:border-gray-700
                         bg-white dark:bg-gray-900 p-4 shadow-sm">
-
                 <h3 class="mb-3 text-sm font-semibold uppercase tracking-wide
                             text-gray-500 dark:text-gray-400">
                     {{ $resource }}
                 </h3>
-
                 <ul class="space-y-2">
                     @foreach ($permissions as $permission)
                         <li class="flex items-center gap-2 text-sm
@@ -42,12 +36,9 @@
                         </li>
                     @endforeach
                 </ul>
-
             </div>
         @empty
-            <p class="text-gray-500 dark:text-gray-400">
-                No permissions assigned yet.
-            </p>
+            <p class="text-gray-500 dark:text-gray-400">No permissions assigned.</p>
         @endforelse
     </div>
 

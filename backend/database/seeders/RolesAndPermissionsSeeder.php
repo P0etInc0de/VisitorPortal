@@ -76,7 +76,7 @@ class RolesAndPermissionsSeeder extends Seeder
         $admin->givePermissionTo(Permission::all()); // all permissions
 
 		$receptionist = Role::create(['name' => 'receptionist']);
-		$receptionist->givevPermissionTo($receptionistPermissions);
+		$receptionist->givePermissionTo($receptionistPermissions);
 
         $manager = Role::create(['name' => 'manager']);
         $manager->givePermissionTo($managerPermissions);
@@ -89,10 +89,10 @@ class RolesAndPermissionsSeeder extends Seeder
 
 
         // Assign roles to users
-        User::find(1)->assignRole('admin');
-        User::find(2)->assignRole('manager');
-        User::find(3)->assignRole('receptionist');
-        User::find(4)->assignRole('user');
-        User::find(3)->assignRole('welcome monitor');
+		User::where('email', 'admin@example.com')->first()->assignRole('admin');
+		User::where('email', 'manager@example.com')->first()->assignRole('manager');
+		User::where('email', 'receptionist@example.com')->first()->assignRole('receptionist');
+		User::where('email', 'user@example.com')->first()->assignRole('user');
+		User::where('email', 'monitor@example.com')->first()->assignRole('welcome monitor');
     }
 }

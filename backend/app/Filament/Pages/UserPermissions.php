@@ -1,21 +1,20 @@
 <?php
 
-namespace App\Filament\Resources\Users\Pages;
+namespace App\Filament\Pages;
 
 use Filament\Pages\Page;
 
 class UserPermissions extends Page
 {
- 	protected static ?string $navigationIcon = 'heroicon-o-lock-closed';
+ 	protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-lock-closed';
     protected static ?string $navigationLabel = 'My Permissions';
     protected static ?string $title = 'My Permissions';
-    protected static string $view = 'filament.pages.user-permissions';
+    protected string $view = 'filament.pages.user-permissions';
 
-    // Only show this page in the nav for logged in users
-    public static function shouldRegisterNavigation(): bool
-    {
-        return auth()->check();
-    }
+	public static function canAccess(): bool
+	{
+		return auth()->check();
+	}
 
     // The data we pass to the view
     public function getUserData(): array
@@ -27,13 +26,9 @@ class UserPermissions extends Page
             'roles'       => $user->getRoleNames(),
             'permissions' => $user->getAllPermissions()
                                 ->pluck('name')
+								->filter(fn($p) => str_contains($p, ' '))
                                 ->groupBy(fn($p) => explode(' ', $p)[1] ?? 'general'),
                                 // groups by resource e.g. 'posts', 'users', 'reports'
         ];
     }   
-
-	public static function canAccess(): bool
-	{
-		return auth()->check();
-	}
 }
