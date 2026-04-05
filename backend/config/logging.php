@@ -74,7 +74,6 @@ return [
             'ignore_exceptions' => false,
         ],
 
-
         // Database channel
         'database_log' => [
             'driver' => 'daily',

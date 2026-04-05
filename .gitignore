@@ -32,3 +32,17 @@ Homestead.json
 .env.production
 .phpactor.json
 auth.json
+/.idea/vcs.xml
+/.idea/remote-mappings.xml
+/.idea/prettier.xml
+/.idea/phpunit.xml
+/.idea/modules.xml
+/.idea/laravel-idea.xml
+/.idea/dataSources.xml
+/.idea/php.xml
+/.idea/Besucherportal.iml
+/.idea/.gitignore
+
+.idea/
+*.iml
+*.Zone.Identifier
