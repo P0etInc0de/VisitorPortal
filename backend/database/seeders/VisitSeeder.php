@@ -13,7 +13,7 @@ class VisitSeeder extends Seeder
      */
     public function run(): void
     {
-        $this->createOrUpdateVisit(1, 2, Carbon::now()->setHour(14)->setMinute(0), Carbon::now()->setHour(16)->setMinute(0), 'planned', 'Forza Meeting');
+        $this->createOrUpdateVisit(1, 2, Carbon::create(2027, 4, 4, 14, 0,0), Carbon::create(2027, 4, 4, 15, 0,0), 'planned', 'Forza Meeting');
         $this->createOrUpdateVisit(2, 1, Carbon::yesterday()->setHour(10)->setMinute(0), Carbon::yesterday()->setHour(11)->setMinute(30), 'completed', 'Piratenpizza im Mountainbikepark');
     }
 

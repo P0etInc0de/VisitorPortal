@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Support\Carbon;
 
 class Visitor extends Model
 {
@@ -39,5 +40,16 @@ class Visitor extends Model
                 'checked_in_by_user_id',
                 'checked_out_by_user_id',
             ]);
+    }
+
+    /**
+     * Get next scheduled visit
+     */
+    public function nextVisit()
+    {
+        return $this->visits()
+            ->where('scheduled_from', '>', Carbon::now())
+            ->orderBy('scheduled_from', 'asc')
+            ->first();
     }
 }

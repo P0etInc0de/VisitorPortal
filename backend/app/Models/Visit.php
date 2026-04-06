@@ -20,6 +20,11 @@ class Visit extends Model
         'notes',
     ];
 
+    protected $casts = [
+        'scheduled_from' => 'datetime',
+        'scheduled_until' => 'datetime',
+    ];
+
     /**
      * Relationships to table users for all foreign keys
      * EXAMPLE HOW TO ACCESS: Access user who ist responsible for a visit
