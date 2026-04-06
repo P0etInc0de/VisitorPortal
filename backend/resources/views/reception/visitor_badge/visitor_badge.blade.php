@@ -7,29 +7,6 @@
         </div>
     </x-slot>
 
-    @if(session('success'))
-        <div
-            x-data="{ show: true }"
-            x-init="setTimeout(() => show = false, 5000)"
-            x-show="show"
-            x-transition
-            class="fixed top-5 right-5 z-50 max-w-sm w-full"
-        >
-            <div class="bg-base-100 border-l-4 border-success shadow-xl rounded-xl p-4 flex items-center gap-3">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-success" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-                </svg>
-
-                <div class="text-sm">
-                    <p class="font-semibold">{{ __('Erfolgreich!') }}</p>
-                    <p class="text-base-content/70">{{ session('success') }}</p>
-                </div>
-
-                <button @click="show = false" class="ml-auto text-base-content/40">✕</button>
-            </div>
-        </div>
-    @endif
-
     @if(session('error')||$errors->any())
         <div
             x-data="{ show: true }"
@@ -74,18 +51,6 @@
                                         <span class="label-text text-sm font-medium text-base-content">{{ __('Email') }}</span>
                                     </div>
                                     <input type="text" name="email" placeholder="Beispiel@gmail.com" class="input input-bordered w-full rounded-2xl" required>
-                                </label>
-
-                                <label class="form-control w-full md:col-span-2 ">
-                                    <div class="label px-0 pb-2">
-                                        <span class="label-text text-sm font-medium text-base-content">
-                                            {{ __('Druckformat auswählen') }}
-                                        </span>
-                                    </div>
-                                    <select name="paper_format" class="select select-bordered w-full rounded-2xl" required>
-                                        <option value="a4" selected>{{ __('DIN A4 (Standard)') }}</option>
-                                        <option value="badge">{{ __('Ausweisformat (85x55mm)') }}</option>
-                                    </select>
                                 </label>
                             </div>
 
