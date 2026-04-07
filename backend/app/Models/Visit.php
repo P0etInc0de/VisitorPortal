@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\VisitStatusEnum;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
@@ -18,6 +19,10 @@ class Visit extends Model
         'scheduled_until',
         'status',
         'notes',
+    ];
+
+    protected $casts = [
+        'status' => VisitStatusEnum::class,
     ];
 
     /**

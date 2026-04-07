@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\VisitorStatusEnum;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
@@ -20,6 +21,10 @@ class Visitor extends Model
         'company',
         'status',
         'notes',
+    ];
+
+    protected $casts = [
+        'status' => VisitorStatusEnum::class,
     ];
 
     /**
