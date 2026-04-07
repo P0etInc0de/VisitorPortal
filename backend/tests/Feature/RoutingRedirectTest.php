@@ -4,9 +4,12 @@ namespace Tests\Feature;
 
 use App\Models\User;
 use Tests\TestCase;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 
 class RoutingRedirectTest extends TestCase
 {
+    use RefreshDatabase;
+
     public function test_home_redirects_guest_to_login(): void
     {
         $response = $this->get('/');
