@@ -13,7 +13,8 @@
         "laravel/tinker": "^2.10.1",
         "spatie/browsershot": "^5.2",
         "spatie/laravel-pdf": "^2.5",
-        "spatie/laravel-permission": "^6.25"
+        "spatie/laravel-permission": "^6.25",
+        "ext-zip": "*"
     },
     "require-dev": {
         "fakerphp/faker": "^1.23",

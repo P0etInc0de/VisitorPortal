@@ -6,6 +6,7 @@ use App\Models\Visit;
 use App\Models\Visitor;
 use Illuminate\Http\Request;
 use Spatie\LaravelPdf\Facades\Pdf;
+use ZipArchive;
 
 class VisitorBadgeController extends Controller
 {
@@ -14,7 +15,7 @@ class VisitorBadgeController extends Controller
         return view('reception.visitor_badge.visitor_badge', compact('visits'));
     }
 
-    public function store(Request $request){
+    public function download_badge(Request $request){
         try {
         $request->validate([
             'email' => 'required|email|exists:visitors,email', //email has to be mail that exists in visitors table
@@ -52,5 +53,39 @@ class VisitorBadgeController extends Controller
          (\Exception $exception){
             return back()->with('error', __('Etwas ist schiefgelaufen'));
         }
+    }
+
+    public function download_all_badges(Request $request)
+    {
+        $request->validate([
+            'visit' => 'required|exists:visits,id',
+        ]);
+
+        $Visitor_Number = 1;
+        $visit = Visit::with('visitors')->findOrFail($request->visit);
+
+        $zipFileName = storage_path('app/public/Besucherausweise_' . $visit->id . '.zip');
+        $zip = new \ZipArchive();
+        if ($zip->open($zipFileName, \ZipArchive::CREATE | \ZipArchive::OVERWRITE) === TRUE) {
+
+            foreach ($visit->visitors as $visitor) {
+                $Visitor_Number =$Visitor_Number +1;
+                $pdf = Pdf::view('pdf.visitor_badge', [
+                    'visitor' => $visitor,
+                    'visit' => $visit,
+                ])
+                    ->driver('gotenberg')
+                    ->format('A4')
+                    ->landscape();
+
+                $pdfContent = base64_decode($pdf->base64());
+                $pdfFileName = __('Besucherausweis_') . $visitor->last_name . '_' . $Visitor_Number . '.pdf';
+
+                $zip->addFromString($pdfFileName, $pdfContent);
+            }
+
+            $zip->close();
+        }
+        return response()->download($zipFileName)->deleteFileAfterSend();
     }
 }

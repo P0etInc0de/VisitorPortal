@@ -120,7 +120,7 @@
                                             {{$visit->status}}
                                         </span>
 
-                                        <a href="{{ \Illuminate\Support\Facades\Route::has('portal.visits.show') ? route('portal.visits.show', 1) : url('/portal/visits/1') }}"
+                                        <a href="{{ route('reception.badge.download_all', ['visit' => $visit->id]) }}"
                                            class="btn btn-outline btn-sm rounded-xl">
                                             {{ __('Print ALL') }}
                                         </a>
