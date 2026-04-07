@@ -946,3 +946,63 @@ body {
         font-size: 1rem;
     }
 }
+
+
+/* Compact sidebar and overview refinements */
+.bp-sidebar {
+    padding: 1rem 0.95rem 0.95rem;
+}
+
+.bp-nav-link {
+    gap: 0.7rem;
+    padding: 0.72rem 0.9rem;
+}
+
+.bp-admin-card {
+    padding: 0.9rem 0.95rem;
+}
+
+.bp-topbar-surface .btn {
+    min-height: 2.65rem;
+}
+
+.bp-participant-inline-list {
+    margin-top: 0.65rem;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem 0.75rem;
+    font-size: 0.92rem;
+    color: rgba(31, 42, 68, 0.72);
+}
+
+.bp-participant-inline-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    white-space: nowrap;
+}
+
+.bp-participant-inline-item::before {
+    content: '•';
+    color: rgba(31, 42, 68, 0.34);
+}
+
+.bp-participant-inline-item:first-child::before {
+    content: '';
+}
+
+.bp-compact-card-body {
+    padding: 1.1rem 1.15rem;
+}
+
+@media (min-width: 1024px) {
+    .bp-page {
+        padding-block: 1.2rem 1.6rem;
+    }
+
+    .bp-content,
+    .bp-main-grid,
+    .bp-stat-grid {
+        gap: 1.1rem;
+    }
+}
