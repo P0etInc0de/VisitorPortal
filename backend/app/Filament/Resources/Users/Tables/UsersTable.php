@@ -5,6 +5,7 @@ namespace App\Filament\Resources\Users\Tables;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
+use Filament\Actions\ViewAction;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 
@@ -14,7 +15,11 @@ class UsersTable
     {
         return $table
             ->columns([
+                TextColumn::make('department.name')
+                    ->searchable(),
                 TextColumn::make('name')
+                    ->searchable(),
+                TextColumn::make('gender')
                     ->searchable(),
                 TextColumn::make('email')
                     ->label('Email address')
@@ -35,6 +40,7 @@ class UsersTable
                 //
             ])
             ->recordActions([
+                ViewAction::make(),
                 EditAction::make(),
             ])
             ->toolbarActions([

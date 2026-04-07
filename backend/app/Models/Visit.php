@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\VisitStatusEnum;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
@@ -21,6 +22,7 @@ class Visit extends Model
     ];
 
     protected $casts = [
+        'status' => VisitStatusEnum::class,
         'scheduled_from' => 'datetime',
         'scheduled_until' => 'datetime',
     ];
@@ -49,7 +51,7 @@ class Visit extends Model
      * Relationship to table visits via pivot table
      * INFO: ALL IMPORTANT INFO LIKE CHECKED_IN_AT LIES IN PIVOT OBJECT CALLED PIVOT!!!
      */
-    public function visitors(): belongsToMany
+    public function visitors(): BelongsToMany
     {
         return $this->belongsToMany(Visitor::class, 'visit_visitor')
             ->using(VisitVisitor::class)
