@@ -1,35 +1,3 @@
-@php
-    $visitors = [
-        [
-            'time' => '09:30',
-            'date' => '30.03.',
-            'title' => __('Max Mustermann'),
-            'company' => __('Beispiel GmbH'),
-            'note' => __('Badge vorbereitet · Monitor aktiv'),
-            'status' => __('Geplant'),
-            'statusClass' => 'badge-warning badge-outline',
-        ],
-        [
-            'time' => '11:00',
-            'date' => '30.03.',
-            'title' => __('Anna Becker'),
-            'company' => __('ACME AG'),
-            'note' => __('Ankunft erfolgt · Aufenthalt läuft'),
-            'status' => __('Eingecheckt'),
-            'statusClass' => 'badge-success badge-outline',
-        ],
-        [
-            'time' => '14:00',
-            'date' => '30.03.',
-            'title' => __('David Keller'),
-            'company' => __('Tech Solutions'),
-            'note' => __('Badge offen · Monitorfreigabe noch ausstehend'),
-            'status' => __('Entwurf'),
-            'statusClass' => 'badge-ghost',
-        ],
-    ];
-@endphp
-
 <x-app-layout>
     <x-slot name="header">
         <div class="bp-screen-head">
@@ -54,7 +22,7 @@
 
                 <div class="text-sm">
                     <p class="font-semibold">{{ __('Woops!') }}</p>
-                    <p class="text-base-content/70">{{ __('Etwas ist schiefgelaufen') }}</p>
+                    <p class="text-base-content/70">{{ session('error') }}</p>
                 </div>
 
                 <button @click="show = false" class="ml-auto text-base-content/40">✕</button>
@@ -62,7 +30,7 @@
         </div>
     @endif
 
-    <div class="bp-content">
+    <div class="bp-content" x-data="{ selectedVisitor: { name: '', email: '', visit_id: null} }">
         <section class="bp-main-grid bp-main-grid-wide">
             <article class="card rounded-3xl border border-base-300 bg-base-100 shadow-sm">
                 <div class="card-body p-6 sm:p-8">
@@ -75,15 +43,16 @@
                                     <div class="label px-0 pb-2">
                                         <span class="label-text text-sm font-medium text-base-content">{{ __('Gastname') }}</span>
                                     </div>
-                                    <input type="text" name="name" placeholder="Name" class="input input-bordered w-full rounded-2xl" required>
+                                    <input type="text" name="name" placeholder="Name" class="input input-bordered w-full rounded-2xl" x-model="selectedVisitor.name" required>
                                 </label>
 
                                 <label class="form-control w-full">
                                     <div class="label px-0 pb-2">
                                         <span class="label-text text-sm font-medium text-base-content">{{ __('Email') }}</span>
                                     </div>
-                                    <input type="text" name="email" placeholder="Beispiel@gmail.com" class="input input-bordered w-full rounded-2xl" required>
+                                    <input type="text" name="email" placeholder="Beispiel@gmail.com" class="input input-bordered w-full rounded-2xl" x-model="selectedVisitor.email" required>
                                 </label>
+                                <input type="hidden" name="visit_id" x-model="selectedVisitor.visit_id">
                             </div>
 
                             <div class="mt-6 flex justify-end gap-3">
@@ -133,7 +102,7 @@
                                                 {{ $visit->scheduled_from->format('H:i') }}
                                             </div>
                                             <div class="mt-1 text-sm text-base-content/60">
-                                                {{ $visit->scheduled_from->format('d.m.') }}
+                                                {{ $visit->scheduled_from->format('d.m.y') }}
                                             </div>
                                         </div>
                                         <div class="min-w-0">
@@ -152,9 +121,8 @@
                                         </span>
 
                                         <a href="{{ \Illuminate\Support\Facades\Route::has('portal.visits.show') ? route('portal.visits.show', 1) : url('/portal/visits/1') }}"
-                                           class="btn btn-outline btn-sm rounded-xl"
-                                           @click.stop="print('asjdsfhdhghgsdgdfgdfgdfg')">
-                                            {{ __('Check-In ALL') }}
+                                           class="btn btn-outline btn-sm rounded-xl">
+                                            {{ __('Print ALL') }}
                                         </a>
                                     </div>
                                 </div>
@@ -172,7 +140,13 @@
                                             };
                                         @endphp
                                         <article class="rounded-[1.25rem] border border-base-300 bg-base-100 px-4 py-3 cursor-pointer"
-                                            @click.stop="console.log('Visitor clicked: {{ $visitor->first_name . ' ' . $visitor->last_name?? 'Name' }}')">
+                                                 @click.stop='
+                                                    selectedVisitor = {
+                                                        name: @json($visitor->first_name . " " . $visitor->last_name),
+                                                        email: @json($visitor->email),
+                                                        visit_id: {{ $visit->id }}
+                                                    }
+                                                '>
                                             <div class="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
                                                 <div class="flex gap-4">
                                                     <div class="min-w-0">

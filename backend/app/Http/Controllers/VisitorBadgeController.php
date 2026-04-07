@@ -15,18 +15,30 @@ class VisitorBadgeController extends Controller
     }
 
     public function store(Request $request){
-        //validate stuff
+        try {
         $request->validate([
             'email' => 'required|email|exists:visitors,email', //email has to be mail that exists in visitors table
-        ], [
-            'email.exists' => __('Diese E-Mail-Adresse wurde nicht im System gefunden.')
+            'visit_id' => 'nullable|exists:visits,id',
         ]);
 
-        try {
             //get visitor with mail
             $visitor = Visitor::where('email', $request->email)->firstOrFail();
+
+            if ($request->visit_id) {
+                $visit = Visit::findOrFail($request->visit_id);
+            } else {
+                $visit = $visitor->nextVisit();
+            }
+
+            if (!$visit) {
+                return back()
+                    ->with(['error' => __('Es existiert kein Besuch für diesen Besucher.')])
+                    ->withInput();
+            }
+
             $pdf = Pdf::view('pdf.visitor_badge', [
-                'visitor' => $visitor
+                'visitor' => $visitor,
+                'visit' => $visit,
             ])
                 ->driver('gotenberg')
                 ->format('A4')
@@ -34,7 +46,10 @@ class VisitorBadgeController extends Controller
 
             return $pdf->download(__('Besucherausweis_') . $visitor->last_name . '.pdf');
 
-        }catch (\Exception $exception){
+        }catch (\Illuminate\Validation\ValidationException $exception) {
+            return back()->with('error', __('Die E-Mail-Adresse wurde nicht im System gefunden.'));
+        }catch
+         (\Exception $exception){
             return back()->with('error', __('Etwas ist schiefgelaufen'));
         }
     }

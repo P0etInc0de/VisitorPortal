@@ -122,7 +122,7 @@
 
         <div class="label label-date">{{__('Besuchszeit:')}}</div>
         <div class="value value-date">
-            {{ $visitor->nextVisit()?->scheduled_from?->format('d.m.Y H:i') ?? '-'}}
+            {{ $visit->scheduled_from?->format('d.m.Y H:i') ?? '-'}}
         </div>
         <div class="divider divider-4"></div>
 
