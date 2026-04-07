@@ -31,12 +31,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::view('/live', 'monitor.show')->name('live');
         Route::view('/editor', 'monitor.editor')->name('editor');
     });
-});
 
-/*
-Route::middleware(['auth'])->group(function () {
-    Route::get('/user-permissions', [UserPermissionsController::class, 'index']);
+    Route::get('/user-permissions', [UserPermissionsController::class, 'index'])->name('user-permissions');
 });
-*/
 
 require __DIR__.'/auth.php';

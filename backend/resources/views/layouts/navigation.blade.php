@@ -167,6 +167,14 @@
                     </svg>
                     <span>{{ __('Profil') }}</span>
                 </a>
+	
+				<a href="{{ route('user-permissions') }}" class="{{ $navLinkClasses(request()->routeIs('user-permissions')) }}">
+    				<svg xmlns="http://www.w3.org/2000/svg" class="bp-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+        				<path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4" />
+        				<path stroke-linecap="round" stroke-linejoin="round" d="M12 3a9 9 0 1 0 0 18A9 9 0 0 0 12 3Z" />
+    				</svg>
+   	 				<span>{{ __('Meine Berechtigungen') }}</span>
+				</a>
 
                 @if ($canSeeAdmin)
                     <a href="{{ url('/admin') }}" class="{{ $navLinkClasses(request()->is('admin') || request()->is('admin/*')) }}">
@@ -264,6 +272,10 @@
             <a href="{{ route('profile.edit') }}" class="{{ $navLinkClasses(request()->routeIs('profile.*')) }}" @click="navOpen = false">
                 <span>{{ __('Profil') }}</span>
             </a>
+
+			<a href="{{ route('user-permissions') }}" class="{{ $navLinkClasses(request()->routeIs('user-permissions')) }}" @click="navOpen = false">
+    			<span>{{ __('Meine Berechtigungen') }}</span>
+			</a>
         </nav>
     </div>
 

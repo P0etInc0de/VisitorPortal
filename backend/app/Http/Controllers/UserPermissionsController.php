@@ -27,7 +27,7 @@ class UserPermissionsController extends Controller
             abort(403);
         }*/
 
-        return view('user-permissions', compact('data'));
+        return view('profile.user-permissions', compact('data'));
     }
 /*
     public function destroy(Post $post)
