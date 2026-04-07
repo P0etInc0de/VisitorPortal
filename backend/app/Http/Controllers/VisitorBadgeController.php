@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Visit;
 use App\Models\Visitor;
 use Illuminate\Http\Request;
 use Spatie\LaravelPdf\Facades\Pdf;
@@ -9,7 +10,8 @@ use Spatie\LaravelPdf\Facades\Pdf;
 class VisitorBadgeController extends Controller
 {
     public function index(){
-        return view('reception.visitor_badge.visitor_badge');
+        $visits = Visit::with(['responsibleUser', 'visitors'])->get();
+        return view('reception.visitor_badge.visitor_badge', compact('visits'));
     }
 
     public function store(Request $request){

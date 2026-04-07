@@ -1,22 +1,4 @@
 @php
-    $visits = [
-        [
-            'time' => '09:30',
-            'date' => '30.03.',
-            'Ansprechpartner' => 'Hr. Lunte',
-            'note' => __('Badge vorbereitet · Monitor aktiv'),
-            'status' => __('Geplant'),
-            'statusClass' => 'badge-warning badge-outline',
-        ],
-        [
-            'time' => '08:30',
-            'date' => '37.03.',
-            'Ansprechpartner' => 'Hr. Lutzuie',
-            'note' => __('Badge vorbereitet · Monitor aktiv'),
-            'status' => __('Geplant'),
-            'statusClass' => 'badge-success badge-outline',
-        ],
-    ];
     $visitors = [
         [
             'time' => '09:30',
@@ -45,12 +27,6 @@
             'status' => __('Entwurf'),
             'statusClass' => 'badge-ghost',
         ],
-    ];
-
-    $notes = [
-        __('Besuch für Sven Maurer noch ohne finalen Zeitraum'),
-        __('Gruppenbesuch Technik benötigt noch Empfangsbriefing'),
-        __('Badge-Ausgabe für David Keller noch nicht bestätigt'),
     ];
 @endphp
 
@@ -140,6 +116,13 @@
                     </div>
                     <div class="space-y-4">
                         @foreach ($visits as $visit)
+                            @php
+                            $statusClass = match ($visit->status){
+                            \App\Enums\VisitStatusEnum::Planned => 'badge-ghost badge-outline',
+                            \App\Enums\VisitStatusEnum::Completed => 'badge-success badge-outline',
+                            \App\Enums\VisitStatusEnum::Cancelled => 'badge-error badge-outline',
+                            };
+                            @endphp
                             <article x-data="{ open: false }" class="rounded-[1.5rem] border border-base-300 bg-base-100">
                                 {{-- Visits --}}
                                 <div class="px-5 py-4 flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between cursor-pointer bg-gray-100 rounded-[1.5rem]"
@@ -147,31 +130,30 @@
                                     <div class="flex gap-4">
                                         <div class="min-w-[72px] shrink-0">
                                             <div class="text-2xl font-semibold leading-none tracking-tight text-base-content">
-                                                {{ $visit['time'] }}
+                                                {{ $visit->scheduled_from->format('H:i') }}
                                             </div>
                                             <div class="mt-1 text-sm text-base-content/60">
-                                                {{ $visit['date'] }}
+                                                {{ $visit->scheduled_from->format('d.m.') }}
                                             </div>
                                         </div>
-
                                         <div class="min-w-0">
                                             <div class="text-xl font-semibold tracking-tight text-base-content">
-                                                {{ __('Ansprechpartner:') . ' ' . $visit['Ansprechpartner'] }}
+                                                {{ __('Ansprechpartner:') . ' ' . $visit->responsibleUser->name }}
                                             </div>
                                             <div class="mt-3 text-base leading-6 text-base-content/80">
-                                                {{ $visit['note'] }}
+                                                {{ $visit->notes }}
                                             </div>
                                         </div>
                                     </div>
 
                                     <div class="flex shrink-0 flex-col items-start gap-3 lg:items-end">
-                                        <span class="badge {{ $visit['statusClass'] }} rounded-full px-3 py-3 text-sm font-semibold">
-                                            {{ $visit['status'] }}
+                                        <span class="badge {{ $statusClass }} rounded-full px-3 py-3 text-sm font-semibold">
+                                            {{ $visit->status }}
                                         </span>
 
                                         <a href="{{ \Illuminate\Support\Facades\Route::has('portal.visits.show') ? route('portal.visits.show', 1) : url('/portal/visits/1') }}"
                                            class="btn btn-outline btn-sm rounded-xl"
-                                           @click.stop="console.log('Check-In ALL clicked')">
+                                           @click.stop="print('asjdsfhdhghgsdgdfgdfgdfg')">
                                             {{ __('Check-In ALL') }}
                                         </a>
                                     </div>
@@ -184,15 +166,6 @@
                                             @click.stop="console.log('Visitor clicked: {{ $visitor['name'] ?? 'Name' }}')">
                                             <div class="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
                                                 <div class="flex gap-4">
-                                                    <div class="min-w-[72px] shrink-0">
-                                                        <div class="text-2xl font-semibold leading-none tracking-tight text-base-content">
-                                                            {{ $visit['time'] }}
-                                                        </div>
-                                                        <div class="mt-1 text-sm text-base-content/60">
-                                                            {{ $visit['date'] }}
-                                                        </div>
-                                                    </div>
-
                                                     <div class="min-w-0">
                                                         <div class="text-xl font-semibold tracking-tight text-base-content">
                                                             {{ $visit['title'] }}
