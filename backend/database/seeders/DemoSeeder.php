@@ -28,24 +28,30 @@ class DemoSeeder extends Seeder
         $defaultPassword = 'Passwort123!';
 
         $this->createOrUpdateUser(
-            name: 'Admin Demo',
+            name: 'Admin',
+            first_name: 'Demo 2',
             gender: GenderEnum::Male,
+            title: null,
             email: 'admin@demo.local',
             password: $defaultPassword,
             department: 'IT/Administration',
         )->assignRole($roleAdmin);
 
         $this->createOrUpdateUser(
-            name: 'Empfang Demo',
+            name: 'Empfang',
+            first_name: 'Demo 1',
             gender: GenderEnum::Female,
+            title: null,
             email: 'empfang@demo.local',
             password: $defaultPassword,
             department: 'Empfang',
         );
 
         $this->createOrUpdateUser(
-            name: 'Mitarbeiter Demo',
+            name: 'Mitarbeiter',
+            first_name: 'Demo 3',
             gender: GenderEnum::Male,
+            title: null,
             email: 'mitarbeiter@demo.local',
             password: $defaultPassword,
             department: 'Vertrieb',
@@ -60,7 +66,9 @@ class DemoSeeder extends Seeder
 
     private function createOrUpdateUser(
         string $name,
+        string $first_name,
         GenderEnum $gender,
+        ?string $title,
         string $email,
         string $password,
         string $department,
@@ -69,7 +77,9 @@ class DemoSeeder extends Seeder
         $dept = Department::query()->where('name', $department)->first();
         $data = [
             'name' => $name,
+            'first_name' => $first_name,
             'gender' => $gender,
+            'title'=> $title,
             'email_verified_at' => now(),
             'password' => Hash::make($password),
             'department_id' => $dept?->id,

@@ -183,7 +183,7 @@
                                         <article class="rounded-[1.25rem] border border-base-300 bg-base-100 px-4 py-3 cursor-pointer"
                                                  @click.stop='
                                                     selectedVisitor = {
-                                                        name: @json($visitor->first_name . " " . $visitor->last_name),
+                                                        name: @json($visitor->first_name . " " . $visitor->name),
                                                         email: @json($visitor->email)
                                                     }
                                                 '>
@@ -191,7 +191,7 @@
                                                 <div class="flex gap-4">
                                                     <div class="min-w-0">
                                                         <div class="text-xl font-semibold tracking-tight text-base-content">
-                                                            {{ $visitor->first_name . ' ' . $visitor->last_name }}
+                                                            {{ $visitor->first_name . ' ' . $visitor->name }}
                                                         </div>
                                                         <div class="mt-1 text-lg text-base-content/75">
                                                             {{ $visitor->company }}

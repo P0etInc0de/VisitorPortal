@@ -104,7 +104,7 @@
         </div>
         <div class="label label-name">{{__('Name:')}}</div>
         <div class="value value-name">
-            {{ $visitor->first_name }} {{ $visitor->last_name }}
+            {{ $visitor->first_name }} {{ $visitor->name }}
         </div>
         <div class="divider divider-1"></div>
 
