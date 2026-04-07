@@ -14,8 +14,6 @@ class Visitor extends Model
     use HasFactory;
 
     /**
-     * The attributes that are mass assignable.
-     *
      * @var list<string>
      */
     protected $fillable = [
@@ -32,22 +30,18 @@ class Visitor extends Model
         'status' => VisitorStatusEnum::class,
     ];
 
-    /**
-     * Relationship to table visits via pivot table
-     * EXAMPLE HOW TO ACCESS: name of user who checked in first visitor
-     *                          --> $visit->visitors->first()->pivot->checkedInBy->name
-     * INFO: ALL IMPORTANT INFO LIKE CHECKED_IN_AT LIES IN PIVOT OBJECT CALLED PIVOT!!!
-     */
     public function visits(): BelongsToMany
     {
         return $this->belongsToMany(Visit::class, 'visit_visitor')
             ->using(VisitVisitor::class)
-            ->withPivot([ // load extra stuff into object called pivot
+            ->withPivot([
                 'badge_printed_at',
                 'checked_in_at',
                 'checked_out_at',
                 'checked_in_by_user_id',
                 'checked_out_by_user_id',
-            ]);
+                'notes',
+            ])
+            ->withTimestamps();
     }
 }

@@ -1,61 +1,3 @@
-@php
-    $stats = [
-        [
-            'label' => __('Ankünfte heute'),
-            'value' => '12',
-            'meta' => __('davon 3 in der nächsten Stunde'),
-        ],
-        [
-            'label' => __('Aktuell im Haus'),
-            'value' => '5',
-            'meta' => __('Personen aktuell im Haus'),
-        ],
-        [
-            'label' => __('Offene Klärungen'),
-            'value' => '2',
-            'meta' => __('Badge-Druck und Rückfrage an Host'),
-        ],
-    ];
-
-    $filters = [__('Alle'), __('Geplant'), __('Im Haus')];
-
-    $visits = [
-        [
-            'time' => '09:30',
-            'date' => '30.03.',
-            'title' => __('Max Mustermann'),
-            'company' => __('Beispiel GmbH'),
-            'host' => __('Host: Jonathan Läpple'),
-            'note' => __('Badge bereit · Monitor aktiv'),
-            'status' => __('Geplant'),
-            'statusClass' => 'badge-warning badge-outline',
-            'action' => __('Check-in'),
-        ],
-        [
-            'time' => '11:00',
-            'date' => '30.03.',
-            'title' => __('Anna Becker'),
-            'company' => __('ACME AG'),
-            'host' => __('Host: Lena Bauer'),
-            'note' => __('Ankunft erfolgt · Aufenthalt läuft'),
-            'status' => __('Eingecheckt'),
-            'statusClass' => 'badge-success badge-outline',
-            'action' => __('Check-out'),
-        ],
-        [
-            'time' => '14:00',
-            'date' => '30.03.',
-            'title' => __('Technik-Rundgang'),
-            'company' => __('Gruppenbesuch'),
-            'host' => __('Host: Peter Hoffmann'),
-            'note' => __('Badge-Satz drucken · Empfang briefen'),
-            'status' => __('Prüfen'),
-            'statusClass' => 'badge-error badge-outline',
-            'action' => __('Details'),
-        ],
-    ];
-@endphp
-
 <x-app-layout>
     <x-slot name="header">
         <div class="bp-screen-head bp-screen-head-with-actions">
@@ -63,6 +5,21 @@
                 <h1 class="bp-screen-title">{{ __('Dashboard') }}</h1>
             </div>
 
+            <div class="bp-screen-actions">
+                <a
+                    href="{{ route('monitor.editor') }}"
+                    class="btn btn-outline btn-sm rounded-xl"
+                >
+                    {{ __('Editor öffnen') }}
+                </a>
+
+                <a
+                    href="{{ route('portal.visits.create') }}"
+                    class="btn btn-primary btn-sm rounded-xl"
+                >
+                    {{ __('Spontanen Besuch erfassen') }}
+                </a>
+            </div>
         </div>
     </x-slot>
 
@@ -90,92 +47,199 @@
         <section class="bp-main-grid">
             <article class="card rounded-[1.75rem] border border-base-300 bg-base-100 shadow-sm">
                 <div class="card-body p-5 sm:p-6">
-                    <div class="mb-4 flex flex-col gap-3">
-                        <div class="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
-                            <h2 class="text-xl font-semibold tracking-tight text-base-content">
-                                {{ __('Heutige Besuche') }}
-                            </h2>
+                    <div class="mb-4 flex items-center justify-between gap-4">
+                        <h2 class="text-xl font-semibold tracking-tight text-base-content">
+                            {{ __('Heutige Termine') }}
+                        </h2>
 
-                            <div class="flex flex-wrap gap-2">
-                                @foreach ($filters as $index => $filter)
-                                    <button
-                                        type="button"
-                                        class="btn btn-sm rounded-xl {{ $index === 0 ? 'btn-primary' : 'btn-outline' }}"
-                                    >
-                                        {{ $filter }}
-                                    </button>
-                                @endforeach
-                            </div>
-                        </div>
-
-                        <label class="input input-bordered flex h-11 w-full items-center gap-2 rounded-2xl">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" class="h-4 w-4 text-base-content/50">
-                                <circle cx="11" cy="11" r="6" />
-                                <path d="M20 20l-3.5-3.5" />
-                            </svg>
-                            <input
-                                type="search"
-                                class="grow"
-                                placeholder="{{ __('Nach Name, Firma oder Host suchen') }}"
-                            >
-                        </label>
+                        <a
+                            href="{{ route('reception.all-visits') }}"
+                            class="btn btn-outline btn-sm rounded-xl"
+                        >
+                            {{ __('Alle Besuche') }}
+                        </a>
                     </div>
 
-                    <div class="space-y-4">
-                        @foreach ($visits as $visit)
-                            <article class="rounded-[1.5rem] border border-base-300 bg-base-100 px-5 py-4">
-                                <div class="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
-                                    <div class="flex gap-4">
-                                        <div class="min-w-[72px] shrink-0">
-                                            <div class="text-2xl font-semibold leading-none tracking-tight text-base-content">
-                                                {{ $visit['time'] }}
-                                            </div>
-                                            <div class="mt-1 text-sm text-base-content/60">
-                                                {{ $visit['date'] }}
-                                            </div>
-                                        </div>
+                    @if ($visits->isEmpty())
+                        <div class="rounded-[1.5rem] border border-dashed border-base-300 bg-base-100 px-5 py-10 text-center text-base-content/65">
+                            {{ __('Für heute sind aktuell keine Termine geplant.') }}
+                        </div>
+                    @else
+                        <div class="space-y-4">
+                            @foreach ($visits as $visit)
+                                <article x-data="{ selectedParticipant: null }" class="rounded-[1.5rem] border border-base-300 bg-base-100 px-5 py-4">
+                                    <div class="flex flex-col gap-4">
+                                        <div class="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
+                                            <div class="min-w-0">
+                                                <div class="flex flex-wrap items-center gap-3">
+                                                    <h3 class="text-xl font-semibold tracking-tight text-base-content">
+                                                        {{ $visit['title'] }}
+                                                    </h3>
 
-                                        <div class="min-w-0">
-                                            <div class="text-xl font-semibold tracking-tight text-base-content">
-                                                {{ $visit['title'] }}
+                                                    <span class="badge badge-ghost rounded-full px-3 py-3 text-sm">
+                                                        {{ $visit['time'] }} · {{ $visit['date'] }}
+                                                    </span>
+                                                </div>
+
+                                                <div class="mt-2 text-sm text-base-content/65">
+                                                    {{ __('Host') }}: {{ $visit['host'] }}
+                                                </div>
+
+                                                @if (!empty($visit['notes']))
+                                                    <div class="mt-2 text-sm text-base-content/70">
+                                                        {{ $visit['notes'] }}
+                                                    </div>
+                                                @endif
                                             </div>
 
-                                            <div class="mt-1 text-lg text-base-content/75">
-                                                {{ $visit['company'] }}
-                                            </div>
-
-                                            <div class="mt-2 text-sm text-base-content/65">
-                                                {{ $visit['host'] }}
-                                            </div>
-
-                                            <div class="mt-3 text-base leading-6 text-base-content/80">
-                                                {{ $visit['note'] }}
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <div class="flex shrink-0 flex-col items-start gap-3 lg:items-end">
-                                        <span class="badge {{ $visit['statusClass'] }} rounded-full px-3 py-3 text-sm font-semibold">
-                                            {{ $visit['status'] }}
-                                        </span>
-
-                                        <div class="flex flex-wrap gap-2">
                                             <a
-                                                href="{{ \Illuminate\Support\Facades\Route::has('portal.visits.show') ? route('portal.visits.show', 1) : url('/portal/visits/1') }}"
+                                                href="{{ route('portal.visits.show', $visit['id']) }}"
                                                 class="btn btn-outline btn-sm rounded-xl"
                                             >
-                                                {{ __('Details') }}
+                                                {{ __('Termin öffnen') }}
                                             </a>
+                                        </div>
 
-                                            <button type="button" class="btn btn-primary btn-sm rounded-xl">
-                                                {{ $visit['action'] }}
-                                            </button>
+                                        <div class="space-y-2">
+                                            @foreach ($visit['visible_participants'] as $participant)
+                                                <div class="rounded-2xl border border-base-300 bg-base-100">
+                                                    <button
+                                                        type="button"
+                                                        class="flex w-full items-center justify-between gap-4 px-4 py-3 text-left"
+                                                        @click="selectedParticipant = selectedParticipant === '{{ $participant['row_key'] }}' ? null : '{{ $participant['row_key'] }}'"
+                                                    >
+                                                        <div class="min-w-0">
+                                                            <div class="flex flex-wrap items-center gap-2">
+                                                                <span class="font-medium text-base-content">{{ $participant['name'] }}</span>
+                                                                <span class="badge {{ $participant['status_class'] }} rounded-full px-3 py-3 text-xs font-semibold">
+                                                                    {{ $participant['status_label'] }}
+                                                                </span>
+                                                            </div>
+
+                                                            <div class="mt-1 text-sm text-base-content/65">
+                                                                {{ $participant['company'] ?: __('Keine Firma hinterlegt') }}
+                                                            </div>
+                                                        </div>
+
+                                                        <div class="text-xs text-base-content/50">
+                                                            {{ __('Aktionen') }}
+                                                        </div>
+                                                    </button>
+
+                                                    <div
+                                                        x-cloak
+                                                        x-show="selectedParticipant === '{{ $participant['row_key'] }}'"
+                                                        class="border-t border-base-300 px-4 pb-4 pt-3"
+                                                    >
+                                                        <div class="flex flex-wrap gap-2">
+                                                            @if ($participant['can_print_badge'])
+                                                                <form method="POST" action="{{ route('reception.participants.badge', [$visit['id'], $participant['visitor_id']]) }}">
+                                                                    @csrf
+                                                                    <button type="submit" class="btn btn-outline btn-sm rounded-xl">
+                                                                        {{ __('Badge drucken') }}
+                                                                    </button>
+                                                                </form>
+                                                            @endif
+
+                                                            @if ($participant['can_check_in'])
+                                                                <form method="POST" action="{{ route('reception.participants.check-in', [$visit['id'], $participant['visitor_id']]) }}">
+                                                                    @csrf
+                                                                    <button type="submit" class="btn btn-primary btn-sm rounded-xl">
+                                                                        {{ __('Check-in') }}
+                                                                    </button>
+                                                                </form>
+                                                            @endif
+
+                                                            @if ($participant['can_check_out'])
+                                                                <form method="POST" action="{{ route('reception.participants.check-out', [$visit['id'], $participant['visitor_id']]) }}">
+                                                                    @csrf
+                                                                    <button type="submit" class="btn btn-primary btn-sm rounded-xl">
+                                                                        {{ __('Check-out') }}
+                                                                    </button>
+                                                                </form>
+                                                            @endif
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            @endforeach
+
+                                            @if ($visit['hidden_count'] > 0)
+                                                <details class="rounded-2xl border border-base-300 bg-base-100">
+                                                    <summary class="cursor-pointer list-none px-4 py-3 text-sm font-medium text-base-content/75">
+                                                        + {{ $visit['hidden_count'] }} {{ __('weitere Teilnehmende') }}
+                                                    </summary>
+
+                                                    <div class="space-y-2 border-t border-base-300 p-3">
+                                                        @foreach ($visit['hidden_participants'] as $participant)
+                                                            <div class="rounded-2xl border border-base-300 bg-base-100">
+                                                                <button
+                                                                    type="button"
+                                                                    class="flex w-full items-center justify-between gap-4 px-4 py-3 text-left"
+                                                                    @click="selectedParticipant = selectedParticipant === '{{ $participant['row_key'] }}' ? null : '{{ $participant['row_key'] }}'"
+                                                                >
+                                                                    <div class="min-w-0">
+                                                                        <div class="flex flex-wrap items-center gap-2">
+                                                                            <span class="font-medium text-base-content">{{ $participant['name'] }}</span>
+                                                                            <span class="badge {{ $participant['status_class'] }} rounded-full px-3 py-3 text-xs font-semibold">
+                                                                                {{ $participant['status_label'] }}
+                                                                            </span>
+                                                                        </div>
+
+                                                                        <div class="mt-1 text-sm text-base-content/65">
+                                                                            {{ $participant['company'] ?: __('Keine Firma hinterlegt') }}
+                                                                        </div>
+                                                                    </div>
+
+                                                                    <div class="text-xs text-base-content/50">
+                                                                        {{ __('Aktionen') }}
+                                                                    </div>
+                                                                </button>
+
+                                                                <div
+                                                                    x-cloak
+                                                                    x-show="selectedParticipant === '{{ $participant['row_key'] }}'"
+                                                                    class="border-t border-base-300 px-4 pb-4 pt-3"
+                                                                >
+                                                                    <div class="flex flex-wrap gap-2">
+                                                                        @if ($participant['can_print_badge'])
+                                                                            <form method="POST" action="{{ route('reception.participants.badge', [$visit['id'], $participant['visitor_id']]) }}">
+                                                                                @csrf
+                                                                                <button type="submit" class="btn btn-outline btn-sm rounded-xl">
+                                                                                    {{ __('Badge drucken') }}
+                                                                                </button>
+                                                                            </form>
+                                                                        @endif
+
+                                                                        @if ($participant['can_check_in'])
+                                                                            <form method="POST" action="{{ route('reception.participants.check-in', [$visit['id'], $participant['visitor_id']]) }}">
+                                                                                @csrf
+                                                                                <button type="submit" class="btn btn-primary btn-sm rounded-xl">
+                                                                                    {{ __('Check-in') }}
+                                                                                </button>
+                                                                            </form>
+                                                                        @endif
+
+                                                                        @if ($participant['can_check_out'])
+                                                                            <form method="POST" action="{{ route('reception.participants.check-out', [$visit['id'], $participant['visitor_id']]) }}">
+                                                                                @csrf
+                                                                                <button type="submit" class="btn btn-primary btn-sm rounded-xl">
+                                                                                    {{ __('Check-out') }}
+                                                                                </button>
+                                                                            </form>
+                                                                        @endif
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        @endforeach
+                                                    </div>
+                                                </details>
+                                            @endif
                                         </div>
                                     </div>
-                                </div>
-                            </article>
-                        @endforeach
-                    </div>
+                                </article>
+                            @endforeach
+                        </div>
+                    @endif
                 </div>
             </article>
 
@@ -187,16 +251,17 @@
 
                     <div class="space-y-3">
                         <a
-                            href="{{ \Illuminate\Support\Facades\Route::has('portal.visits.create') ? route('portal.visits.create') : url('/portal/visits/create') }}"
+                            href="{{ route('portal.visits.create') }}"
                             class="btn btn-primary w-full rounded-xl"
                         >
                             {{ __('Spontanen Besuch erfassen') }}
                         </a>
+
                         <a
-                            href="{{ Route::has('reception.badge') ? route('reception.badge') : url('/reception/badge') }}"
-                            class="btn btn-primary w-full rounded-xl"
+                            href="{{ route('reception.all-visits') }}"
+                            class="btn btn-outline w-full rounded-xl"
                         >
-                            {{ __('Badge-Druck öffnen') }}
+                            {{ __('Alle Besuche öffnen') }}
                         </a>
                     </div>
                 </div>

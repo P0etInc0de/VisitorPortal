@@ -1,98 +1,26 @@
-@php
-    $stats = [
-        [
-            'label' => __('Nächste 7 Tage'),
-            'value' => '21',
-            'meta' => __('davon 6 Badge-Vorbereitungen offen'),
-        ],
-        [
-            'label' => __('Diese Woche'),
-            'value' => '14',
-            'meta' => __('3 Gruppenbesuche eingeplant'),
-        ],
-        [
-            'label' => __('Entwürfe und Klärungen'),
-            'value' => '5',
-            'meta' => __('Verschieben, Freigaben und Rückfragen offen'),
-        ],
-    ];
-
-    $filters = [__('Heute'), __('Diese Woche'), __('Nächste Woche'), __('Alle')];
-
-    $visits = [
-        [
-            'time' => '09:30',
-            'date' => '30.03.',
-            'title' => __('Max Mustermann'),
-            'company' => __('Beispiel GmbH'),
-            'host' => __('Host: Jonathan Läpple'),
-            'note' => __('Badge bereit · Monitor aktiv'),
-            'status' => __('Geplant'),
-            'statusClass' => 'badge-warning badge-outline',
-            'action' => __('Details'),
-        ],
-        [
-            'time' => '11:00',
-            'date' => '30.03.',
-            'title' => __('Anna Becker'),
-            'company' => __('ACME AG'),
-            'host' => __('Host: Lena Bauer'),
-            'note' => __('Ankunft erfolgt · Aufenthalt läuft'),
-            'status' => __('Eingecheckt'),
-            'statusClass' => 'badge-success badge-outline',
-            'action' => __('Details'),
-        ],
-        [
-            'time' => '14:00',
-            'date' => '31.03.',
-            'title' => __('Technik-Rundgang'),
-            'company' => __('Gruppenbesuch'),
-            'host' => __('Host: Peter Hoffmann'),
-            'note' => __('Badge-Satz drucken · Empfang briefen'),
-            'status' => __('Prüfen'),
-            'statusClass' => 'badge-error badge-outline',
-            'action' => __('Details'),
-        ],
-        [
-            'time' => '10:15',
-            'date' => '02.04.',
-            'title' => __('Sven Maurer'),
-            'company' => __('Musterwerke Süd'),
-            'host' => __('Host: Jonathan Läpple'),
-            'note' => __('Termin verschoben · Badge neu vorbereiten'),
-            'status' => __('Entwurf'),
-            'statusClass' => 'badge-ghost',
-            'action' => __('Bearbeiten'),
-        ],
-    ];
-@endphp
-
 <x-app-layout>
     <x-slot name="header">
         <div class="bp-screen-head bp-screen-head-with-actions">
             <div>
                 <h1 class="bp-screen-title">{{ __('Alle Besuche') }}</h1>
             </div>
-
         </div>
     </x-slot>
 
     <div class="bp-content">
+        @if (session('status'))
+            <div class="alert alert-success rounded-2xl">
+                <span>{{ session('status') }}</span>
+            </div>
+        @endif
+
         <section class="bp-stat-grid">
             @foreach ($stats as $stat)
                 <article class="card rounded-[1.75rem] border border-base-300 bg-base-100 shadow-sm">
                     <div class="card-body p-5">
-                        <div class="text-sm font-medium text-base-content/65">
-                            {{ $stat['label'] }}
-                        </div>
-
-                        <div class="mt-2 text-4xl font-semibold leading-none tracking-tight text-base-content">
-                            {{ $stat['value'] }}
-                        </div>
-
-                        <div class="mt-2 text-sm text-base-content/70">
-                            {{ $stat['meta'] }}
-                        </div>
+                        <div class="text-sm font-medium text-base-content/65">{{ $stat['label'] }}</div>
+                        <div class="mt-2 text-4xl font-semibold leading-none tracking-tight text-base-content">{{ $stat['value'] }}</div>
+                        <div class="mt-2 text-sm text-base-content/70">{{ $stat['meta'] }}</div>
                     </div>
                 </article>
             @endforeach
@@ -101,19 +29,14 @@
         <section class="bp-main-grid">
             <article class="card rounded-[1.75rem] border border-base-300 bg-base-100 shadow-sm">
                 <div class="card-body p-5 sm:p-6">
-                    <div class="mb-4 flex flex-col gap-3">
+                    <form method="GET" action="{{ route('reception.all-visits') }}" class="mb-4 flex flex-col gap-3">
                         <div class="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
-                            <h2 class="text-xl font-semibold tracking-tight text-base-content">
-                                {{ __('Besuchsliste') }}
-                            </h2>
+                            <h2 class="text-xl font-semibold tracking-tight text-base-content">{{ __('Besuchsliste') }}</h2>
 
                             <div class="flex flex-wrap gap-2">
-                                @foreach ($filters as $index => $filter)
-                                    <button
-                                        type="button"
-                                        class="btn btn-sm rounded-xl {{ $index === 1 ? 'btn-primary' : 'btn-outline' }}"
-                                    >
-                                        {{ $filter }}
+                                @foreach ($filters as $value => $label)
+                                    <button type="submit" name="range" value="{{ $value }}" class="btn btn-sm rounded-xl {{ $selectedRange === $value ? 'btn-primary' : 'btn-outline' }}">
+                                        {{ $label }}
                                     </button>
                                 @endforeach
                             </div>
@@ -124,88 +47,108 @@
                                 <circle cx="11" cy="11" r="6" />
                                 <path d="M20 20l-3.5-3.5" />
                             </svg>
-                            <input
-                                type="search"
-                                class="grow"
-                                placeholder="{{ __('Nach Name, Firma, Host oder Zeitraum suchen') }}"
-                            >
+                            <input type="search" name="q" value="{{ $search }}" class="grow" placeholder="{{ __('Nach Titel, Person, Firma oder Host suchen') }}">
                         </label>
-                    </div>
+                    </form>
 
                     <div class="space-y-4">
-                        @foreach ($visits as $visit)
-                            <article class="rounded-[1.5rem] border border-base-300 bg-base-100 px-5 py-4">
+                        @forelse ($visits as $visit)
+                            <article class="rounded-[1.5rem] border border-base-300 bg-base-100 px-5 py-4" x-data="{ selectedVisitorId: {{ $visit->visitors->first()?->id ?? 'null' }} }">
                                 <div class="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
                                     <div class="flex gap-4">
                                         <div class="min-w-[72px] shrink-0">
-                                            <div class="text-2xl font-semibold leading-none tracking-tight text-base-content">
-                                                {{ $visit['time'] }}
-                                            </div>
-                                            <div class="mt-1 text-sm text-base-content/60">
-                                                {{ $visit['date'] }}
-                                            </div>
+                                            <div class="text-2xl font-semibold leading-none tracking-tight text-base-content">{{ $visit->scheduled_from->format('H:i') }}</div>
+                                            <div class="mt-1 text-sm text-base-content/60">{{ $visit->scheduled_from->format('d.m.') }}</div>
                                         </div>
 
                                         <div class="min-w-0">
-                                            <div class="text-xl font-semibold tracking-tight text-base-content">
-                                                {{ $visit['title'] }}
-                                            </div>
+                                            <div class="text-xl font-semibold tracking-tight text-base-content">{{ $visit->display_title }}</div>
+                                            <div class="mt-1 text-base text-base-content/72">{{ __('Host: :name', ['name' => $visit->host?->name ?? __('Nicht gesetzt')]) }}</div>
+                                            @if (filled($visit->notes))
+                                                <div class="mt-3 text-sm text-base-content/70">{{ $visit->notes }}</div>
+                                            @endif
 
-                                            <div class="mt-1 text-lg text-base-content/75">
-                                                {{ $visit['company'] }}
-                                            </div>
+                                            <div class="mt-4 space-y-2">
+                                                @foreach ($visit->visitors->take(3) as $visitor)
+                                                    <button
+                                                        type="button"
+                                                        class="flex w-full items-center justify-between gap-3 rounded-2xl border px-4 py-3 text-left transition"
+                                                        :class="selectedVisitorId === {{ $visitor->id }} ? 'border-primary bg-primary/5' : 'border-base-300 bg-base-100'"
+                                                        @click="selectedVisitorId = {{ $visitor->id }}"
+                                                    >
+                                                        <div>
+                                                            <div class="font-medium text-base-content">{{ $visitor->full_name }}</div>
+                                                            <div class="text-sm text-base-content/65">{{ $visitor->display_company }}</div>
+                                                        </div>
+                                                        <span class="{{ $visitor->participation_badge_class }} px-3 py-2 text-xs font-semibold">{{ $visitor->participation_status_label }}</span>
+                                                    </button>
+                                                @endforeach
 
-                                            <div class="mt-2 text-sm text-base-content/65">
-                                                {{ $visit['host'] }}
-                                            </div>
-
-                                            <div class="mt-3 text-base leading-6 text-base-content/80">
-                                                {{ $visit['note'] }}
+                                                @if ($visit->visitors->count() > 3)
+                                                    <details class="rounded-2xl border border-base-300 bg-base-100 px-4 py-3">
+                                                        <summary class="cursor-pointer text-sm font-medium text-base-content/75">{{ __('+:count weitere Teilnehmende', ['count' => $visit->visitors->count() - 3]) }}</summary>
+                                                        <div class="mt-3 space-y-2">
+                                                            @foreach ($visit->visitors->slice(3) as $visitor)
+                                                                <button
+                                                                    type="button"
+                                                                    class="flex w-full items-center justify-between gap-3 rounded-2xl border px-4 py-3 text-left transition"
+                                                                    :class="selectedVisitorId === {{ $visitor->id }} ? 'border-primary bg-primary/5' : 'border-base-300 bg-base-100'"
+                                                                    @click="selectedVisitorId = {{ $visitor->id }}"
+                                                                >
+                                                                    <div>
+                                                                        <div class="font-medium text-base-content">{{ $visitor->full_name }}</div>
+                                                                        <div class="text-sm text-base-content/65">{{ $visitor->display_company }}</div>
+                                                                    </div>
+                                                                    <span class="{{ $visitor->participation_badge_class }} px-3 py-2 text-xs font-semibold">{{ $visitor->participation_status_label }}</span>
+                                                                </button>
+                                                            @endforeach
+                                                        </div>
+                                                    </details>
+                                                @endif
                                             </div>
                                         </div>
                                     </div>
 
                                     <div class="flex shrink-0 flex-col items-start gap-3 lg:items-end">
-                                        <span class="badge {{ $visit['statusClass'] }} rounded-full px-3 py-3 text-sm font-semibold">
-                                            {{ $visit['status'] }}
-                                        </span>
+                                        <a href="{{ route('portal.visits.show', $visit) }}" class="btn btn-outline btn-sm rounded-xl">{{ __('Details') }}</a>
+                                        <a href="{{ route('portal.visits.edit', $visit) }}" class="btn btn-outline btn-sm rounded-xl">{{ __('Bearbeiten') }}</a>
 
-                                        <div class="flex flex-wrap gap-2">
-                                            <a
-                                                href="{{ \Illuminate\Support\Facades\Route::has('portal.visits.show') ? route('portal.visits.show', 1) : url('/portal/visits/1') }}"
-                                                class="btn btn-outline btn-sm rounded-xl"
-                                            >
-                                                {{ __('Details') }}
-                                            </a>
-
-                                            <button type="button" class="btn btn-outline btn-sm rounded-xl">
-                                                {{ $visit['action'] }}
-                                            </button>
-                                        </div>
+                                        @foreach ($visit->visitors as $visitor)
+                                            <div x-show="selectedVisitorId === {{ $visitor->id }}" class="space-y-2" style="display: none;">
+                                                @if ($visitor->participation_status === 'checked_in')
+                                                    <form method="POST" action="{{ route('reception.participants.check-out', [$visit, $visitor]) }}">
+                                                        @csrf
+                                                        <button type="submit" class="btn btn-primary btn-sm w-full rounded-xl">{{ __('Check-out') }}</button>
+                                                    </form>
+                                                @elseif ($visitor->participation_status !== 'checked_out')
+                                                    <form method="POST" action="{{ route('reception.participants.check-in', [$visit, $visitor]) }}">
+                                                        @csrf
+                                                        <button type="submit" class="btn btn-primary btn-sm w-full rounded-xl">{{ __('Check-in') }}</button>
+                                                    </form>
+                                                @endif
+                                            </div>
+                                        @endforeach
                                     </div>
                                 </div>
                             </article>
-                        @endforeach
+                        @empty
+                            <div class="rounded-[1.5rem] border border-dashed border-base-300 px-5 py-8 text-sm text-base-content/65">
+                                {{ __('Für den gewählten Zeitraum wurden keine Besuche gefunden.') }}
+                            </div>
+                        @endforelse
                     </div>
                 </div>
             </article>
 
             <aside class="card rounded-[1.75rem] border border-base-300 bg-base-100 shadow-sm">
                 <div class="card-body p-5 sm:p-6">
-                    <h2 class="mb-4 text-xl font-semibold tracking-tight text-base-content">
-                        {{ __('Vorbereitung') }}
-                    </h2>
+                    <h2 class="mb-4 text-xl font-semibold tracking-tight text-base-content">{{ __('Vorbereitung') }}</h2>
 
                     <div class="space-y-3">
-                        <button type="button" class="btn btn-outline w-full rounded-xl">
+                        <button type="button" class="btn btn-outline w-full rounded-xl" disabled>
                             {{ __('Badge für diese Woche vorbereiten') }}
                         </button>
-                        <button type="button" class="btn btn-outline w-full rounded-xl">
-                            {{ __('Besuch verschieben') }}
-                        </button>
-                        <button type="button" class="btn btn-outline w-full rounded-xl">
-                            {{ __('Besuch absagen') }}
-                        </button>
+                        <a href="{{ route('portal.visits.create') }}" class="btn btn-outline w-full rounded-xl">{{ __('Zusätzlichen Besuch erfassen') }}</a>
                     </div>
                 </div>
             </aside>
