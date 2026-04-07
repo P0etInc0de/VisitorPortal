@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Visitor;
 use Illuminate\Http\Request;
+use App\Enums\VisitorStatusEnum;
 
 /**
  * Controller for Check-In/-Out
@@ -30,8 +31,8 @@ class CheckInOutController extends Controller
 
             //change status of said visitor
             $visitor->status = match ($request->action) {
-                'check_in' => 'checked_in',
-                'check_out' => 'checked_out',
+                'check_in' => VisitorStatusEnum::Checked_In,
+                'check_out' => VisitorStatusEnum::Checked_Out,
             };
 
             //save changes back to db
