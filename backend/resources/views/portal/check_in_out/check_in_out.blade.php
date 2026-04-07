@@ -1,41 +1,3 @@
-@php
-    $visits = [
-        [
-            'time' => '09:30',
-            'date' => '30.03.',
-            'title' => __('Max Mustermann'),
-            'company' => __('Beispiel GmbH'),
-            'note' => __('Badge vorbereitet · Monitor aktiv'),
-            'status' => __('Geplant'),
-            'statusClass' => 'badge-warning badge-outline',
-        ],
-        [
-            'time' => '11:00',
-            'date' => '30.03.',
-            'title' => __('Anna Becker'),
-            'company' => __('ACME AG'),
-            'note' => __('Ankunft erfolgt · Aufenthalt läuft'),
-            'status' => __('Eingecheckt'),
-            'statusClass' => 'badge-success badge-outline',
-        ],
-        [
-            'time' => '14:00',
-            'date' => '30.03.',
-            'title' => __('David Keller'),
-            'company' => __('Tech Solutions'),
-            'note' => __('Badge offen · Monitorfreigabe noch ausstehend'),
-            'status' => __('Entwurf'),
-            'statusClass' => 'badge-ghost',
-        ],
-    ];
-
-    $notes = [
-        __('Besuch für Sven Maurer noch ohne finalen Zeitraum'),
-        __('Gruppenbesuch Technik benötigt noch Empfangsbriefing'),
-        __('Badge-Ausgabe für David Keller noch nicht bestätigt'),
-    ];
-@endphp
-
 <x-app-layout>
     <x-slot name="header">
         <div class="bp-screen-head">
@@ -83,7 +45,7 @@
 
                 <div class="text-sm">
                     <p class="font-semibold">{{ __('Woops!') }}</p>
-                    <p class="text-base-content/70">{{ __('Etwas ist schiefgelaufen') }}</p>
+                    <p class="text-base-content/70">{{ session('error') }}</p>
                 </div>
 
                 <button @click="show = false" class="ml-auto text-base-content/40">✕</button>
@@ -91,7 +53,7 @@
         </div>
     @endif
 
-    <div class="bp-content">
+    <div class="bp-content" x-data="{ selectedVisitor: { name: '', email: ''}}">
         <section class="bp-main-grid bp-main-grid-wide">
             <article class="card rounded-3xl border border-base-300 bg-base-100 shadow-sm">
                 <div class="card-body p-6 sm:p-8">
@@ -106,7 +68,7 @@
                                             {{ __('Gastname') }}
                                         </span>
                                     </div>
-                                    <input type="text" name="name" placeholder="Name" class="input input-bordered w-full rounded-2xl" required>
+                                    <input type="text" name="name" placeholder="Name" class="input input-bordered w-full rounded-2xl" x-model="selectedVisitor.name" required>
                                 </label>
 
                                 <label class="form-control w-full">
@@ -115,7 +77,7 @@
                                             {{ __('Email') }}
                                         </span>
                                     </div>
-                                    <input type="text" name="email" placeholder="Beispiel@gmail.com" class="input input-bordered w-full rounded-2xl" required>
+                                    <input type="text" name="email" placeholder="Beispiel@gmail.com" class="input input-bordered w-full rounded-2xl" x-model="selectedVisitor.email" required>
                                 </label>
                             </div>
 
@@ -139,6 +101,7 @@
                 </div>
             </article>
         </section>
+
         <section class="bp-main-grid">
             <article class="card rounded-[1.75rem] border border-base-300 bg-base-100 shadow-sm">
                 <div class="card-body p-5 sm:p-6">
@@ -154,70 +117,112 @@
                             {{ __('Neuen Besuch anlegen') }}
                         </a>
                     </div>
-
                     <div class="space-y-4">
                         @foreach ($visits as $visit)
-                            <article class="rounded-[1.5rem] border border-base-300 bg-base-100 px-5 py-4">
-                                <div class="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+                            @php
+                                $statusClassVisit = match ($visit->status){
+                                \App\Enums\VisitStatusEnum::Planned => 'badge-ghost badge-outline',
+                                \App\Enums\VisitStatusEnum::Completed => 'badge-success badge-outline',
+                                \App\Enums\VisitStatusEnum::Cancelled => 'badge-error badge-outline',
+                                };
+                            @endphp
+                            <article x-data="{ open: false }" class="rounded-[1.5rem] border border-base-300 bg-base-100">
+                                {{-- Visits --}}
+                                <div class="px-5 py-4 flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between cursor-pointer bg-gray-100 rounded-[1.5rem]"
+                                     @click="open = !open">
                                     <div class="flex gap-4">
                                         <div class="min-w-[72px] shrink-0">
                                             <div class="text-2xl font-semibold leading-none tracking-tight text-base-content">
-                                                {{ $visit['time'] }}
+                                                {{ $visit->scheduled_from->format('H:i') }}
                                             </div>
                                             <div class="mt-1 text-sm text-base-content/60">
-                                                {{ $visit['date'] }}
+                                                {{ $visit->scheduled_from->format('d.m.y') }}
                                             </div>
                                         </div>
-
                                         <div class="min-w-0">
                                             <div class="text-xl font-semibold tracking-tight text-base-content">
-                                                {{ $visit['title'] }}
+                                                {{ __('Ansprechpartner:' . ' ' . $visit->responsibleUser->name) }}
                                             </div>
-
-                                            <div class="mt-1 text-lg text-base-content/75">
-                                                {{ $visit['company'] }}
-                                            </div>
-
                                             <div class="mt-3 text-base leading-6 text-base-content/80">
-                                                {{ $visit['note'] }}
+                                                {{ __($visit->notes) }}
                                             </div>
                                         </div>
                                     </div>
 
                                     <div class="flex shrink-0 flex-col items-start gap-3 lg:items-end">
-                                        <span class="badge {{ $visit['statusClass'] }} rounded-full px-3 py-3 text-sm font-semibold">
-                                            {{ $visit['status'] }}
+                                        <!-- Der Status-Badge bleibt oben -->
+                                        <span class="badge {{ $statusClassVisit }} rounded-full px-3 py-3 text-sm font-semibold">
+                                            {{$visit->status}}
                                         </span>
+                                        <div class="flex flex-row gap-2">
+                                            <a href="{{ route('portal.check_in_out.check_in_out_all', ['visit' => $visit->id, 'action' => 'check_in']) }}"
+                                               class="btn btn-outline btn-sm rounded-xl">
+                                                {{ __('Check-In ALL') }}
+                                            </a>
 
-                                        <a
-                                            href="{{ \Illuminate\Support\Facades\Route::has('portal.visits.show') ? route('portal.visits.show', 1) : url('/portal/visits/1') }}"
-                                            class="btn btn-outline btn-sm rounded-xl"
-                                        >
-                                            {{ __('Details öffnen') }}
-                                        </a>
+                                            <a href="{{ route('portal.check_in_out.check_in_out_all', ['visit' => $visit->id, 'action' => 'check_out'])}}"
+                                               class="btn btn-outline btn-sm rounded-xl">
+                                                {{ __('Check-Out ALL') }}
+                                            </a>
+                                        </div>
                                     </div>
+                                </div>
+
+                                {{-- Fold-out Area --}}
+                                <div x-show="open" x-transition class="border-t border-base-300 p-4 space-y-3">
+                                    @foreach ($visit->visitors as $visitor)
+                                        @php
+                                            $statusClassVisitor = match ($visitor->status){
+                                            \App\Enums\VisitorStatusEnum::Planned => 'badge-ghost badge-outline',
+                                            \App\Enums\VisitorStatusEnum::Checked_In => 'badge-success badge-outline',
+                                            \App\Enums\VisitorStatusEnum::Checked_Out => 'badge-warning badge-outline',
+                                            \App\Enums\VisitorStatusEnum::Cancelled => 'badge-error badge-outline',
+
+                                            };
+                                        @endphp
+                                        <article class="rounded-[1.25rem] border border-base-300 bg-base-100 px-4 py-3 cursor-pointer"
+                                                 @click.stop='
+                                                    selectedVisitor = {
+                                                        name: @json($visitor->first_name . " " . $visitor->last_name),
+                                                        email: @json($visitor->email)
+                                                    }
+                                                '>
+                                            <div class="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+                                                <div class="flex gap-4">
+                                                    <div class="min-w-0">
+                                                        <div class="text-xl font-semibold tracking-tight text-base-content">
+                                                            {{ $visitor->first_name . ' ' . $visitor->last_name }}
+                                                        </div>
+                                                        <div class="mt-1 text-lg text-base-content/75">
+                                                            {{ $visitor->company }}
+                                                        </div>
+
+                                                        <div class="mt-3 text-base leading-6 text-base-content/80">
+                                                            {{ $visitor->notes }}
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <div class="flex shrink-0 flex-col items-start gap-3 lg:items-end">
+                                                    <span class="badge {{ $statusClassVisitor }} rounded-full px-3 py-3 text-sm font-semibold">
+                                                        {{ $visitor->status }}
+                                                    </span>
+                                                    <a
+                                                        href="{{ \Illuminate\Support\Facades\Route::has('portal.visits.show') ? route('portal.visits.show', 1) : url('/portal/visits/1') }}"
+                                                        class="btn btn-outline btn-sm rounded-xl"
+                                                    >
+                                                        {{ __('Details öffnen') }}
+                                                    </a>
+                                                </div>
+                                            </div>
+                                        </article>
+                                    @endforeach
                                 </div>
                             </article>
                         @endforeach
                     </div>
                 </div>
             </article>
-
-            <aside class="card rounded-[1.75rem] border border-base-300 bg-base-100 shadow-sm">
-                <div class="card-body p-5 sm:p-6">
-                    <h2 class="mb-4 text-xl font-semibold tracking-tight text-base-content">
-                        {{ __('Notizen') }}
-                    </h2>
-
-                    <div class="space-y-3">
-                        @foreach ($notes as $note)
-                            <div class="rounded-[1.35rem] border border-base-300 bg-base-100 px-4 py-4 text-base leading-7 text-base-content/85">
-                                {{ $note }}
-                            </div>
-                        @endforeach
-                    </div>
-                </div>
-            </aside>
         </section>
     </div>
 </x-app-layout>

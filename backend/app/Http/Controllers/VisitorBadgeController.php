@@ -57,35 +57,39 @@ class VisitorBadgeController extends Controller
 
     public function download_all_badges(Request $request)
     {
-        $request->validate([
-            'visit' => 'required|exists:visits,id',
-        ]);
+        try {
+            $request->validate([
+                'visit' => 'required|exists:visits,id',
+            ]);
 
-        $Visitor_Number = 1;
-        $visit = Visit::with('visitors')->findOrFail($request->visit);
+            $Visitor_Number = 1;
+            $visit = Visit::with('visitors')->findOrFail($request->visit);
 
-        $zipFileName = storage_path('app/public/Besucherausweise_' . $visit->id . '.zip');
-        $zip = new \ZipArchive();
-        if ($zip->open($zipFileName, \ZipArchive::CREATE | \ZipArchive::OVERWRITE) === TRUE) {
+            $zipFileName = storage_path('app/public/Besucherausweise_' . $visit->id . '.zip');
+            $zip = new \ZipArchive();
+            if ($zip->open($zipFileName, \ZipArchive::CREATE | \ZipArchive::OVERWRITE) === TRUE) {
 
-            foreach ($visit->visitors as $visitor) {
-                $Visitor_Number =$Visitor_Number +1;
-                $pdf = Pdf::view('pdf.visitor_badge', [
-                    'visitor' => $visitor,
-                    'visit' => $visit,
-                ])
-                    ->driver('gotenberg')
-                    ->format('A4')
-                    ->landscape();
+                foreach ($visit->visitors as $visitor) {
+                    $Visitor_Number =$Visitor_Number +1;
+                    $pdf = Pdf::view('pdf.visitor_badge', [
+                        'visitor' => $visitor,
+                        'visit' => $visit,
+                    ])
+                        ->driver('gotenberg')
+                        ->format('A4')
+                        ->landscape();
 
-                $pdfContent = base64_decode($pdf->base64());
-                $pdfFileName = __('Besucherausweis_') . $visitor->last_name . '_' . $Visitor_Number . '.pdf';
+                    $pdfContent = base64_decode($pdf->base64());
+                    $pdfFileName = __('Besucherausweis_') . $visitor->last_name . '_' . $Visitor_Number . '.pdf';
 
-                $zip->addFromString($pdfFileName, $pdfContent);
+                    $zip->addFromString($pdfFileName, $pdfContent);
+                }
+
+                $zip->close();
             }
-
-            $zip->close();
+            return response()->download($zipFileName)->deleteFileAfterSend();
+        }catch (\Exception $exception){
+            return back()->with('error', __('Etwas ist schiefgelaufen'));
         }
-        return response()->download($zipFileName)->deleteFileAfterSend();
     }
 }

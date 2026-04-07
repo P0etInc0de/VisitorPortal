@@ -2,9 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Visit;
 use App\Models\Visitor;
 use Illuminate\Http\Request;
 use App\Enums\VisitorStatusEnum;
+use PHPUnit\Exception;
 
 /**
  * Controller for Check-In/-Out
@@ -13,7 +15,8 @@ use App\Enums\VisitorStatusEnum;
 class CheckInOutController extends Controller
 {
     public function index(){
-        return view('portal.check_in_out.check_in_out');
+        $visits = Visit::with(['responsibleUser', 'visitors'])->get();
+        return view('portal.check_in_out.check_in_out', compact('visits'));
     }
 
     public function store(Request $request){
@@ -43,8 +46,28 @@ class CheckInOutController extends Controller
         }catch (\Exception $exception) {
             return back()->with('error', __('Etwas ist schiefgelaufen'));
         }
-
-
-
     }
+
+    public function check_in_out_all(Request $request){
+        try {
+            $request->validate([
+                'visit' => 'required|exists:visits,id',
+                'action' => 'required|in:check_in,check_out',
+            ]);
+
+            $status = match ($request->action) {
+                'check_in' => VisitorStatusEnum::Checked_In,
+                'check_out' => VisitorStatusEnum::Checked_Out,
+            };
+
+            $visit = Visit::with('visitors')->findOrFail($request->visit);
+            foreach ($visit->visitors as $visitor) {
+                $visitor->update(['status' =>$status]);
+            }
+            return back()->with('success', __('Status erfolgreich geändert'));
+        }catch (\Exception $exception) {
+            return back()->with('error', __('Etwas ist schiefgelaufen'));
+        }
+    }
+
 }

@@ -20,7 +20,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
                 ->whereNumber('visit')
                 ->name('show');
         });
-        Route::get('/check_in_out', [CheckInOutController::class, 'index'])->name('check_in_out');        //Routing of check in get using controller
+        Route::get('/check_in_out', [CheckInOutController::class, 'index'])->name('check_in_out'); //Routing of check in get using controller
+        Route::get('/badge/check_in_out_all', [CheckInOutController::class, 'check_in_out_all'])->name('check_in_out.check_in_out_all');
         Route::post('/check_in_out', [CheckInOutController::class, 'store'])->name('check_in_out.store'); // Routing of check in post with filled form using controller
     });
 
