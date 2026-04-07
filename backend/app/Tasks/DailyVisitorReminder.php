@@ -2,11 +2,10 @@
 
 namespace App\Tasks;
 
-use App\Models\User;
-use App\Notifications\Guest\VisitCreated;
-use App\Notifications\Host\GuestCheckedIn;
-use App\Notifications\Host\SingleVisitReminder;
+use App\Models\Visit;
 use App\Notifications\Host\VisitReminderDaily;
+use Carbon\Carbon;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Notification;
 
 class DailyVisitorReminder
@@ -16,13 +15,29 @@ class DailyVisitorReminder
      * Shall run at 7am every day
      * Might be extended to notify the visitor as well...
      * */
+    /**
+     * @throws \Throwable
+     */
     public function __invoke(): void
     {
-        // Testing
-        Notification::send(User::first(), new VisitCreated);
-        Notification::send(User::first(), new \App\Notifications\Host\VisitCreated);
-        Notification::send(User::first(), new SingleVisitReminder);
-        Notification::send(User::first(), new GuestCheckedIn);
-        Notification::send(User::first(), new VisitReminderDaily);
+        Log::info('DailyVisitorReminder started', [
+            'class' => get_class(),
+        ]);
+
+        $visitsOfToday = Visit::query()
+            ->whereDate('scheduled_from', Carbon::today())
+            ->with('responsibleUser')
+            ->get();
+
+        $visitsOfUsers = $visitsOfToday->groupBy('responsible_user_id');
+
+        foreach ($visitsOfUsers as $visitCollection) {
+            $user = $visitCollection->first()->responsibleUser;
+            Notification::send($user, new VisitReminderDaily($visitCollection, $user));
+        }
+
+        Log::info('DailyVisitorReminder finished', [
+            'class' => get_class(),
+        ]);
     }
 }

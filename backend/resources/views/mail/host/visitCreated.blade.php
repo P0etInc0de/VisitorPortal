@@ -1,4 +1,4 @@
-<x-mail::message>
+<x-mail.message_component :message="$message">
 # Neuen Besuch erstellt
 
 Sie haben soeben folgenden Besuch erstellt:
@@ -14,6 +14,4 @@ Sie haben soeben folgenden Besuch erstellt:
     Weiter Informationen
 </x-mail::button>
 
-Thanks,<br>
-{{ config('app.name') }}
-</x-mail::message>
+</x-mail.message_component>

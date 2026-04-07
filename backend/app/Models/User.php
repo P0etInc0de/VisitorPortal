@@ -3,6 +3,8 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
+use App\Enums\GenderEnum;
+use Database\Factories\UserFactory;
 use Filament\Models\Contracts\FilamentUser;
 use Filament\Panel;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -14,7 +16,7 @@ use Spatie\Permission\Traits\HasRoles;
 
 class User extends Authenticatable implements FilamentUser
 {
-    /** @use HasFactory<\Database\Factories\UserFactory> */
+    /** @use HasFactory<UserFactory> */
     use HasFactory, HasRoles, Notifiable;
 
     /**
@@ -28,6 +30,10 @@ class User extends Authenticatable implements FilamentUser
         'password',
         'department_id',
         'gender',
+    ];
+
+    protected $casts = [
+        'gender' => GenderEnum::class,
     ];
 
     /**
@@ -47,22 +53,22 @@ class User extends Authenticatable implements FilamentUser
      * EXAMPLE HOW TO ACCESS: Get vists that user is responsible for
      *                           --> visits = $user->responsibleVisits
      */
-    public function department(): belongsTo
+    public function department(): BelongsTo
     {
         return $this->belongsTo(Department::class, 'department_id'); // Relationship to departments table id
     }
 
-    public function visit(): hasMany
+    public function visit(): HasMany
     {
         return $this->hasMany(Visit::class, 'user_id'); // Relationship to visits table id
     }
 
-    public function responsibleVisits(): hasMany
+    public function responsibleVisits(): HasMany
     {
         return $this->hasMany(Visit::class, 'responsible_user_id'); // Relationship to visits table responsible_user_id
     }
 
-    public function canceledVisits(): hasMany
+    public function canceledVisits(): HasMany
     {
         return $this->hasMany(Visit::class, 'canceled_user_id'); // Relationship to visits table canceled_user_id
     }

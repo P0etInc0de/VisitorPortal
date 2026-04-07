@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\VisitorStatusEnum;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
@@ -22,13 +23,17 @@ class Visitor extends Model
         'notes',
     ];
 
+    protected $casts = [
+        'status' => VisitorStatusEnum::class,
+    ];
+
     /**
      * Relationship to table visits via pivot table
      * EXAMPLE HOW TO ACCESS: name of user who checked in first visitor
      *                          --> $visit->visitors->first()->pivot->checkedInBy->name
      * INFO: ALL IMPORTANT INFO LIKE CHECKED_IN_AT LIES IN PIVOT OBJECT CALLED PIVOT!!!
      */
-    public function visits(): belongsToMany
+    public function visits(): BelongsToMany
     {
         return $this->belongsToMany(Visit::class, 'visit_visitor')
             ->using(VisitVisitor::class)
