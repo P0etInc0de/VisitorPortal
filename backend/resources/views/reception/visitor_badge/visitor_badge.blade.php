@@ -68,9 +68,9 @@
                 </div>
             </article>
         </section>
-        <section class="bp-main-grid">
+        <section class="bp-main-grid bp-main-grid-wide">
             <article class="card rounded-[1.75rem] border border-base-300 bg-base-100 shadow-sm">
-                <div class="card-body p-5 sm:p-6">
+                <div class="card-body p-6 sm:p-8">
                     <div class="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                         <h2 class="text-xl font-semibold tracking-tight text-base-content">
                             {{ __('Anstehende Besuche') }}
