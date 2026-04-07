@@ -117,7 +117,7 @@
                     <div class="space-y-4">
                         @foreach ($visits as $visit)
                             @php
-                            $statusClass = match ($visit->status){
+                            $statusClassVisit = match ($visit->status){
                             \App\Enums\VisitStatusEnum::Planned => 'badge-ghost badge-outline',
                             \App\Enums\VisitStatusEnum::Completed => 'badge-success badge-outline',
                             \App\Enums\VisitStatusEnum::Cancelled => 'badge-error badge-outline',
@@ -138,17 +138,17 @@
                                         </div>
                                         <div class="min-w-0">
                                             <div class="text-xl font-semibold tracking-tight text-base-content">
-                                                {{ __('Ansprechpartner:') . ' ' . $visit->responsibleUser->name }}
+                                                {{ __('Ansprechpartner:' . ' ' . $visit->responsibleUser->name) }}
                                             </div>
                                             <div class="mt-3 text-base leading-6 text-base-content/80">
-                                                {{ $visit->notes }}
+                                                {{ __($visit->notes) }}
                                             </div>
                                         </div>
                                     </div>
 
                                     <div class="flex shrink-0 flex-col items-start gap-3 lg:items-end">
-                                        <span class="badge {{ $statusClass }} rounded-full px-3 py-3 text-sm font-semibold">
-                                            {{ $visit->status }}
+                                        <span class="badge {{ $statusClassVisit }} rounded-full px-3 py-3 text-sm font-semibold">
+                                            {{$visit->status}}
                                         </span>
 
                                         <a href="{{ \Illuminate\Support\Facades\Route::has('portal.visits.show') ? route('portal.visits.show', 1) : url('/portal/visits/1') }}"
@@ -161,29 +161,37 @@
 
                                 {{-- Fold-out Area --}}
                                 <div x-show="open" x-transition class="border-t border-base-300 p-4 space-y-3">
-                                    @foreach ($visitors as $visit)
+                                    @foreach ($visit->visitors as $visitor)
+                                        @php
+                                            $statusClassVisitor = match ($visitor->status){
+                                            \App\Enums\VisitorStatusEnum::Planned => 'badge-ghost badge-outline',
+                                            \App\Enums\VisitorStatusEnum::Checked_In => 'badge-success badge-outline',
+                                            \App\Enums\VisitorStatusEnum::Checked_Out => 'badge-warning badge-outline',
+                                            \App\Enums\VisitorStatusEnum::Cancelled => 'badge-error badge-outline',
+
+                                            };
+                                        @endphp
                                         <article class="rounded-[1.25rem] border border-base-300 bg-base-100 px-4 py-3 cursor-pointer"
-                                            @click.stop="console.log('Visitor clicked: {{ $visitor['name'] ?? 'Name' }}')">
+                                            @click.stop="console.log('Visitor clicked: {{ $visitor->first_name . ' ' . $visitor->last_name?? 'Name' }}')">
                                             <div class="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
                                                 <div class="flex gap-4">
                                                     <div class="min-w-0">
                                                         <div class="text-xl font-semibold tracking-tight text-base-content">
-                                                            {{ $visit['title'] }}
+                                                            {{ $visitor->first_name . ' ' . $visitor->last_name }}
                                                         </div>
-
                                                         <div class="mt-1 text-lg text-base-content/75">
-                                                            {{ $visit['company'] }}
+                                                            {{ $visitor->company }}
                                                         </div>
 
                                                         <div class="mt-3 text-base leading-6 text-base-content/80">
-                                                            {{ $visit['note'] }}
+                                                            {{ $visitor->notes }}
                                                         </div>
                                                     </div>
                                                 </div>
 
                                                 <div class="flex shrink-0 flex-col items-start gap-3 lg:items-end">
-                                        <span class="badge {{ $visit['statusClass'] }} rounded-full px-3 py-3 text-sm font-semibold">
-                                            {{ $visit['status'] }}
+                                        <span class="badge {{ $statusClassVisitor }} rounded-full px-3 py-3 text-sm font-semibold">
+                                            {{ $visitor->status }}
                                         </span>
                                                     <a
                                                         href="{{ \Illuminate\Support\Facades\Route::has('portal.visits.show') ? route('portal.visits.show', 1) : url('/portal/visits/1') }}"
