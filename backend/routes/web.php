@@ -30,6 +30,15 @@ Route::middleware(['auth', 'verified'])->group(function () {
             Route::match(['put', 'patch'], '/{visit}', [PortalVisitController::class, 'update'])
                 ->whereNumber('visit')
                 ->name('update');
+            Route::post('/{visit}/cancel', [PortalVisitController::class, 'cancel'])
+                ->whereNumber('visit')
+                ->name('cancel');
+            Route::post('/{visit}/reopen', [PortalVisitController::class, 'reopen'])
+                ->whereNumber('visit')
+                ->name('reopen');
+            Route::patch('/{visit}/reschedule', [PortalVisitController::class, 'reschedule'])
+                ->whereNumber('visit')
+                ->name('reschedule');
         });
     });
 
