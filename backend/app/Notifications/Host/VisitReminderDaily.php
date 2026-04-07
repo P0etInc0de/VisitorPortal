@@ -24,6 +24,7 @@ class VisitReminderDaily extends Notification implements ShouldQueue
      */
     public function __construct(
         protected Collection $visitCollection,
+        protected Collection $visitorCollection,
     ) {}
 
     /**
@@ -47,7 +48,7 @@ class VisitReminderDaily extends Notification implements ShouldQueue
             'class' => get_class(),
         ]);
 
-        return (new VisitReminderDailyMail($this->visitCollection, $notifiable))
+        return (new VisitReminderDailyMail($this->visitCollection, $this->visitorCollection, $notifiable))
             ->to($notifiable->email);
     }
 

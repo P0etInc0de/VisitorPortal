@@ -58,9 +58,9 @@ class NotificationTest extends TestCase
         $user = User::factory()->create();
         $visit = Visit::factory()->create();
         $visits = collect([$visit]);
-
+        $visitors = $visits->pluck('visitors', 'id');
         // Send the notification
-        Notification::send($user, new VisitReminderDaily($visits, $user));
+        Notification::send($user, new VisitReminderDaily($visits, $visitors));
 
         // Extract the array of sent messages from Laravel's underlying Symfony Mailer
         $messages = app('mailer')->getSymfonyTransport()->messages();

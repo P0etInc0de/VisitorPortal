@@ -1,27 +1,27 @@
 @php use Carbon\Carbon; @endphp
 <x-mail.message_component :message="$message">
-# Neuen Besuch erstellt
+# {{__('Neuen Besuch erstellt')}}
 
 @if($user_gender == 'male' )
-Hallo Herr {{ $user_name }},
+{{__('Hallo Herr')}} {{ $user_name }},
 @elseif($user_gender == 'female')
-Hallo Frau {{ $user_name }},
+{{__('Hallo Frau')}} {{ $user_name }},
 @else
-Hallo,
+{{__('Hallo')}},
 @endif
 
-folgender Besuch wurde für Sie registriert:
+{{__('folgender Besuch wurde für Sie registriert')}}:
 
-## Besuch
+## {{__('Besuch')}}
 <x-mail::table>
-    |Datum   | Start | Ende | Notizen |
+    |{{__('Datum')}}   | {{__('Datum')}} | {{__('Ende')}} | {{__('Notizen')}} |
     | :-----------: | :-----------: | :------------: | :------------: |
     | {{ Carbon::parse($visit->scheduled_from)->format('d.m.Y') }} | {{ Carbon::parse($visit->scheduled_from)->format('H:i') }} | {{ Carbon::parse($visit->scheduled_until)->format('H:i') }} | {{ $visit->notes }} |
 </x-mail::table>
 
-## Besucher
+## {{__('Besucher')}}
 <x-mail::table>
-    | Vorname       | Nachname      | Firma         |
+    | {{__('Vorname')}}       | {{__('Nachname')}}      | {{__('Firma')}}         |
     | :-----------: | :-----------: | :----------:  |
     @foreach($visitors as $visitor)
         | {{$visitor->first_name}} | {{$visitor->last_name}} | {{$visitor->company}}
@@ -29,7 +29,7 @@ folgender Besuch wurde für Sie registriert:
 </x-mail::table>
 
 <x-mail::button :url='route("dashboard")'>
-    Weiter Informationen
+    {{__('Weiter Informationen')}}
 </x-mail::button>
 
 </x-mail.message_component>

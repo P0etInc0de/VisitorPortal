@@ -25,15 +25,20 @@ class DailyVisitorReminder
 
         $visitsOfToday = Visit::query()
             ->whereDate('scheduled_from', Carbon::today())
-            ->with('responsibleUser')
+            ->with('responsibleUser', 'visitors')
             ->get();
 
-        $visitsOfUsers = $visitsOfToday->groupBy('responsible_user_id');
-
-        foreach ($visitsOfUsers as $visitCollection) {
+        $visitsOfToday->groupBy('responsible_user_id')->each(function ($visitCollection) {
             $user = $visitCollection->first()->responsibleUser;
-            Notification::send($user, new VisitReminderDaily($visitCollection));
-        }
+
+            // Map visits to their visitors keyed by visit ID
+            $visitorCollection = $visitCollection->pluck('visitors', 'id');
+
+            Notification::send($user, new VisitReminderDaily(
+                $visitCollection,
+                $visitorCollection
+            ));
+        });
 
         Log::info('DailyVisitorReminder finished', [
             'class' => get_class(),
