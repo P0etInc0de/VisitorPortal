@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use App\Enums\VisitStatusEnum;
 use App\Models\User;
 use App\Models\Visit;
 use Carbon\Carbon;
@@ -26,7 +27,7 @@ class VisitFactory extends Factory
             'user_id' => $user->id,
             'scheduled_from' => Carbon::now(),
             'scheduled_until' => Carbon::now()->addHour(1),
-            'status' => 'planned',
+            'status' => VisitStatusEnum::Planned,
             'notes' => 'test',
         ];
     }
