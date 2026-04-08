@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use App\Enums\VisitorStatusEnum;
 use App\Models\Visitor;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -29,7 +30,7 @@ class VisitorFactory extends Factory
             'email' => fake()->email(),
             'phone' => fake()->phoneNumber(),
             'company' => fake()->company(),
-            'status' => 'planned',
+            'status' => VisitorStatusEnum::Planned,
             'notes' => null,
         ];
     }
