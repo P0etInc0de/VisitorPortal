@@ -13,8 +13,4 @@
     | {{ Carbon::parse($visit->scheduled_from)->format('d.m.Y') }} | {{ Carbon::parse($visit->scheduled_from)->format('H:i') }} | {{ Carbon::parse($visit->scheduled_until)->format('H:i') }} |
 </x-mail::table>
 
-<x-mail::button :url='route("dashboard")'>
-    {{__('Weiter Informationen')}}
-</x-mail::button>
-
 </x-mail.message_component>
