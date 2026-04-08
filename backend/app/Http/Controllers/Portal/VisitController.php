@@ -20,21 +20,28 @@ class VisitController extends Controller
 {
     public function create(): View
     {
-        $visit = new Visit([
+        return $this->formView(new Visit([
             'user_id' => auth()->id(),
             'status' => 'draft',
-        ]);
-
-        return $this->formView($visit, false);
+        ]), false);
     }
 
     public function store(StoreVisitRequest $request): RedirectResponse
     {
-        $validated = $request->validated();
+        $payload = $request->validated();
 
-        $visit = DB::transaction(function () use ($validated) {
-            $visit = Visit::query()->create($this->visitPayload($validated));
-            $this->syncParticipants($visit, $validated['participants'] ?? []);
+        $visit = DB::transaction(function () use ($payload) {
+            $visit = Visit::query()->create([
+                'title' => $payload['title'],
+                'user_id' => (int) $payload['user_id'],
+                'responsible_user_id' => (int) (($payload['responsible_user_id'] ?? null) ?: $payload['user_id']),
+                'scheduled_from' => $payload['scheduled_from'],
+                'scheduled_until' => $payload['scheduled_until'] ?? null,
+                'status' => $payload['status'],
+                'notes' => $payload['notes'] ?? null,
+            ]);
+
+            $this->syncParticipants($visit, $payload['participants'] ?? []);
 
             return $visit;
         });
@@ -44,8 +51,7 @@ class VisitController extends Controller
             'user_id' => auth()->id(),
         ]);
 
-        return redirect()
-            ->route('portal.visits.show', $visit)
+        return redirect()->route('portal.visits.show', $visit)
             ->with('status', __('Besuch wurde angelegt.'));
     }
 
@@ -84,22 +90,25 @@ class VisitController extends Controller
 
     public function edit(Visit $visit): View
     {
-        $visit->load([
-            'host:id,name',
-            'responsibleUser:id,name',
-            'visitors' => fn ($query) => $query->orderBy('first_name')->orderBy('last_name'),
-        ]);
-
         return $this->formView($visit, true);
     }
 
     public function update(UpdateVisitRequest $request, Visit $visit): RedirectResponse
     {
-        $validated = $request->validated();
+        $payload = $request->validated();
 
-        DB::transaction(function () use ($validated, $visit) {
-            $visit->update($this->visitPayload($validated));
-            $this->syncParticipants($visit, $validated['participants'] ?? []);
+        DB::transaction(function () use ($visit, $payload) {
+            $visit->update([
+                'title' => $payload['title'],
+                'user_id' => (int) $payload['user_id'],
+                'responsible_user_id' => (int) (($payload['responsible_user_id'] ?? null) ?: $payload['user_id']),
+                'scheduled_from' => $payload['scheduled_from'],
+                'scheduled_until' => $payload['scheduled_until'] ?? null,
+                'status' => $payload['status'],
+                'notes' => $payload['notes'] ?? null,
+            ]);
+
+            $this->syncParticipants($visit, $payload['participants'] ?? []);
         });
 
         SafeActivityLog::info('Visit updated', [
@@ -107,8 +116,7 @@ class VisitController extends Controller
             'user_id' => auth()->id(),
         ]);
 
-        return redirect()
-            ->route('portal.visits.show', $visit)
+        return redirect()->route('portal.visits.show', $visit)
             ->with('status', __('Besuch wurde aktualisiert.'));
     }
 
@@ -146,18 +154,18 @@ class VisitController extends Controller
 
     public function reschedule(RescheduleVisitRequest $request, Visit $visit): RedirectResponse
     {
-        $validated = $request->validated();
+        $payload = $request->validated();
 
         $visit->update([
-            'scheduled_from' => $validated['scheduled_from'],
-            'scheduled_until' => $validated['scheduled_until'] ?? null,
+            'scheduled_from' => $payload['scheduled_from'],
+            'scheduled_until' => $payload['scheduled_until'] ?? null,
         ]);
 
         SafeActivityLog::info('Visit rescheduled', [
             'visit_id' => $visit->id,
             'user_id' => auth()->id(),
-            'scheduled_from' => $validated['scheduled_from'],
-            'scheduled_until' => $validated['scheduled_until'] ?? null,
+            'scheduled_from' => $payload['scheduled_from'],
+            'scheduled_until' => $payload['scheduled_until'] ?? null,
         ]);
 
         return back()->with('status', __('Termin wurde verschoben.'));
@@ -165,9 +173,15 @@ class VisitController extends Controller
 
     private function formView(Visit $visit, bool $isEdit): View
     {
-        $users = User::query()->select(['id', 'name'])->orderBy('name')->get();
+        $visit->loadMissing([
+            'host:id,name',
+            'responsibleUser:id,name',
+            'visitors' => fn ($query) => $query->orderBy('first_name')->orderBy('last_name'),
+        ]);
+
+        $users = User::query()->select('id', 'name')->orderBy('name')->get();
         $existingVisitors = Visitor::query()
-            ->select(['id', 'first_name', 'last_name', 'company', 'email', 'phone'])
+            ->select('id', 'first_name', 'last_name', 'company', 'email', 'phone')
             ->orderBy('first_name')
             ->orderBy('last_name')
             ->get();
@@ -175,77 +189,49 @@ class VisitController extends Controller
         $initialParticipants = old('participants');
 
         if (! is_array($initialParticipants)) {
-            $initialParticipants = $visit->exists
-                ? $visit->visitors->map(function (Visitor $visitor) {
-                    return [
-                        'visitor_id' => $visitor->id,
-                        'first_name' => $visitor->first_name,
-                        'last_name' => $visitor->last_name,
-                        'email' => $visitor->email,
-                        'phone' => $visitor->phone,
-                        'company' => $visitor->company,
-                    ];
-                })->values()->all()
-                : [[
-                    'visitor_id' => null,
-                    'first_name' => '',
-                    'last_name' => '',
-                    'email' => '',
-                    'phone' => '',
-                    'company' => '',
-                ]];
+            $initialParticipants = $visit->visitors->map(function (Visitor $visitor) {
+                return [
+                    'visitor_id' => $visitor->id,
+                    'first_name' => $visitor->first_name,
+                    'last_name' => $visitor->last_name,
+                    'email' => $visitor->email,
+                    'phone' => $visitor->phone,
+                    'company' => $visitor->company,
+                    'is_existing' => true,
+                    'is_open' => false,
+                ];
+            })->values()->all();
+        } else {
+            $initialParticipants = collect($initialParticipants)
+                ->map(function (array $participant) {
+                    $participant['is_existing'] = filled($participant['visitor_id'] ?? null);
+                    $participant['is_open'] = blank($participant['visitor_id'] ?? null);
+                    return $participant;
+                })
+                ->values()
+                ->all();
         }
 
         if ($initialParticipants === []) {
-            $initialParticipants[] = [
-                'visitor_id' => null,
-                'first_name' => '',
-                'last_name' => '',
-                'email' => '',
-                'phone' => '',
-                'company' => '',
-            ];
+            $initialParticipants = [];
         }
 
         return view('portal.visits.create', [
             'visit' => $visit,
-            'users' => $users,
-            'existingVisitors' => $existingVisitors,
-            'initialParticipants' => $initialParticipants,
             'isEdit' => $isEdit,
             'formAction' => $isEdit ? route('portal.visits.update', $visit) : route('portal.visits.store'),
             'formMethod' => $isEdit ? 'PATCH' : 'POST',
+            'users' => $users,
+            'existingVisitors' => $existingVisitors,
+            'initialParticipants' => $initialParticipants,
         ]);
-    }
-
-    private function visitPayload(array $validated): array
-    {
-        $hostId = (int) $validated['user_id'];
-        $responsibleUserId = Arr::get($validated, 'responsible_user_id');
-
-        return [
-            'title' => $validated['title'],
-            'user_id' => $hostId,
-            'responsible_user_id' => $responsibleUserId ?: $hostId,
-            'scheduled_from' => $validated['scheduled_from'],
-            'scheduled_until' => $validated['scheduled_until'] ?? null,
-            'status' => $validated['status'],
-            'notes' => Arr::get($validated, 'notes'),
-        ];
     }
 
     private function syncParticipants(Visit $visit, array $participantRows): void
     {
-        $rows = $this->normalizedParticipants(collect($participantRows));
-
-        if ($rows->isEmpty()) {
-            $visit->visitors()->detach();
-            return;
-        }
-
         $syncPayload = [];
 
-        foreach ($rows as $row) {
+        foreach ($this->normalizedParticipants(collect($participantRows)) as $row) {
             $visitor = $this->resolveVisitor($row);
             $syncPayload[$visitor->id] = [
                 'notes' => Arr::get($row, 'notes'),
@@ -277,6 +263,13 @@ class VisitController extends Controller
                     || filled($row['phone'])
                     || filled($row['company']);
             })
+            ->filter(function (array $row) {
+                if (filled($row['visitor_id'])) {
+                    return true;
+                }
+
+                return filled($row['first_name']) && filled($row['last_name']);
+            })
             ->values();
     }
 
@@ -286,49 +279,24 @@ class VisitController extends Controller
             return Visitor::query()->findOrFail($row['visitor_id']);
         }
 
-        $email = $row['email'];
+        if (filled($row['email'])) {
+            $existingByEmail = Visitor::query()->where('email', $row['email'])->first();
 
-        if (filled($email)) {
-            $visitor = Visitor::query()->firstOrNew(['email' => $email]);
-            $visitor->first_name = $row['first_name'] ?: $visitor->first_name;
-            $visitor->last_name = $row['last_name'] ?: $visitor->last_name;
-            $visitor->phone = $row['phone'] ?: $visitor->phone;
-            $visitor->company = $row['company'] ?: $visitor->company;
-            $visitor->status = $visitor->status ?: 'planned';
-            $visitor->notes = $visitor->notes ?? null;
-            $visitor->save();
+            if ($existingByEmail) {
+                $existingByEmail->update([
+                    'first_name' => $row['first_name'] ?: $existingByEmail->first_name,
+                    'last_name' => $row['last_name'] ?: $existingByEmail->last_name,
+                    'phone' => $row['phone'] ?: $existingByEmail->phone,
+                    'company' => $row['company'] ?: $existingByEmail->company,
+                ]);
 
-            return $visitor;
-        }
-
-        $query = Visitor::query();
-
-        if (filled($row['first_name'])) {
-            $query->where('first_name', $row['first_name']);
-        }
-
-        if (filled($row['last_name'])) {
-            $query->where('last_name', $row['last_name']);
-        }
-
-        if (filled($row['company'])) {
-            $query->where('company', $row['company']);
-        }
-
-        $existingVisitor = $query->first();
-
-        if ($existingVisitor) {
-            if (blank($existingVisitor->phone) && filled($row['phone'])) {
-                $existingVisitor->phone = $row['phone'];
-                $existingVisitor->save();
+                return $existingByEmail;
             }
-
-            return $existingVisitor;
         }
 
         return Visitor::query()->create([
-            'first_name' => $row['first_name'] ?: '-',
-            'last_name' => $row['last_name'] ?: '-',
+            'first_name' => $row['first_name'],
+            'last_name' => $row['last_name'],
             'email' => $row['email'],
             'phone' => $row['phone'],
             'company' => $row['company'],
@@ -340,79 +308,48 @@ class VisitController extends Controller
     private function normalizeText(mixed $value): ?string
     {
         $value = trim((string) $value);
-
         return $value === '' ? null : $value;
     }
 
     private function resolveParticipantStatus(string $visitStatus, object $pivot): array
     {
         if (filled($pivot->checked_out_at)) {
-            return [
-                'label' => __('Ausgecheckt'),
-                'class' => 'badge-neutral badge-outline',
-            ];
+            return ['label' => __('Ausgecheckt'), 'class' => 'badge-neutral badge-outline'];
         }
 
         if (filled($pivot->checked_in_at)) {
-            return [
-                'label' => __('Eingecheckt'),
-                'class' => 'badge-success badge-outline',
-            ];
+            return ['label' => __('Eingecheckt'), 'class' => 'badge-success badge-outline'];
         }
 
         if (filled($pivot->badge_printed_at)) {
-            return [
-                'label' => __('Badge bereit'),
-                'class' => 'badge-info badge-outline',
-            ];
+            return ['label' => __('Badge bereit'), 'class' => 'badge-info badge-outline'];
         }
 
         if ($visitStatus === 'draft') {
-            return [
-                'label' => __('Entwurf'),
-                'class' => 'badge-error badge-outline',
-            ];
+            return ['label' => __('Entwurf'), 'class' => 'badge-error badge-outline'];
         }
 
         if ($visitStatus === 'canceled') {
-            return [
-                'label' => __('Abgesagt'),
-                'class' => 'badge-neutral badge-outline',
-            ];
+            return ['label' => __('Abgesagt'), 'class' => 'badge-neutral badge-outline'];
         }
 
-        return [
-            'label' => __('Geplant'),
-            'class' => 'badge-warning badge-outline',
-        ];
+        return ['label' => __('Geplant'), 'class' => 'badge-warning badge-outline'];
     }
 
     private function resolveVisitStatus(Visit $visit): array
     {
         if ($visit->status === 'canceled' || filled($visit->canceled_at)) {
-            return [
-                'label' => __('Abgesagt'),
-                'class' => 'badge-neutral badge-outline',
-            ];
+            return ['label' => __('Abgesagt'), 'class' => 'badge-neutral badge-outline'];
         }
 
         if ($visit->status === 'completed') {
-            return [
-                'label' => __('Abgeschlossen'),
-                'class' => 'badge-success badge-outline',
-            ];
+            return ['label' => __('Abgeschlossen'), 'class' => 'badge-success badge-outline'];
         }
 
         if ($visit->status === 'draft') {
-            return [
-                'label' => __('Entwurf'),
-                'class' => 'badge-error badge-outline',
-            ];
+            return ['label' => __('Entwurf'), 'class' => 'badge-error badge-outline'];
         }
 
-        return [
-            'label' => __('Geplant'),
-            'class' => 'badge-warning badge-outline',
-        ];
+        return ['label' => __('Geplant'), 'class' => 'badge-warning badge-outline'];
     }
 }

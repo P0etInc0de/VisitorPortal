@@ -1,3 +1,40 @@
+@php
+    $participantItems = collect($participants ?? $visit->visitors->map(function ($visitor) use ($visit) {
+        $pivot = $visitor->pivot;
+        $status = ['label' => __('Geplant'), 'class' => 'badge-warning badge-outline'];
+
+        if (filled($pivot->checked_out_at)) {
+            $status = ['label' => __('Ausgecheckt'), 'class' => 'badge-neutral badge-outline'];
+        } elseif (filled($pivot->checked_in_at)) {
+            $status = ['label' => __('Eingecheckt'), 'class' => 'badge-success badge-outline'];
+        } elseif (filled($pivot->badge_printed_at)) {
+            $status = ['label' => __('Badge bereit'), 'class' => 'badge-info badge-outline'];
+        } elseif (($visit->status ?? null) === 'draft') {
+            $status = ['label' => __('Entwurf'), 'class' => 'badge-error badge-outline'];
+        } elseif (($visit->status ?? null) === 'canceled') {
+            $status = ['label' => __('Abgesagt'), 'class' => 'badge-neutral badge-outline'];
+        }
+
+        return [
+            'name' => trim(($visitor->first_name ?? '') . ' ' . ($visitor->last_name ?? '')),
+            'company' => $visitor->company,
+            'email' => $visitor->email,
+            'phone' => $visitor->phone,
+            'badge_printed_at' => $pivot->badge_printed_at,
+            'checked_in_at' => $pivot->checked_in_at,
+            'checked_out_at' => $pivot->checked_out_at,
+            'status' => $status,
+        ];
+    }));
+
+    $statusBadge = $visitStatus ?? ['label' => __('Geplant'), 'class' => 'badge-warning badge-outline'];
+    $formatParticipantDateTime = function ($value, $fallback = '-') {
+        return filled($value)
+            ? \Illuminate\Support\Carbon::parse($value)->format('d.m.Y H:i')
+            : $fallback;
+    };
+@endphp
+
 <x-app-layout>
     <x-slot name="header">
         <div class="bp-screen-head bp-screen-head-with-actions">
@@ -23,8 +60,8 @@
         <section class="card rounded-[1.5rem] border border-base-300 bg-base-100 shadow-sm">
             <div class="card-body p-5 sm:p-6">
                 <div class="mb-4 flex flex-wrap items-center gap-2">
-                    <span class="badge {{ $visitStatus['class'] }} rounded-full px-3 py-3 text-sm font-semibold">
-                        {{ $visitStatus['label'] }}
+                    <span class="badge {{ $statusBadge['class'] }} rounded-full px-3 py-3 text-sm font-semibold">
+                        {{ $statusBadge['label'] }}
                     </span>
 
                     <span class="badge badge-ghost rounded-full px-3 py-3 text-sm">
@@ -57,20 +94,20 @@
                     </div>
                 @endif
 
-                <div class="grid gap-4 xl:grid-cols-[minmax(0,1fr)_360px]">
+                <div class="grid gap-4 xl:grid-cols-[minmax(0,1fr)_340px]">
                     <div>
                         <div class="mb-3 flex items-center justify-between gap-3">
                             <h2 class="text-xl font-semibold tracking-tight text-base-content">{{ __('Teilnehmende') }}</h2>
                             <span class="text-sm text-base-content/60">{{ __('Kompakte Liste, Details bei Bedarf') }}</span>
                         </div>
 
-                        @if ($participants->isEmpty())
+                        @if ($participantItems->isEmpty())
                             <div class="rounded-2xl border border-dashed border-base-300 bg-base-100 px-4 py-8 text-center text-base-content/65">
                                 {{ __('Diesem Besuch sind noch keine Teilnehmenden zugeordnet.') }}
                             </div>
                         @else
                             <div class="space-y-3">
-                                @foreach ($participants as $participant)
+                                @foreach ($participantItems as $participant)
                                     <details class="rounded-2xl border border-base-300 bg-base-100 group" @if ($loop->first) open @endif>
                                         <summary class="flex cursor-pointer list-none items-center justify-between gap-3 px-4 py-3">
                                             <div class="min-w-0">
@@ -107,19 +144,19 @@
                                                 <div class="rounded-xl border border-base-300 bg-base-100 px-3 py-2">
                                                     <div class="text-xs text-base-content/60">{{ __('Badge') }}</div>
                                                     <div class="mt-1 text-sm text-base-content">
-                                                        {{ $participant['badge_printed_at'] ? \Illuminate\Support\Carbon::parse($participant['badge_printed_at'])->format('d.m.Y H:i') : __('offen') }}
+                                                        {{ $formatParticipantDateTime($participant['badge_printed_at'], __('offen')) }}
                                                     </div>
                                                 </div>
                                                 <div class="rounded-xl border border-base-300 bg-base-100 px-3 py-2">
                                                     <div class="text-xs text-base-content/60">{{ __('Check-in') }}</div>
                                                     <div class="mt-1 text-sm text-base-content">
-                                                        {{ $participant['checked_in_at'] ? \Illuminate\Support\Carbon::parse($participant['checked_in_at'])->format('d.m.Y H:i') : '-' }}
+                                                        {{ $formatParticipantDateTime($participant['checked_in_at']) }}
                                                     </div>
                                                 </div>
                                                 <div class="rounded-xl border border-base-300 bg-base-100 px-3 py-2">
                                                     <div class="text-xs text-base-content/60">{{ __('Check-out') }}</div>
                                                     <div class="mt-1 text-sm text-base-content">
-                                                        {{ $participant['checked_out_at'] ? \Illuminate\Support\Carbon::parse($participant['checked_out_at'])->format('d.m.Y H:i') : '-' }}
+                                                        {{ $formatParticipantDateTime($participant['checked_out_at']) }}
                                                     </div>
                                                 </div>
                                             </div>
@@ -144,24 +181,14 @@
                                         <div class="label px-0 pb-1.5">
                                             <span class="label-text text-sm font-medium text-base-content">{{ __('Beginn') }}</span>
                                         </div>
-                                        <input
-                                            type="datetime-local"
-                                            name="scheduled_from"
-                                            class="input input-bordered h-11 w-full rounded-xl"
-                                            value="{{ old('scheduled_from', optional($visit->scheduled_from)->format('Y-m-d\TH:i')) }}"
-                                        >
+                                        <input type="datetime-local" name="scheduled_from" class="input input-bordered h-11 w-full rounded-xl" value="{{ old('scheduled_from', optional($visit->scheduled_from)->format('Y-m-d\\TH:i')) }}">
                                     </label>
 
                                     <label class="form-control w-full">
                                         <div class="label px-0 pb-1.5">
                                             <span class="label-text text-sm font-medium text-base-content">{{ __('Ende') }}</span>
                                         </div>
-                                        <input
-                                            type="datetime-local"
-                                            name="scheduled_until"
-                                            class="input input-bordered h-11 w-full rounded-xl"
-                                            value="{{ old('scheduled_until', optional($visit->scheduled_until)->format('Y-m-d\TH:i')) }}"
-                                        >
+                                        <input type="datetime-local" name="scheduled_until" class="input input-bordered h-11 w-full rounded-xl" value="{{ old('scheduled_until', optional($visit->scheduled_until)->format('Y-m-d\\TH:i')) }}">
                                     </label>
 
                                     <button type="submit" class="btn btn-primary w-full rounded-xl">
