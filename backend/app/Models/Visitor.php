@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\VisitorStatusEnum;
 use Database\Factories\VisitorFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -25,6 +26,10 @@ class Visitor extends Model
         'company',
         'status',
         'notes',
+    ];
+
+    protected $casts = [
+        'status' => VisitorStatusEnum::class,
     ];
 
     /**

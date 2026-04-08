@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\VisitStatusEnum;
 use Database\Factories\VisitFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -23,6 +24,10 @@ class Visit extends Model
         'scheduled_until',
         'status',
         'notes',
+    ];
+
+    protected $casts = [
+        'status' => VisitStatusEnum::class,
     ];
 
     /**

@@ -12,14 +12,12 @@ class ShieldSeeder extends Seeder
 {
     public function run(): void
     {
-        $this->command?->info('Generating Filament Shield Permissions...');
-
         app()[PermissionRegistrar::class]->forgetCachedPermissions();
 
         $tenants = '[]';
         $users = '[]';
         $userTenantPivot = '[]';
-        $rolesWithPermissions = '[{"name":"super_admin","guard_name":"web","permissions":["ViewAny:User","View:User","Create:User","Update:User","Delete:User","Restore:User","ForceDelete:User","ForceDeleteAny:User","RestoreAny:User","Replicate:User","Reorder:User","ViewAny:Role","View:Role","Create:Role","Update:Role","Delete:Role","Restore:Role","ForceDelete:Role","ForceDeleteAny:Role","RestoreAny:Role","Replicate:Role","Reorder:Role"]}]';
+        $rolesWithPermissions = '[{"name":"super_admin","guard_name":"web","permissions":["ViewAny:User","View:User","Create:User","Update:User","Delete:User","Restore:User","ForceDelete:User","ForceDeleteAny:User","RestoreAny:User","Replicate:User","Reorder:User","ViewAny:Role","View:Role","Create:Role","Update:Role","Delete:Role","Restore:Role","ForceDelete:Role","ForceDeleteAny:Role","RestoreAny:Role","Replicate:Role","Reorder:Role","ViewAny:Department","View:Department","Create:Department","Update:Department","Delete:Department","Restore:Department","ForceDelete:Department","ForceDeleteAny:Department","RestoreAny:Department","Replicate:Department","Reorder:Department","ViewAny:Visitor","View:Visitor","Create:Visitor","Update:Visitor","Delete:Visitor","Restore:Visitor","ForceDelete:Visitor","ForceDeleteAny:Visitor","RestoreAny:Visitor","Replicate:Visitor","Reorder:Visitor","ViewAny:Visit","View:Visit","Create:Visit","Update:Visit","Delete:Visit","Restore:Visit","ForceDelete:Visit","ForceDeleteAny:Visit","RestoreAny:Visit","Replicate:Visit","Reorder:Visit","View:Dashboard"]},{"name":"employee","guard_name":"web","permissions":[]}]';
         $directPermissions = '[]';
 
         // 1. Seed tenants first (if present)
