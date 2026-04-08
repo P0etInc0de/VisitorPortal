@@ -2,6 +2,7 @@
 
 namespace App\Mail\Host;
 
+use App\Enums\GenderEnum;
 use App\Models\User;
 use App\Models\Visit;
 use Illuminate\Bus\Queueable;
@@ -18,7 +19,7 @@ class VisitReminderDailyMail extends Mailable
 
     public string $last_name;
 
-    public string $gender;
+    public GenderEnum $gender;
 
     /**
      * Create a new message instance.

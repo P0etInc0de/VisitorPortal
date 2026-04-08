@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Enums\GenderEnum;
 use App\Models\Department;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Model;
@@ -28,7 +29,7 @@ class DemoSeeder extends Seeder
 
         $this->createOrUpdateUser(
             name: 'Admin Demo',
-            gender: 'male',
+            gender: GenderEnum::Male,
             email: 'admin@demo.local',
             password: $defaultPassword,
             department: 'IT/Administration',
@@ -36,7 +37,7 @@ class DemoSeeder extends Seeder
 
         $this->createOrUpdateUser(
             name: 'Empfang Demo',
-            gender: 'male',
+            gender: GenderEnum::Female,
             email: 'empfang@demo.local',
             password: $defaultPassword,
             department: 'Empfang',
@@ -44,7 +45,7 @@ class DemoSeeder extends Seeder
 
         $this->createOrUpdateUser(
             name: 'Mitarbeiter Demo',
-            gender: 'male',
+            gender: GenderEnum::Male,
             email: 'mitarbeiter@demo.local',
             password: $defaultPassword,
             department: 'Vertrieb',
@@ -59,7 +60,7 @@ class DemoSeeder extends Seeder
 
     private function createOrUpdateUser(
         string $name,
-        string $gender,
+        GenderEnum $gender,
         string $email,
         string $password,
         string $department,

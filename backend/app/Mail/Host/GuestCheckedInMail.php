@@ -2,6 +2,7 @@
 
 namespace App\Mail\Host;
 
+use App\Enums\GenderEnum;
 use App\Models\User;
 use App\Models\Visitor;
 use Illuminate\Bus\Queueable;
@@ -17,7 +18,7 @@ class GuestCheckedInMail extends Mailable
 
     public string $user_name;
 
-    public string $user_gender;
+    public GenderEnum $user_gender;
 
     /**
      * Create a new message instance.

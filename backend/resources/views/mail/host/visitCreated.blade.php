@@ -1,10 +1,14 @@
-@php use Carbon\Carbon; @endphp
+@php
+    use App\Enums\GenderEnum;
+    use Carbon\Carbon;
+ @endphp
+
 <x-mail.message_component :message="$message">
 # {{__('Neuen Besuch erstellt')}}
 
-@if($user_gender == 'male' )
+@if($user_gender == GenderEnum::Male )
 {{__('Hallo Herr')}} {{ $user_name }},
-@elseif($user_gender == 'female')
+@elseif($user_gender == GenderEnum::Female)
 {{__('Hallo Frau')}} {{ $user_name }},
 @else
 {{__('Hallo')}},
@@ -14,7 +18,7 @@
 
 ## {{__('Besuch')}}
 <x-mail::table>
-    |{{__('Datum')}}   | {{__('Datum')}} | {{__('Ende')}} | {{__('Notizen')}} |
+    |{{__('Datum')}}   | {{__('Start')}} | {{__('Ende')}} | {{__('Notizen')}} |
     | :-----------: | :-----------: | :------------: | :------------: |
     | {{ Carbon::parse($visit->scheduled_from)->format('d.m.Y') }} | {{ Carbon::parse($visit->scheduled_from)->format('H:i') }} | {{ Carbon::parse($visit->scheduled_until)->format('H:i') }} | {{ $visit->notes }} |
 </x-mail::table>

@@ -2,6 +2,7 @@
 
 namespace App\Mail\Host;
 
+use App\Enums\GenderEnum;
 use App\Models\User;
 use App\Models\Visit;
 use Illuminate\Bus\Queueable;
@@ -18,7 +19,7 @@ class VisitCreatedMail extends Mailable
 
     protected string $user_name;
 
-    protected string $user_gender;
+    protected GenderEnum $user_gender;
 
     /**
      * Create a new message instance.
