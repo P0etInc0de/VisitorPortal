@@ -20,10 +20,6 @@ class PermissionHelper
     {
 
 
-
-        $this->app->make(PermissionRegistrar::class)->forgetCachedPermissions();
-
-
         $adminRole = Role::firstOrCreate(['name' => 'admin', 'guard_name' => 'web']);
 
         $permissions = [

@@ -10,6 +10,7 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\PermissionRegistrar;
+use Tests\Support\PermissionHelper;
 use Tests\TestCase;
 use App\Models\User;
 use Spatie\Permission\Models\Role;
@@ -50,28 +51,7 @@ class AdminAdministerUserTest extends TestCase
     private function createAdminUser(): User
     {
         $this->app->make(PermissionRegistrar::class)->forgetCachedPermissions();
+        return PermissionHelper::class->getAdminUser();
 
-
-        $adminRole = Role::firstOrCreate(['name' => 'admin', 'guard_name' => 'web']);
-
-        $permissions = [
-            'ViewAny:User',
-            'Create:User',
-        ];
-
-        foreach ($permissions as $permission) {
-            Permission::firstOrCreate([
-                'name' => $permission,
-                'guard_name' => 'web'
-            ]);
-        }
-
-
-        $adminRole->syncPermissions($permissions);
-
-        $user = User::factory()->create();
-        $user->assignRole($adminRole);
-
-        return $user;
     }
 }
