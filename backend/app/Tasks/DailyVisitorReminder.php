@@ -10,14 +10,13 @@ use Illuminate\Support\Facades\Notification;
 
 class DailyVisitorReminder
 {
-    /*
+    /**
      * Notify employees if they have visitors today
      * Shall run at 7am every day
      * Might be extended to notify the visitor as well...
-     * */
-    /**
+     *
      * @throws \Throwable
-     */
+     * */
     public function __invoke(): void
     {
         Log::info('DailyVisitorReminder started', [
@@ -33,7 +32,7 @@ class DailyVisitorReminder
 
         foreach ($visitsOfUsers as $visitCollection) {
             $user = $visitCollection->first()->responsibleUser;
-            Notification::send($user, new VisitReminderDaily($visitCollection, $user));
+            Notification::send($user, new VisitReminderDaily($visitCollection));
         }
 
         Log::info('DailyVisitorReminder finished', [

@@ -1,16 +1,38 @@
+@php
+    use App\Enums\GenderEnum;
+    use Carbon\Carbon;
+ @endphp
+
 <x-mail.message_component :message="$message">
 # Neuen Besuch erstellt
 
-Sie haben soeben folgenden Besuch erstellt:
+@if($user_gender == GenderEnum::Male )
+Hallo Herr {{ $user_name }},
+@elseif($user_gender == GenderEnum::Female)
+Hallo Frau {{ $user_name }},
+@else
+Hallo,
+@endif
 
+folgender Besuch wurde für Sie registriert:
+
+## Besuch
 <x-mail::table>
-    | Eigenschaft   | Information   |
-    | ------------- | :-----------: |
-    | Name          | test          |
-    | Firma         | test          |
+    |Datum | Start | Ende | Notizen |
+    | :-----------: | :-----------: | :------------: | :------------: |
+    | {{ Carbon::parse($visit->scheduled_from)->format('d.m.Y') }}| {{ Carbon::parse($visit->scheduled_from)->format('H:i') }}| {{ Carbon::parse($visit->scheduled_until)->format('H:i') }} | {{ $visit->notes }} |
 </x-mail::table>
 
-<x-mail::button :url="''">
+## Besucher
+<x-mail::table>
+    | Vorname | Nachname | Firma |
+    | :-----------: | :-----------: | :----------: |
+    @foreach($visitors as $visitor)
+        | {{$visitor->first_name}} | {{$visitor->last_name}} | {{$visitor->company}}
+    @endforeach
+</x-mail::table>
+
+<x-mail::button :url='route("dashboard")'>
     Weiter Informationen
 </x-mail::button>
 

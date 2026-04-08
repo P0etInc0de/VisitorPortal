@@ -3,7 +3,7 @@
     use Carbon\Carbon;
 @endphp
 <x-mail.message_component :message="$message">
-    # Anstehende Besuche
+# Anstehende Besuche
 
 @if($gender == GenderEnum::Male )
 Guten Morgen Herr {{ $last_name }},
