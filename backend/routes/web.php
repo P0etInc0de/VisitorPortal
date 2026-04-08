@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\WelcomeMonitorController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -26,9 +27,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
     });
 
     Route::prefix('monitor')->name('monitor.')->group(function () {
-        Route::view('/', 'monitor.show')->name('show');
-        Route::view('/live', 'monitor.show')->name('live');
-        Route::view('/editor', 'monitor.editor')->name('editor');
+        Route::get('/', [WelcomeMonitorController::class, 'show'])->name('show');
+        Route::get('/live', [WelcomeMonitorController::class, 'live'])->name('live');
+        Route::get('/editor', [WelcomeMonitorController::class, 'edit'])->name('editor');
     });
 });
 

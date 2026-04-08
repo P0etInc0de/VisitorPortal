@@ -1,17 +1,3 @@
-@php
-    $hasLogo = file_exists(public_path('images/logo.png'));
-    $hasCustomBackground = file_exists(public_path('images/monitor-background.jpg')) || file_exists(public_path('images/monitor-background.png'));
-    $backgroundAsset = file_exists(public_path('images/monitor-background.jpg'))
-        ? asset('images/monitor-background.jpg')
-        : (file_exists(public_path('images/monitor-background.png')) ? asset('images/monitor-background.png') : null);
-
-    $visitors = [
-        ['time' => '09:30', 'name' => 'Max Mustermann', 'company' => 'Beispiel GmbH'],
-        ['time' => '11:00', 'name' => 'Anna Becker', 'company' => 'ACME AG'],
-        ['time' => '13:30', 'name' => 'David Keller', 'company' => 'Tech Solutions'],
-        ['time' => '15:00', 'name' => 'Sven Maurer', 'company' => 'Maurer Industrie'],
-    ];
-@endphp
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}" data-theme="light">
 <head>
