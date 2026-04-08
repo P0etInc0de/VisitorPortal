@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Portal;
 
+use App\Enums\VisitorStatusEnum;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\RescheduleVisitRequest;
 use App\Http\Requests\StoreVisitRequest;
@@ -15,7 +16,6 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
-use App\Enums\VisitorStatusEnum;
 
 class VisitController extends Controller
 {
