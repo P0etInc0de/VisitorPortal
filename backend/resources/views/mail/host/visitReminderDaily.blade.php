@@ -19,8 +19,7 @@ Sie haben heute Folgende Besuche:
     | Start | Ende | Notizen |
     | :-----------: | :------------: | :------------: |
     @foreach($visitCollection as $visit)
-        | {{ Carbon::parse($visit->scheduled_from)->format('H:i') }}
-        | {{ Carbon::parse($visit->scheduled_until)->format('H:i') }} | {{ $visit->notes }} |
+        | {{ Carbon::parse($visit->scheduled_from)->format('H:i') }}| {{ Carbon::parse($visit->scheduled_until)->format('H:i') }} | {{ $visit->notes }} |
     @endforeach
 
 </x-mail::table>
