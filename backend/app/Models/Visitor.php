@@ -3,11 +3,16 @@
 namespace App\Models;
 
 use App\Enums\VisitorStatusEnum;
+use Database\Factories\VisitorFactory;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class Visitor extends Model
 {
+    /** @use HasFactory<VisitorFactory> */
+    use HasFactory;
+
     /**
      * The attributes that are mass assignable.
      *

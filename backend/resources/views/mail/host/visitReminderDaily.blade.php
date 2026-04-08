@@ -1,10 +1,13 @@
-@php use Carbon\Carbon; @endphp
+@php
+    use App\Enums\GenderEnum;
+    use Carbon\Carbon;
+@endphp
 <x-mail.message_component :message="$message">
-# Anstehende Besuche
+    # Anstehende Besuche
 
-@if($gender == 'male')
+@if($gender == GenderEnum::Male )
 Guten Morgen Herr {{ $last_name }},
-@elseif($gender == 'female')
+@elseif($gender == GenderEnum::Female)
 Guten Morgen Frau {{ $last_name }},
 @else
 Guten Morgen,
@@ -16,7 +19,7 @@ Sie haben heute Folgende Besuche:
     | Start | Ende | Notizen |
     | :-----------: | :------------: | :------------: |
     @foreach($visitCollection as $visit)
-        | {{ Carbon::parse($visit->scheduled_from)->format('H:i') }} | {{ Carbon::parse($visit->scheduled_until)->format('H:i') }} | {{ $visit->notes }} |
+        | {{ Carbon::parse($visit->scheduled_from)->format('H:i') }}| {{ Carbon::parse($visit->scheduled_until)->format('H:i') }} | {{ $visit->notes }} |
     @endforeach
 
 </x-mail::table>

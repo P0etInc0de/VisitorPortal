@@ -26,7 +26,7 @@ class VisitReminderDaily extends Notification implements ShouldQueue
         protected Collection $visitCollection,
         protected User $user,
     ) {
-        Log::info('Notifying User from VisitReminderDaily class', [
+        Log::info('Notifying User from VisitReminderDaily', [
             'user_id' => $user->id,
             'visit_count' => $visitCollection->count(),
             'class' => get_class(),
