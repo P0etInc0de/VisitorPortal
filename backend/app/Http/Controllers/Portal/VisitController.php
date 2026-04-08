@@ -15,6 +15,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
+use App\Enums\VisitorStatusEnum;
 
 class VisitController extends Controller
 {
@@ -301,7 +302,7 @@ class VisitController extends Controller
             'email' => $row['email'],
             'phone' => $row['phone'],
             'company' => $row['company'],
-            'status' => 'planned',
+            'status' => VisitorStatusEnum::Planned,
             'notes' => null,
         ]);
     }
