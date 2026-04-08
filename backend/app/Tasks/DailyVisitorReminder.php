@@ -2,6 +2,7 @@
 
 namespace App\Tasks;
 
+use App\Enums\VisitStatusEnum;
 use App\Models\Visit;
 use App\Notifications\Host\VisitReminderDaily;
 use Carbon\Carbon;
@@ -24,6 +25,7 @@ class DailyVisitorReminder
         ]);
 
         $visitsOfToday = Visit::query()
+            ->where('visits.status', '=', VisitStatusEnum::Planned)
             ->whereDate('scheduled_from', Carbon::today())
             ->with('responsibleUser', 'visitors')
             ->get();

@@ -5,7 +5,7 @@
 
 {{__('Guten Tag')}} {{$visitor->first_name}} {{$visitor->last_name}},
 
-{{__('wir freuen und sehr über Ihren Besuch')}}.
+{{__('wir freuen uns sehr über Ihren Besuch')}}.
 
 <x-mail::table>
     |{{__('Datum')}}   | {{__('Start')}} | {{__('Ende')}} |

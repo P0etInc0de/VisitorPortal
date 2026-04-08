@@ -23,7 +23,7 @@
 </x-mail::table>
 
 <x-mail::button :url='route("dashboard")'>
-    {{__('Weiter Informationen')}}
+    {{__('Weitere Informationen')}}
 </x-mail::button>
 
 </x-mail.message_component>

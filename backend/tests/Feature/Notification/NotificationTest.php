@@ -59,6 +59,7 @@ class NotificationTest extends TestCase
         $visit = Visit::factory()->create();
         $visits = collect([$visit]);
         $visitors = $visits->pluck('visitors', 'id');
+
         // Send the notification
         Notification::send($user, new VisitReminderDaily($visits, $visitors));
 
