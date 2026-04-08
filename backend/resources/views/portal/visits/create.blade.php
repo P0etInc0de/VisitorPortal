@@ -1,12 +1,4 @@
 @php
-    $summary = [
-        ['label' => __('Titel'), 'value' => old('title', $visit->title ?: '-')],
-        ['label' => __('Host'), 'value' => old('user_id') ? $users->firstWhere('id', (int) old('user_id'))?->name : ($visit->host?->name ?? '-')],
-        ['label' => __('Datum'), 'value' => old('scheduled_from', optional($visit->scheduled_from)->format('d.m.Y H:i')) ?: '-'],
-        ['label' => __('Status'), 'value' => __(old('status', $visit->status ?: 'draft'))],
-        ['label' => __('Teilnehmende'), 'value' => count($initialParticipants)],
-    ];
-
     $existingVisitorOptions = $existingVisitors
         ->map(function ($visitor) {
             return [
@@ -30,8 +22,7 @@
                 'email' => $participant['email'] ?? '',
                 'phone' => $participant['phone'] ?? '',
                 'company' => $participant['company'] ?? '',
-                'expanded' => empty($participant['visitor_id']),
-                'mode' => !empty($participant['visitor_id']) ? 'existing' : 'new',
+                'expanded' => false,
             ];
         })
         ->values();
@@ -39,7 +30,7 @@
 
 <x-app-layout>
     <x-slot name="header">
-        <div class="bp-screen-head bp-screen-head-with-actions">
+        <div class="bp-screen-head">
             <div>
                 <h1 class="bp-screen-title">
                     {{ $isEdit ? __('Besuch bearbeiten') : __('Besuch anlegen') }}
@@ -59,9 +50,9 @@
             method="POST"
             action="{{ $formAction }}"
             class="space-y-5"
-            x-data="visitParticipantForm({
-                participants: {{ \Illuminate\Support\Js::from($participantSeed) }},
-                existingVisitors: {{ \Illuminate\Support\Js::from($existingVisitorOptions) }}
+            x-data="visitParticipantComposer({
+                participants: {{ Illuminate\Support\Js::from($participantSeed) }},
+                existingVisitors: {{ Illuminate\Support\Js::from($existingVisitorOptions) }}
             })"
         >
             @csrf
@@ -71,15 +62,6 @@
 
             <section class="card rounded-[1.5rem] border border-base-300 bg-base-100 shadow-sm">
                 <div class="card-body p-5 sm:p-6">
-                    <div class="mb-4 flex flex-wrap gap-2">
-                        @foreach ($summary as $item)
-                            <div class="rounded-full border border-base-300 bg-base-100 px-3 py-1.5 text-sm text-base-content/75">
-                                <span class="font-medium text-base-content">{{ $item['label'] }}:</span>
-                                <span>{{ $item['value'] }}</span>
-                            </div>
-                        @endforeach
-                    </div>
-
                     <div class="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
                         <label class="form-control xl:col-span-2">
                             <div class="label px-0 pb-1.5">
@@ -181,176 +163,230 @@
             </section>
 
             <section class="card rounded-[1.5rem] border border-base-300 bg-base-100 shadow-sm">
-                <div class="card-body p-5 sm:p-6">
-                    <div class="mb-4 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                <div class="card-body p-5 sm:p-6 space-y-5">
+                    <div class="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
                         <div>
                             <h2 class="text-xl font-semibold tracking-tight text-base-content">{{ __('Besucher / Teilnehmende') }}</h2>
-                            <p class="mt-1 text-sm text-base-content/65">{{ __('Kompakte Liste mit Namen. Details nur bei Bedarf aufklappen.') }}</p>
+                            <p class="mt-1 text-sm text-base-content/65">
+                                {{ __('Bereits hinzugefügte Teilnehmende bleiben kompakt. Neue Personen erfassen Sie nur in einem einzigen Eingabeblock.') }}
+                            </p>
                         </div>
-
-                        <button type="button" class="btn btn-outline btn-sm rounded-xl" @click="addParticipant()">
-                            {{ __('Besucher hinzufügen') }}
-                        </button>
                     </div>
 
-                    <div class="space-y-3">
-                        <template x-for="(participant, index) in participants" :key="participant.uid">
-                            <section class="rounded-2xl border border-base-300 bg-base-100">
-                                <button
-                                    type="button"
-                                    class="flex w-full items-center justify-between gap-3 px-4 py-3 text-left"
-                                    @click="toggleParticipant(index)"
-                                >
-                                    <div class="min-w-0">
-                                        <div class="flex flex-wrap items-center gap-2">
-                                            <span class="font-medium text-base-content" x-text="participantSummary(participant, index)"></span>
-                                            <span
-                                                class="rounded-full border border-base-300 bg-base-100 px-2.5 py-1 text-xs text-base-content/70"
-                                                x-show="participant.company"
-                                                x-text="participant.company"
-                                            ></span>
+                    <div class="rounded-2xl border border-base-300 bg-base-100 p-4 sm:p-5 space-y-4">
+                        <div class="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+                            <div>
+                                <h3 class="text-base font-semibold text-base-content">{{ __('Teilnehmende') }}</h3>
+                                <p class="mt-1 text-sm text-base-content/65" x-show="participants.length === 0">
+                                    {{ __('Noch niemand hinzugefügt. Namen eingeben, vorhandenen Kontakt auswählen oder neue Person anlegen.') }}
+                                </p>
+                                <p class="mt-1 text-sm text-base-content/65" x-show="participants.length > 0">
+                                    <span x-text="participants.length"></span>
+                                    {{ __('Teilnehmende aktuell ausgewählt') }}
+                                </p>
+                            </div>
+
+                            <button type="button" class="btn btn-outline btn-sm rounded-xl" @click="focusComposer()">
+                                {{ __('Teilnehmer hinzufügen') }}
+                            </button>
+                        </div>
+
+                        <div class="space-y-2" x-show="participants.length > 0">
+                            <template x-for="(participant, index) in participants" :key="participant.uid">
+                                <div class="rounded-xl border border-base-300 bg-base-100 px-3 py-3">
+                                    <div class="flex items-start justify-between gap-3">
+                                        <button
+                                            type="button"
+                                            class="min-w-0 text-left"
+                                            @click="participant.expanded = !participant.expanded"
+                                        >
+                                            <div class="flex flex-wrap items-center gap-2">
+                                                <span class="font-medium text-base-content" x-text="participantDisplayName(participant, index)"></span>
+                                                <span
+                                                    class="rounded-full border border-base-300 bg-base-100 px-2.5 py-1 text-xs text-base-content/70"
+                                                    x-show="participant.company"
+                                                    x-text="participant.company"
+                                                ></span>
+                                                <span
+                                                    class="rounded-full border border-base-300 bg-base-100 px-2.5 py-1 text-xs text-base-content/60"
+                                                    x-show="participant.visitor_id"
+                                                >{{ __('Kontakt') }}</span>
+                                                <span
+                                                    class="rounded-full border border-primary/20 bg-primary/5 px-2.5 py-1 text-xs text-primary"
+                                                    x-show="!participant.visitor_id"
+                                                >{{ __('Neu') }}</span>
+                                            </div>
+                                        </button>
+
+                                        <div class="flex items-center gap-1.5">
+                                            <button
+                                                type="button"
+                                                class="btn btn-ghost btn-xs rounded-lg"
+                                                @click="participant.expanded = !participant.expanded"
+                                            >
+                                                <span x-show="!participant.expanded">{{ __('Details') }}</span>
+                                                <span x-show="participant.expanded">{{ __('Weniger') }}</span>
+                                            </button>
+                                            <button
+                                                type="button"
+                                                class="btn btn-ghost btn-xs rounded-lg text-error"
+                                                @click="removeParticipant(index)"
+                                            >
+                                                {{ __('Entfernen') }}
+                                            </button>
                                         </div>
+                                    </div>
 
-                                        <div class="mt-1 text-sm text-base-content/60">
-                                            <span x-show="participant.mode === 'existing'">{{ __('Vorhandener Besucher') }}</span>
-                                            <span x-show="participant.mode === 'new'">{{ __('Neuer Besucher') }}</span>
+                                    <div class="mt-3 grid gap-2 text-sm text-base-content/70 sm:grid-cols-3" x-show="participant.expanded" x-cloak>
+                                        <div>
+                                            <div class="text-xs uppercase tracking-wide text-base-content/45">{{ __('E-Mail') }}</div>
+                                            <div class="mt-0.5" x-text="participant.email || '—'"></div>
+                                        </div>
+                                        <div>
+                                            <div class="text-xs uppercase tracking-wide text-base-content/45">{{ __('Telefon') }}</div>
+                                            <div class="mt-0.5" x-text="participant.phone || '—'"></div>
+                                        </div>
+                                        <div>
+                                            <div class="text-xs uppercase tracking-wide text-base-content/45">{{ __('Firma') }}</div>
+                                            <div class="mt-0.5" x-text="participant.company || '—'"></div>
                                         </div>
                                     </div>
+                                </div>
+                            </template>
+                        </div>
 
-                                    <div class="flex items-center gap-2">
-                                        <button
-                                            type="button"
-                                            class="btn btn-ghost btn-xs rounded-lg"
-                                            @click.stop="removeParticipant(index)"
-                                        >
-                                            {{ __('Entfernen') }}
-                                        </button>
+                        <div class="rounded-xl border border-dashed border-base-300 bg-base-100 p-4 sm:p-5 space-y-4">
+                            <div class="space-y-2">
+                                <label class="label px-0 pb-0">
+                                    <span class="label-text text-sm font-medium text-base-content">{{ __('Teilnehmer suchen oder neu anlegen') }}</span>
+                                </label>
+                                <div class="relative">
+                                    <input
+                                        x-ref="composerSearch"
+                                        type="text"
+                                        class="input input-bordered w-full rounded-xl"
+                                        x-model="searchQuery"
+                                        placeholder="{{ __('Name, Firma oder E-Mail eingeben') }}"
+                                        @focus="composerOpen = true"
+                                        @input="composerOpen = true"
+                                    >
 
-                                        <svg
-                                            class="h-4 w-4 shrink-0 text-base-content/55 transition-transform"
-                                            :class="{ 'rotate-180': participant.expanded }"
-                                            viewBox="0 0 20 20"
-                                            fill="currentColor"
-                                            aria-hidden="true"
-                                        >
-                                            <path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.51a.75.75 0 01-1.08 0l-4.25-4.51a.75.75 0 01.02-1.06z" clip-rule="evenodd" />
-                                        </svg>
-                                    </div>
-                                </button>
-
-                                <div
-                                    x-show="participant.expanded"
-                                    x-transition.opacity.duration.150ms
-                                    class="border-t border-base-300 px-4 py-4"
-                                >
-                                    <div class="mb-4 flex flex-wrap gap-2">
-                                        <button
-                                            type="button"
-                                            class="btn btn-outline btn-xs rounded-lg"
-                                            :class="participant.mode === 'existing' ? 'btn-active' : ''"
-                                            @click="participant.mode = 'existing'"
-                                        >
-                                            {{ __('Vorhandenen Besucher wählen') }}
-                                        </button>
-                                        <button
-                                            type="button"
-                                            class="btn btn-outline btn-xs rounded-lg"
-                                            :class="participant.mode === 'new' ? 'btn-active' : ''"
-                                            @click="participant.mode = 'new'; participant.visitor_id = null"
-                                        >
-                                            {{ __('Neue Person anlegen') }}
-                                        </button>
-                                    </div>
-
-                                    <template x-if="participant.mode === 'existing'">
-                                        <div class="space-y-4">
-                                            <label class="form-control">
-                                                <div class="label px-0 pb-1.5">
-                                                    <span class="label-text text-sm font-medium text-base-content">{{ __('Vorhandenen Besucher auswählen') }}</span>
+                                    <div
+                                        class="absolute z-20 mt-2 w-full overflow-hidden rounded-xl border border-base-300 bg-base-100 shadow-lg"
+                                        x-show="composerOpen && searchQuery.trim().length > 0"
+                                        x-cloak
+                                    >
+                                        <div class="max-h-72 overflow-y-auto p-2 space-y-1">
+                                            <template x-if="searchResults().length > 0">
+                                                <div>
+                                                    <template x-for="visitor in searchResults()" :key="'result-' + visitor.id">
+                                                        <button
+                                                            type="button"
+                                                            class="flex w-full items-start justify-between gap-3 rounded-lg px-3 py-2 text-left hover:bg-base-200"
+                                                            @click="addExistingVisitor(visitor)"
+                                                        >
+                                                            <div>
+                                                                <div class="font-medium text-base-content" x-text="fullName(visitor)"></div>
+                                                                <div class="mt-0.5 text-sm text-base-content/65" x-text="visitor.company || visitor.email || '—'"></div>
+                                                            </div>
+                                                            <span class="text-xs text-base-content/45">{{ __('Auswählen') }}</span>
+                                                        </button>
+                                                    </template>
                                                 </div>
-                                                <select
-                                                    class="select select-bordered h-11 w-full rounded-xl"
-                                                    :name="`participants[${index}][visitor_id]`"
-                                                    x-model="participant.visitor_id"
-                                                    @change="applyExistingVisitor(index, $event)"
+                                            </template>
+
+                                            <div class="border-t border-base-200 pt-2">
+                                                <button
+                                                    type="button"
+                                                    class="flex w-full items-center justify-between rounded-lg px-3 py-2 text-left hover:bg-base-200"
+                                                    @click="startNewParticipant()"
                                                 >
-                                                    <option value="">{{ __('Bitte auswählen') }}</option>
-                                                    @foreach ($existingVisitors as $existingVisitor)
-                                                        <option value="{{ $existingVisitor->id }}">
-                                                            {{ $existingVisitor->first_name }} {{ $existingVisitor->last_name }}
-                                                            @if ($existingVisitor->company)
-                                                                · {{ $existingVisitor->company }}
-                                                            @endif
-                                                        </option>
-                                                    @endforeach
-                                                </select>
-                                            </label>
-
-                                            <div class="grid gap-3 md:grid-cols-3">
-                                                <div class="rounded-xl border border-base-300 bg-base-100 px-3 py-2">
-                                                    <div class="text-xs text-base-content/60">{{ __('E-Mail') }}</div>
-                                                    <div class="mt-1 text-sm text-base-content" x-text="participant.email || '–'"></div>
-                                                </div>
-                                                <div class="rounded-xl border border-base-300 bg-base-100 px-3 py-2">
-                                                    <div class="text-xs text-base-content/60">{{ __('Telefon') }}</div>
-                                                    <div class="mt-1 text-sm text-base-content" x-text="participant.phone || '–'"></div>
-                                                </div>
-                                                <div class="rounded-xl border border-base-300 bg-base-100 px-3 py-2">
-                                                    <div class="text-xs text-base-content/60">{{ __('Firma') }}</div>
-                                                    <div class="mt-1 text-sm text-base-content" x-text="participant.company || '–'"></div>
-                                                </div>
+                                                    <div>
+                                                        <div class="font-medium text-base-content">{{ __('Neue Person anlegen') }}</div>
+                                                        <div class="mt-0.5 text-sm text-base-content/65" x-text="searchQuery.trim() ? searchQuery : '{{ __('Daten manuell eingeben') }}'"></div>
+                                                    </div>
+                                                    <span class="text-xs text-base-content/45">{{ __('Neu') }}</span>
+                                                </button>
                                             </div>
                                         </div>
-                                    </template>
-
-                                    <template x-if="participant.mode === 'new'">
-                                        <div class="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-                                            <input type="hidden" :name="`participants[${index}][visitor_id]`" value="">
-
-                                            <label class="form-control xl:col-span-2">
-                                                <div class="label px-0 pb-1.5">
-                                                    <span class="label-text text-sm font-medium text-base-content">{{ __('Firma') }}</span>
-                                                </div>
-                                                <input type="text" class="input input-bordered h-11 w-full rounded-xl" :name="`participants[${index}][company]`" x-model="participant.company">
-                                            </label>
-
-                                            <label class="form-control">
-                                                <div class="label px-0 pb-1.5">
-                                                    <span class="label-text text-sm font-medium text-base-content">{{ __('Vorname') }}</span>
-                                                </div>
-                                                <input type="text" class="input input-bordered h-11 w-full rounded-xl" :name="`participants[${index}][first_name]`" x-model="participant.first_name">
-                                            </label>
-
-                                            <label class="form-control">
-                                                <div class="label px-0 pb-1.5">
-                                                    <span class="label-text text-sm font-medium text-base-content">{{ __('Nachname') }}</span>
-                                                </div>
-                                                <input type="text" class="input input-bordered h-11 w-full rounded-xl" :name="`participants[${index}][last_name]`" x-model="participant.last_name">
-                                            </label>
-
-                                            <label class="form-control xl:col-span-2">
-                                                <div class="label px-0 pb-1.5">
-                                                    <span class="label-text text-sm font-medium text-base-content">{{ __('E-Mail') }}</span>
-                                                </div>
-                                                <input type="email" class="input input-bordered h-11 w-full rounded-xl" :name="`participants[${index}][email]`" x-model="participant.email">
-                                            </label>
-
-                                            <label class="form-control xl:col-span-2">
-                                                <div class="label px-0 pb-1.5">
-                                                    <span class="label-text text-sm font-medium text-base-content">{{ __('Telefon') }}</span>
-                                                </div>
-                                                <input type="text" class="input input-bordered h-11 w-full rounded-xl" :name="`participants[${index}][phone]`" x-model="participant.phone">
-                                            </label>
-                                        </div>
-                                    </template>
+                                    </div>
                                 </div>
-                            </section>
-                        </template>
+                            </div>
+
+                            <div class="space-y-4" x-show="newParticipantMode" x-cloak>
+                                <div class="flex items-center justify-between gap-3">
+                                    <div>
+                                        <h3 class="text-base font-semibold text-base-content">{{ __('Neue Person anlegen') }}</h3>
+                                        <p class="mt-1 text-sm text-base-content/65">{{ __('Nur dieser eine Eingabeblock ist gleichzeitig offen.') }}</p>
+                                    </div>
+                                    <button type="button" class="btn btn-ghost btn-sm rounded-lg" @click="cancelNewParticipant()">
+                                        {{ __('Abbrechen') }}
+                                    </button>
+                                </div>
+
+                                <div class="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+                                    <label class="form-control xl:col-span-2">
+                                        <div class="label px-0 pb-1.5">
+                                            <span class="label-text text-sm font-medium text-base-content">{{ __('Firma') }}</span>
+                                        </div>
+                                        <input type="text" class="input input-bordered h-11 w-full rounded-xl" x-model="draftParticipant.company">
+                                    </label>
+
+                                    <label class="form-control">
+                                        <div class="label px-0 pb-1.5">
+                                            <span class="label-text text-sm font-medium text-base-content">{{ __('Vorname') }}</span>
+                                        </div>
+                                        <input type="text" class="input input-bordered h-11 w-full rounded-xl" x-model="draftParticipant.first_name">
+                                    </label>
+
+                                    <label class="form-control">
+                                        <div class="label px-0 pb-1.5">
+                                            <span class="label-text text-sm font-medium text-base-content">{{ __('Nachname') }}</span>
+                                        </div>
+                                        <input type="text" class="input input-bordered h-11 w-full rounded-xl" x-model="draftParticipant.last_name">
+                                    </label>
+
+                                    <label class="form-control xl:col-span-2">
+                                        <div class="label px-0 pb-1.5">
+                                            <span class="label-text text-sm font-medium text-base-content">{{ __('E-Mail') }}</span>
+                                        </div>
+                                        <input type="email" class="input input-bordered h-11 w-full rounded-xl" x-model="draftParticipant.email">
+                                    </label>
+
+                                    <label class="form-control xl:col-span-2">
+                                        <div class="label px-0 pb-1.5">
+                                            <span class="label-text text-sm font-medium text-base-content">{{ __('Telefon') }}</span>
+                                        </div>
+                                        <input type="text" class="input input-bordered h-11 w-full rounded-xl" x-model="draftParticipant.phone">
+                                    </label>
+                                </div>
+
+                                <div class="flex flex-wrap justify-end gap-2">
+                                    <button type="button" class="btn btn-outline btn-sm rounded-xl" @click="cancelNewParticipant()">
+                                        {{ __('Verwerfen') }}
+                                    </button>
+                                    <button type="button" class="btn btn-primary btn-sm rounded-xl" @click="addDraftParticipant()">
+                                        {{ __('Zur Liste hinzufügen') }}
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </section>
 
-            <div class="flex justify-end gap-3 border-t border-base-300 pt-4">
+            <template x-for="(participant, index) in participants" :key="participant.uid + '-hidden'">
+                <div>
+                    <input type="hidden" :name="`participants[${index}][visitor_id]`" :value="participant.visitor_id ?? ''">
+                    <input type="hidden" :name="`participants[${index}][first_name]`" :value="participant.first_name ?? ''">
+                    <input type="hidden" :name="`participants[${index}][last_name]`" :value="participant.last_name ?? ''">
+                    <input type="hidden" :name="`participants[${index}][email]`" :value="participant.email ?? ''">
+                    <input type="hidden" :name="`participants[${index}][phone]`" :value="participant.phone ?? ''">
+                    <input type="hidden" :name="`participants[${index}][company]`" :value="participant.company ?? ''">
+                </div>
+            </template>
+
+            <div class="flex flex-wrap justify-end gap-3">
                 <a href="{{ $isEdit ? route('portal.visits.show', $visit) : route('dashboard') }}" class="btn btn-outline rounded-xl">
                     {{ __('Abbrechen') }}
                 </a>
@@ -362,75 +398,147 @@
     </div>
 
     <script>
-        function visitParticipantForm({ participants, existingVisitors }) {
+        function visitParticipantComposer(config) {
             return {
-                participants,
-                existingVisitors,
-                addParticipant() {
+                participants: config.participants ?? [],
+                existingVisitors: config.existingVisitors ?? [],
+                searchQuery: '',
+                composerOpen: false,
+                newParticipantMode: false,
+                draftParticipant: {
+                    visitor_id: null,
+                    first_name: '',
+                    last_name: '',
+                    email: '',
+                    phone: '',
+                    company: '',
+                },
+
+                focusComposer() {
+                    this.composerOpen = true;
+                    this.$nextTick(() => this.$refs.composerSearch?.focus());
+                },
+
+                fullName(person) {
+                    return [person.first_name, person.last_name].filter(Boolean).join(' ').trim();
+                },
+
+                participantDisplayName(participant, index) {
+                    const name = this.fullName(participant);
+                    return name.length ? name : `{{ __('Teilnehmer') }} ${index + 1}`;
+                },
+
+                selectedVisitorIds() {
+                    return this.participants
+                        .map((participant) => participant.visitor_id)
+                        .filter((value) => value !== null && value !== '' && value !== undefined)
+                        .map((value) => String(value));
+                },
+
+                searchResults() {
+                    const query = this.searchQuery.trim().toLowerCase();
+                    const selected = this.selectedVisitorIds();
+
+                    if (!query.length) {
+                        return [];
+                    }
+
+                    return this.existingVisitors
+                        .filter((visitor) => !selected.includes(String(visitor.id)))
+                        .filter((visitor) => {
+                            const haystack = [
+                                visitor.first_name,
+                                visitor.last_name,
+                                visitor.company,
+                                visitor.email,
+                            ]
+                                .filter(Boolean)
+                                .join(' ')
+                                .toLowerCase();
+
+                            return haystack.includes(query);
+                        })
+                        .slice(0, 8);
+                },
+
+                addExistingVisitor(visitor) {
                     this.participants.push({
-                        uid: `new-${Date.now()}-${Math.random().toString(16).slice(2)}`,
+                        uid: `existing-${visitor.id}-${Date.now()}`,
+                        visitor_id: visitor.id,
+                        first_name: visitor.first_name ?? '',
+                        last_name: visitor.last_name ?? '',
+                        email: visitor.email ?? '',
+                        phone: visitor.phone ?? '',
+                        company: visitor.company ?? '',
+                        expanded: false,
+                    });
+
+                    this.searchQuery = '';
+                    this.composerOpen = false;
+                    this.newParticipantMode = false;
+                },
+
+                startNewParticipant() {
+                    this.newParticipantMode = true;
+                    this.composerOpen = true;
+
+                    const parts = this.searchQuery.trim().split(/\s+/).filter(Boolean);
+                    const firstName = parts[0] ?? '';
+                    const lastName = parts.length > 1 ? parts.slice(1).join(' ') : '';
+
+                    this.draftParticipant = {
+                        visitor_id: null,
+                        first_name: firstName,
+                        last_name: lastName,
+                        email: '',
+                        phone: '',
+                        company: '',
+                    };
+                },
+
+                cancelNewParticipant() {
+                    this.newParticipantMode = false;
+                    this.draftParticipant = {
                         visitor_id: null,
                         first_name: '',
                         last_name: '',
                         email: '',
                         phone: '',
                         company: '',
-                        expanded: true,
-                        mode: 'new',
+                    };
+                },
+
+                addDraftParticipant() {
+                    const hasVisibleData = [
+                        this.draftParticipant.first_name,
+                        this.draftParticipant.last_name,
+                        this.draftParticipant.email,
+                        this.draftParticipant.phone,
+                        this.draftParticipant.company,
+                    ].some((value) => String(value ?? '').trim().length > 0);
+
+                    if (!hasVisibleData) {
+                        return;
+                    }
+
+                    this.participants.push({
+                        uid: `draft-${Date.now()}`,
+                        visitor_id: null,
+                        first_name: this.draftParticipant.first_name ?? '',
+                        last_name: this.draftParticipant.last_name ?? '',
+                        email: this.draftParticipant.email ?? '',
+                        phone: this.draftParticipant.phone ?? '',
+                        company: this.draftParticipant.company ?? '',
+                        expanded: false,
                     });
+
+                    this.searchQuery = '';
+                    this.cancelNewParticipant();
+                    this.composerOpen = false;
                 },
+
                 removeParticipant(index) {
-                    if (this.participants.length === 1) {
-                        this.participants[0] = {
-                            uid: this.participants[0].uid,
-                            visitor_id: null,
-                            first_name: '',
-                            last_name: '',
-                            email: '',
-                            phone: '',
-                            company: '',
-                            expanded: true,
-                            mode: 'new',
-                        };
-                        return;
-                    }
-
                     this.participants.splice(index, 1);
-                },
-                toggleParticipant(index) {
-                    this.participants[index].expanded = !this.participants[index].expanded;
-                },
-                applyExistingVisitor(index, event) {
-                    const visitorId = event.target.value;
-
-                    if (!visitorId) {
-                        return;
-                    }
-
-                    const visitor = this.existingVisitors.find(item => String(item.id) === String(visitorId));
-
-                    if (visitor) {
-                        this.participants[index] = {
-                            ...this.participants[index],
-                            ...visitor,
-                            visitor_id: visitor.id,
-                            mode: 'existing',
-                            expanded: true,
-                        };
-                    }
-                },
-                participantSummary(participant, index) {
-                    const fullName = [participant.first_name, participant.last_name].filter(Boolean).join(' ').trim();
-
-                    if (fullName.length) {
-                        return fullName;
-                    }
-
-                    if (participant.visitor_id) {
-                        return '{{ __('Vorhandener Besucher') }}';
-                    }
-
-                    return `{{ __('Teilnehmer') }} ${index + 1}`;
                 },
             };
         }

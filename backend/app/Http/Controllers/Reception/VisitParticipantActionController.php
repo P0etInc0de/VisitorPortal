@@ -1,0 +1,92 @@
+<?php
+
+namespace App\Http\Controllers\Reception;
+
+use App\Http\Controllers\Controller;
+use App\Models\Visit;
+use App\Models\Visitor;
+use App\Support\SafeActivityLog;
+use Illuminate\Http\RedirectResponse;
+
+class VisitParticipantActionController extends Controller
+{
+    public function printBadge(Visit $visit, Visitor $visitor): RedirectResponse
+    {
+        $participant = $this->resolveParticipant($visit, $visitor);
+
+        if (blank($participant->pivot->badge_printed_at)) {
+            $visit->visitors()->updateExistingPivot($visitor->id, [
+                'badge_printed_at' => now(),
+                'updated_at' => now(),
+            ]);
+
+            SafeActivityLog::info('Visit participant badge marked as printed', [
+                'visit_id' => $visit->id,
+                'visitor_id' => $visitor->id,
+                'user_id' => auth()->id(),
+            ]);
+        }
+
+        return back();
+    }
+
+    public function checkIn(Visit $visit, Visitor $visitor): RedirectResponse
+    {
+        $participant = $this->resolveParticipant($visit, $visitor);
+        $pivot = $participant->pivot;
+
+        if (blank($pivot->checked_in_at) || filled($pivot->checked_out_at)) {
+            $payload = [
+                'checked_in_at' => now(),
+                'checked_in_by_user_id' => auth()->id(),
+                'updated_at' => now(),
+            ];
+
+            if (filled($pivot->checked_out_at)) {
+                $payload['checked_out_at'] = null;
+                $payload['checked_out_by_user_id'] = null;
+            }
+
+            $visit->visitors()->updateExistingPivot($visitor->id, $payload);
+
+            SafeActivityLog::info(
+                filled($pivot->checked_out_at) ? 'Visit participant checked in again' : 'Visit participant checked in',
+                [
+                    'visit_id' => $visit->id,
+                    'visitor_id' => $visitor->id,
+                    'user_id' => auth()->id(),
+                ]
+            );
+        }
+
+        return back();
+    }
+
+    public function checkOut(Visit $visit, Visitor $visitor): RedirectResponse
+    {
+        $participant = $this->resolveParticipant($visit, $visitor);
+
+        if (filled($participant->pivot->checked_in_at) && blank($participant->pivot->checked_out_at)) {
+            $visit->visitors()->updateExistingPivot($visitor->id, [
+                'checked_out_at' => now(),
+                'checked_out_by_user_id' => auth()->id(),
+                'updated_at' => now(),
+            ]);
+
+            SafeActivityLog::info('Visit participant checked out', [
+                'visit_id' => $visit->id,
+                'visitor_id' => $visitor->id,
+                'user_id' => auth()->id(),
+            ]);
+        }
+
+        return back();
+    }
+
+    private function resolveParticipant(Visit $visit, Visitor $visitor): Visitor
+    {
+        return $visit->visitors()
+            ->where('visitors.id', $visitor->id)
+            ->firstOrFail();
+    }
+}
