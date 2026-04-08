@@ -10,10 +10,10 @@
     <div class="bp-content">
         <section class="bp-stat-grid">
             @foreach ($stats as $stat)
-                <article class="card rounded-[1.6rem] border border-base-300 bg-base-100 shadow-sm">
-                    <div class="card-body p-5">
+                <article class="card rounded-[1.4rem] border border-base-300 bg-base-100 shadow-sm">
+                    <div class="card-body p-4 sm:p-5">
                         <div class="text-sm font-medium text-base-content/65">{{ $stat['label'] }}</div>
-                        <div class="mt-2 text-4xl font-semibold leading-none tracking-tight text-base-content">{{ $stat['value'] }}</div>
+                        <div class="mt-2 text-3xl font-semibold leading-none tracking-tight text-base-content">{{ $stat['value'] }}</div>
                         <div class="mt-2 text-sm text-base-content/70">{{ $stat['meta'] }}</div>
                     </div>
                 </article>
@@ -21,18 +21,18 @@
         </section>
 
         <section class="bp-main-grid">
-            <article class="card rounded-[1.6rem] border border-base-300 bg-base-100 shadow-sm">
-                <div class="card-body p-5 sm:p-5">
-                    <div class="mb-4 flex items-center justify-between gap-3">
+            <article class="card rounded-[1.5rem] border border-base-300 bg-base-100 shadow-sm">
+                <div class="card-body p-4 sm:p-5">
+                    <div class="mb-4">
                         <h2 class="text-xl font-semibold tracking-tight text-base-content">{{ __('Anstehende Besuche') }}</h2>
                     </div>
 
                     <div class="space-y-3">
                         @forelse ($visits as $visit)
-                            <article class="rounded-[1.35rem] border border-base-300 bg-base-100 px-5 py-4">
-                                <div class="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+                            <article class="rounded-[1.25rem] border border-base-300 bg-base-100 px-4 py-4">
+                                <div class="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
                                     <div class="flex gap-4">
-                                        <div class="min-w-[72px] shrink-0">
+                                        <div class="min-w-[64px] shrink-0">
                                             <div class="text-2xl font-semibold leading-none tracking-tight text-base-content">
                                                 {{ optional($visit->scheduled_from)->format('H:i') ?: '–' }}
                                             </div>
@@ -68,7 +68,7 @@
                                         </div>
                                     </div>
 
-                                    <div class="flex shrink-0 flex-col items-start gap-3 lg:items-end">
+                                    <div class="flex shrink-0 flex-col items-start gap-2 lg:items-end">
                                         <span class="badge badge-outline rounded-full px-3 py-2 text-xs font-semibold">
                                             {{ __($visit->status) }}
                                         </span>
@@ -80,7 +80,7 @@
                                 </div>
                             </article>
                         @empty
-                            <div class="rounded-[1.35rem] border border-dashed border-base-300 bg-base-100 px-5 py-8 text-sm text-base-content/65">
+                            <div class="rounded-[1.25rem] border border-dashed border-base-300 bg-base-100 px-4 py-8 text-sm text-base-content/65">
                                 {{ __('Aktuell sind keine anstehenden Besuche vorhanden.') }}
                             </div>
                         @endforelse
@@ -88,17 +88,17 @@
                 </div>
             </article>
 
-            <aside class="card rounded-[1.6rem] border border-base-300 bg-base-100 shadow-sm">
-                <div class="card-body p-5">
+            <aside class="card rounded-[1.5rem] border border-base-300 bg-base-100 shadow-sm">
+                <div class="card-body p-4 sm:p-5">
                     <h2 class="mb-4 text-xl font-semibold tracking-tight text-base-content">{{ __('Notizen') }}</h2>
 
                     <div class="space-y-3">
                         @forelse ($notes as $note)
-                            <div class="rounded-[1.15rem] border border-base-300 bg-base-100 px-4 py-4 text-sm leading-7 text-base-content/85">
+                            <div class="rounded-[1rem] border border-base-300 bg-base-100 px-4 py-3 text-sm leading-6 text-base-content/85">
                                 {{ $note }}
                             </div>
                         @empty
-                            <div class="rounded-[1.15rem] border border-dashed border-base-300 bg-base-100 px-4 py-4 text-sm text-base-content/65">
+                            <div class="rounded-[1rem] border border-dashed border-base-300 bg-base-100 px-4 py-4 text-sm text-base-content/65">
                                 {{ __('Aktuell gibt es keine offenen Notizen.') }}
                             </div>
                         @endforelse

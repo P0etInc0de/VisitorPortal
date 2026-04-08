@@ -1006,3 +1006,42 @@ body {
         gap: 1.1rem;
     }
 }
+
+/* Additional polish step tweaks */
+.bp-sidebar {
+    padding: 1.1rem 0.9rem 0.9rem;
+}
+
+.bp-nav-link {
+    gap: 0.72rem;
+    padding: 0.72rem 0.9rem;
+}
+
+.bp-nav-icon {
+    height: 1.05rem;
+    width: 1.05rem;
+}
+
+.bp-admin-card {
+    border-radius: 1.2rem;
+    padding: 1rem 1rem 0.9rem;
+}
+
+.bp-participant-inline-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.45rem;
+    margin-top: 0.55rem;
+}
+
+.bp-participant-inline-item {
+    display: inline-flex;
+    align-items: center;
+    border-radius: 999px;
+    padding: 0.14rem 0.6rem;
+    font-size: 0.82rem;
+    line-height: 1.35;
+    background: transparent;
+    border: 0;
+    color: rgba(31, 42, 68, 0.72);
+}
