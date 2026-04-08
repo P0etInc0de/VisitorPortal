@@ -27,6 +27,7 @@ final class SafeActivityLog
         try {
             if ($channel) {
                 Log::channel($channel)->{$level}($message, $context);
+
                 return;
             }
 

@@ -8,31 +8,33 @@ use Spatie\LaravelPdf\Facades\Pdf;
 
 class VisitorBadgeController extends Controller
 {
-    public function index(){
+    public function index()
+    {
         return view('reception.visitor_badge.visitor_badge');
     }
 
-    public function store(Request $request){
-        //validate stuff
+    public function store(Request $request)
+    {
+        // validate stuff
         $request->validate([
-            'email' => 'required|email|exists:visitors,email', //email has to be mail that exists in visitors table
+            'email' => 'required|email|exists:visitors,email', // email has to be mail that exists in visitors table
         ], [
-            'email.exists' => __('Diese E-Mail-Adresse wurde nicht im System gefunden.')
+            'email.exists' => __('Diese E-Mail-Adresse wurde nicht im System gefunden.'),
         ]);
 
         try {
-            //get visitor with mail
+            // get visitor with mail
             $visitor = Visitor::where('email', $request->email)->firstOrFail();
             $pdf = Pdf::view('pdf.visitor_badge', [
-                'visitor' => $visitor
+                'visitor' => $visitor,
             ])
                 ->driver('gotenberg')
                 ->format('A4')
                 ->landscape();
 
-            return $pdf->download(__('Besucherausweis_') . $visitor->last_name . '.pdf');
+            return $pdf->download(__('Besucherausweis_').$visitor->last_name.'.pdf');
 
-        }catch (\Exception $exception){
+        } catch (\Exception $exception) {
             return back()->with('error', __('Etwas ist schiefgelaufen'));
         }
     }

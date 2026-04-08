@@ -90,9 +90,9 @@ class DashboardController extends Controller
         $isCheckedOut = filled($pivot->checked_out_at);
 
         return [
-            'row_key' => 'visit-' . $visit->id . '-visitor-' . $visitor->id,
+            'row_key' => 'visit-'.$visit->id.'-visitor-'.$visitor->id,
             'visitor_id' => $visitor->id,
-            'name' => trim($visitor->first_name . ' ' . $visitor->last_name),
+            'name' => trim($visitor->first_name.' '.$visitor->last_name),
             'company' => $visitor->company,
             'status_label' => $status['label'],
             'status_class' => $status['class'],

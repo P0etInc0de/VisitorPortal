@@ -2,6 +2,4 @@
 
 namespace App\Http\Requests;
 
-class UpdateVisitRequest extends StoreVisitRequest
-{
-}
+class UpdateVisitRequest extends StoreVisitRequest {}

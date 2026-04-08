@@ -6,9 +6,9 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\RescheduleVisitRequest;
 use App\Http\Requests\StoreVisitRequest;
 use App\Http\Requests\UpdateVisitRequest;
+use App\Models\User;
 use App\Models\Visit;
 use App\Models\Visitor;
-use App\Models\User;
 use App\Support\SafeActivityLog;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
@@ -69,7 +69,7 @@ class VisitController extends Controller
 
                 return [
                     'id' => $visitor->id,
-                    'name' => trim(($visitor->first_name ?? '') . ' ' . ($visitor->last_name ?? '')),
+                    'name' => trim(($visitor->first_name ?? '').' '.($visitor->last_name ?? '')),
                     'company' => $visitor->company,
                     'email' => $visitor->email,
                     'phone' => $visitor->phone,
@@ -206,6 +206,7 @@ class VisitController extends Controller
                 ->map(function (array $participant) {
                     $participant['is_existing'] = filled($participant['visitor_id'] ?? null);
                     $participant['is_open'] = blank($participant['visitor_id'] ?? null);
+
                     return $participant;
                 })
                 ->values()
@@ -308,6 +309,7 @@ class VisitController extends Controller
     private function normalizeText(mixed $value): ?string
     {
         $value = trim((string) $value);
+
         return $value === '' ? null : $value;
     }
 

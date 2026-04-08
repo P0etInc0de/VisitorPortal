@@ -29,16 +29,16 @@ class VisitController extends Controller
             })
             ->when($search !== '', function ($query) use ($search) {
                 $query->where(function ($query) use ($search) {
-                    $query->where('title', 'like', '%' . $search . '%')
-                        ->orWhere('notes', 'like', '%' . $search . '%')
+                    $query->where('title', 'like', '%'.$search.'%')
+                        ->orWhere('notes', 'like', '%'.$search.'%')
                         ->orWhereHas('host', function ($query) use ($search) {
-                            $query->where('name', 'like', '%' . $search . '%');
+                            $query->where('name', 'like', '%'.$search.'%');
                         })
                         ->orWhereHas('visitors', function ($query) use ($search) {
-                            $query->where('first_name', 'like', '%' . $search . '%')
-                                ->orWhere('last_name', 'like', '%' . $search . '%')
-                                ->orWhere('company', 'like', '%' . $search . '%')
-                                ->orWhereRaw("concat(first_name, ' ', last_name) like ?", ['%' . $search . '%']);
+                            $query->where('first_name', 'like', '%'.$search.'%')
+                                ->orWhere('last_name', 'like', '%'.$search.'%')
+                                ->orWhere('company', 'like', '%'.$search.'%')
+                                ->orWhereRaw("concat(first_name, ' ', last_name) like ?", ['%'.$search.'%']);
                         });
                 });
             })
@@ -145,9 +145,9 @@ class VisitController extends Controller
         $isCheckedOut = filled($pivot->checked_out_at);
 
         return [
-            'row_key' => 'visit-' . $visit->id . '-visitor-' . $visitor->id,
+            'row_key' => 'visit-'.$visit->id.'-visitor-'.$visitor->id,
             'visitor_id' => $visitor->id,
-            'name' => trim($visitor->first_name . ' ' . $visitor->last_name),
+            'name' => trim($visitor->first_name.' '.$visitor->last_name),
             'company' => $visitor->company,
             'status_label' => $status['label'],
             'status_class' => $status['class'],
