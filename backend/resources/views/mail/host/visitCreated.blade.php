@@ -4,7 +4,7 @@
  @endphp
 
 <x-mail.message_component :message="$message">
-# {{__('Neuen Besuch erstellt')}}
+# {{__('Neuer Besuch erstellt')}}
 
 @if($user_gender == GenderEnum::Male )
 {{__('Hallo Herr')}} {{ $user_name }},

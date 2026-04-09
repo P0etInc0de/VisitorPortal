@@ -13,7 +13,7 @@
 {{__('Guten Morgen')}},
 @endif
 
-{{__('Sie haben heute Folgende Besuche')}}:
+{{__('Sie haben heute folgende Besuche')}}:
 
 <x-mail::table>
     | {{__('Start')}} | {{__('Ende')}} | {{__('Besucher')}} | {{__('Notizen')}} |

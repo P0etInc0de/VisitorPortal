@@ -14,7 +14,7 @@
 {{__('Hallo')}},
 @endif
 
-{{__('Soeben ist folgender Besucher bei uns eingetroffen')}}
+{{__('soeben ist folgender Besucher bei uns eingetroffen')}}:
 
 <x-mail::table>
     | {{__('Vorname')}}       | {{__('Nachname')}}      | {{__('Firma')}}         |
