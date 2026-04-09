@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\MonitorController;
 use App\Http\Controllers\WelcomeMonitorController;
 use Illuminate\Support\Facades\Route;
 
@@ -31,6 +32,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/live', [WelcomeMonitorController::class, 'live'])->name('live');
         Route::get('/editor', [WelcomeMonitorController::class, 'edit'])->name('editor');
     });
+    Route::resource('monitors', MonitorController::class);
 });
 
 require __DIR__.'/auth.php';

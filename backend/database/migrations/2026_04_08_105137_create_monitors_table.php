@@ -11,10 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('_monitor_setting', function (Blueprint $table) {
+        Schema::create('monitors', function (Blueprint $table) {
             $table->id();
+            $table->string('name')->default('Willkommensmonitor Eingang');
             $table->timestamps();
-            $table->string('path')->default('');
+            $table->integer('transition_time_milliseconds');
         });
     }
 
@@ -23,6 +24,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('_monitor_setting');
+        Schema::dropIfExists('monitors');
     }
 };

@@ -138,7 +138,7 @@
                         {{ __('Monitor') }}
                     </div>
 
-                    <a href="{{ route('monitor.live') }}" class="{{ $navLinkClasses(request()->routeIs('monitor.live')) }}">
+                    <a href="{{ route('monitors.index') }}" class="{{ $navLinkClasses(request()->routeIs('monitor.live')) }}">
                         <svg xmlns="http://www.w3.org/2000/svg" class="bp-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
                             <rect x="3" y="4" width="18" height="12" rx="2" />
                             <path stroke-linecap="round" stroke-linejoin="round" d="M8 20h8M12 16v4" />
