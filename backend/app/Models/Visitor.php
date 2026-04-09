@@ -44,4 +44,29 @@ class Visitor extends Model
             ])
             ->withTimestamps();
     }
+
+    public function getFullNameAttribute(): string
+    {
+        return trim(implode(' ', array_filter([
+            (string) ($this->first_name ?? ''),
+            (string) ($this->last_name ?? ''),
+        ])));
+    }
+
+    public function getDisplayNameAttribute(): string
+    {
+        if ($this->full_name !== '') {
+            return $this->full_name;
+        }
+
+        foreach ([$this->company, $this->email] as $fallback) {
+            $fallback = trim((string) $fallback);
+
+            if ($fallback !== '') {
+                return $fallback;
+            }
+        }
+
+        return '–';
+    }
 }

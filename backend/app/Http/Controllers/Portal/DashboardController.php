@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Portal;
 
 use App\Http\Controllers\Controller;
 use App\Models\Visit;
+use App\Models\Visitor;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\Request;
 
@@ -16,9 +17,7 @@ class DashboardController extends Controller
         $baseQuery = Visit::query()
             ->with([
                 'host:id,name',
-                'visitors' => function ($query) {
-                    $query->orderBy('first_name')->orderBy('last_name');
-                },
+                'visitors' => fn ($query) => $query->orderBy('first_name')->orderBy('last_name'),
             ])
             ->where('user_id', $user->id)
             ->orderBy('scheduled_from');
@@ -29,7 +28,7 @@ class DashboardController extends Controller
 
         $upcomingVisits = (clone $baseQuery)
             ->where('scheduled_until', '>=', now())
-            ->take(5)
+            ->take(6)
             ->get();
 
         $nextVisit = $upcomingVisits->first();
@@ -41,13 +40,40 @@ class DashboardController extends Controller
         $notes = $upcomingVisits
             ->flatMap(function (Visit $visit) {
                 return $visit->visitors
-                    ->filter(fn ($visitor) => blank($visitor->pivot?->badge_printed_at))
-                    ->map(fn ($visitor) => __('Badge noch offen für :name bei :title', [
-                        'name' => $visitor->full_name,
+                    ->filter(fn (Visitor $visitor) => blank($visitor->pivot?->badge_printed_at))
+                    ->map(fn (Visitor $visitor) => __('Badge noch offen für :name bei :title', [
+                        'name' => $visitor->display_name,
                         'title' => $visit->display_title,
                     ]));
             })
             ->take(3)
+            ->values();
+
+        $visitCards = $upcomingVisits
+            ->map(function (Visit $visit) {
+                $previewNames = $visit->visitors
+                    ->map(fn (Visitor $visitor) => $visitor->display_name)
+                    ->filter(fn (?string $name) => filled($name) && $name !== '–')
+                    ->take(3)
+                    ->values();
+
+                $visibleParticipantCount = $previewNames->count();
+                $remainingParticipantCount = max($visit->participant_count - $visibleParticipantCount, 0);
+
+                return [
+                    'visit' => $visit,
+                    'time' => $visit->scheduled_from?->format('H:i') ?? '–',
+                    'date' => $visit->scheduled_from?->format('d.m.') ?? '–',
+                    'title' => $visit->display_title,
+                    'host' => $visit->host?->name ?? __('Nicht gesetzt'),
+                    'note' => $visit->notes,
+                    'participant_preview' => $previewNames,
+                    'remaining_participants' => $remainingParticipantCount,
+                    'participant_count' => $visit->participant_count,
+                    'status_label' => $this->visitStatusLabel((string) $visit->status),
+                    'status_class' => $this->visitStatusClass((string) $visit->status),
+                ];
+            })
             ->values();
 
         return view('portal.dashboard', [
@@ -80,8 +106,28 @@ class DashboardController extends Controller
                     ]),
                 ],
             ],
-            'visits' => $upcomingVisits,
+            'visits' => $visitCards,
             'notes' => $notes,
         ]);
+    }
+
+    private function visitStatusLabel(string $status): string
+    {
+        return match ($status) {
+            'draft' => __('Entwurf'),
+            'completed' => __('Abgeschlossen'),
+            'canceled' => __('Abgesagt'),
+            default => __('Geplant'),
+        };
+    }
+
+    private function visitStatusClass(string $status): string
+    {
+        return match ($status) {
+            'draft' => 'bp-status-draft',
+            'completed' => 'bp-status-active',
+            'canceled' => 'bp-status-neutral',
+            default => 'bp-status-planned',
+        };
     }
 }
