@@ -24,21 +24,15 @@ class VisitReminderDaily extends Notification implements ShouldQueue
      */
     public function __construct(
         protected Collection $visitCollection,
-        protected User $user,
-    ) {
-        Log::info('Notifying User from VisitReminderDaily class', [
-            'user_id' => $user->id,
-            'visit_count' => $visitCollection->count(),
-            'class' => get_class(),
-        ]);
-    }
+        protected Collection $visitorCollection,
+    ) {}
 
     /**
      * Get the notification's delivery channels.
      *
      * @return array<int, string>
      */
-    public function via(object $notifiable): array
+    public function via(User $notifiable): array
     {
         return ['mail'];
     }
@@ -46,9 +40,15 @@ class VisitReminderDaily extends Notification implements ShouldQueue
     /**
      * Get the mail representation of the notification.
      */
-    public function toMail(object $notifiable): Mailable
+    public function toMail(User $notifiable): Mailable
     {
-        return (new VisitReminderDailyMail($this->visitCollection, $this->user))
+        Log::info('Notifying User from VisitReminderDaily', [
+            'user_id' => $notifiable->id,
+            'visit_count' => $this->visitCollection->count(),
+            'class' => get_class(),
+        ]);
+
+        return (new VisitReminderDailyMail($this->visitCollection, $this->visitorCollection, $notifiable))
             ->to($notifiable->email);
     }
 
