@@ -1,9 +1,18 @@
-@php use Carbon\Carbon; @endphp
+@php
+    use Carbon\Carbon;
+    use \App\Enums\GenderEnum
+ @endphp
 
 <x-mail.message_component :message="$message">
 # {{__('Termin für Ihren Besuch')}}
 
-{{__('Guten Tag')}} {{$visitor->first_name}} {{$visitor->last_name}},
+@if($visitor->gender == GenderEnum::Male )
+{{__('Sehr geehrter Herr')}} {{$visitor->title . ' '}} {{ $visitor->name }},
+@elseif($visitor->gender == GenderEnum::Female)
+{{__('Sehr geehrter Frau')}} {{$visitor->title . ' '}}{{ $visitor->name  }},
+@else
+{{__('Guten Tag')}} {{$visitor->title. ' '}}{{$visitor->first_name}} {{$visitor->name}},
+@endif
 
 {{__('wir freuen uns sehr über Ihren Besuch')}}.
 

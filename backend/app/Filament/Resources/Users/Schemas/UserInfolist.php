@@ -14,7 +14,12 @@ class UserInfolist
                 TextEntry::make('department.name')
                     ->label('Department')
                     ->placeholder('-'),
-                TextEntry::make('name'),
+                TextEntry::make('first_name')
+                    ->label('Vorname'),
+                TextEntry::make('name')
+                    ->label('Nachname'),
+                TextEntry::make('title')
+                    ->label('Titel'),
                 TextEntry::make('gender'),
                 TextEntry::make('email')
                     ->label('Email address'),

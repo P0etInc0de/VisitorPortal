@@ -20,10 +20,15 @@ class Visit extends Model
      * @var list<string>
      */
     protected $fillable = [
+        'title',
+        'user_id',
+        'responsible_user_id',
         'scheduled_from',
         'scheduled_until',
         'status',
         'notes',
+        'canceled_at',
+        'canceled_by_user_id',
     ];
 
     protected $casts = [

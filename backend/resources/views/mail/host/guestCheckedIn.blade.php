@@ -6,20 +6,20 @@
 
 # {{__('Besuch eingetroffen')}}
 
-@if($user_gender == GenderEnum::Male)
-{{__('Hallo Herr')}} {{ $user_name }},
-@elseif($user_gender == GenderEnum::Female)
-{{__('Hallo Frau')}} {{ $user_name }},
+@if($user->gender == GenderEnum::Male)
+{{__('Guten Tag Herr')}} {{$user->title . ' '}} {{ $user->name }},
+@elseif($user->gender == GenderEnum::Female)
+{{__('Guten Tag Frau')}} {{$user->title . ' '}} {{ $user->name }},
 @else
-{{__('Hallo')}},
+{{__('Guten Tag')}} {{$user->title . ' '}}{{ $user->first_name }} {{ $user->name }},
 @endif
 
 {{__('soeben ist folgender Besucher bei uns eingetroffen')}}:
 
 <x-mail::table>
-    | {{__('Vorname')}}       | {{__('Nachname')}}      | {{__('Firma')}}         |
-    | :-----------: | :-----------: | :----------:  |
-    | {{$visitor->first_name}} | {{$visitor->last_name}} | {{$visitor->company}}
+    | {{__('Vorname')}}       | {{__('Nachname')}}      | {{__('Titel')}} |  {{__('Firma')}}         |
+    | :-----------: | :-----------: | :----------:  | :----------:  |
+    | {{$visitor->first_name}} | {{$visitor->name}} | {{$visitor->title}} |{{$visitor->company}}
 </x-mail::table>
 
 <x-mail::button :url='route("dashboard")'>

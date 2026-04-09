@@ -9,4 +9,6 @@ enum GenderEnum: string
     case Other = 'other';
 
     case Not_Specified = 'not specified';
+
+    public static function Male() {}
 }

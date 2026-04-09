@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Visit;
 use App\Models\Visitor;
 use Illuminate\Http\Request;
+use Illuminate\Validation\ValidationException;
 use Spatie\LaravelPdf\Facades\Pdf;
 
 class VisitorBadgeController extends Controller
@@ -49,7 +50,7 @@ class VisitorBadgeController extends Controller
 
             return $pdf->download(__('Besucherausweis_').$visitor->last_name.'.pdf');
 
-        } catch (\Illuminate\Validation\ValidationException $exception) {
+        } catch (ValidationException $exception) {
             return back()->with('error', __('Die E-Mail-Adresse wurde nicht im System gefunden.'));
         } catch (\Exception $exception) {
             return back()->with('error', __('Etwas ist schiefgelaufen'));

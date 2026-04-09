@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id(); // primary key
             $table->foreignId('user_id')->constrained('users')->restrictOnDelete(); // foreign key, user cannot be deleted if visit exists
             $table->foreignId('responsible_user_id')->constrained('users')->restrictOnDelete(); // foreign key, user cannot be deleted if visit exists
+            $table->string('title')->nullable();
             $table->datetime('scheduled_from');
             $table->datetime('scheduled_until');
             $table->string('status')->default('planned');

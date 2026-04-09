@@ -5,21 +5,21 @@
 <x-mail.message_component :message="$message">
 # {{__('Anstehende Besuche')}}
 
-@if($gender == GenderEnum::Male )
-{{__('Guten Morgen Herr')}} {{ $last_name }},
-@elseif($gender == GenderEnum::Female)
-{{__('Guten Morgen Frau')}} {{ $last_name }},
+@if($user->gender == GenderEnum::Male)
+{{__('Guten Tag Herr')}} {{$user->title . ' '}} {{ $user->name }},
+@elseif($user->gender == GenderEnum::Female)
+{{__('Guten Tag Frau')}} {{$user->title . ' '}} {{ $user->name }},
 @else
-{{__('Guten Morgen')}},
+{{__('Guten Tag')}} {{$user->title . ' '}}{{ $user->first_name }} {{ $user->name }},
 @endif
 
 {{__('Sie haben heute folgende Besuche')}}:
 
 <x-mail::table>
-    | {{__('Start')}} | {{__('Ende')}} | {{__('Besucher')}} | {{__('Notizen')}} |
-    | :----: | :----: | :--------: | :----: |
+    |{{__('Titel')}} | {{__('Start')}} | {{__('Ende')}} | {{__('Besucher')}} |
+    | :-----------:| :-----------: | :-----------: | :------------: |
     @foreach($visitCollection as $visit)
-        | {{ Carbon::parse($visit->scheduled_from)->format('H:i') }} | {{ Carbon::parse($visit->scheduled_until)->format('H:i') }} | @foreach($visitorCollection[$visit->id] as $v){{ $v->first_name }} {{ $v->last_name }}<br>@endforeach | {{ $visit->notes }} |
+        | {{$visit->title}} | {{ Carbon::parse($visit->scheduled_from)->format('H:i') }} | {{ Carbon::parse($visit->scheduled_until)->format('H:i') }} | @foreach($visitorCollection[$visit->id] as $v){{ $v->title.' ' }}{{ $v->first_name }} {{ $v->name }}<br>@endforeach |
     @endforeach
 </x-mail::table>
 

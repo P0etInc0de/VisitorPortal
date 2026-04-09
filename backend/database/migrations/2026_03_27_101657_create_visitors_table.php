@@ -1,5 +1,6 @@
 <?php
 
+use App\Enums\GenderEnum;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -15,7 +16,7 @@ return new class extends Migration
             $table->id();                                                       // primary key
             $table->string('name');
             $table->string('first_name');
-            $table->string('gender')->default('other');
+            $table->string('gender')->default(GenderEnum::Not_Specified);
             $table->string('title')->nullable();
             $table->string('email')->unique();
             $table->string('phone')->unique();

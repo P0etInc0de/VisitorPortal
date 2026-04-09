@@ -28,6 +28,7 @@ class VisitSeeder extends Seeder
 
         if (! $visit) {
             $visit = Visit::forceCreate([
+                'visits.title' => 'test',
                 'user_id' => $userId,
                 'responsible_user_id' => $respUserId,
                 'scheduled_from' => $from,

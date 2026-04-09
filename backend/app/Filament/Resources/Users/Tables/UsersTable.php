@@ -17,16 +17,17 @@ class UsersTable
             ->columns([
                 TextColumn::make('department.name')
                     ->searchable(),
+                TextColumn::make('first_name')
+                    ->label('Vorname')
+                    ->searchable(),
                 TextColumn::make('name')
+                    ->label('Nachname')
                     ->searchable(),
-                TextColumn::make('gender')
-                    ->searchable(),
+                TextColumn::make('title')
+                    ->label('Titel'),
                 TextColumn::make('email')
                     ->label('Email address')
                     ->searchable(),
-                TextColumn::make('email_verified_at')
-                    ->dateTime()
-                    ->sortable(),
                 TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()

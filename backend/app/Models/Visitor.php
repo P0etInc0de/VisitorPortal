@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\GenderEnum;
 use App\Enums\VisitorStatusEnum;
 use Database\Factories\VisitorFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -34,6 +35,7 @@ class Visitor extends Model
 
     protected $casts = [
         'status' => VisitorStatusEnum::class,
+        'gender' => GenderEnum::class,
     ];
 
     /**
