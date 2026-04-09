@@ -6,23 +6,25 @@ use App\Models\Visit;
 use App\Models\Visitor;
 use Illuminate\Http\Request;
 use Spatie\LaravelPdf\Facades\Pdf;
-use ZipArchive;
 
 class VisitorBadgeController extends Controller
 {
-    public function index(){
+    public function index()
+    {
         $visits = Visit::with(['responsibleUser', 'visitors'])->get();
+
         return view('reception.visitor_badge.visitor_badge', compact('visits'));
     }
 
-    public function download_badge(Request $request){
+    public function download_badge(Request $request)
+    {
         try {
-        $request->validate([
-            'email' => 'required|email|exists:visitors,email', //email has to be mail that exists in visitors table
-            'visit_id' => 'nullable|exists:visits,id',
-        ]);
+            $request->validate([
+                'email' => 'required|email|exists:visitors,email', // email has to be mail that exists in visitors table
+                'visit_id' => 'nullable|exists:visits,id',
+            ]);
 
-            //get visitor with mail
+            // get visitor with mail
             $visitor = Visitor::where('email', $request->email)->firstOrFail();
 
             if ($request->visit_id) {
@@ -31,7 +33,7 @@ class VisitorBadgeController extends Controller
                 $visit = $visitor->nextVisit();
             }
 
-            if (!$visit) {
+            if (! $visit) {
                 return back()
                     ->with(['error' => __('Es existiert kein Besuch für diesen Besucher.')])
                     ->withInput();
@@ -45,12 +47,11 @@ class VisitorBadgeController extends Controller
                 ->format('A4')
                 ->landscape();
 
-            return $pdf->download(__('Besucherausweis_') . $visitor->last_name . '.pdf');
+            return $pdf->download(__('Besucherausweis_').$visitor->last_name.'.pdf');
 
-        }catch (\Illuminate\Validation\ValidationException $exception) {
+        } catch (\Illuminate\Validation\ValidationException $exception) {
             return back()->with('error', __('Die E-Mail-Adresse wurde nicht im System gefunden.'));
-        }catch
-         (\Exception $exception){
+        } catch (\Exception $exception) {
             return back()->with('error', __('Etwas ist schiefgelaufen'));
         }
     }
@@ -65,12 +66,12 @@ class VisitorBadgeController extends Controller
             $Visitor_Number = 1;
             $visit = Visit::with('visitors')->findOrFail($request->visit);
 
-            $zipFileName = storage_path('app/public/Besucherausweise_' . $visit->id . '.zip');
-            $zip = new \ZipArchive();
-            if ($zip->open($zipFileName, \ZipArchive::CREATE | \ZipArchive::OVERWRITE) === TRUE) {
+            $zipFileName = storage_path('app/public/Besucherausweise_'.$visit->id.'.zip');
+            $zip = new \ZipArchive;
+            if ($zip->open($zipFileName, \ZipArchive::CREATE | \ZipArchive::OVERWRITE) === true) {
 
                 foreach ($visit->visitors as $visitor) {
-                    $Visitor_Number =$Visitor_Number +1;
+                    $Visitor_Number = $Visitor_Number + 1;
                     $pdf = Pdf::view('pdf.visitor_badge', [
                         'visitor' => $visitor,
                         'visit' => $visit,
@@ -80,15 +81,16 @@ class VisitorBadgeController extends Controller
                         ->landscape();
 
                     $pdfContent = base64_decode($pdf->base64());
-                    $pdfFileName = __('Besucherausweis_') . $visitor->last_name . '_' . $Visitor_Number . '.pdf';
+                    $pdfFileName = __('Besucherausweis_').$visitor->last_name.'_'.$Visitor_Number.'.pdf';
 
                     $zip->addFromString($pdfFileName, $pdfContent);
                 }
 
                 $zip->close();
             }
+
             return response()->download($zipFileName)->deleteFileAfterSend();
-        }catch (\Exception $exception){
+        } catch (\Exception $exception) {
             return back()->with('error', __('Etwas ist schiefgelaufen'));
         }
     }

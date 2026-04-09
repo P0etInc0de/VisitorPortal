@@ -79,7 +79,7 @@ class DemoSeeder extends Seeder
             'name' => $name,
             'first_name' => $first_name,
             'gender' => $gender,
-            'title'=> $title,
+            'title' => $title,
             'email_verified_at' => now(),
             'password' => Hash::make($password),
             'department_id' => $dept?->id,
