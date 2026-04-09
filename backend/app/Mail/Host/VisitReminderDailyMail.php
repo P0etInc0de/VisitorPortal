@@ -29,6 +29,7 @@ class VisitReminderDailyMail extends Mailable
      */
     public function __construct(
         protected Collection $visitCollection,
+        protected Collection $visitorCollection,
         protected User $user,
     ) {
         $nameParts = explode(' ', $user->name);
@@ -55,6 +56,7 @@ class VisitReminderDailyMail extends Mailable
             markdown: 'mail.host.visitReminderDaily',
         ))
             ->with('visitCollection', $this->visitCollection)
+            ->with('visitorCollection', $this->visitorCollection)
             ->with('user', $this->user)
             ->with('last_name', $this->last_name)
             ->with('gender', $this->gender);

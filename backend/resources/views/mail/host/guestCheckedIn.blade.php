@@ -4,26 +4,26 @@
 
 <x-mail.message_component :message="$message">
 
-# Besuch eingetroffen
+# {{__('Besuch eingetroffen')}}
 
 @if($user_gender == GenderEnum::Male)
-Hallo Herr {{ $user_name }},
+{{__('Hallo Herr')}} {{ $user_name }},
 @elseif($user_gender == GenderEnum::Female)
-Hallo Frau {{ $user_name }},
+{{__('Hallo Frau')}} {{ $user_name }},
 @else
-Hallo,
+{{__('Hallo')}},
 @endif
 
-Soeben ist folgender Besucher bei uns eingetroffen
+{{__('soeben ist folgender Besucher bei uns eingetroffen')}}:
 
 <x-mail::table>
-    | Vorname       | Nachname      | Firma         |
+    | {{__('Vorname')}}       | {{__('Nachname')}}      | {{__('Firma')}}         |
     | :-----------: | :-----------: | :----------:  |
     | {{$visitor->first_name}} | {{$visitor->last_name}} | {{$visitor->company}}
 </x-mail::table>
 
 <x-mail::button :url='route("dashboard")'>
-    Weiter Informationen
+    {{__('Weitere Informationen')}}
 </x-mail::button>
 
 </x-mail.message_component>
