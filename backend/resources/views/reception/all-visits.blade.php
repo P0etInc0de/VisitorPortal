@@ -6,22 +6,24 @@
     </x-slot>
 
     <div class="bp-content">
-        <section class="bp-stat-grid">
-            @foreach ($stats as $stat)
-                <article class="card rounded-[1.4rem] border border-base-300 bg-base-100 shadow-sm">
-                    <div class="card-body p-4 sm:p-5">
-                        <div class="text-sm font-medium text-base-content/65">{{ $stat['label'] }}</div>
-                        <div class="mt-2 text-3xl font-semibold leading-none tracking-tight text-base-content">{{ $stat['value'] }}</div>
-                        <div class="mt-2 text-sm text-base-content/70">{{ $stat['meta'] }}</div>
-                    </div>
-                </article>
-            @endforeach
+        <section class="sticky top-[5.25rem] z-20 mb-3 isolate">
+            <div class="grid gap-3 lg:grid-cols-3">
+                @foreach ($stats as $stat)
+                    <article class="rounded-[1.2rem] border border-base-300 bg-base-100 shadow-sm">
+                        <div class="px-4 py-3.5">
+                            <div class="text-sm font-medium text-base-content/65">{{ $stat['label'] }}</div>
+                            <div class="mt-1 text-[1.35rem] font-semibold leading-none tracking-tight text-base-content">{{ $stat['value'] }}</div>
+                            <div class="mt-2 text-sm leading-5 text-base-content/72">{{ $stat['meta'] }}</div>
+                        </div>
+                    </article>
+                @endforeach
+            </div>
         </section>
 
         <section>
-            <article class="card rounded-[1.5rem] border border-base-300 bg-base-100 shadow-sm">
+            <article class="card rounded-[1.45rem] border border-base-300 bg-base-100 shadow-sm">
                 <div class="card-body p-4 sm:p-5">
-                    <form method="GET" action="{{ route('reception.all-visits') }}" class="mb-4 flex flex-col gap-3">
+                    <form method="GET" action="{{ route('reception.all-visits') }}" class="space-y-4">
                         <div class="flex flex-col gap-3 xl:flex-row xl:items-center xl:justify-between">
                             <h2 class="text-xl font-semibold tracking-tight text-base-content">{{ __('Besuchsliste') }}</h2>
                             <div class="flex flex-wrap gap-2">
@@ -30,81 +32,94 @@
                                 @endforeach
                             </div>
                         </div>
-                        <label class="input input-bordered flex h-10 w-full items-center gap-2 rounded-xl">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" class="h-4 w-4 text-base-content/50"><circle cx="11" cy="11" r="6" /><path d="M20 20l-3.5-3.5" /></svg>
-                            <input type="search" name="q" value="{{ $search }}" class="grow" placeholder="{{ __('Nach Titel, Host, Name oder Firma suchen') }}">
-                            <input type="hidden" name="range" value="{{ $activeRange }}">
-                        </label>
+
+                        <div class="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+                            <label class="input input-bordered flex h-11 w-full max-w-3xl items-center gap-2 rounded-xl lg:w-[min(100%,42rem)] lg:max-w-none">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" class="h-4 w-4 text-base-content/50"><circle cx="11" cy="11" r="6" /><path d="M20 20l-3.5-3.5" /></svg>
+                                <input type="search" name="q" value="{{ $search }}" class="grow" placeholder="{{ __('Nach Titel, Host, Name oder Firma suchen') }}">
+                                <input type="hidden" name="range" value="{{ $activeRange }}">
+                            </label>
+
+                            <button type="button" class="btn btn-outline rounded-xl lg:shrink-0">{{ __('Ausweise drucken') }}</button>
+                        </div>
                     </form>
 
                     @if ($visits->isEmpty())
-                        <div class="rounded-[1.25rem] border border-dashed border-base-300 bg-base-100 px-4 py-8 text-center text-sm text-base-content/65">{{ __('Für diesen Zeitraum wurden keine Besuche gefunden.') }}</div>
+                        <div class="mt-4 rounded-[1.25rem] border border-dashed border-base-300 bg-base-100 px-4 py-8 text-center text-sm text-base-content/65">{{ __('Für diesen Zeitraum wurden keine Besuche gefunden.') }}</div>
                     @else
-                        <div class="space-y-3">
+                        <div class="mt-4 space-y-3">
                             @foreach ($visits as $visit)
-                                <article class="rounded-[1.25rem] border border-base-300 bg-base-100 px-4 py-4">
+                                <article class="rounded-[1.3rem] border border-base-300 bg-base-100 px-4 py-4 sm:px-5">
                                     <div class="flex flex-col gap-3">
                                         <div class="flex flex-col gap-3 xl:flex-row xl:items-start xl:justify-between">
-                                            <div class="min-w-0">
-                                                <div class="flex flex-wrap items-center gap-2">
-                                                    <h3 class="text-[1.4rem] font-semibold leading-tight tracking-tight text-base-content">{{ $visit['title'] }}</h3>
+                                            <div class="min-w-0 space-y-2">
+                                                <div class="flex flex-wrap items-center gap-2.5">
+                                                    <h3 class="text-[1.2rem] font-semibold leading-tight tracking-tight text-base-content">{{ $visit['title'] }}</h3>
                                                     <span class="badge badge-ghost rounded-full px-3 py-2 text-xs font-medium">{{ $visit['time'] }} · {{ $visit['date'] }}</span>
                                                     <span class="badge badge-outline rounded-full px-3 py-2 text-xs font-medium">{{ $visit['status'] }}</span>
                                                 </div>
-                                                <div class="mt-1 text-sm text-base-content/65">{{ __('Host') }}: {{ $visit['host'] }} · {{ $visit['participants_count'] }} {{ __('Teilnehmende') }}</div>
+                                                <div class="text-sm text-base-content/65">{{ __('Host') }}: {{ $visit['host'] }} · {{ $visit['participants_count'] }} {{ __('Teilnehmende') }}</div>
                                                 @if (!empty($visit['notes']))
-                                                    <div class="mt-1 text-sm text-base-content/70">{{ $visit['notes'] }}</div>
+                                                    <div class="text-sm text-base-content/75">{{ $visit['notes'] }}</div>
                                                 @endif
                                             </div>
-                                            <div class="flex flex-wrap gap-2">
-                                                <a href="{{ route('portal.visits.show', $visit['id']) }}" class="btn btn-outline btn-sm rounded-xl">{{ __('Öffnen') }}</a>
-                                                <a href="{{ route('portal.visits.edit', $visit['id']) }}" class="btn btn-outline btn-sm rounded-xl">{{ __('Bearbeiten') }}</a>
+
+                                            <div class="flex flex-wrap gap-2 xl:shrink-0">
+                                                <a href="{{ route('portal.visits.show', $visit['id']) }}" class="btn btn-outline btn-sm h-11 min-h-11 rounded-xl px-5">{{ __('Öffnen') }}</a>
+                                                <a href="{{ route('portal.visits.edit', $visit['id']) }}" class="btn btn-outline btn-sm h-11 min-h-11 rounded-xl px-5">{{ __('Bearbeiten') }}</a>
                                             </div>
                                         </div>
-                                        <div class="space-y-2">
-                                            @foreach ($visit['visible_participants'] as $participant)
-                                                <div x-data="visitParticipantRow(@js($participant))" class="rounded-xl border border-base-300 bg-base-100 px-3 py-3">
-                                                    <div class="flex flex-col gap-2 lg:flex-row lg:items-center lg:justify-between">
-                                                        <div class="min-w-0">
-                                                            <div class="flex flex-wrap items-center gap-2">
-                                                                <span class="font-medium text-base-content" x-text="participant.name"></span>
-                                                                <span class="badge rounded-full px-2 py-2 text-[11px] font-semibold" :class="participant.status_class" x-text="participant.status_label"></span>
-                                                            </div>
-                                                            <template x-if="participant.company"><div class="mt-1 text-sm text-base-content/65" x-text="participant.company"></div></template>
+
+                                        <div class="rounded-[1.05rem] border border-base-300 bg-base-100 px-3 py-2 sm:px-4">
+                                            <div class="space-y-1">
+                                                @php
+                                                    $rowGrid = 'md:grid-cols-[11rem_11rem_6.25rem_8rem_9rem]';
+                                                    $actionButton = 'btn btn-primary btn-sm h-10 min-h-10 w-[9rem] justify-center rounded-xl px-3 text-center';
+                                                    $badgeButton = 'btn btn-outline btn-sm h-10 min-h-10 w-[6.25rem] justify-center rounded-xl px-3 text-center';
+                                                    $statusPill = 'inline-flex h-10 min-h-10 w-[8rem] items-center justify-center rounded-full border px-3 text-[11px] font-semibold';
+                                                @endphp
+
+                                                @foreach ($visit['visible_participants'] as $participant)
+                                                    <div x-data="visitParticipantRow(@js($participant))" class="grid gap-x-3 gap-y-2 rounded-lg border-b border-base-200 px-2 py-2 last:border-b-0 md:items-center {{ $rowGrid }}">
+                                                        <div class="min-w-0 truncate text-sm font-medium text-base-content" x-text="participant.name"></div>
+                                                        <div class="min-w-0 truncate text-sm text-base-content/72" x-text="participant.company || '—'"></div>
+                                                        <div class="flex justify-start">
+                                                            <button type="button" class="{{ $badgeButton }}" :class="busy || !participant.badge_url ? 'btn-disabled opacity-70' : ''" @click="participant.badge_url ? submitAction(participant.badge_url) : null">{{ __('Ausweis') }}</button>
                                                         </div>
-                                                        <div class="flex flex-wrap gap-2">
-                                                            <button x-show="participant.can_print_badge" x-cloak type="button" class="btn btn-outline btn-xs rounded-lg" :class="busy ? 'btn-disabled opacity-70' : ''" @click="submitAction(participant.badge_url)">{{ __('Badge') }}</button>
-                                                            <button x-show="participant.can_check_in" x-cloak type="button" class="btn btn-primary btn-xs rounded-lg" :class="busy ? 'btn-disabled opacity-70' : ''" @click="submitAction(participant.check_in_url)" x-text="participant.check_in_label"></button>
-                                                            <button x-show="participant.can_check_out" x-cloak type="button" class="btn btn-primary btn-xs rounded-lg" :class="busy ? 'btn-disabled opacity-70' : ''" @click="submitAction(participant.check_out_url)">{{ __('Check-out') }}</button>
+                                                        <div class="flex justify-start">
+                                                            <span class="{{ $statusPill }}" :class="participant.status_class" x-text="participant.status_label"></span>
+                                                        </div>
+                                                        <div class="flex justify-start">
+                                                            <button x-show="participant.can_check_in" x-cloak type="button" class="{{ $actionButton }}" :class="busy ? 'btn-disabled opacity-70' : ''" @click="submitAction(participant.check_in_url)" x-text="participant.check_in_label"></button>
+                                                            <button x-show="participant.can_check_out" x-cloak type="button" class="{{ $actionButton }}" :class="busy ? 'btn-disabled opacity-70' : ''" @click="submitAction(participant.check_out_url)">{{ __('Check-out') }}</button>
                                                         </div>
                                                     </div>
-                                                </div>
-                                            @endforeach
-                                            @if ($visit['hidden_count'] > 0)
-                                                <details class="rounded-xl border border-base-300 bg-base-100">
-                                                    <summary class="cursor-pointer list-none px-3 py-3 text-sm font-medium text-base-content/75">+ {{ $visit['hidden_count'] }} {{ __('weitere Teilnehmende') }}</summary>
-                                                    <div class="space-y-2 border-t border-base-300 p-3">
-                                                        @foreach ($visit['hidden_participants'] as $participant)
-                                                            <div x-data="visitParticipantRow(@js($participant))" class="rounded-xl border border-base-300 bg-base-100 px-3 py-3">
-                                                                <div class="flex flex-col gap-2 lg:flex-row lg:items-center lg:justify-between">
-                                                                    <div class="min-w-0">
-                                                                        <div class="flex flex-wrap items-center gap-2">
-                                                                            <span class="font-medium text-base-content" x-text="participant.name"></span>
-                                                                            <span class="badge rounded-full px-2 py-2 text-[11px] font-semibold" :class="participant.status_class" x-text="participant.status_label"></span>
-                                                                        </div>
-                                                                        <template x-if="participant.company"><div class="mt-1 text-sm text-base-content/65" x-text="participant.company"></div></template>
+                                                @endforeach
+
+                                                @if ($visit['hidden_count'] > 0)
+                                                    <details class="rounded-xl border border-base-300 bg-base-100">
+                                                        <summary class="cursor-pointer list-none px-3 py-3 text-sm font-medium text-base-content/75">+ {{ $visit['hidden_count'] }} {{ __('weitere Teilnehmende') }}</summary>
+                                                        <div class="space-y-1 border-t border-base-300 p-3">
+                                                            @foreach ($visit['hidden_participants'] as $participant)
+                                                                <div x-data="visitParticipantRow(@js($participant))" class="grid gap-x-3 gap-y-2 rounded-lg border-b border-base-200 px-2 py-2 last:border-b-0 md:items-center {{ $rowGrid }}">
+                                                                    <div class="min-w-0 truncate text-sm font-medium text-base-content" x-text="participant.name"></div>
+                                                                    <div class="min-w-0 truncate text-sm text-base-content/72" x-text="participant.company || '—'"></div>
+                                                                    <div class="flex justify-start">
+                                                                        <button type="button" class="{{ $badgeButton }}" :class="busy || !participant.badge_url ? 'btn-disabled opacity-70' : ''" @click="participant.badge_url ? submitAction(participant.badge_url) : null">{{ __('Ausweis') }}</button>
                                                                     </div>
-                                                                    <div class="flex flex-wrap gap-2">
-                                                                        <button x-show="participant.can_print_badge" x-cloak type="button" class="btn btn-outline btn-xs rounded-lg" :class="busy ? 'btn-disabled opacity-70' : ''" @click="submitAction(participant.badge_url)">{{ __('Badge') }}</button>
-                                                                        <button x-show="participant.can_check_in" x-cloak type="button" class="btn btn-primary btn-xs rounded-lg" :class="busy ? 'btn-disabled opacity-70' : ''" @click="submitAction(participant.check_in_url)" x-text="participant.check_in_label"></button>
-                                                                        <button x-show="participant.can_check_out" x-cloak type="button" class="btn btn-primary btn-xs rounded-lg" :class="busy ? 'btn-disabled opacity-70' : ''" @click="submitAction(participant.check_out_url)">{{ __('Check-out') }}</button>
+                                                                    <div class="flex justify-start">
+                                                                        <span class="{{ $statusPill }}" :class="participant.status_class" x-text="participant.status_label"></span>
+                                                                    </div>
+                                                                    <div class="flex justify-start">
+                                                                        <button x-show="participant.can_check_in" x-cloak type="button" class="{{ $actionButton }}" :class="busy ? 'btn-disabled opacity-70' : ''" @click="submitAction(participant.check_in_url)" x-text="participant.check_in_label"></button>
+                                                                        <button x-show="participant.can_check_out" x-cloak type="button" class="{{ $actionButton }}" :class="busy ? 'btn-disabled opacity-70' : ''" @click="submitAction(participant.check_out_url)">{{ __('Check-out') }}</button>
                                                                     </div>
                                                                 </div>
-                                                            </div>
-                                                        @endforeach
-                                                    </div>
-                                                </details>
-                                            @endif
+                                                            @endforeach
+                                                        </div>
+                                                    </details>
+                                                @endif
+                                            </div>
                                         </div>
                                     </div>
                                 </article>
