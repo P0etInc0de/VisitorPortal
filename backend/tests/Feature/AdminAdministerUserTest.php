@@ -51,7 +51,8 @@ class AdminAdministerUserTest extends TestCase
     private function createAdminUser(): User
     {
         $this->app->make(PermissionRegistrar::class)->forgetCachedPermissions();
-        return PermissionHelper::class->getAdminUser();
+
+        return (new PermissionHelper())->getSuperAdminUser();
 
     }
 }
