@@ -55,7 +55,7 @@
 
             <div class="flex min-w-0 items-center gap-3">
                 @if ($hasLogo)
-                    <img src="{{ asset('images/logo.png') }}" alt="{{ __('Logo') }}" class="max-h-9 w-auto object-contain">
+                    <img src="{{ asset('images/logo.png') }}" alt="{{ __('Logo') }}" width="140" height="36" class="max-h-9 w-auto object-contain" style="display:block;height:36px;width:auto;max-width:140px;object-fit:contain;">
                 @endif
 
                 <p class="truncate text-sm font-semibold">{{ __('Besucherportal') }}</p>
@@ -72,7 +72,7 @@
     <div class="border-b border-base-300/70 px-4 py-4">
         <a href="{{ route('dashboard') }}" class="flex flex-col items-start gap-3">
             @if ($hasLogo)
-                <img src="{{ asset('images/logo.png') }}" alt="{{ __('Logo') }}" class="max-h-10 w-auto object-contain">
+                <img src="{{ asset('images/logo.png') }}" alt="{{ __('Logo') }}" width="160" height="40" class="max-h-10 w-auto object-contain" style="display:block;height:40px;width:auto;max-width:160px;object-fit:contain;">
             @endif
 
             <div class="min-w-0">
@@ -203,7 +203,7 @@
         <div class="flex items-center justify-between border-b border-base-300/70 px-5 py-4">
             <div class="flex min-w-0 items-center gap-3">
                 @if ($hasLogo)
-                    <img src="{{ asset('images/logo.png') }}" alt="{{ __('Logo') }}" class="max-h-9 w-auto object-contain">
+                    <img src="{{ asset('images/logo.png') }}" alt="{{ __('Logo') }}" width="140" height="36" class="max-h-9 w-auto object-contain" style="display:block;height:36px;width:auto;max-width:140px;object-fit:contain;">
                 @endif
                 <span class="truncate text-base font-semibold">{{ __('Besucherportal') }}</span>
             </div>
