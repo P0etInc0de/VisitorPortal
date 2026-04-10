@@ -93,22 +93,24 @@ class PermissionHelper
 
     public function getSuperAdminUser(): User
     {
-        $adminRole = Role::firstOrCreate(['name' => 'admin', 'guard_name' => 'web']);
+        return $this->getIndividualUser($this->permissions, "super_admin");
+    }
 
-        foreach ($this->permissions as $permission) {
+    public function getIndividualUser(array $individualPermissions, string $name):User
+    {
+        $role = Role::firstOrCreate(['name' => $name, 'guard_name' => 'web']);
+
+        foreach ($individualPermissions as $permission) {
             Permission::firstOrCreate([
                 'name' => $permission,
                 'guard_name' => 'web'
             ]);
         }
 
-        $adminRole->syncPermissions($this->permissions);
-
+        $role->syncPermissions($individualPermissions);
         $user = User::factory()->create();
-        $user->assignRole($adminRole);
-
+        $user->assignRole($role);
         return $user;
-
     }
 
 }
