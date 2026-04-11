@@ -10,20 +10,8 @@
 <x-app-layout>
     <x-slot name="header">
         <div class="bp-screen-head bp-av-screen-head">
-            <div class="bp-av-header-block">
-                <div>
-                    <h1 class="bp-screen-title">{{ __('Alle Besuche') }}</h1>
-                </div>
-
-                <div class="bp-av-header-summary" id="bp-av-header-summary">
-                    @foreach ($stats as $stat)
-                        <article class="bp-av-stat-card">
-                            <div class="bp-av-stat-label">{{ $stat['label'] }}</div>
-                            <div class="bp-av-stat-value">{{ $stat['value'] }}</div>
-                            <div class="bp-av-stat-meta">{{ $stat['meta'] }}</div>
-                        </article>
-                    @endforeach
-                </div>
+            <div>
+                <h1 class="bp-screen-title">{{ __('Alle Besuche') }}</h1>
             </div>
         </div>
     </x-slot>
@@ -39,19 +27,20 @@
         }
 
         .bp-av-page {
+            display: grid;
+            grid-template-rows: auto minmax(0, 1fr);
+            gap: 1rem;
             padding-top: .35rem;
-        }
-
-        .bp-av-header-block {
-            display: flex;
-            flex-direction: column;
-            gap: .95rem;
+            min-height: calc(100dvh - 8.5rem);
+            max-height: calc(100dvh - 8.5rem);
+            overflow: hidden;
         }
 
         .bp-av-header-summary {
             display: grid;
             grid-template-columns: repeat(3, minmax(0, 1fr));
             gap: .85rem;
+            margin-bottom: 1rem;
         }
 
         .bp-av-stat-card {
@@ -82,11 +71,16 @@
         }
 
         .bp-av-list-card {
+            display: grid;
+            grid-template-rows: auto auto auto minmax(0, 1fr);
+            min-height: 0;
+            height: 100%;
             border: 1px solid hsl(var(--b3));
             background: hsl(var(--b1));
             border-radius: 1.8rem;
             padding: 1rem 1.1rem 1.1rem;
             box-shadow: 0 1px 2px rgba(15, 23, 42, .05);
+            overflow: hidden;
         }
 
         .bp-av-list-head {
@@ -157,6 +151,9 @@
             display: flex;
             flex-direction: column;
             gap: .8rem;
+            min-height: 0;
+            overflow-y: auto;
+            padding-right: .2rem;
         }
 
         .bp-av-visit-card {
@@ -327,6 +324,12 @@
         }
 
         @media (max-width: 1024px) {
+            .bp-av-page {
+                min-height: auto;
+                max-height: none;
+                overflow: visible;
+            }
+
             .bp-av-header-summary {
                 grid-template-columns: 1fr;
             }
@@ -334,6 +337,13 @@
             .bp-av-tools,
             .bp-av-filter-line {
                 grid-template-columns: 1fr;
+            }
+
+            .bp-av-list-card,
+            .bp-av-visit-stack {
+                min-height: auto;
+                height: auto;
+                overflow: visible;
             }
 
             .bp-av-date-range {
@@ -354,6 +364,16 @@
     </style>
 
     <div class="bp-content bp-av-page">
+        <div class="bp-av-header-summary" id="bp-av-header-summary">
+            @foreach ($stats as $stat)
+                <article class="bp-av-stat-card">
+                    <div class="bp-av-stat-label">{{ $stat['label'] }}</div>
+                    <div class="bp-av-stat-value">{{ $stat['value'] }}</div>
+                    <div class="bp-av-stat-meta">{{ $stat['meta'] }}</div>
+                </article>
+            @endforeach
+        </div>
+
         <section class="bp-av-list-card">
             <div class="bp-av-list-head">
                 <h2 class="bp-av-list-title">{{ __('Besuchsliste') }}</h2>
@@ -636,3 +656,4 @@
         });
     </script>
 </x-app-layout>
+
