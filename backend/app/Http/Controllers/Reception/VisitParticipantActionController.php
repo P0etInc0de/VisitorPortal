@@ -7,10 +7,11 @@ use App\Models\Visit;
 use App\Models\Visitor;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Log;
+use Spatie\LaravelPdf\Facades\Pdf;
 
 class VisitParticipantActionController extends Controller
 {
-    public function printBadge(Visit $visit, Visitor $visitor): RedirectResponse
+    public function printBadge(Visit $visit, Visitor $visitor)
     {
         $participant = $this->resolveParticipant($visit, $visitor);
 
@@ -19,17 +20,24 @@ class VisitParticipantActionController extends Controller
                 'badge_printed_at' => now(),
                 'updated_at' => now(),
             ]);
-
-            // Technical log for the current implementation. Participant actions may later
-            // also be written to a dedicated activity log.
-            Log::channel('web')->info('Visit participant badge marked as printed', [
-                'visit_id' => $visit->id,
-                'visitor_id' => $visitor->id,
-                'user_id' => auth()->id(),
-            ]);
         }
 
-        return back();
+        // Technical log for the current implementation. Participant actions may later
+        // also be written to a dedicated activity log.
+        Log::channel('web')->info('Visit participant badge downloaded', [
+            'visit_id' => $visit->id,
+            'visitor_id' => $visitor->id,
+            'user_id' => auth()->id(),
+        ]);
+
+        return Pdf::view('pdf.visitor_badge', [
+            'visitor' => $visitor,
+        ])
+            ->driver('gotenberg')
+            ->format('A4')
+            ->landscape()
+            ->name(__('Besucherausweis_').$visitor->last_name.'.pdf')
+            ->download();
     }
 
     public function checkIn(Visit $visit, Visitor $visitor): RedirectResponse
