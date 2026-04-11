@@ -22,7 +22,7 @@ class GuestCheckedIn extends Notification implements ShouldQueue
         protected User $user,
         protected Visitor $visitor
     ) {
-        Log::info('Notifying User that GuestCheckedIn', [
+        Log::channel('mail')->info('Notifying User that GuestCheckedIn', [
             'user_id' => $user->id,
             'visitor_id' => $visitor->id,
             'class' => get_class(),

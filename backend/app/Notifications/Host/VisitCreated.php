@@ -39,7 +39,7 @@ class VisitCreated extends Notification implements ShouldQueue
      */
     public function toMail(User $notifiable): Mailable
     {
-        Log::info('Notifying Host(User) per E-Mail, that a visit was created', [
+        Log::channel('mail')->info('Notifying Host(User) per E-Mail, that a visit was created', [
             'user_id' => $notifiable->id,
             'visit_id' => $this->visit->id,
             'visitor_count' => $this->visitors->count(),

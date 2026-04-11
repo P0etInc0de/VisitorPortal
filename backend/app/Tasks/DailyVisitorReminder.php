@@ -20,7 +20,7 @@ class DailyVisitorReminder
      * */
     public function __invoke(): void
     {
-        Log::info('DailyVisitorReminder started', [
+        Log::channel('mail')->info('DailyVisitorReminder started', [
             'class' => get_class(),
         ]);
 
@@ -42,7 +42,7 @@ class DailyVisitorReminder
             ));
         });
 
-        Log::info('DailyVisitorReminder finished', [
+        Log::channel('mail')->info('DailyVisitorReminder finished', [
             'class' => get_class(),
         ]);
     }

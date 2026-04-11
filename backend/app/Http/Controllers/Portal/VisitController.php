@@ -10,12 +10,12 @@ use App\Http\Requests\UpdateVisitRequest;
 use App\Models\User;
 use App\Models\Visit;
 use App\Models\Visitor;
-use App\Support\SafeActivityLog;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class VisitController extends Controller
 {
@@ -47,7 +47,9 @@ class VisitController extends Controller
             return $visit;
         });
 
-        SafeActivityLog::info('Visit created', [
+        // Technical log for the current implementation. Visit lifecycle changes may later
+        // also be written to a dedicated activity log.
+        Log::channel('web')->info('Visit created', [
             'visit_id' => $visit->id,
             'user_id' => auth()->id(),
         ]);
@@ -112,7 +114,7 @@ class VisitController extends Controller
             $this->syncParticipants($visit, $payload['participants'] ?? []);
         });
 
-        SafeActivityLog::info('Visit updated', [
+        Log::channel('web')->info('Visit updated', [
             'visit_id' => $visit->id,
             'user_id' => auth()->id(),
         ]);
@@ -129,7 +131,7 @@ class VisitController extends Controller
             'canceled_by_user_id' => auth()->id(),
         ]);
 
-        SafeActivityLog::info('Visit canceled', [
+        Log::channel('web')->info('Visit canceled', [
             'visit_id' => $visit->id,
             'user_id' => auth()->id(),
         ]);
@@ -145,7 +147,7 @@ class VisitController extends Controller
             'canceled_by_user_id' => null,
         ]);
 
-        SafeActivityLog::info('Visit reopened', [
+        Log::channel('web')->info('Visit reopened', [
             'visit_id' => $visit->id,
             'user_id' => auth()->id(),
         ]);
@@ -162,7 +164,7 @@ class VisitController extends Controller
             'scheduled_until' => $payload['scheduled_until'] ?? null,
         ]);
 
-        SafeActivityLog::info('Visit rescheduled', [
+        Log::channel('web')->info('Visit rescheduled', [
             'visit_id' => $visit->id,
             'user_id' => auth()->id(),
             'scheduled_from' => $payload['scheduled_from'],

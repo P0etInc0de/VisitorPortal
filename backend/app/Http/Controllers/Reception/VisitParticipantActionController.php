@@ -5,8 +5,8 @@ namespace App\Http\Controllers\Reception;
 use App\Http\Controllers\Controller;
 use App\Models\Visit;
 use App\Models\Visitor;
-use App\Support\SafeActivityLog;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\Log;
 
 class VisitParticipantActionController extends Controller
 {
@@ -20,7 +20,9 @@ class VisitParticipantActionController extends Controller
                 'updated_at' => now(),
             ]);
 
-            SafeActivityLog::info('Visit participant badge marked as printed', [
+            // Technical log for the current implementation. Participant actions may later
+            // also be written to a dedicated activity log.
+            Log::channel('web')->info('Visit participant badge marked as printed', [
                 'visit_id' => $visit->id,
                 'visitor_id' => $visitor->id,
                 'user_id' => auth()->id(),
@@ -49,7 +51,7 @@ class VisitParticipantActionController extends Controller
 
             $visit->visitors()->updateExistingPivot($visitor->id, $payload);
 
-            SafeActivityLog::info(
+            Log::channel('web')->info(
                 filled($pivot->checked_out_at) ? 'Visit participant checked in again' : 'Visit participant checked in',
                 [
                     'visit_id' => $visit->id,
@@ -73,7 +75,7 @@ class VisitParticipantActionController extends Controller
                 'updated_at' => now(),
             ]);
 
-            SafeActivityLog::info('Visit participant checked out', [
+            Log::channel('web')->info('Visit participant checked out', [
                 'visit_id' => $visit->id,
                 'visitor_id' => $visitor->id,
                 'user_id' => auth()->id(),
