@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Portal;
 
 use App\Enums\VisitorStatusEnum;
+use App\Enums\VisitStatusEnum;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\RescheduleVisitRequest;
 use App\Http\Requests\StoreVisitRequest;
@@ -23,7 +24,7 @@ class VisitController extends Controller
     {
         return $this->formView(new Visit([
             'user_id' => auth()->id(),
-            'status' => 'draft',
+            'status' => VisitStatusEnum::Draft->value,
         ]), false);
     }
 
@@ -126,7 +127,7 @@ class VisitController extends Controller
     public function cancel(Visit $visit): RedirectResponse
     {
         $visit->update([
-            'status' => 'canceled',
+            'status' => VisitStatusEnum::Canceled->value,
             'canceled_at' => now(),
             'canceled_by_user_id' => auth()->id(),
         ]);
@@ -142,7 +143,7 @@ class VisitController extends Controller
     public function reopen(Visit $visit): RedirectResponse
     {
         $visit->update([
-            'status' => $visit->status === 'canceled' ? 'planned' : $visit->status,
+            'status' => $visit->status === VisitStatusEnum::Canceled->value ? VisitStatusEnum::Planned->value : $visit->status,
             'canceled_at' => null,
             'canceled_by_user_id' => null,
         ]);
@@ -330,11 +331,11 @@ class VisitController extends Controller
             return ['label' => __('Badge bereit'), 'class' => 'badge-info badge-outline'];
         }
 
-        if ($visitStatus === 'draft') {
+        if ($visitStatus === VisitStatusEnum::Draft->value) {
             return ['label' => __('Entwurf'), 'class' => 'badge-error badge-outline'];
         }
 
-        if ($visitStatus === 'canceled') {
+        if ($visitStatus === VisitStatusEnum::Canceled->value) {
             return ['label' => __('Abgesagt'), 'class' => 'badge-neutral badge-outline'];
         }
 
@@ -343,15 +344,15 @@ class VisitController extends Controller
 
     private function resolveVisitStatus(Visit $visit): array
     {
-        if ($visit->status === 'canceled' || filled($visit->canceled_at)) {
+        if ($visit->status === VisitStatusEnum::Canceled->value || filled($visit->canceled_at)) {
             return ['label' => __('Abgesagt'), 'class' => 'badge-neutral badge-outline'];
         }
 
-        if ($visit->status === 'completed') {
+        if ($visit->status === VisitStatusEnum::Completed->value) {
             return ['label' => __('Abgeschlossen'), 'class' => 'badge-success badge-outline'];
         }
 
-        if ($visit->status === 'draft') {
+        if ($visit->status === VisitStatusEnum::Draft->value) {
             return ['label' => __('Entwurf'), 'class' => 'badge-error badge-outline'];
         }
 

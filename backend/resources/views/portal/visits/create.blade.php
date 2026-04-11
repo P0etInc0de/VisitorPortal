@@ -294,7 +294,7 @@
                                         name="status"
                                         class="select select-bordered w-full rounded-2xl @error('status') select-error @enderror"
                                     >
-                                        @foreach (['draft' => __('Entwurf'), 'planned' => __('Geplant'), 'completed' => __('Abgeschlossen'), 'canceled' => __('Abgesagt')] as $value => $label)
+                                        @foreach (\App\Enums\VisitStatusEnum::options() as $value => $label)
                                             <option value="{{ $value }}" @selected(old('status', $visit->status ?: 'draft') === $value)>
                                                 {{ $label }}
                                             </option>

@@ -2,7 +2,9 @@
 
 namespace App\Http\Requests;
 
+use App\Enums\VisitStatusEnum;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class StoreVisitRequest extends FormRequest
 {
@@ -19,7 +21,7 @@ class StoreVisitRequest extends FormRequest
             'responsible_user_id' => ['nullable', 'integer', 'exists:users,id'],
             'scheduled_from' => ['required', 'date', 'after_or_equal:1970-01-01'],
             'scheduled_until' => ['required', 'date', 'after:scheduled_from', 'after_or_equal:1970-01-01'],
-            'status' => ['required', 'string', 'in:draft,planned,completed,canceled'],
+            'status' => ['required', 'string', Rule::in(VisitStatusEnum::values())],
             'notes' => ['nullable', 'string'],
             'participants' => ['required', 'array', 'min:1'],
             'participants.*.visitor_id' => ['nullable', 'integer', 'exists:visitors,id'],

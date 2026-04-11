@@ -17,7 +17,7 @@ class VisitSeeder extends Seeder
             responsibleUserId: 2,
             from: Carbon::now()->setHour(9)->setMinute(30),
             until: Carbon::now()->setHour(11)->setMinute(0),
-            status: VisitStatusEnum::Planned,
+            status: VisitStatusEnum::Planned->value,
             notes: 'Badge bereitstellen und Empfang briefen',
             participants: [
                 1 => [
@@ -38,7 +38,7 @@ class VisitSeeder extends Seeder
             responsibleUserId: 2,
             from: Carbon::tomorrow()->setHour(10)->setMinute(15),
             until: Carbon::tomorrow()->setHour(11)->setMinute(15),
-            status: VisitStatusEnum::Planned,
+            status: VisitStatusEnum::Planned->value,
             notes: 'Termin verschoben, Badge neu vorbereiten',
             participants: [
                 4 => [],
@@ -52,7 +52,7 @@ class VisitSeeder extends Seeder
         int $responsibleUserId,
         Carbon $from,
         Carbon $until,
-        VisitStatusEnum $status,
+        string $status,
         ?string $notes,
         array $participants,
     ): void {

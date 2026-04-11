@@ -20,12 +20,12 @@ class DailyVisitorReminder
      * */
     public function __invoke(): void
     {
-        Log::channel('mail')->info('DailyVisitorReminder started', [
+        Log::info('DailyVisitorReminder started', [
             'class' => get_class(),
         ]);
 
         $visitsOfToday = Visit::query()
-            ->where('visits.status', '=', VisitStatusEnum::Planned)
+            ->where('visits.status', '=', VisitStatusEnum::Planned->value)
             ->whereDate('scheduled_from', Carbon::today())
             ->with('responsibleUser', 'visitors')
             ->get();
@@ -42,7 +42,7 @@ class DailyVisitorReminder
             ));
         });
 
-        Log::channel('mail')->info('DailyVisitorReminder finished', [
+        Log::info('DailyVisitorReminder finished', [
             'class' => get_class(),
         ]);
     }

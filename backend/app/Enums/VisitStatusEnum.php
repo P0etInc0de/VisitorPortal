@@ -4,7 +4,34 @@ namespace App\Enums;
 
 enum VisitStatusEnum: string
 {
-    case Planned = 'Planned';
-    case Completed = 'Completed';
-    case Cancelled = 'Cancelled';
+    case Draft = 'draft';
+    case Planned = 'planned';
+    case Completed = 'completed';
+    case Canceled = 'canceled';
+
+    public function label(): string
+    {
+        return match ($this) {
+            self::Draft => __('Entwurf'),
+            self::Planned => __('Geplant'),
+            self::Completed => __('Abgeschlossen'),
+            self::Canceled => __('Abgesagt'),
+        };
+    }
+
+    public static function values(): array
+    {
+        return array_map(static fn (self $status) => $status->value, self::cases());
+    }
+
+    public static function options(): array
+    {
+        $options = [];
+
+        foreach (self::cases() as $status) {
+            $options[$status->value] = $status->label();
+        }
+
+        return $options;
+    }
 }

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Reception;
 
+use App\Enums\VisitStatusEnum;
 use App\Http\Controllers\Controller;
 use App\Models\Visit;
 use App\Models\Visitor;
@@ -35,7 +36,7 @@ class DashboardController extends Controller
 
         $openClarifications = $todayVisits->sum(function (Visit $visit) {
             return $visit->visitors->filter(function (Visitor $visitor) use ($visit) {
-                return blank($visitor->pivot->badge_printed_at) || $visit->status === 'draft';
+                return blank($visitor->pivot->badge_printed_at) || $visit->status === VisitStatusEnum::Draft->value;
             })->count();
         });
 
@@ -130,7 +131,7 @@ class DashboardController extends Controller
             ];
         }
 
-        if ($visitStatus === 'draft') {
+        if ($visitStatus === VisitStatusEnum::Draft->value) {
             return [
                 'label' => __('Entwurf'),
                 'class' => 'badge-error badge-outline',

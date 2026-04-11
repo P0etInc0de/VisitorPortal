@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Reception;
 
+use App\Enums\VisitStatusEnum;
 use App\Http\Controllers\Controller;
 use App\Models\Visit;
 use App\Models\Visitor;
@@ -128,7 +129,7 @@ class VisitController extends Controller
             ->with('visitors')
             ->get()
             ->sum(function (Visit $visit) {
-                if ($visit->status === 'draft') {
+                if ($visit->status === VisitStatusEnum::Draft->value) {
                     return max(1, $visit->visitors->count());
                 }
 
@@ -185,14 +186,14 @@ class VisitController extends Controller
             ];
         }
 
-        if ($visitStatus === 'draft') {
+        if ($visitStatus === VisitStatusEnum::Draft->value) {
             return [
                 'label' => __('Entwurf'),
                 'class' => 'badge-error badge-outline',
             ];
         }
 
-        if ($visitStatus === 'canceled') {
+        if ($visitStatus === VisitStatusEnum::Canceled->value) {
             return [
                 'label' => __('Abgesagt'),
                 'class' => 'badge-neutral',
@@ -208,10 +209,10 @@ class VisitController extends Controller
     private function resolveVisitStatusLabel(string $status): string
     {
         return match ($status) {
-            'draft' => __('Entwurf'),
-            'planned' => __('Geplant'),
-            'completed' => __('Abgeschlossen'),
-            'canceled' => __('Abgesagt'),
+            VisitStatusEnum::Draft->value => VisitStatusEnum::Draft->label(),
+            VisitStatusEnum::Planned->value => VisitStatusEnum::Planned->label(),
+            VisitStatusEnum::Completed->value => VisitStatusEnum::Completed->label(),
+            VisitStatusEnum::Canceled->value => VisitStatusEnum::Canceled->label(),
             default => __($status),
         };
     }

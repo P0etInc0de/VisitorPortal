@@ -25,9 +25,9 @@ class VisitForm
                 DateTimePicker::make('scheduled_until')
                     ->required(),
                 Select::make('status')
-                    ->options(VisitStatusEnum::class)
+                    ->options(VisitStatusEnum::options())
                     ->required()
-                    ->default(VisitStatusEnum::Planned),
+                    ->default(VisitStatusEnum::Planned->value),
                 Textarea::make('notes')
                     ->columnSpanFull(),
                 DateTimePicker::make('canceled_at'),
