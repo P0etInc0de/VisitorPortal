@@ -132,13 +132,13 @@
                 </div>
             @endif
 
-            @if ($canSeeMonitor)
+            @if ($canSeeMonitor && ($monitor = \App\Models\Monitor::query()->first()))
                 <div>
                     <div class="mb-2 px-3 text-xs font-medium uppercase tracking-[0.16em] text-base-content/45">
                         {{ __('Monitor') }}
                     </div>
 
-                    <a href="{{ route('monitors.index') }}" class="{{ $navLinkClasses(request()->routeIs('monitor.live')) }}">
+                    <a href="{{ route('monitors.show', $monitor) }}" class="{{ $navLinkClasses(request()->routeIs('monitor.live')) }}">
                         <svg xmlns="http://www.w3.org/2000/svg" class="bp-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
                             <rect x="3" y="4" width="18" height="12" rx="2" />
                             <path stroke-linecap="round" stroke-linejoin="round" d="M8 20h8M12 16v4" />
@@ -146,7 +146,7 @@
                         <span>{{ __('Live-Anzeige') }}</span>
                     </a>
 
-                    <a href="{{ route('monitor.editor') }}" class="{{ $navLinkClasses(request()->routeIs('monitor.editor')) }}">
+                    <a href="{{ route('monitors.edit', $monitor) }}" class="{{ $navLinkClasses(request()->routeIs('monitor.editor')) }}">
                         <svg xmlns="http://www.w3.org/2000/svg" class="bp-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M4 20h4l10-10a2.12 2.12 0 1 0-3-3L5 17v3Z" />
                         </svg>
@@ -248,11 +248,12 @@
                 <span>{{ __('Alle Besuche') }}</span>
             </a>
             @endif
-            @if ($canSeeMonitor)
-            <a href="{{ route('monitor.live') }}" class="{{ $navLinkClasses(request()->routeIs('monitor.live')) }}" @click="navOpen = false">
+
+            @if ($canSeeMonitor && ($monitor = \App\Models\Monitor::query()->first()))
+            <a href="{{ route('monitors.show', $monitor) }}" class="{{ $navLinkClasses(request()->routeIs('monitors.show*')) }}" @click="navOpen = false">
                 <span>{{ __('Live-Anzeige') }}</span>
             </a>
-            <a href="{{ route('monitor.editor') }}" class="{{ $navLinkClasses(request()->routeIs('monitor.editor')) }}" @click="navOpen = false">
+            <a href="{{ route('monitors.edit', $monitor) }}" class="{{ $navLinkClasses(request()->routeIs('monitors.edit*')) }}" @click="navOpen = false">
                 <span>{{ __('Editor') }}</span>
             </a>
             @endif

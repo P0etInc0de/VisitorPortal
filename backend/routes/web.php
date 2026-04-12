@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\MonitorController;
+use App\Http\Controllers\MonitorSlidesController;
 use App\Http\Controllers\WelcomeMonitorController;
 use Illuminate\Support\Facades\Route;
 
@@ -33,6 +34,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/editor', [WelcomeMonitorController::class, 'edit'])->name('editor');
     });
     Route::resource('monitors', MonitorController::class);
+    Route::resource('monitor_slides', MonitorSlidesController::class);
 });
 
 require __DIR__.'/auth.php';

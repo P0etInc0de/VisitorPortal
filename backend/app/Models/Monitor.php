@@ -17,7 +17,7 @@ class Monitor extends Model
         'transition_time_milliseconds',
     ];
 
-    public function MonitorSlide(): HasMany
+    public function monitorSlides(): HasMany
     {
         return $this->hasMany(MonitorSlide::class);
     }

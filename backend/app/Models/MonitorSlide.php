@@ -15,6 +15,7 @@ class MonitorSlide extends Model
     protected $fillable = [
         'heading',
         'subheading',
+        'slide_number',
         'show_logo',
         'show_date',
         'show_time',

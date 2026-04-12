@@ -15,10 +15,11 @@ return new class extends Migration
             $table->id();
             $table->foreignId('monitor_id')->constrained()->cascadeOnDelete();
             $table->integer('slide_number')->default(0);
+            $table->unique(['monitor_id', 'slide_number']);
             $table->timestamps();
             $table->string('background_path')->default('');
             $table->string('heading');
-            $table->string('subheading');
+            $table->string('subheading')->nullable();
             $table->boolean('show_logo')->default(false);
             $table->boolean('show_date')->default(false);
             $table->boolean('show_time')->default(false);
