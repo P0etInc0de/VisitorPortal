@@ -25,7 +25,7 @@ class DailyVisitorReminder
         ]);
 
         $visitsOfToday = Visit::query()
-            ->where('visits.status', '=', VisitStatusEnum::Planned)
+            ->where('visits.status', '=', VisitStatusEnum::Planned->value)
             ->whereDate('scheduled_from', Carbon::today())
             ->with('responsibleUser', 'visitors')
             ->get();

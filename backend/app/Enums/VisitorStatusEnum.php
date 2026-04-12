@@ -4,8 +4,8 @@ namespace App\Enums;
 
 enum VisitorStatusEnum: string
 {
-    case Planned = 'Planned';
-    case Checked_In = 'Checked_In';
-    case Checked_Out = 'Checked_Out';
-    case Cancelled = 'Cancelled';
+    case Planned = 'planned';
+    case Canceled = 'canceled';
+    case Checked_In = 'checked_in';
+    case Checked_Out = 'checked_out';
 }

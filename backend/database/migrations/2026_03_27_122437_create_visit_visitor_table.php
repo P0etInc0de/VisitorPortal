@@ -14,11 +14,12 @@ return new class extends Migration
         Schema::create('visit_visitor', function (Blueprint $table) {
             $table->foreignId('visit_id')->constrained('visits')->cascadeOnDelete();
             $table->foreignId('visitor_id')->constrained('visitors')->cascadeOnDelete();
-            $table->datetime('badge_printed_at')->nullable();
-            $table->datetime('checked_in_at')->nullable();
-            $table->datetime('checked_out_at')->nullable();
+            $table->dateTime('badge_printed_at')->nullable();
+            $table->dateTime('checked_in_at')->nullable();
+            $table->dateTime('checked_out_at')->nullable();
             $table->foreignId('checked_in_by_user_id')->nullable()->constrained('users')->onDelete('set null');
             $table->foreignId('checked_out_by_user_id')->nullable()->constrained('users')->onDelete('set null');
+            $table->text('notes')->nullable();
             $table->timestamps();
         });
     }

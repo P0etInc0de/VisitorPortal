@@ -1,59 +1,3 @@
-@php
-    $stats = [
-        [
-            'label' => __('Meine Besuche heute'),
-            'value' => '4',
-            'meta' => __('1 Termin startet in der nächsten Stunde.'),
-        ],
-        [
-            'label' => __('Nächster Termin'),
-            'value' => '09:30',
-            'meta' => __('Max Mustermann · Beispiel GmbH'),
-        ],
-        [
-            'label' => __('Diese Woche'),
-            'value' => '7',
-            'meta' => __('7 geplant · 2 Entwürfe'),
-        ],
-    ];
-
-    $visits = [
-        [
-            'time' => '09:30',
-            'date' => '30.03.',
-            'title' => __('Max Mustermann'),
-            'company' => __('Beispiel GmbH'),
-            'note' => __('Badge vorbereitet · Monitor aktiv'),
-            'status' => __('Geplant'),
-            'statusClass' => 'badge-warning badge-outline',
-        ],
-        [
-            'time' => '11:00',
-            'date' => '30.03.',
-            'title' => __('Anna Becker'),
-            'company' => __('ACME AG'),
-            'note' => __('Ankunft erfolgt · Aufenthalt läuft'),
-            'status' => __('Eingecheckt'),
-            'statusClass' => 'badge-success badge-outline',
-        ],
-        [
-            'time' => '14:00',
-            'date' => '30.03.',
-            'title' => __('David Keller'),
-            'company' => __('Tech Solutions'),
-            'note' => __('Badge offen · Monitorfreigabe noch ausstehend'),
-            'status' => __('Entwurf'),
-            'statusClass' => 'badge-ghost',
-        ],
-    ];
-
-    $notes = [
-        __('Besuch für Sven Maurer noch ohne finalen Zeitraum'),
-        __('Gruppenbesuch Technik benötigt noch Empfangsbriefing'),
-        __('Badge-Ausgabe für David Keller noch nicht bestätigt'),
-    ];
-@endphp
-
 <x-app-layout>
     <x-slot name="header">
         <div class="bp-screen-head">
@@ -63,103 +7,100 @@
         </div>
     </x-slot>
 
-    <div class="bp-content">
-        <section class="bp-stat-grid">
+    <div class="bp-content bp-dashboard-layout">
+        <section class="bp-stat-grid bp-dashboard-stats">
             @foreach ($stats as $stat)
-                <article class="card rounded-[1.75rem] border border-base-300 bg-base-100 shadow-sm">
-                    <div class="card-body p-5">
-                        <div class="text-sm font-medium text-base-content/65">
-                            {{ $stat['label'] }}
-                        </div>
-
-                        <div class="mt-2 text-4xl font-semibold leading-none tracking-tight text-base-content">
-                            {{ $stat['value'] }}
-                        </div>
-
-                        <div class="mt-2 text-sm text-base-content/70">
-                            {{ $stat['meta'] }}
-                        </div>
+                <article class="card bp-dashboard-stat-card rounded-[1.2rem] border border-base-300 bg-base-100 shadow-sm">
+                    <div class="card-body bp-dashboard-stat-body">
+                        <div class="bp-dashboard-stat-label">{{ $stat['label'] }}</div>
+                        <div class="bp-dashboard-stat-value">{{ $stat['value'] }}</div>
+                        <div class="bp-dashboard-stat-meta">{{ $stat['meta'] }}</div>
                     </div>
                 </article>
             @endforeach
         </section>
 
-        <section class="bp-main-grid">
-            <article class="card rounded-[1.75rem] border border-base-300 bg-base-100 shadow-sm">
-                <div class="card-body p-5 sm:p-6">
-                    <div class="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                        <h2 class="text-xl font-semibold tracking-tight text-base-content">
-                            {{ __('Anstehende Besuche') }}
-                        </h2>
-
-                        <a
-                            href="{{ \Illuminate\Support\Facades\Route::has('portal.visits.create') ? route('portal.visits.create') : url('/portal/visits/create') }}"
-                            class="btn btn-outline btn-sm rounded-xl"
-                        >
-                            {{ __('Neuen Besuch anlegen') }}
-                        </a>
+        <section class="bp-main-grid bp-dashboard-main-grid">
+            <article class="card bp-dashboard-list-card rounded-[1.35rem] border border-base-300 bg-base-100 shadow-sm">
+                <div class="card-body bp-dashboard-list-body">
+                    <div class="bp-card-header bp-dashboard-list-header">
+                        <h2 class="bp-card-title">{{ __('Anstehende Besuche') }}</h2>
                     </div>
 
-                    <div class="space-y-4">
-                        @foreach ($visits as $visit)
-                            <article class="rounded-[1.5rem] border border-base-300 bg-base-100 px-5 py-4">
-                                <div class="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
-                                    <div class="flex gap-4">
-                                        <div class="min-w-[72px] shrink-0">
-                                            <div class="text-2xl font-semibold leading-none tracking-tight text-base-content">
-                                                {{ $visit['time'] }}
-                                            </div>
-                                            <div class="mt-1 text-sm text-base-content/60">
-                                                {{ $visit['date'] }}
-                                            </div>
-                                        </div>
+                    <div class="bp-dashboard-visit-list">
+                        @forelse ($visits as $visit)
+                            <article class="bp-visit-item bp-dashboard-visit-card">
+                                <div class="bp-visit-timebox bp-dashboard-timebox">
+                                    <div class="bp-visit-time bp-dashboard-time">{{ $visit['time'] }}</div>
+                                    <div class="bp-visit-date bp-dashboard-date">{{ $visit['date'] }}</div>
+                                </div>
 
+                                <div class="bp-visit-main bp-dashboard-visit-main">
+                                    <div class="bp-dashboard-visit-head">
                                         <div class="min-w-0">
-                                            <div class="text-xl font-semibold tracking-tight text-base-content">
-                                                {{ $visit['title'] }}
-                                            </div>
-
-                                            <div class="mt-1 text-lg text-base-content/75">
-                                                {{ $visit['company'] }}
-                                            </div>
-
-                                            <div class="mt-3 text-base leading-6 text-base-content/80">
-                                                {{ $visit['note'] }}
+                                            <div class="bp-visit-title bp-dashboard-visit-title">{{ $visit['title'] }}</div>
+                                            <div class="bp-visit-meta bp-dashboard-visit-meta">
+                                                {{ __('Host: :name', ['name' => $visit['host']]) }}
                                             </div>
                                         </div>
-                                    </div>
 
-                                    <div class="flex shrink-0 flex-col items-start gap-3 lg:items-end">
-                                        <span class="badge {{ $visit['statusClass'] }} rounded-full px-3 py-3 text-sm font-semibold">
-                                            {{ $visit['status'] }}
+                                        <span class="bp-status-pill {{ $visit['status_class'] }} bp-dashboard-status-pill">
+                                            {{ $visit['status_label'] }}
                                         </span>
-
-                                        <a
-                                            href="{{ \Illuminate\Support\Facades\Route::has('portal.visits.show') ? route('portal.visits.show', 1) : url('/portal/visits/1') }}"
-                                            class="btn btn-outline btn-sm rounded-xl"
-                                        >
-                                            {{ __('Details öffnen') }}
-                                        </a>
                                     </div>
+
+                                    @if ($visit['participant_preview']->isNotEmpty() || $visit['remaining_participants'] > 0)
+                                        <div class="bp-dashboard-preview-row">
+                                            <div class="bp-dashboard-preview-list">
+                                                @foreach ($visit['participant_preview'] as $participantName)
+                                                    <span class="bp-dashboard-preview-chip">{{ $participantName }}</span>
+                                                @endforeach
+
+                                                @if ($visit['remaining_participants'] > 0)
+                                                    <span class="bp-dashboard-preview-more">
+                                                        {{ __('+:count weitere', ['count' => $visit['remaining_participants']]) }}
+                                                    </span>
+                                                @endif
+                                            </div>
+                                        </div>
+                                    @elseif ($visit['participant_count'] > 0)
+                                        <div class="bp-dashboard-preview-empty">
+                                            {{ __(':count Teilnehmende', ['count' => $visit['participant_count']]) }}
+                                        </div>
+                                    @endif
+
+                                    @if (filled($visit['note']))
+                                        <div class="bp-visit-note bp-dashboard-note-text">{{ $visit['note'] }}</div>
+                                    @endif
+                                </div>
+
+                                <div class="bp-visit-actions bp-dashboard-actions">
+                                    <a href="{{ route('portal.visits.show', $visit['visit']) }}" class="btn btn-outline btn-sm rounded-xl">
+                                        {{ __('Details öffnen') }}
+                                    </a>
                                 </div>
                             </article>
-                        @endforeach
+                        @empty
+                            <div class="rounded-[1rem] border border-dashed border-base-300 bg-base-100 px-4 py-6 text-sm text-base-content/65">
+                                {{ __('Aktuell sind keine anstehenden Besuche vorhanden.') }}
+                            </div>
+                        @endforelse
                     </div>
                 </div>
             </article>
 
-            <aside class="card rounded-[1.75rem] border border-base-300 bg-base-100 shadow-sm">
-                <div class="card-body p-5 sm:p-6">
-                    <h2 class="mb-4 text-xl font-semibold tracking-tight text-base-content">
-                        {{ __('Notizen') }}
-                    </h2>
+            <aside class="card bp-dashboard-notes-card rounded-[1.35rem] border border-base-300 bg-base-100 shadow-sm">
+                <div class="card-body bp-dashboard-notes-body">
+                    <h2 class="bp-card-title bp-dashboard-notes-title">{{ __('Notizen') }}</h2>
 
-                    <div class="space-y-3">
-                        @foreach ($notes as $note)
-                            <div class="rounded-[1.35rem] border border-base-300 bg-base-100 px-4 py-4 text-base leading-7 text-base-content/85">
-                                {{ $note }}
+                    <div class="bp-dashboard-notes-list">
+                        @forelse ($notes as $note)
+                            <div class="bp-dashboard-note-item">{{ $note }}</div>
+                        @empty
+                            <div class="bp-dashboard-note-empty">
+                                {{ __('Aktuell gibt es keine offenen Notizen.') }}
                             </div>
-                        @endforeach
+                        @endforelse
                     </div>
                 </div>
             </aside>

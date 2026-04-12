@@ -104,7 +104,7 @@
         </div>
         <div class="label label-name">{{__('Name:')}}</div>
         <div class="value value-name">
-            {{ $visitor->first_name }} {{ $visitor->name }}
+            {{ $visitor->first_name }} {{ $visitor->last_name }}
         </div>
         <div class="divider divider-1"></div>
 
@@ -122,7 +122,7 @@
 
         <div class="label label-date">{{__('Besuchszeit:')}}</div>
         <div class="value value-date">
-            {{ $visit->scheduled_from?->format('d.m.Y H:i') ?? '-'}}
+            {{ now()->format('d.m.Y H:i') }}
         </div>
         <div class="divider divider-4"></div>
 

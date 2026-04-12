@@ -19,6 +19,8 @@
 /storage/*.key
 /storage/pail
 /vendor
+*:Zone.Identifier
+*.snippet.txt
 Homestead.json
 Homestead.yaml
 Thumbs.db

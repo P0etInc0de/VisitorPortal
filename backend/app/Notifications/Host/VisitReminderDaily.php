@@ -42,7 +42,7 @@ class VisitReminderDaily extends Notification implements ShouldQueue
      */
     public function toMail(User $notifiable): Mailable
     {
-        Log::info('Notifying User from VisitReminderDaily', [
+        Log::channel('mail')->info('Notifying User from VisitReminderDaily', [
             'user_id' => $notifiable->id,
             'visit_count' => $this->visitCollection->count(),
             'class' => get_class(),
