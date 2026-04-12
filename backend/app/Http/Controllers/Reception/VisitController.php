@@ -8,6 +8,7 @@ use App\Models\Visit;
 use App\Models\Visitor;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
 
 class VisitController extends Controller
 {
@@ -15,8 +16,10 @@ class VisitController extends Controller
     {
         $range = $request->string('range')->toString() ?: 'week';
         $search = trim((string) $request->string('q'));
+        $dateFromInput = trim((string) $request->string('from'));
+        $dateToInput = trim((string) $request->string('to'));
 
-        [$from, $until] = $this->resolveRange($range);
+        [$from, $until, $dateFrom, $dateTo] = $this->resolveRange($range, $dateFromInput, $dateToInput);
 
         $query = Visit::query()
             ->with([
@@ -101,17 +104,51 @@ class VisitController extends Controller
             'ranges' => $ranges,
             'activeRange' => $range,
             'search' => $search,
+            'dateFrom' => $dateFrom,
+            'dateTo' => $dateTo,
         ]);
     }
 
-    private function resolveRange(string $range): array
+    private function resolveRange(string $range, string $dateFromInput = '', string $dateToInput = ''): array
     {
+        $fromDate = $this->parseDateInput($dateFromInput, false);
+        $untilDate = $this->parseDateInput($dateToInput, true);
+
+        if ($fromDate && $untilDate) {
+            return [$fromDate, $untilDate, $fromDate->toDateString(), $untilDate->toDateString()];
+        }
+
         return match ($range) {
-            'today' => [now()->startOfDay(), now()->endOfDay()],
-            'next-week' => [now()->copy()->addWeek()->startOfWeek(), now()->copy()->addWeek()->endOfWeek()],
-            'all' => [null, null],
-            default => [now()->startOfWeek(), now()->endOfWeek()],
+            'today' => [now()->startOfDay(), now()->endOfDay(), now()->toDateString(), now()->toDateString()],
+            'next-week' => [
+                now()->copy()->addWeek()->startOfWeek(),
+                now()->copy()->addWeek()->endOfWeek(),
+                now()->copy()->addWeek()->startOfWeek()->toDateString(),
+                now()->copy()->addWeek()->endOfWeek()->toDateString(),
+            ],
+            'all' => [null, null, '', ''],
+            default => [
+                now()->startOfWeek(),
+                now()->endOfWeek(),
+                now()->startOfWeek()->toDateString(),
+                now()->endOfWeek()->toDateString(),
+            ],
         };
+    }
+
+    private function parseDateInput(string $value, bool $endOfDay = false): ?Carbon
+    {
+        if ($value === '') {
+            return null;
+        }
+
+        try {
+            $date = Carbon::createFromFormat('Y-m-d', $value);
+        } catch (\Throwable $e) {
+            return null;
+        }
+
+        return $endOfDay ? $date->endOfDay() : $date->startOfDay();
     }
 
     private function participantsCountForRange($from, $until): int

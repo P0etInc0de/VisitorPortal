@@ -2,8 +2,26 @@
     $ranges = $ranges ?? [];
     $activeRange = $activeRange ?? null;
     $search = $search ?? '';
-    $dateFrom = request('from', '');
-    $dateTo = request('to', '');
+    $dateFrom = $dateFrom ?? request('from', '');
+    $dateTo = $dateTo ?? request('to', '');
+    $rangeDateValues = [
+        'today' => [
+            'from' => now()->toDateString(),
+            'to' => now()->toDateString(),
+        ],
+        'week' => [
+            'from' => now()->startOfWeek()->toDateString(),
+            'to' => now()->endOfWeek()->toDateString(),
+        ],
+        'next-week' => [
+            'from' => now()->copy()->addWeek()->startOfWeek()->toDateString(),
+            'to' => now()->copy()->addWeek()->endOfWeek()->toDateString(),
+        ],
+        'all' => [
+            'from' => '',
+            'to' => '',
+        ],
+    ];
 @endphp
 
 <x-app-layout>
@@ -27,13 +45,13 @@
 
 
         .bp-topbar-surface.bp-page-header > .mx-auto {
-            padding-top: .65rem !important;
-            padding-bottom: .45rem !important;
+            padding-top: .3rem !important;
+            padding-bottom: .15rem !important;
         }
 
         .bp-page {
-            padding-top: .55rem !important;
-            padding-bottom: 2rem;
+            padding-top: .15rem !important;
+            padding-bottom: 1.5rem;
         }
 
         .bp-screen-title {
@@ -45,8 +63,8 @@
             grid-template-rows: minmax(0, 1fr);
             gap: 0;
             padding-top: 0;
-            min-height: calc(100dvh - 7.9rem);
-            max-height: calc(100dvh - 7.9rem);
+            min-height: calc(100dvh - 7.35rem);
+            max-height: calc(100dvh - 7.35rem);
             overflow: hidden;
         }
 
@@ -119,12 +137,18 @@
             line-height: 1.15;
         }
 
-        .bp-av-tools {
+        .bp-av-toolbar {
             display: grid;
-            grid-template-columns: minmax(0, 1fr) auto;
-            gap: .8rem;
+            grid-template-columns: minmax(22rem, 52rem) auto;
+            gap: .75rem;
             align-items: center;
+            justify-content: space-between;
             margin-bottom: .55rem;
+        }
+
+        .bp-av-search-form,
+        .bp-av-date-form {
+            margin: 0;
         }
 
         .bp-av-search {
@@ -146,31 +170,18 @@
         .bp-av-search .input {
             width: 100%;
             padding-left: 2.8rem;
-        }
-
-        .bp-av-print-all {
-            white-space: nowrap;
-            min-height: 2.8rem;
-            height: 2.8rem;
-            padding-top: 0;
-            padding-bottom: 0;
-        }
-
-        .bp-av-filter-line {
-            display: grid;
-            grid-template-columns: 1fr auto;
-            gap: .8rem;
-            align-items: center;
-            margin-bottom: .65rem;
+            min-height: 2.45rem;
+            height: 2.45rem;
         }
 
         .bp-av-filter-bar {
             display: flex;
             flex-wrap: wrap;
             gap: .55rem;
+            margin-bottom: .55rem;
         }
 
-        .bp-av-date-range {
+        .bp-av-date-form {
             display: flex;
             align-items: center;
             gap: .5rem;
@@ -178,23 +189,22 @@
             justify-content: flex-end;
         }
 
-        .bp-av-date-range .input {
-            width: 8.75rem;
+        .bp-av-date-form .input {
+            width: 8.2rem;
         }
 
         .bp-av-filter-bar .btn,
-        .bp-av-date-range .btn,
-        .bp-av-date-range .input {
+        .bp-av-date-form .btn,
+        .bp-av-date-form .input {
             min-height: 2.45rem;
             height: 2.45rem;
             padding-top: 0;
             padding-bottom: 0;
         }
 
-        .bp-av-reset-link {
-            font-size: .92rem;
-            color: hsl(var(--bc) / .72);
-            text-decoration: none;
+        .bp-av-reset-btn {
+            min-height: 2.45rem;
+            height: 2.45rem;
         }
 
         .bp-av-visit-stack {
@@ -389,8 +399,7 @@
                 grid-template-columns: 1fr;
             }
 
-            .bp-av-tools,
-            .bp-av-filter-line {
+            .bp-av-toolbar {
                 grid-template-columns: 1fr;
             }
 
@@ -401,7 +410,7 @@
                 overflow: visible;
             }
 
-            .bp-av-date-range {
+            .bp-av-date-form {
                 justify-content: flex-start;
             }
 
@@ -420,47 +429,56 @@
 
     <div class="bp-content bp-av-page">
         <section class="bp-av-list-card">
-            <form method="GET" action="{{ route('reception.all-visits') }}" class="bp-av-tools">
-                <label class="bp-search bp-av-search">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
-                        <circle cx="11" cy="11" r="6" />
-                        <path d="M20 20l-3.5-3.5" />
-                    </svg>
-                    <input
-                        type="search"
-                        name="q"
-                        value="{{ $search }}"
-                        class="input input-bordered rounded-2xl"
-                        placeholder="{{ __('Suche') }}"
-                    >
-                    <input type="hidden" name="range" value="{{ $activeRange }}">
-                    @if ($dateFrom !== '')
-                        <input type="hidden" name="from" value="{{ $dateFrom }}">
-                    @endif
-                    @if ($dateTo !== '')
-                        <input type="hidden" name="to" value="{{ $dateTo }}">
-                    @endif
-                </label>
+            <div class="bp-av-toolbar">
+                <form method="GET" action="{{ route('reception.all-visits') }}" class="bp-av-search-form">
+                    <label class="bp-search bp-av-search">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+                            <circle cx="11" cy="11" r="6" />
+                            <path d="M20 20l-3.5-3.5" />
+                        </svg>
+                        <input
+                            type="search"
+                            name="q"
+                            value="{{ $search }}"
+                            class="input input-bordered rounded-2xl"
+                            placeholder="{{ __('Suche') }}"
+                        >
+                        <input type="hidden" name="range" value="{{ $activeRange ?: 'week' }}">
+                        @if ($dateFrom !== '')
+                            <input type="hidden" name="from" value="{{ $dateFrom }}">
+                        @endif
+                        @if ($dateTo !== '')
+                            <input type="hidden" name="to" value="{{ $dateTo }}">
+                        @endif
+                    </label>
+                </form>
 
-                <button type="button" class="btn btn-outline rounded-2xl bp-av-print-all">{{ __('Ausweise drucken') }}</button>
-            </form>
-
-            <div class="bp-av-filter-line">
-                <div class="bp-av-filter-bar">
-                    @foreach ($ranges as $value => $label)
-                        <a href="{{ route('reception.all-visits', array_filter(['range' => $value, 'q' => $search ?: null, 'from' => $dateFrom ?: null, 'to' => $dateTo ?: null])) }}" class="btn btn-sm rounded-xl {{ $activeRange === $value ? 'btn-primary' : 'btn-outline' }}">{{ $label }}</a>
-                    @endforeach
-                </div>
-
-                <form method="GET" action="{{ route('reception.all-visits') }}" class="bp-av-date-range">
+                <form method="GET" action="{{ route('reception.all-visits') }}" class="bp-av-date-form">
                     <input type="hidden" name="q" value="{{ $search }}">
                     <input type="hidden" name="range" value="custom">
                     <input type="date" name="from" value="{{ $dateFrom }}" class="input input-bordered input-sm rounded-xl">
                     <span>{{ __('bis') }}</span>
                     <input type="date" name="to" value="{{ $dateTo }}" class="input input-bordered input-sm rounded-xl">
                     <button type="submit" class="btn btn-outline btn-sm rounded-xl">{{ __('Anwenden') }}</button>
-                    <a href="{{ route('reception.all-visits', array_filter(['range' => $activeRange, 'q' => $search ?: null])) }}" class="bp-av-reset-link">{{ __('Zurücksetzen') }}</a>
+                    <a href="{{ route('reception.all-visits', array_filter(['range' => in_array($activeRange, array_keys($ranges), true) ? $activeRange : 'all', 'q' => $search ?: null], fn ($value) => $value !== null && $value !== '')) }}" class="btn btn-outline btn-sm rounded-xl bp-av-reset-btn">{{ __('Zurücksetzen') }}</a>
                 </form>
+            </div>
+
+            <div class="bp-av-filter-bar">
+                @foreach ($ranges as $value => $label)
+                    @php
+                        $rangeParams = [
+                            'range' => $value,
+                            'q' => $search ?: null,
+                        ];
+
+                        if ($value !== 'all') {
+                            $rangeParams['from'] = $rangeDateValues[$value]['from'] ?? null;
+                            $rangeParams['to'] = $rangeDateValues[$value]['to'] ?? null;
+                        }
+                    @endphp
+                    <a href="{{ route('reception.all-visits', array_filter($rangeParams, fn ($rangeValue) => $rangeValue !== null && $rangeValue !== '')) }}" class="btn btn-sm rounded-xl {{ $activeRange === $value ? 'btn-primary' : 'btn-outline' }}">{{ $label }}</a>
+                @endforeach
             </div>
 
             <div class="bp-av-visit-stack" id="bp-av-visit-stack">
