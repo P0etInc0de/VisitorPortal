@@ -1,7 +1,6 @@
 <?php
 
 use App\Http\Controllers\CheckInOutController;
-use App\Http\Controllers\VisitorBadgeController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -28,10 +27,6 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::prefix('reception')->name('reception.')->group(function () {
         Route::view('/', 'reception.dashboard')->name('dashboard');
         Route::view('/all-visits', 'reception.all-visits')->name('all-visits');
-        Route::get('/badge', [VisitorBadgeController::class, 'index'])->name('badge');   // Routing of badge get using controller
-        Route::get('/badge/download_all_badges', [VisitorBadgeController::class, 'download_all_badges'])->name('badge.download_all');
-        Route::post('/badge', [VisitorBadgeController::class, 'download_badge'])->name('badge.store'); // Routing of badge post with filled form using controller
-
     });
 
     Route::prefix('monitor')->name('monitor.')->group(function () {
