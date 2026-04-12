@@ -44,12 +44,12 @@
         }
 
         .bp-topbar-surface.bp-page-header > .mx-auto {
-            padding-top: .3rem !important;
-            padding-bottom: .15rem !important;
+            padding-top: .42rem !important;
+            padding-bottom: .22rem !important;
         }
 
         .bp-page {
-            padding-top: .1rem !important;
+            padding-top: .22rem !important;
             padding-bottom: 1.25rem;
         }
 
@@ -60,16 +60,16 @@
         .bp-av-page {
             display: grid;
             grid-template-rows: auto auto minmax(0, 1fr);
-            gap: .65rem;
-            min-height: calc(100dvh - 7.2rem);
-            max-height: calc(100dvh - 7.2rem);
-            overflow: hidden;
+            gap: .78rem;
+            min-height: calc(100dvh - 7.35rem);
+            max-height: calc(100dvh - 7.35rem);
+            overflow: visible;
         }
 
         .bp-av-toolbar {
             display: grid;
-            grid-template-columns: minmax(18rem, 42rem) auto;
-            gap: .75rem;
+            grid-template-columns: minmax(17rem, 1.18fr) auto;
+            gap: .65rem;
             align-items: center;
         }
 
@@ -158,7 +158,8 @@
         }
 
         .bp-av-table {
-            min-width: 80rem;
+            min-width: 67rem;
+            width: 100%;
         }
 
         .bp-av-table-head,
@@ -171,19 +172,19 @@
 
         .bp-av-table-head,
         .bp-av-visit-row {
-            grid-template-columns: 2.1rem minmax(15rem, 1.35fr) minmax(12.25rem, 1fr) minmax(8.25rem, .8fr) minmax(8.5rem, .82fr) 4.5rem minmax(11rem, 1fr) minmax(13.5rem, auto) 7rem;
-            gap: .75rem;
+            grid-template-columns: 2rem minmax(10.5rem, 1.35fr) minmax(9.75rem, 1.02fr) minmax(6.75rem, .72fr) minmax(6.5rem, .72fr) 3.9rem minmax(8.5rem, 1.1fr) minmax(10.75rem, 1fr) 6.75rem;
+            gap: .55rem;
         }
 
         .bp-av-table-head {
             position: sticky;
             top: 0;
             z-index: 5;
-            padding: .5rem .95rem;
+            padding: .46rem .85rem;
             border-bottom: 1px solid hsl(var(--b3));
             background: hsl(var(--b1));
             color: hsl(var(--bc) / .66);
-            font-size: .78rem;
+            font-size: .76rem;
             font-weight: 700;
             letter-spacing: .04em;
             text-transform: uppercase;
@@ -203,8 +204,8 @@
         }
 
         .bp-av-visit-row {
-            padding: .45rem .95rem;
-            min-height: 3.35rem;
+            padding: .34rem .85rem;
+            min-height: 2.9rem;
             background: hsl(var(--b1));
         }
 
@@ -236,9 +237,9 @@
         }
 
         .bp-av-title {
-            font-size: .95rem;
+            font-size: .92rem;
             font-weight: 700;
-            line-height: 1.15;
+            line-height: 1.12;
             color: hsl(var(--bc));
             white-space: nowrap;
             overflow: hidden;
@@ -251,8 +252,8 @@
         .bp-av-note,
         .bp-av-participant-company,
         .bp-av-participant-status {
-            font-size: .88rem;
-            line-height: 1.2;
+            font-size: .84rem;
+            line-height: 1.18;
             color: hsl(var(--bc) / .72);
         }
 
@@ -283,7 +284,7 @@
             justify-content: flex-start;
             min-width: 0;
             max-width: 100%;
-            font-size: .84rem;
+            font-size: .82rem;
             font-weight: 700;
             line-height: 1.1;
             white-space: nowrap;
@@ -309,23 +310,23 @@
 
         .bp-av-actions {
             display: inline-flex;
-            gap: .45rem;
+            gap: .35rem;
             justify-content: flex-start;
         }
 
         .bp-av-head-btn,
         .bp-av-toggle-btn,
         .bp-av-row-btn {
-            min-height: 1.95rem;
-            height: 1.95rem;
+            min-height: 1.8rem;
+            height: 1.8rem;
             padding-top: 0;
             padding-bottom: 0;
-            border-radius: .9rem;
+            border-radius: .85rem;
             white-space: nowrap;
         }
 
         .bp-av-head-btn {
-            min-width: 6rem;
+            min-width: 5.35rem;
         }
 
         .bp-av-toggle-btn {
@@ -335,9 +336,9 @@
 
         .bp-av-year-divider {
             position: sticky;
-            top: 2.3rem;
+            top: 2.1rem;
             z-index: 4;
-            padding: .45rem .95rem .35rem;
+            padding: .38rem .85rem .28rem;
             background: linear-gradient(to bottom, hsl(var(--b1)) 0%, hsl(var(--b1)) 65%, hsl(var(--b1) / 0) 100%);
         }
 
@@ -360,7 +361,7 @@
         }
 
         .bp-av-entry-details {
-            padding: 0 .95rem .55rem 3.75rem;
+            padding: 0 .85rem .38rem 3.15rem;
             background: hsl(var(--b2) / .22);
         }
 
@@ -370,23 +371,23 @@
 
         .bp-av-participant-table {
             border: 1px solid hsl(var(--b3));
-            border-radius: 1rem;
+            border-radius: .9rem;
             background: hsl(var(--b1));
             overflow: hidden;
         }
 
         .bp-av-participant-head,
         .bp-av-participant-row {
-            grid-template-columns: minmax(14rem, 1.15fr) minmax(12rem, 1fr) minmax(8rem, .8fr) 7rem 9rem;
-            gap: .55rem;
-            padding: .36rem .75rem;
+            grid-template-columns: minmax(11rem, 1.2fr) minmax(9rem, 1fr) minmax(7rem, .8fr) 6.5rem 8rem;
+            gap: .45rem;
+            padding: .28rem .65rem;
         }
 
         .bp-av-participant-head {
             background: hsl(var(--b2) / .5);
             border-bottom: 1px solid hsl(var(--b3));
             color: hsl(var(--bc) / .64);
-            font-size: .76rem;
+            font-size: .72rem;
             font-weight: 700;
             letter-spacing: .04em;
             text-transform: uppercase;
@@ -397,7 +398,7 @@
         }
 
         .bp-av-participant-name {
-            font-size: .9rem;
+            font-size: .86rem;
             color: hsl(var(--bc));
         }
 
@@ -421,14 +422,14 @@
         }
 
         .bp-av-empty {
-            padding: .85rem .95rem;
+            padding: .7rem .85rem;
             color: hsl(var(--bc) / .7);
-            font-size: .92rem;
+            font-size: .88rem;
         }
 
         @media (max-width: 1400px) {
             .bp-av-toolbar {
-                grid-template-columns: minmax(15rem, 34rem) auto;
+                grid-template-columns: minmax(14rem, 1fr) auto;
             }
         }
 
@@ -480,14 +481,14 @@
                 </label>
             </form>
 
-            <form method="GET" action="{{ route('reception.all-visits') }}" class="bp-av-date-form">
+            <form method="GET" action="{{ route('reception.all-visits') }}" class="bp-av-date-form" data-bp-reset-url="{{ route('reception.all-visits', array_filter(['range' => 'all', 'q' => $search ?: null], fn ($value) => $value !== null && $value !== '')) }}">
                 <input type="hidden" name="q" value="{{ $search }}">
                 <input type="hidden" name="range" value="custom">
                 <input type="date" name="from" value="{{ $dateFrom }}" class="input input-bordered input-sm">
                 <span>{{ __('bis') }}</span>
                 <input type="date" name="to" value="{{ $dateTo }}" class="input input-bordered input-sm">
                 <button type="submit" class="btn btn-outline btn-sm">{{ __('Anwenden') }}</button>
-                <a href="{{ route('reception.all-visits', array_filter(['range' => in_array($activeRange, array_keys($ranges), true) ? $activeRange : 'all', 'q' => $search ?: null], fn ($value) => $value !== null && $value !== '')) }}" class="btn btn-outline btn-sm">{{ __('Zurücksetzen') }}</a>
+                <a href="{{ route('reception.all-visits', array_filter(['range' => 'all', 'q' => $search ?: null], fn ($value) => $value !== null && $value !== '')) }}" class="btn btn-outline btn-sm">{{ __('Zurücksetzen') }}</a>
             </form>
         </div>
 
@@ -783,6 +784,22 @@
             });
 
             document.addEventListener('submit', async (event) => {
+                const dateForm = event.target.closest('.bp-av-date-form');
+
+                if (dateForm) {
+                    const fromInput = dateForm.querySelector('input[name="from"]');
+                    const toInput = dateForm.querySelector('input[name="to"]');
+                    const fromValue = fromInput ? fromInput.value.trim() : '';
+                    const toValue = toInput ? toInput.value.trim() : '';
+
+                    if (fromValue === '' && toValue === '') {
+                        event.preventDefault();
+                        window.location.href = dateForm.dataset.bpResetUrl || dateForm.action;
+                    }
+
+                    return;
+                }
+
                 const form = event.target.closest('form[data-bp-ajax="participant-action"]');
 
                 if (! form) {
