@@ -193,7 +193,7 @@
                             {{ __('Spontanen Besuch erfassen') }}
                         </a>
                         <a
-                            href="{{ Route::has('reception.badge') ? route('reception.badge') : url('/reception/badge') }}"
+                            href="{{ route('portal.check_in_out') }}"
                             class="btn btn-primary w-full rounded-xl"
                         >
                             {{ __('Badge-Druck öffnen') }}

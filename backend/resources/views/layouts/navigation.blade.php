@@ -115,15 +115,6 @@
                     </svg>
                     <span>{{ __('Check-In/Out') }}</span>
                 </a>
-
-                {{-- @if ($canSeeReception) --}}
-                    <a href="{{ route('reception.badge') }}" class="{{ $navLinkClasses(request()->routeIs('reception.badge')) }}">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="bp-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 012-2h10a2 2 0 012 2v14a2 2 0 01-2 2H7a2 2 0 01-2-2V5z M10 9h3M10 13h3" />
-                        </svg>
-                        <span>{{ __('Ausweis drucken') }}</span>
-                    </a>
-                {{-- @endif --}}
             </div>
 
             @if ($canSeeReception)
