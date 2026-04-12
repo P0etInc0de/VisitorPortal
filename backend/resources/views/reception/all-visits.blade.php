@@ -139,7 +139,7 @@
 
         .bp-av-toolbar {
             display: grid;
-            grid-template-columns: minmax(22rem, 52rem) auto;
+            grid-template-columns: minmax(0, 1fr) auto;
             gap: .75rem;
             align-items: center;
             justify-content: space-between;
@@ -149,6 +149,12 @@
         .bp-av-search-form,
         .bp-av-date-form {
             margin: 0;
+        }
+
+        .bp-av-search-form {
+            min-width: 0;
+            max-width: 44rem;
+            width: 100%;
         }
 
         .bp-av-search {
@@ -184,13 +190,14 @@
         .bp-av-date-form {
             display: flex;
             align-items: center;
-            gap: .5rem;
-            flex-wrap: wrap;
+            gap: .4rem;
+            flex-wrap: nowrap;
             justify-content: flex-end;
+            white-space: nowrap;
         }
 
         .bp-av-date-form .input {
-            width: 8.2rem;
+            width: 7.5rem;
         }
 
         .bp-av-filter-bar .btn,
@@ -200,6 +207,11 @@
             height: 2.45rem;
             padding-top: 0;
             padding-bottom: 0;
+        }
+
+        .bp-av-date-form .btn {
+            padding-left: .85rem;
+            padding-right: .85rem;
         }
 
         .bp-av-reset-btn {
@@ -399,6 +411,10 @@
                 grid-template-columns: 1fr;
             }
 
+            .bp-av-search-form {
+                max-width: none;
+            }
+
             .bp-av-toolbar {
                 grid-template-columns: 1fr;
             }
@@ -412,6 +428,7 @@
 
             .bp-av-date-form {
                 justify-content: flex-start;
+                flex-wrap: wrap;
             }
 
             .bp-av-visit-head {
