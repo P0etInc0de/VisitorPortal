@@ -2,7 +2,6 @@
 
 namespace App\Mail\Host;
 
-use App\Enums\GenderEnum;
 use App\Models\User;
 use App\Models\Visit;
 use Illuminate\Bus\Queueable;
@@ -17,10 +16,6 @@ class VisitCreatedMail extends Mailable
 {
     use Queueable, SerializesModels;
 
-    protected string $user_name;
-
-    protected GenderEnum $user_gender;
-
     /**
      * Create a new message instance.
      */
@@ -28,11 +23,7 @@ class VisitCreatedMail extends Mailable
         protected Visit $visit,
         protected Collection $visitors,
         protected User $user,
-    ) {
-        $nameParts = explode(' ', $user->name);
-        $this->user_name = end($nameParts);
-        $this->user_gender = $user->gender;
-    }
+    ) {}
 
     /**
      * Get the message envelope.
@@ -53,8 +44,7 @@ class VisitCreatedMail extends Mailable
             markdown: 'mail.host.visitCreated',
         ))
             ->with('visitors', $this->visitors)
-            ->with('user_name', $this->user_name)
-            ->with('user_gender', $this->user_gender)
+            ->with('user', $this->user)
             ->with('visit', $this->visit);
     }
 

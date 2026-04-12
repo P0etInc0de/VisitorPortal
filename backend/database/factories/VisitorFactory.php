@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use App\Enums\GenderEnum;
 use App\Enums\VisitorStatusEnum;
 use App\Models\Visitor;
 use Illuminate\Database\Eloquent\Factories\Factory;
@@ -21,17 +22,16 @@ class VisitorFactory extends Factory
      */
     public function definition(): array
     {
-        $name = fake()->name;
-        $nameParts = explode(' ', $name);
-
         return [
-            'first_name' => $nameParts[0],
-            'last_name' => $nameParts[1],
+            'first_name' => $this->faker->firstName(),
+            'name' => $this->faker->lastName(),
             'email' => fake()->email(),
             'phone' => fake()->phoneNumber(),
             'company' => fake()->company(),
             'status' => VisitorStatusEnum::Planned,
             'notes' => null,
+            'gender' => GenderEnum::Male,
+            'title' => 'Dr.',
         ];
     }
 }

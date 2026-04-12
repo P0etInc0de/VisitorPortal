@@ -192,10 +192,12 @@
                         >
                             {{ __('Spontanen Besuch erfassen') }}
                         </a>
-
-                        <button type="button" class="btn btn-outline w-full rounded-xl">
+                        <a
+                            href="{{ route('portal.check_in_out') }}"
+                            class="btn btn-primary w-full rounded-xl"
+                        >
                             {{ __('Badge-Druck öffnen') }}
-                        </button>
+                        </a>
                     </div>
                 </div>
             </aside>

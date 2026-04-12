@@ -45,4 +45,5 @@ auth.json
 
 .idea/
 *.iml
-*.Zone.Identifier
+*Zone.Identifier
+*.phar

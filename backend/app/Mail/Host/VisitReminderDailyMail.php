@@ -2,7 +2,6 @@
 
 namespace App\Mail\Host;
 
-use App\Enums\GenderEnum;
 use App\Models\User;
 use App\Models\Visit;
 use Illuminate\Bus\Queueable;
@@ -17,10 +16,6 @@ class VisitReminderDailyMail extends Mailable
 {
     use Queueable, SerializesModels;
 
-    public string $last_name;
-
-    public GenderEnum $gender;
-
     /**
      * Create a new message instance.
      */
@@ -31,11 +26,7 @@ class VisitReminderDailyMail extends Mailable
         protected Collection $visitCollection,
         protected Collection $visitorCollection,
         protected User $user,
-    ) {
-        $nameParts = explode(' ', $user->name);
-        $this->last_name = end($nameParts);
-        $this->gender = $user->gender;
-    }
+    ) {}
 
     /**
      * Get the message envelope.
@@ -57,9 +48,7 @@ class VisitReminderDailyMail extends Mailable
         ))
             ->with('visitCollection', $this->visitCollection)
             ->with('visitorCollection', $this->visitorCollection)
-            ->with('user', $this->user)
-            ->with('last_name', $this->last_name)
-            ->with('gender', $this->gender);
+            ->with('user', $this->user);
     }
 
     /**

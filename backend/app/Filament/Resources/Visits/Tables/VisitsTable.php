@@ -15,10 +15,7 @@ class VisitsTable
     {
         return $table
             ->columns([
-                TextColumn::make('creator.name')
-                    ->sortable()
-                    ->searchable(),
-                TextColumn::make('responsibleUser.name')
+                TextColumn::make('title')
                     ->searchable()
                     ->sortable(),
                 TextColumn::make('scheduled_from')
@@ -32,9 +29,9 @@ class VisitsTable
                 TextColumn::make('canceled_at')
                     ->dateTime()
                     ->sortable(),
-                TextColumn::make('canceledBy.name')
-                    ->sortable()
-                    ->searchable(),
+                TextColumn::make('canceledBy.fullName')
+                    ->searchable(['first_name', 'name'])
+                    ->sortable(['first_name', 'name']),
                 TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()

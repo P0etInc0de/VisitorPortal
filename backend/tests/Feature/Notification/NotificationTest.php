@@ -26,7 +26,7 @@ class NotificationTest extends TestCase
         $visitor = Visitor::factory()->create();
 
         // Send the notification
-        Notification::send($user, new GuestCheckedIn($user, $visitor));
+        Notification::send($user, new GuestCheckedIn($visitor));
 
         // Extract the array of sent messages from Laravel's underlying Symfony Mailer
         $messages = app('mailer')->getSymfonyTransport()->messages();

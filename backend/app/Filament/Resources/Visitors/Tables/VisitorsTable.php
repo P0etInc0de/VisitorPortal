@@ -16,9 +16,13 @@ class VisitorsTable
         return $table
             ->columns([
                 TextColumn::make('first_name')
+                    ->label('Vorname')
                     ->searchable(),
-                TextColumn::make('last_name')
+                TextColumn::make('name')
+                    ->label('Nachname')
                     ->searchable(),
+                TextColumn::make('title')
+                    ->label('Titel'),
                 TextColumn::make('email')
                     ->label('Email address')
                     ->searchable(),
