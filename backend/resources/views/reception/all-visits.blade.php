@@ -1,5 +1,4 @@
 @php
-    $stats = $stats ?? [];
     $ranges = $ranges ?? [];
     $activeRange = $activeRange ?? null;
     $search = $search ?? '';
@@ -26,11 +25,26 @@
             border-bottom: 0 !important;
         }
 
+
+        .bp-topbar-surface.bp-page-header > .mx-auto {
+            padding-top: .65rem !important;
+            padding-bottom: .45rem !important;
+        }
+
+        .bp-page {
+            padding-top: .55rem !important;
+            padding-bottom: 2rem;
+        }
+
+        .bp-screen-title {
+            margin: 0;
+        }
+
         .bp-av-page {
             display: grid;
-            grid-template-rows: auto minmax(0, 1fr);
-            gap: .7rem;
-            padding-top: .1rem;
+            grid-template-rows: minmax(0, 1fr);
+            gap: 0;
+            padding-top: 0;
             min-height: calc(100dvh - 7.9rem);
             max-height: calc(100dvh - 7.9rem);
             overflow: hidden;
@@ -113,8 +127,25 @@
             margin-bottom: .55rem;
         }
 
+        .bp-av-search {
+            position: relative;
+        }
+
+        .bp-av-search svg {
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            width: 1.05rem;
+            height: 1.05rem;
+            transform: translateY(-50%);
+            color: hsl(var(--bc) / .5);
+            pointer-events: none;
+            z-index: 1;
+        }
+
         .bp-av-search .input {
             width: 100%;
+            padding-left: 2.8rem;
         }
 
         .bp-av-print-all {
@@ -148,7 +179,7 @@
         }
 
         .bp-av-date-range .input {
-            width: 11rem;
+            width: 8.75rem;
         }
 
         .bp-av-filter-bar .btn,
@@ -388,21 +419,7 @@
     </style>
 
     <div class="bp-content bp-av-page">
-        <div class="bp-av-header-summary" id="bp-av-header-summary">
-            @foreach ($stats as $stat)
-                <article class="bp-av-stat-card">
-                    <div class="bp-av-stat-label">{{ $stat['label'] }}</div>
-                    <div class="bp-av-stat-value">{{ $stat['value'] }}</div>
-                    <div class="bp-av-stat-meta">{{ $stat['meta'] }}</div>
-                </article>
-            @endforeach
-        </div>
-
         <section class="bp-av-list-card">
-            <div class="bp-av-list-head">
-                <h2 class="bp-av-list-title">{{ __('Besuchsliste') }}</h2>
-            </div>
-
             <form method="GET" action="{{ route('reception.all-visits') }}" class="bp-av-tools">
                 <label class="bp-search bp-av-search">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
@@ -414,7 +431,7 @@
                         name="q"
                         value="{{ $search }}"
                         class="input input-bordered rounded-2xl"
-                        placeholder="{{ __('Nach Titel, Host, Name oder Firma suchen') }}"
+                        placeholder="{{ __('Suche') }}"
                     >
                     <input type="hidden" name="range" value="{{ $activeRange }}">
                     @if ($dateFrom !== '')
@@ -454,10 +471,30 @@
                                 <div class="bp-av-visit-title-row">
                                     <h3 class="bp-av-visit-title">{{ $visit['title'] }}</h3>
 
-                                    @if (! empty($visit['time']) && ! empty($visit['date']))
-                                        <span class="bp-av-visit-time">{{ $visit['time'] }} · {{ $visit['date'] }}</span>
-                                    @elseif (! empty($visit['date_time']))
-                                        <span class="bp-av-visit-time">{{ $visit['date_time'] }}</span>
+                                    @php
+                                        $visitDateLabel = null;
+
+                                        if (! empty($visit['scheduled_from'])) {
+                                            try {
+                                                $scheduledFrom = \Illuminate\Support\Carbon::createFromFormat('d.m.Y H:i', $visit['scheduled_from']);
+                                                $weekdayMap = [1 => 'Mo', 2 => 'Di', 3 => 'Mi', 4 => 'Do', 5 => 'Fr', 6 => 'Sa', 7 => 'So'];
+                                                $visitDateLabel = ($weekdayMap[$scheduledFrom->dayOfWeekIso] ?? $scheduledFrom->isoFormat('dd')).', '.$scheduledFrom->format('d.m.').' | '.$scheduledFrom->format('H:i').' '.__('Uhr');
+                                            } catch (\Throwable $e) {
+                                                $visitDateLabel = null;
+                                            }
+                                        }
+
+                                        if ($visitDateLabel === null && ! empty($visit['time']) && ! empty($visit['date'])) {
+                                            $visitDateLabel = $visit['date'].' | '.$visit['time'].' '.__('Uhr');
+                                        }
+
+                                        if ($visitDateLabel === null && ! empty($visit['date_time'])) {
+                                            $visitDateLabel = $visit['date_time'];
+                                        }
+                                    @endphp
+
+                                    @if ($visitDateLabel)
+                                        <span class="bp-av-visit-time">{{ $visitDateLabel }}</span>
                                     @endif
 
                                     @if (! empty($visit['status']))
