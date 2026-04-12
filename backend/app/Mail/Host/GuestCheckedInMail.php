@@ -2,7 +2,6 @@
 
 namespace App\Mail\Host;
 
-use App\Enums\GenderEnum;
 use App\Models\User;
 use App\Models\Visitor;
 use Illuminate\Bus\Queueable;
@@ -16,21 +15,13 @@ class GuestCheckedInMail extends Mailable
 {
     use Queueable, SerializesModels;
 
-    public string $user_name;
-
-    public GenderEnum $user_gender;
-
     /**
      * Create a new message instance.
      */
     public function __construct(
         protected User $user,
         protected Visitor $visitor,
-    ) {
-        $nameParts = explode(' ', $user->name);
-        $this->user_name = end($nameParts);
-        $this->user_gender = $user->gender;
-    }
+    ) {}
 
     /**
      * Get the message envelope.
@@ -50,8 +41,7 @@ class GuestCheckedInMail extends Mailable
         return (new Content(
             markdown: 'mail.host.guestCheckedIn',
         ))
-            ->with('user_name', $this->user_name)
-            ->with('user_gender', $this->user_gender)
+            ->with('user', $this->user)
             ->with('visitor', $this->visitor);
     }
 

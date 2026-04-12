@@ -19,22 +19,15 @@ class GuestCheckedIn extends Notification implements ShouldQueue
      * Create a new notification instance.
      */
     public function __construct(
-        protected User $user,
         protected Visitor $visitor
-    ) {
-        Log::channel('mail')->info('Notifying User that GuestCheckedIn', [
-            'user_id' => $user->id,
-            'visitor_id' => $visitor->id,
-            'class' => get_class(),
-        ]);
-    }
+    ) {}
 
     /**
      * Get the notification's delivery channels.
      *
      * @return array<int, string>
      */
-    public function via(object $notifiable): array
+    public function via(User $notifiable): array
     {
         return ['mail'];
     }
@@ -42,9 +35,15 @@ class GuestCheckedIn extends Notification implements ShouldQueue
     /**
      * Get the mail representation of the notification.
      */
-    public function toMail(object $notifiable): Mailable
+    public function toMail(User $notifiable): Mailable
     {
-        return (new GuestCheckedInMail($this->user, $this->visitor))->to($notifiable->email);
+        Log::info('Notifying User that GuestCheckedIn', [
+            'user_id' => $notifiable->id,
+            'visitor_id' => $this->visitor->id,
+            'class' => get_class(),
+        ]);
+
+        return (new GuestCheckedInMail($notifiable, $this->visitor))->to($notifiable->email);
     }
 
     /**

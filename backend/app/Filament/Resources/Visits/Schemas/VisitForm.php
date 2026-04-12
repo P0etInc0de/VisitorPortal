@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\Visits\Schemas;
 
 use App\Enums\VisitStatusEnum;
+use App\Models\User;
 use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
@@ -15,11 +16,13 @@ class VisitForm
         return $schema
             ->components([
                 Select::make('user_id')
-                    ->relationship('creator', 'name')
-                    ->required(),
+                    ->relationship(name: 'creator', titleAttribute: 'first_name')
+                    ->getOptionLabelFromRecordUsing(fn (User $record) => $record->fullName)
+                    ->searchable(['first_name', 'name']),
                 Select::make('responsible_user_id')
-                    ->relationship('responsibleUser', 'name')
-                    ->required(),
+                    ->relationship(name: 'responsibleUser', titleAttribute: 'first_name')
+                    ->getOptionLabelFromRecordUsing(fn (User $record) => $record->fullName)
+                    ->searchable(['first_name', 'name']),
                 DateTimePicker::make('scheduled_from')
                     ->required(),
                 DateTimePicker::make('scheduled_until')
@@ -31,13 +34,15 @@ class VisitForm
                 Textarea::make('notes')
                     ->columnSpanFull(),
                 DateTimePicker::make('canceled_at'),
-                Select::make('canceled_by_user_id')
-                    ->relationship('canceledBy', 'name'),
+                Select::make('canceledBy')
+                    ->relationship(name: 'canceledBy', titleAttribute: 'first_name')
+                    ->getOptionLabelFromRecordUsing(fn (User $record) => $record->fullName)
+                    ->searchable(['first_name', 'name']),
                 Select::make('visitors')
                     ->multiple()
                     ->relationship(name: 'visitors')
-                    ->getOptionLabelFromRecordUsing(fn ($record) => "{$record->first_name} {$record->last_name} ({$record->email})")
-                    ->searchable(['first_name', 'last_name'])
+                    ->getOptionLabelFromRecordUsing(fn ($record) => "{$record->first_name} {$record->name} ({$record->email})")
+                    ->searchable(['first_name', 'name'])
                     ->preload()
                     ->label('Select Visitors'),
 

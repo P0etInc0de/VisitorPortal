@@ -29,14 +29,14 @@ class VisitManagementTest extends TestCase
                 'participants' => [
                     [
                         'first_name' => 'Anna',
-                        'last_name' => 'Becker',
+                        'name' => 'Becker',
                         'email' => 'anna@example.com',
                         'phone' => '1234567',
                         'company' => 'ACME AG',
                     ],
                     [
                         'first_name' => 'Max',
-                        'last_name' => 'Mustermann',
+                        'name' => 'Mustermann',
                         'email' => 'max@example.com',
                         'phone' => '7654321',
                         'company' => 'Beispiel GmbH',

@@ -19,7 +19,7 @@ class DashboardController extends Controller
             ->with([
                 'host:id,name',
                 'visitors' => function ($query) {
-                    $query->orderBy('first_name')->orderBy('last_name');
+                    $query->orderBy('first_name')->orderBy('name');
                 },
             ])
             ->whereBetween('scheduled_from', [$todayStart, $todayEnd])
@@ -93,7 +93,7 @@ class DashboardController extends Controller
         return [
             'row_key' => 'visit-'.$visit->id.'-visitor-'.$visitor->id,
             'visitor_id' => $visitor->id,
-            'name' => trim($visitor->first_name.' '.$visitor->last_name),
+            'name' => trim($visitor->first_name.' '.$visitor->name),
             'company' => $visitor->company,
             'status_label' => $status['label'],
             'status_class' => $status['class'],

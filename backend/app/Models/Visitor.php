@@ -2,12 +2,14 @@
 
 namespace App\Models;
 
+use App\Enums\GenderEnum;
 use App\Enums\VisitorStatusEnum;
 use Database\Factories\VisitorFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Carbon;
 
 class Visitor extends Model
 {
@@ -19,7 +21,9 @@ class Visitor extends Model
      */
     protected $fillable = [
         'first_name',
-        'last_name',
+        'name',
+        'title',
+        'gender',
         'email',
         'phone',
         'company',
@@ -29,6 +33,7 @@ class Visitor extends Model
 
     protected $casts = [
         'status' => VisitorStatusEnum::class,
+        'gender' => GenderEnum::class,
     ];
 
     public function visits(): BelongsToMany
@@ -50,7 +55,7 @@ class Visitor extends Model
     {
         return trim(implode(' ', array_filter([
             (string) ($this->first_name ?? ''),
-            (string) ($this->last_name ?? ''),
+            (string) ($this->name ?? ''),
         ])));
     }
 
@@ -69,5 +74,16 @@ class Visitor extends Model
         }
 
         return '–';
+    }
+
+    /**
+     * Get next scheduled visit
+     */
+    public function nextVisit()
+    {
+        return $this->visits()
+            ->where('scheduled_from', '>', Carbon::now())
+            ->orderBy('scheduled_from', 'asc')
+            ->first();
     }
 }

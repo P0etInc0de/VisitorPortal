@@ -17,7 +17,7 @@ class DashboardController extends Controller
         $baseQuery = Visit::query()
             ->with([
                 'host:id,name',
-                'visitors' => fn ($query) => $query->orderBy('first_name')->orderBy('last_name'),
+                'visitors' => fn ($query) => $query->orderBy('first_name')->orderBy('name'),
             ])
             ->where('user_id', $user->id)
             ->orderBy('scheduled_from');

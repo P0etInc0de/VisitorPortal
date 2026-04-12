@@ -26,7 +26,7 @@ class StoreVisitRequest extends FormRequest
             'participants' => ['required', 'array', 'min:1'],
             'participants.*.visitor_id' => ['nullable', 'integer', 'exists:visitors,id'],
             'participants.*.first_name' => ['nullable', 'string', 'max:255'],
-            'participants.*.last_name' => ['nullable', 'string', 'max:255'],
+            'participants.*.name' => ['nullable', 'string', 'max:255'],
             'participants.*.email' => ['nullable', 'email', 'max:255'],
             'participants.*.phone' => ['nullable', 'string', 'max:255'],
             'participants.*.company' => ['nullable', 'string', 'max:255'],

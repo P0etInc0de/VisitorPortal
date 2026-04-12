@@ -64,7 +64,7 @@ class VisitController extends Controller
         $visit->load([
             'host:id,name',
             'responsibleUser:id,name',
-            'visitors' => fn ($query) => $query->orderBy('first_name')->orderBy('last_name'),
+            'visitors' => fn ($query) => $query->orderBy('first_name')->orderBy('name'),
         ]);
 
         $participants = $visit->visitors
@@ -73,7 +73,7 @@ class VisitController extends Controller
 
                 return [
                     'id' => $visitor->id,
-                    'name' => trim(($visitor->first_name ?? '').' '.($visitor->last_name ?? '')),
+                    'name' => trim(($visitor->first_name ?? '').' '.($visitor->name ?? '')),
                     'company' => $visitor->company,
                     'email' => $visitor->email,
                     'phone' => $visitor->phone,
@@ -180,14 +180,14 @@ class VisitController extends Controller
         $visit->loadMissing([
             'host:id,name',
             'responsibleUser:id,name',
-            'visitors' => fn ($query) => $query->orderBy('first_name')->orderBy('last_name'),
+            'visitors' => fn ($query) => $query->orderBy('first_name')->orderBy('name'),
         ]);
 
         $users = User::query()->select('id', 'name')->orderBy('name')->get();
         $existingVisitors = Visitor::query()
-            ->select('id', 'first_name', 'last_name', 'company', 'email', 'phone')
+            ->select('id', 'first_name', 'name', 'company', 'email', 'phone')
             ->orderBy('first_name')
-            ->orderBy('last_name')
+            ->orderBy('name')
             ->get();
 
         $initialParticipants = old('participants');
@@ -197,7 +197,7 @@ class VisitController extends Controller
                 return [
                     'visitor_id' => $visitor->id,
                     'first_name' => $visitor->first_name,
-                    'last_name' => $visitor->last_name,
+                    'name' => $visitor->name,
                     'email' => $visitor->email,
                     'phone' => $visitor->phone,
                     'company' => $visitor->company,
@@ -253,7 +253,7 @@ class VisitController extends Controller
                 return [
                     'visitor_id' => Arr::get($row, 'visitor_id') ?: null,
                     'first_name' => $this->normalizeText(Arr::get($row, 'first_name')),
-                    'last_name' => $this->normalizeText(Arr::get($row, 'last_name')),
+                    'name' => $this->normalizeText(Arr::get($row, 'name')),
                     'email' => $this->normalizeText(Arr::get($row, 'email')),
                     'phone' => $this->normalizeText(Arr::get($row, 'phone')),
                     'company' => $this->normalizeText(Arr::get($row, 'company')),
@@ -263,7 +263,7 @@ class VisitController extends Controller
             ->filter(function (array $row) {
                 return filled($row['visitor_id'])
                     || filled($row['first_name'])
-                    || filled($row['last_name'])
+                    || filled($row['name'])
                     || filled($row['email'])
                     || filled($row['phone'])
                     || filled($row['company']);
@@ -273,7 +273,7 @@ class VisitController extends Controller
                     return true;
                 }
 
-                return filled($row['first_name']) && filled($row['last_name']);
+                return filled($row['first_name']) && filled($row['name']);
             })
             ->values();
     }
@@ -290,7 +290,7 @@ class VisitController extends Controller
             if ($existingByEmail) {
                 $existingByEmail->update([
                     'first_name' => $row['first_name'] ?: $existingByEmail->first_name,
-                    'last_name' => $row['last_name'] ?: $existingByEmail->last_name,
+                    'name' => $row['name'] ?: $existingByEmail->name,
                     'phone' => $row['phone'] ?: $existingByEmail->phone,
                     'company' => $row['company'] ?: $existingByEmail->company,
                 ]);
@@ -301,7 +301,7 @@ class VisitController extends Controller
 
         return Visitor::query()->create([
             'first_name' => $row['first_name'],
-            'last_name' => $row['last_name'],
+            'name' => $row['name'],
             'email' => $row['email'],
             'phone' => $row['phone'],
             'company' => $row['company'],

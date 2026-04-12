@@ -2,39 +2,38 @@
 
 namespace Database\Seeders;
 
+use App\Enums\GenderEnum;
 use App\Enums\VisitorStatusEnum;
 use App\Models\Visitor;
 use Illuminate\Database\Seeder;
 
 class VisitorSeeder extends Seeder
 {
+    /**
+     * Seeder for visitors table
+     */
     public function run(): void
     {
-        $this->createOrUpdateVisitor('Max', 'Mustermann', 'max.mustermann@example.com', '111111111', 'Beispiel GmbH', VisitorStatusEnum::Planned, '');
-        $this->createOrUpdateVisitor('Anna', 'Becker', 'anna.becker@example.com', '222222222', 'ACME AG', VisitorStatusEnum::Planned, '');
-        $this->createOrUpdateVisitor('Peter', 'Maurer', 'peter.maurer@example.com', '333333333', 'Maurer Industrie', VisitorStatusEnum::Planned, '');
-        $this->createOrUpdateVisitor('Sven', 'Maurer', 'sven.maurer@example.com', '444444444', 'Musterwerke Süd', VisitorStatusEnum::Planned, '');
+        $this->createOrUpdateVisitor('Rainer', 'Winkler', 'Dr.', GenderEnum::Female, 'rainer.winkler@dache.com', '123456789', 'Altschauer', VisitorStatusEnum::Planned, 'Löwen im Gardden');
+        $this->createOrUpdateVisitor('Johannes', 'Statue', 'Dr. Dr. Dr. Dr.', GenderEnum::Male, 'jostat2017@gmail.com', '354873540', 'Neuschauer', VisitorStatusEnum::Canceled, 'Hallo, Johannes Statue am Apparat');
+        $this->createOrUpdateVisitor('Domenikus', 'Zeisus', 'Dr.', GenderEnum::Other, 'dom.zeis@gmx.de', '3466456', 'Laubheim', VisitorStatusEnum::Checked_In, 'Ernschthaft?');
+        $this->createOrUpdateVisitor('Johannes', 'Würfel', 'Prof. Dr. ', GenderEnum::Female, 'jo.wue@gmail.com', '355666', 'WürfelGmbH', VisitorStatusEnum::Checked_Out, 'Würfel essen');
     }
 
-    private function createOrUpdateVisitor(
-        string $firstName,
-        string $lastName,
-        string $email,
-        string $phone,
-        ?string $company,
-        VisitorStatusEnum $status,
-        ?string $notes
-    ): void {
+    private function createOrUpdateVisitor(string $first_name, string $name, string $title, GenderEnum $gender, string $email, string $phone, ?string $company, VisitorStatusEnum $status, ?string $notes): void
+    {
         Visitor::query()->updateOrCreate(
-            ['email' => $email],
+            ['email' => $email], // search criteria
+
             [
-                'first_name' => $firstName,
-                'last_name' => $lastName,
+                'first_name' => $first_name,
+                'name' => $name,
+                'title' => $title,
+                'gender' => $gender,
                 'phone' => $phone,
                 'company' => $company,
                 'status' => $status,
-                'notes' => $notes,
-            ],
+                'notes' => $notes] // update values
         );
     }
 }

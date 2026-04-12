@@ -22,7 +22,7 @@ class VisitController extends Controller
             ->with([
                 'host:id,name',
                 'visitors' => function ($query) {
-                    $query->orderBy('first_name')->orderBy('last_name');
+                    $query->orderBy('first_name')->orderBy('name');
                 },
             ])
             ->when($from && $until, function ($query) use ($from, $until) {
@@ -37,9 +37,9 @@ class VisitController extends Controller
                         })
                         ->orWhereHas('visitors', function ($query) use ($search) {
                             $query->where('first_name', 'like', '%'.$search.'%')
-                                ->orWhere('last_name', 'like', '%'.$search.'%')
+                                ->orWhere('name', 'like', '%'.$search.'%')
                                 ->orWhere('company', 'like', '%'.$search.'%')
-                                ->orWhereRaw("concat(first_name, ' ', last_name) like ?", ['%'.$search.'%']);
+                                ->orWhereRaw("concat(first_name, ' ', name) like ?", ['%'.$search.'%']);
                         });
                 });
             })
@@ -148,7 +148,7 @@ class VisitController extends Controller
         return [
             'row_key' => 'visit-'.$visit->id.'-visitor-'.$visitor->id,
             'visitor_id' => $visitor->id,
-            'name' => trim($visitor->first_name.' '.$visitor->last_name),
+            'name' => trim($visitor->first_name.' '.$visitor->name),
             'company' => $visitor->company,
             'status_label' => $status['label'],
             'status_class' => $status['class'],

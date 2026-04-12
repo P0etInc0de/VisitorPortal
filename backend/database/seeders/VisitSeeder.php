@@ -9,67 +9,38 @@ use Illuminate\Database\Seeder;
 
 class VisitSeeder extends Seeder
 {
+    /**
+     * Seeder for visits table
+     */
     public function run(): void
     {
-        $this->seedVisit(
-            title: 'Technik-Rundgang',
-            hostUserId: 2,
-            responsibleUserId: 2,
-            from: Carbon::now()->setHour(9)->setMinute(30),
-            until: Carbon::now()->setHour(11)->setMinute(0),
-            status: VisitStatusEnum::Planned->value,
-            notes: 'Badge bereitstellen und Empfang briefen',
-            participants: [
-                1 => [
-                    'badge_printed_at' => Carbon::now()->subMinutes(30),
-                ],
-                2 => [
-                    'badge_printed_at' => Carbon::now()->subMinutes(20),
-                    'checked_in_at' => Carbon::now()->subMinutes(5),
-                    'checked_in_by_user_id' => 2,
-                ],
-                3 => [],
-            ],
-        );
-
-        $this->seedVisit(
-            title: 'Kundentermin Vertrieb',
-            hostUserId: 3,
-            responsibleUserId: 2,
-            from: Carbon::tomorrow()->setHour(10)->setMinute(15),
-            until: Carbon::tomorrow()->setHour(11)->setMinute(15),
-            status: VisitStatusEnum::Planned->value,
-            notes: 'Termin verschoben, Badge neu vorbereiten',
-            participants: [
-                4 => [],
-            ],
-        );
+        $this->createOrUpdateVisit(1, 2, Carbon::create(2027, 4, 4, 14, 0, 0), Carbon::create(2027, 4, 4, 15, 0, 0), VisitStatusEnum::Planned, 'Forza Meeting2');
+        $this->createOrUpdateVisit(1, 2, Carbon::now()->setHour(13)->setMinute(0), Carbon::now()->setHour(14)->setMinute(0), VisitStatusEnum::Planned, 'Forza Meeting1');
+        $this->createOrUpdateVisit(2, 1, Carbon::yesterday()->setHour(10)->setMinute(0), Carbon::yesterday()->setHour(11)->setMinute(30), VisitStatusEnum::Canceled, 'Piratenpizza im Mountainbikepark');
     }
 
-    private function seedVisit(
-        string $title,
-        int $hostUserId,
-        int $responsibleUserId,
-        Carbon $from,
-        Carbon $until,
-        string $status,
-        ?string $notes,
-        array $participants,
-    ): void {
-        $visit = Visit::query()->updateOrCreate(
-            [
-                'title' => $title,
+    private function createOrUpdateVisit(int $userId, int $respUserId, Carbon $from, Carbon $until, VisitStatusEnum $status, ?string $notes): void
+    {
+
+        $visit = Visit::where('user_id', $userId)
+            ->where('scheduled_from', $from)
+            ->first();
+
+        if (! $visit) {
+            $visit = Visit::forceCreate([
+                'visits.title' => 'test',
+                'user_id' => $userId,
+                'responsible_user_id' => $respUserId,
                 'scheduled_from' => $from,
-            ],
-            [
-                'user_id' => $hostUserId,
-                'responsible_user_id' => $responsibleUserId,
                 'scheduled_until' => $until,
                 'status' => $status,
                 'notes' => $notes,
-            ],
-        );
+            ]);
 
-        $visit->visitors()->sync($participants);
+            $visit->visitors()->attach([1, 2], [
+                'checked_in_at' => $from,
+                'badge_printed_at' => Carbon::now(),
+            ]);
+        }
     }
 }
