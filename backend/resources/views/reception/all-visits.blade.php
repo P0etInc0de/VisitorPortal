@@ -29,10 +29,10 @@
         .bp-av-page {
             display: grid;
             grid-template-rows: auto minmax(0, 1fr);
-            gap: 1rem;
-            padding-top: .35rem;
-            min-height: calc(100dvh - 8.5rem);
-            max-height: calc(100dvh - 8.5rem);
+            gap: .7rem;
+            padding-top: .1rem;
+            min-height: calc(100dvh - 7.9rem);
+            max-height: calc(100dvh - 7.9rem);
             overflow: hidden;
         }
 
@@ -40,34 +40,39 @@
             display: grid;
             grid-template-columns: repeat(3, minmax(0, 1fr));
             gap: .85rem;
-            margin-bottom: 1rem;
+            margin-bottom: .45rem;
         }
 
         .bp-av-stat-card {
             border: 1px solid hsl(var(--b3));
             background: hsl(var(--b1));
             border-radius: 1.45rem;
-            padding: .9rem 1rem;
+            padding: .72rem .95rem;
             box-shadow: 0 1px 2px rgba(15, 23, 42, .05);
         }
 
         .bp-av-stat-label {
-            font-size: .92rem;
+            font-size: .88rem;
             color: hsl(var(--bc) / .72);
+            line-height: 1.15;
         }
 
         .bp-av-stat-value {
-            margin-top: .12rem;
-            font-size: 1.85rem;
+            margin-top: .08rem;
+            font-size: 1.7rem;
             line-height: 1;
             font-weight: 700;
             color: hsl(var(--bc));
         }
 
         .bp-av-stat-meta {
-            margin-top: .34rem;
-            font-size: .9rem;
+            margin-top: .2rem;
+            font-size: .84rem;
             color: hsl(var(--bc) / .72);
+            line-height: 1.15;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
 
         .bp-av-list-card {
@@ -78,7 +83,7 @@
             border: 1px solid hsl(var(--b3));
             background: hsl(var(--b1));
             border-radius: 1.8rem;
-            padding: 1rem 1.1rem 1.1rem;
+            padding: .82rem .95rem .95rem;
             box-shadow: 0 1px 2px rgba(15, 23, 42, .05);
             overflow: hidden;
         }
@@ -89,14 +94,15 @@
             justify-content: space-between;
             gap: 1rem;
             flex-wrap: wrap;
-            margin-bottom: .85rem;
+            margin-bottom: .45rem;
         }
 
         .bp-av-list-title {
             margin: 0;
-            font-size: 1.08rem;
+            font-size: 1.02rem;
             font-weight: 700;
             color: hsl(var(--bc));
+            line-height: 1.15;
         }
 
         .bp-av-tools {
@@ -104,7 +110,7 @@
             grid-template-columns: minmax(0, 1fr) auto;
             gap: .8rem;
             align-items: center;
-            margin-bottom: .8rem;
+            margin-bottom: .55rem;
         }
 
         .bp-av-search .input {
@@ -113,6 +119,10 @@
 
         .bp-av-print-all {
             white-space: nowrap;
+            min-height: 2.8rem;
+            height: 2.8rem;
+            padding-top: 0;
+            padding-bottom: 0;
         }
 
         .bp-av-filter-line {
@@ -120,7 +130,7 @@
             grid-template-columns: 1fr auto;
             gap: .8rem;
             align-items: center;
-            margin-bottom: .95rem;
+            margin-bottom: .65rem;
         }
 
         .bp-av-filter-bar {
@@ -141,8 +151,17 @@
             width: 11rem;
         }
 
+        .bp-av-filter-bar .btn,
+        .bp-av-date-range .btn,
+        .bp-av-date-range .input {
+            min-height: 2.45rem;
+            height: 2.45rem;
+            padding-top: 0;
+            padding-bottom: 0;
+        }
+
         .bp-av-reset-link {
-            font-size: .95rem;
+            font-size: .92rem;
             color: hsl(var(--bc) / .72);
             text-decoration: none;
         }
@@ -150,7 +169,7 @@
         .bp-av-visit-stack {
             display: flex;
             flex-direction: column;
-            gap: .8rem;
+            gap: .6rem;
             min-height: 0;
             overflow-y: auto;
             padding-right: .2rem;
@@ -160,7 +179,7 @@
             border: 1px solid hsl(var(--b3));
             background: hsl(var(--b1));
             border-radius: 1.45rem;
-            padding: .95rem 1rem;
+            padding: .72rem .9rem;
             box-shadow: 0 1px 2px rgba(15, 23, 42, .04);
         }
 
@@ -169,7 +188,7 @@
             justify-content: space-between;
             align-items: flex-start;
             gap: 1rem;
-            margin-bottom: .6rem;
+            margin-bottom: .4rem;
         }
 
         .bp-av-visit-title-row {
@@ -182,7 +201,7 @@
         .bp-av-visit-title {
             margin: 0;
             font-size: 1rem;
-            line-height: 1.2;
+            line-height: 1.1;
             font-weight: 700;
             color: hsl(var(--bc));
         }
@@ -191,7 +210,7 @@
             display: inline-flex;
             align-items: center;
             border-radius: 9999px;
-            padding: .2rem .55rem;
+            padding: .15rem .5rem;
             background: hsl(var(--b2));
             color: hsl(var(--bc) / .76);
             font-size: .82rem;
@@ -200,9 +219,10 @@
 
         .bp-av-visit-subline,
         .bp-av-visit-note {
-            margin-top: .22rem;
+            margin-top: .14rem;
             font-size: .92rem;
             color: hsl(var(--bc) / .72);
+            line-height: 1.2;
         }
 
         .bp-av-dot {
@@ -217,6 +237,10 @@
 
         .bp-av-head-btn {
             min-width: 7rem;
+            min-height: 2.55rem;
+            height: 2.55rem;
+            padding-top: 0;
+            padding-bottom: 0;
         }
 
         .bp-av-participants {
@@ -231,8 +255,8 @@
             gap: .3rem;
             align-items: center;
             justify-content: start;
-            padding: .4rem .75rem;
-            min-height: 2.6rem;
+            padding: .3rem .65rem;
+            min-height: 2.2rem;
         }
 
         .bp-av-row + .bp-av-row {
@@ -265,8 +289,8 @@
 
         .bp-av-row-btn {
             width: 100%;
-            height: 2.2rem;
-            min-height: 2.2rem;
+            height: 2rem;
+            min-height: 2rem;
             justify-content: center;
             text-align: center;
             white-space: nowrap;
@@ -294,7 +318,7 @@
             width: 100%;
             align-items: center;
             justify-content: flex-start;
-            font-size: .96rem;
+            font-size: .92rem;
             font-weight: 600;
             line-height: 1.1;
             white-space: nowrap;
@@ -312,7 +336,7 @@
         }
 
         .bp-av-empty {
-            padding: .9rem 1rem;
+            padding: .7rem .9rem;
             color: hsl(var(--bc) / .7);
             font-size: .92rem;
         }
