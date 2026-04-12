@@ -43,15 +43,14 @@
             border-bottom: 0 !important;
         }
 
-
         .bp-topbar-surface.bp-page-header > .mx-auto {
             padding-top: .3rem !important;
             padding-bottom: .15rem !important;
         }
 
         .bp-page {
-            padding-top: .15rem !important;
-            padding-bottom: 1.5rem;
+            padding-top: .1rem !important;
+            padding-bottom: 1.25rem;
         }
 
         .bp-screen-title {
@@ -60,101 +59,23 @@
 
         .bp-av-page {
             display: grid;
-            grid-template-rows: minmax(0, 1fr);
-            gap: 0;
-            padding-top: 0;
-            min-height: calc(100dvh - 7.35rem);
-            max-height: calc(100dvh - 7.35rem);
+            grid-template-rows: auto auto minmax(0, 1fr);
+            gap: .65rem;
+            min-height: calc(100dvh - 7.2rem);
+            max-height: calc(100dvh - 7.2rem);
             overflow: hidden;
-        }
-
-        .bp-av-header-summary {
-            display: grid;
-            grid-template-columns: repeat(3, minmax(0, 1fr));
-            gap: .85rem;
-            margin-bottom: .45rem;
-        }
-
-        .bp-av-stat-card {
-            border: 1px solid hsl(var(--b3));
-            background: hsl(var(--b1));
-            border-radius: 1.45rem;
-            padding: .72rem .95rem;
-            box-shadow: 0 1px 2px rgba(15, 23, 42, .05);
-        }
-
-        .bp-av-stat-label {
-            font-size: .88rem;
-            color: hsl(var(--bc) / .72);
-            line-height: 1.15;
-        }
-
-        .bp-av-stat-value {
-            margin-top: .08rem;
-            font-size: 1.7rem;
-            line-height: 1;
-            font-weight: 700;
-            color: hsl(var(--bc));
-        }
-
-        .bp-av-stat-meta {
-            margin-top: .2rem;
-            font-size: .84rem;
-            color: hsl(var(--bc) / .72);
-            line-height: 1.15;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-
-        .bp-av-list-card {
-            display: grid;
-            grid-template-rows: auto auto auto minmax(0, 1fr);
-            min-height: 0;
-            height: 100%;
-            border: 1px solid hsl(var(--b3));
-            background: hsl(var(--b1));
-            border-radius: 1.8rem;
-            padding: .82rem .95rem .95rem;
-            box-shadow: 0 1px 2px rgba(15, 23, 42, .05);
-            overflow: hidden;
-        }
-
-        .bp-av-list-head {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 1rem;
-            flex-wrap: wrap;
-            margin-bottom: .45rem;
-        }
-
-        .bp-av-list-title {
-            margin: 0;
-            font-size: 1.02rem;
-            font-weight: 700;
-            color: hsl(var(--bc));
-            line-height: 1.15;
         }
 
         .bp-av-toolbar {
             display: grid;
-            grid-template-columns: minmax(0, 1fr) auto;
+            grid-template-columns: minmax(18rem, 42rem) auto;
             gap: .75rem;
             align-items: center;
-            justify-content: space-between;
-            margin-bottom: .55rem;
         }
 
         .bp-av-search-form,
         .bp-av-date-form {
             margin: 0;
-        }
-
-        .bp-av-search-form {
-            min-width: 0;
-            max-width: 44rem;
-            width: 100%;
         }
 
         .bp-av-search {
@@ -163,28 +84,22 @@
 
         .bp-av-search svg {
             position: absolute;
-            left: 1rem;
+            left: .95rem;
             top: 50%;
-            width: 1.05rem;
-            height: 1.05rem;
+            width: 1rem;
+            height: 1rem;
             transform: translateY(-50%);
-            color: hsl(var(--bc) / .5);
+            color: hsl(var(--bc) / .56);
             pointer-events: none;
             z-index: 1;
         }
 
         .bp-av-search .input {
             width: 100%;
-            padding-left: 2.8rem;
-            min-height: 2.45rem;
-            height: 2.45rem;
-        }
-
-        .bp-av-filter-bar {
-            display: flex;
-            flex-wrap: wrap;
-            gap: .55rem;
-            margin-bottom: .55rem;
+            padding-left: 2.6rem;
+            min-height: 2.4rem;
+            height: 2.4rem;
+            border-radius: 1.15rem;
         }
 
         .bp-av-date-form {
@@ -192,21 +107,22 @@
             align-items: center;
             gap: .4rem;
             flex-wrap: nowrap;
-            justify-content: flex-end;
             white-space: nowrap;
+            min-width: max-content;
         }
 
         .bp-av-date-form .input {
-            width: 7.5rem;
+            width: 9rem;
         }
 
-        .bp-av-filter-bar .btn,
+        .bp-av-date-form .input,
         .bp-av-date-form .btn,
-        .bp-av-date-form .input {
-            min-height: 2.45rem;
-            height: 2.45rem;
+        .bp-av-filter-bar .btn {
+            min-height: 2.35rem;
+            height: 2.35rem;
             padding-top: 0;
             padding-bottom: 0;
+            border-radius: 1rem;
         }
 
         .bp-av-date-form .btn {
@@ -214,167 +130,275 @@
             padding-right: .85rem;
         }
 
-        .bp-av-reset-btn {
-            min-height: 2.45rem;
-            height: 2.45rem;
-        }
-
-        .bp-av-visit-stack {
+        .bp-av-filter-bar {
             display: flex;
-            flex-direction: column;
-            gap: .6rem;
-            min-height: 0;
-            overflow-y: auto;
-            padding-right: .2rem;
+            flex-wrap: wrap;
+            gap: .5rem;
         }
 
-        .bp-av-visit-card {
+        .bp-av-filter-bar .btn {
+            padding-left: .9rem;
+            padding-right: .9rem;
+        }
+
+        .bp-av-table-card {
+            min-height: 0;
+            height: 100%;
             border: 1px solid hsl(var(--b3));
             background: hsl(var(--b1));
-            border-radius: 1.45rem;
-            padding: .72rem .9rem;
+            border-radius: 1.35rem;
+            overflow: hidden;
             box-shadow: 0 1px 2px rgba(15, 23, 42, .04);
         }
 
-        .bp-av-visit-head {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            gap: 1rem;
-            margin-bottom: .4rem;
+        .bp-av-table-wrap {
+            min-height: 0;
+            height: 100%;
+            overflow: auto;
         }
 
-        .bp-av-visit-title-row {
-            display: flex;
-            align-items: center;
-            gap: .55rem;
-            flex-wrap: wrap;
+        .bp-av-table {
+            min-width: 80rem;
         }
 
-        .bp-av-visit-title {
-            margin: 0;
-            font-size: 1rem;
-            line-height: 1.1;
-            font-weight: 700;
-            color: hsl(var(--bc));
-        }
-
-        .bp-av-visit-time {
-            display: inline-flex;
-            align-items: center;
-            border-radius: 9999px;
-            padding: .15rem .5rem;
-            background: hsl(var(--b2));
-            color: hsl(var(--bc) / .76);
-            font-size: .82rem;
-            line-height: 1;
-        }
-
-        .bp-av-visit-subline,
-        .bp-av-visit-note {
-            margin-top: .14rem;
-            font-size: .92rem;
-            color: hsl(var(--bc) / .72);
-            line-height: 1.2;
-        }
-
-        .bp-av-dot {
-            padding: 0 .22rem;
-        }
-
-        .bp-av-visit-actions {
-            display: flex;
-            gap: .55rem;
-            flex-shrink: 0;
-        }
-
-        .bp-av-head-btn {
-            min-width: 7rem;
-            min-height: 2.55rem;
-            height: 2.55rem;
-            padding-top: 0;
-            padding-bottom: 0;
-        }
-
-        .bp-av-participants {
-            border: 1px solid hsl(var(--b3));
-            border-radius: 1.1rem;
-            overflow: hidden;
-        }
-
-        .bp-av-row {
+        .bp-av-table-head,
+        .bp-av-visit-row,
+        .bp-av-participant-head,
+        .bp-av-participant-row {
             display: grid;
-            grid-template-columns: minmax(13rem, 15.5rem) minmax(9rem, 12rem) 6.4rem 8rem 8.8rem;
-            gap: .3rem;
             align-items: center;
-            justify-content: start;
-            padding: .3rem .65rem;
-            min-height: 2.2rem;
         }
 
-        .bp-av-row + .bp-av-row {
-            border-top: 1px solid hsl(var(--b3));
+        .bp-av-table-head,
+        .bp-av-visit-row {
+            grid-template-columns: 2.1rem minmax(15rem, 1.35fr) minmax(12.25rem, 1fr) minmax(8.25rem, .8fr) minmax(8.5rem, .82fr) 4.5rem minmax(11rem, 1fr) minmax(13.5rem, auto) 7rem;
+            gap: .75rem;
         }
 
-        .bp-av-col {
-            min-width: 0;
-            display: flex;
-            align-items: center;
+        .bp-av-table-head {
+            position: sticky;
+            top: 0;
+            z-index: 5;
+            padding: .5rem .95rem;
+            border-bottom: 1px solid hsl(var(--b3));
+            background: hsl(var(--b1));
+            color: hsl(var(--bc) / .66);
+            font-size: .78rem;
+            font-weight: 700;
+            letter-spacing: .04em;
+            text-transform: uppercase;
+        }
+
+        .bp-av-table-head .bp-av-cell,
+        .bp-av-visit-row .bp-av-cell {
             justify-content: flex-start;
         }
 
-        .bp-av-display-name,
-        .bp-av-company {
+        .bp-av-entry {
+            border-bottom: 1px solid hsl(var(--b3));
+        }
+
+        .bp-av-entry:last-child {
+            border-bottom: 0;
+        }
+
+        .bp-av-visit-row {
+            padding: .45rem .95rem;
+            min-height: 3.35rem;
+            background: hsl(var(--b1));
+        }
+
+        .bp-av-entry:hover .bp-av-visit-row {
+            background: hsl(var(--b2) / .38);
+        }
+
+        .bp-av-cell {
+            min-width: 0;
+            display: flex;
+            align-items: center;
+        }
+
+        .bp-av-cell-check {
+            justify-content: center;
+        }
+
+        .bp-av-checkbox {
+            width: 1rem;
+            height: 1rem;
+            border-radius: .35rem;
+        }
+
+        .bp-av-title-wrap {
+            min-width: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 0;
+        }
+
+        .bp-av-title {
+            font-size: .95rem;
+            font-weight: 700;
+            line-height: 1.15;
+            color: hsl(var(--bc));
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
         }
 
-        .bp-av-display-name {
-            font-size: .96rem;
-            color: hsl(var(--bc));
+        .bp-av-date-label,
+        .bp-av-host,
+        .bp-av-count,
+        .bp-av-note,
+        .bp-av-participant-company,
+        .bp-av-participant-status {
+            font-size: .88rem;
+            line-height: 1.2;
+            color: hsl(var(--bc) / .72);
         }
 
-        .bp-av-company {
-            font-size: .94rem;
-            color: hsl(var(--bc) / .78);
-        }
-
-        .bp-av-row-btn {
-            width: 100%;
-            height: 2rem;
-            min-height: 2rem;
-            justify-content: center;
-            text-align: center;
+        .bp-av-date-label,
+        .bp-av-host,
+        .bp-av-note,
+        .bp-av-participant-name,
+        .bp-av-participant-company,
+        .bp-av-participant-status {
             white-space: nowrap;
-            padding-left: .75rem;
-            padding-right: .75rem;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
 
-        .bp-av-status-pill {
-            width: 100%;
+        .bp-av-note {
+            display: block;
+        }
+
+        .bp-av-count {
             justify-content: flex-start;
-            text-align: left;
-            white-space: nowrap;
-        }
-
-        .bp-av-status-pill::before,
-        .bp-status-pill.bp-av-status-pill::before,
-        .bp-status-pill::before,
-        .bp-av-status-text::before {
-            content: none !important;
-            display: none !important;
+            font-weight: 600;
+            color: hsl(var(--bc) / .82);
         }
 
         .bp-av-status-text {
             display: inline-flex;
-            width: 100%;
             align-items: center;
             justify-content: flex-start;
-            font-size: .92rem;
-            font-weight: 600;
+            min-width: 0;
+            max-width: 100%;
+            font-size: .84rem;
+            font-weight: 700;
             line-height: 1.1;
             white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .bp-av-table-head .bp-av-cell:nth-child(6),
+        .bp-av-visit-row .bp-av-cell:nth-child(6) {
+            justify-content: flex-start;
+        }
+
+        .bp-av-table-head .bp-av-cell:nth-child(8),
+        .bp-av-table-head .bp-av-cell:nth-child(9) {
+            padding-left: .1rem;
+        }
+
+        .bp-av-status-text::before,
+        .bp-status-pill::before {
+            content: none !important;
+            display: none !important;
+        }
+
+        .bp-av-actions {
+            display: inline-flex;
+            gap: .45rem;
+            justify-content: flex-start;
+        }
+
+        .bp-av-head-btn,
+        .bp-av-toggle-btn,
+        .bp-av-row-btn {
+            min-height: 1.95rem;
+            height: 1.95rem;
+            padding-top: 0;
+            padding-bottom: 0;
+            border-radius: .9rem;
+            white-space: nowrap;
+        }
+
+        .bp-av-head-btn {
+            min-width: 6rem;
+        }
+
+        .bp-av-toggle-btn {
+            width: 100%;
+            justify-content: center;
+        }
+
+        .bp-av-year-divider {
+            position: sticky;
+            top: 2.3rem;
+            z-index: 4;
+            padding: .45rem .95rem .35rem;
+            background: linear-gradient(to bottom, hsl(var(--b1)) 0%, hsl(var(--b1)) 65%, hsl(var(--b1) / 0) 100%);
+        }
+
+        .bp-av-year-divider span {
+            display: inline-flex;
+            align-items: center;
+            gap: .5rem;
+            font-size: .8rem;
+            font-weight: 700;
+            letter-spacing: .04em;
+            text-transform: uppercase;
+            color: hsl(var(--bc) / .62);
+        }
+
+        .bp-av-year-divider span::after {
+            content: '';
+            width: 3.5rem;
+            height: 1px;
+            background: hsl(var(--b3));
+        }
+
+        .bp-av-entry-details {
+            padding: 0 .95rem .55rem 3.75rem;
+            background: hsl(var(--b2) / .22);
+        }
+
+        .bp-av-entry-details[hidden] {
+            display: none !important;
+        }
+
+        .bp-av-participant-table {
+            border: 1px solid hsl(var(--b3));
+            border-radius: 1rem;
+            background: hsl(var(--b1));
+            overflow: hidden;
+        }
+
+        .bp-av-participant-head,
+        .bp-av-participant-row {
+            grid-template-columns: minmax(14rem, 1.15fr) minmax(12rem, 1fr) minmax(8rem, .8fr) 7rem 9rem;
+            gap: .55rem;
+            padding: .36rem .75rem;
+        }
+
+        .bp-av-participant-head {
+            background: hsl(var(--b2) / .5);
+            border-bottom: 1px solid hsl(var(--b3));
+            color: hsl(var(--bc) / .64);
+            font-size: .76rem;
+            font-weight: 700;
+            letter-spacing: .04em;
+            text-transform: uppercase;
+        }
+
+        .bp-av-participant-row + .bp-av-participant-row {
+            border-top: 1px solid hsl(var(--b3));
+        }
+
+        .bp-av-participant-name {
+            font-size: .9rem;
+            color: hsl(var(--bc));
         }
 
         .bp-av-action-cell,
@@ -388,293 +412,316 @@
             margin: 0;
         }
 
+        .bp-av-row-btn {
+            width: 100%;
+            justify-content: center;
+            text-align: center;
+            padding-left: .7rem;
+            padding-right: .7rem;
+        }
+
         .bp-av-empty {
-            padding: .7rem .9rem;
+            padding: .85rem .95rem;
             color: hsl(var(--bc) / .7);
             font-size: .92rem;
         }
 
-        @media (max-width: 1200px) {
-            .bp-av-row {
-                grid-template-columns: minmax(11rem, 13.5rem) minmax(8rem, 10.5rem) 6.2rem 7.6rem 8.4rem;
+        @media (max-width: 1400px) {
+            .bp-av-toolbar {
+                grid-template-columns: minmax(15rem, 34rem) auto;
             }
         }
 
-        @media (max-width: 1024px) {
+        @media (max-width: 1100px) {
             .bp-av-page {
                 min-height: auto;
                 max-height: none;
                 overflow: visible;
             }
 
-            .bp-av-header-summary {
-                grid-template-columns: 1fr;
-            }
-
-            .bp-av-search-form {
-                max-width: none;
-            }
-
             .bp-av-toolbar {
                 grid-template-columns: 1fr;
             }
 
-            .bp-av-list-card,
-            .bp-av-visit-stack {
-                min-height: auto;
-                height: auto;
-                overflow: visible;
-            }
-
             .bp-av-date-form {
-                justify-content: flex-start;
                 flex-wrap: wrap;
             }
 
-            .bp-av-visit-head {
-                flex-direction: column;
-                align-items: stretch;
-            }
-
-            .bp-av-row {
-                grid-template-columns: 1fr;
-                gap: .45rem;
-                padding: .7rem .85rem;
+            .bp-av-table-card,
+            .bp-av-table-wrap {
+                min-height: auto;
+                height: auto;
             }
         }
     </style>
 
     <div class="bp-content bp-av-page">
-        <section class="bp-av-list-card">
-            <div class="bp-av-toolbar">
-                <form method="GET" action="{{ route('reception.all-visits') }}" class="bp-av-search-form">
-                    <label class="bp-search bp-av-search">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
-                            <circle cx="11" cy="11" r="6" />
-                            <path d="M20 20l-3.5-3.5" />
-                        </svg>
-                        <input
-                            type="search"
-                            name="q"
-                            value="{{ $search }}"
-                            class="input input-bordered rounded-2xl"
-                            placeholder="{{ __('Suche') }}"
-                        >
-                        <input type="hidden" name="range" value="{{ $activeRange ?: 'week' }}">
-                        @if ($dateFrom !== '')
-                            <input type="hidden" name="from" value="{{ $dateFrom }}">
-                        @endif
-                        @if ($dateTo !== '')
-                            <input type="hidden" name="to" value="{{ $dateTo }}">
-                        @endif
-                    </label>
-                </form>
+        <div class="bp-av-toolbar">
+            <form method="GET" action="{{ route('reception.all-visits') }}" class="bp-av-search-form">
+                <label class="bp-search bp-av-search">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+                        <circle cx="11" cy="11" r="6" />
+                        <path d="M20 20l-3.5-3.5" />
+                    </svg>
+                    <input
+                        type="search"
+                        name="q"
+                        value="{{ $search }}"
+                        class="input input-bordered"
+                        placeholder="{{ __('Suche') }}"
+                    >
+                    <input type="hidden" name="range" value="{{ $activeRange ?: 'week' }}">
+                    @if ($dateFrom !== '')
+                        <input type="hidden" name="from" value="{{ $dateFrom }}">
+                    @endif
+                    @if ($dateTo !== '')
+                        <input type="hidden" name="to" value="{{ $dateTo }}">
+                    @endif
+                </label>
+            </form>
 
-                <form method="GET" action="{{ route('reception.all-visits') }}" class="bp-av-date-form">
-                    <input type="hidden" name="q" value="{{ $search }}">
-                    <input type="hidden" name="range" value="custom">
-                    <input type="date" name="from" value="{{ $dateFrom }}" class="input input-bordered input-sm rounded-xl">
-                    <span>{{ __('bis') }}</span>
-                    <input type="date" name="to" value="{{ $dateTo }}" class="input input-bordered input-sm rounded-xl">
-                    <button type="submit" class="btn btn-outline btn-sm rounded-xl">{{ __('Anwenden') }}</button>
-                    <a href="{{ route('reception.all-visits', array_filter(['range' => in_array($activeRange, array_keys($ranges), true) ? $activeRange : 'all', 'q' => $search ?: null], fn ($value) => $value !== null && $value !== '')) }}" class="btn btn-outline btn-sm rounded-xl bp-av-reset-btn">{{ __('Zurücksetzen') }}</a>
-                </form>
-            </div>
+            <form method="GET" action="{{ route('reception.all-visits') }}" class="bp-av-date-form">
+                <input type="hidden" name="q" value="{{ $search }}">
+                <input type="hidden" name="range" value="custom">
+                <input type="date" name="from" value="{{ $dateFrom }}" class="input input-bordered input-sm">
+                <span>{{ __('bis') }}</span>
+                <input type="date" name="to" value="{{ $dateTo }}" class="input input-bordered input-sm">
+                <button type="submit" class="btn btn-outline btn-sm">{{ __('Anwenden') }}</button>
+                <a href="{{ route('reception.all-visits', array_filter(['range' => in_array($activeRange, array_keys($ranges), true) ? $activeRange : 'all', 'q' => $search ?: null], fn ($value) => $value !== null && $value !== '')) }}" class="btn btn-outline btn-sm">{{ __('Zurücksetzen') }}</a>
+            </form>
+        </div>
 
-            <div class="bp-av-filter-bar">
-                @foreach ($ranges as $value => $label)
-                    @php
-                        $rangeParams = [
-                            'range' => $value,
-                            'q' => $search ?: null,
-                        ];
+        <div class="bp-av-filter-bar">
+            @foreach ($ranges as $value => $label)
+                @php
+                    $rangeParams = [
+                        'range' => $value,
+                        'q' => $search ?: null,
+                    ];
 
-                        if ($value !== 'all') {
-                            $rangeParams['from'] = $rangeDateValues[$value]['from'] ?? null;
-                            $rangeParams['to'] = $rangeDateValues[$value]['to'] ?? null;
-                        }
-                    @endphp
-                    <a href="{{ route('reception.all-visits', array_filter($rangeParams, fn ($rangeValue) => $rangeValue !== null && $rangeValue !== '')) }}" class="btn btn-sm rounded-xl {{ $activeRange === $value ? 'btn-primary' : 'btn-outline' }}">{{ $label }}</a>
-                @endforeach
-            </div>
+                    if ($value !== 'all') {
+                        $rangeParams['from'] = $rangeDateValues[$value]['from'] ?? null;
+                        $rangeParams['to'] = $rangeDateValues[$value]['to'] ?? null;
+                    }
+                @endphp
+                <a href="{{ route('reception.all-visits', array_filter($rangeParams, fn ($rangeValue) => $rangeValue !== null && $rangeValue !== '')) }}" class="btn btn-sm {{ $activeRange === $value ? 'btn-primary' : 'btn-outline' }}">{{ $label }}</a>
+            @endforeach
+        </div>
 
-            <div class="bp-av-visit-stack" id="bp-av-visit-stack">
-                @forelse ($visits as $visit)
-                    <article class="bp-av-visit-card">
-                        <div class="bp-av-visit-head">
-                            <div>
-                                <div class="bp-av-visit-title-row">
-                                    <h3 class="bp-av-visit-title">{{ $visit['title'] }}</h3>
-
-                                    @php
-                                        $visitDateLabel = null;
-
-                                        if (! empty($visit['scheduled_from'])) {
-                                            try {
-                                                $scheduledFrom = \Illuminate\Support\Carbon::createFromFormat('d.m.Y H:i', $visit['scheduled_from']);
-                                                $weekdayMap = [1 => 'Mo', 2 => 'Di', 3 => 'Mi', 4 => 'Do', 5 => 'Fr', 6 => 'Sa', 7 => 'So'];
-                                                $visitDateLabel = ($weekdayMap[$scheduledFrom->dayOfWeekIso] ?? $scheduledFrom->isoFormat('dd')).', '.$scheduledFrom->format('d.m.').' | '.$scheduledFrom->format('H:i').' '.__('Uhr');
-                                            } catch (\Throwable $e) {
-                                                $visitDateLabel = null;
-                                            }
-                                        }
-
-                                        if ($visitDateLabel === null && ! empty($visit['time']) && ! empty($visit['date'])) {
-                                            $visitDateLabel = $visit['date'].' | '.$visit['time'].' '.__('Uhr');
-                                        }
-
-                                        if ($visitDateLabel === null && ! empty($visit['date_time'])) {
-                                            $visitDateLabel = $visit['date_time'];
-                                        }
-                                    @endphp
-
-                                    @if ($visitDateLabel)
-                                        <span class="bp-av-visit-time">{{ $visitDateLabel }}</span>
-                                    @endif
-
-                                    @if (! empty($visit['status']))
-                                        @php
-                                            if (is_array($visit['status'])) {
-                                                $visitStatusLabel = $visit['status']['label'] ?? '';
-                                                $visitStatusClass = $visit['status']['class'] ?? '';
-                                            } else {
-                                                $visitStatusLabel = (string) $visit['status'];
-                                                $visitStatusClass = '';
-                                            }
-
-                                            $visitStatusLabel = preg_replace('/^\s*[•·]\s*/u', '', $visitStatusLabel);
-                                            $visitStatusClass = trim(str_replace('bp-status-pill', '', $visitStatusClass));
-                                        @endphp
-                                        <span class="bp-av-status-text {{ $visitStatusClass }}">{{ $visitStatusLabel }}</span>
-                                    @endif
-                                </div>
-
-                                <div class="bp-av-visit-subline">
-                                    {{ __('Host:') }} {{ $visit['host'] ?? '—' }}
-                                    @if (! empty($visit['participants_count']))
-                                        <span class="bp-av-dot">•</span>
-                                        {{ $visit['participants_count'] }} {{ __('Teilnehmende') }}
-                                    @elseif (! empty($visit['participant_count']))
-                                        <span class="bp-av-dot">•</span>
-                                        {{ $visit['participant_count'] }} {{ __('Teilnehmende') }}
-                                    @endif
-                                </div>
-
-                                @if (! empty($visit['notes']))
-                                    <div class="bp-av-visit-note">{{ $visit['notes'] }}</div>
-                                @elseif (! empty($visit['note']))
-                                    <div class="bp-av-visit-note">{{ $visit['note'] }}</div>
-                                @endif
-                            </div>
-
-                            <div class="bp-av-visit-actions">
-                                <a href="{{ $visit['open_url'] ?? route('portal.visits.show', $visit['id']) }}" class="btn btn-outline rounded-xl bp-av-head-btn">{{ __('Öffnen') }}</a>
-                                <a href="{{ $visit['edit_url'] ?? route('portal.visits.edit', $visit['id']) }}" class="btn btn-outline rounded-xl bp-av-head-btn">{{ __('Bearbeiten') }}</a>
-                            </div>
+        <section class="bp-av-table-card">
+            <div class="bp-av-table-wrap">
+                <div class="bp-av-table">
+                    <div class="bp-av-table-head">
+                        <div class="bp-av-cell bp-av-cell-check">
+                            <input type="checkbox" class="checkbox checkbox-sm bp-av-checkbox" data-bp-select-all aria-label="{{ __('Alle Besuche auswählen') }}">
                         </div>
+                        <div class="bp-av-cell">{{ __('Termin') }}</div>
+                        <div class="bp-av-cell">{{ __('Datum / Zeit') }}</div>
+                        <div class="bp-av-cell">{{ __('Status') }}</div>
+                        <div class="bp-av-cell">{{ __('Host') }}</div>
+                        <div class="bp-av-cell">{{ __('Teiln.') }}</div>
+                        <div class="bp-av-cell">{{ __('Notiz') }}</div>
+                        <div class="bp-av-cell">{{ __('Aktionen') }}</div>
+                        <div class="bp-av-cell">{{ __('Besucher') }}</div>
+                    </div>
 
+                    <div id="bp-av-visit-stack">
                         @php
-                            $visibleParticipants = $visit['visible_participants'] ?? ($visit['participants'] ?? []);
-                            $hiddenParticipants = $visit['hidden_participants'] ?? [];
-                            $hiddenCount = $visit['hidden_count'] ?? 0;
+                            $previousYear = null;
+                            $weekdayMap = [1 => 'Mo', 2 => 'Di', 3 => 'Mi', 4 => 'Do', 5 => 'Fr', 6 => 'Sa', 7 => 'So'];
                         @endphp
 
-                        <div class="bp-av-participants">
+                        @forelse ($visits as $index => $visit)
                             @php
-                                $renderParticipants = function ($participants) {
-                                    foreach ($participants as $participant) {
-                                        $salutation = trim((string) ($participant['salutation'] ?? ''));
-                                        $title = trim((string) ($participant['title'] ?? ''));
-                                        $baseName = trim((string) ($participant['name'] ?? '—'));
-                                        $displayName = trim(collect([$salutation, $title, $baseName])->filter()->implode(' '));
-                                        $displayName = $displayName !== '' ? $displayName : '—';
+                                $scheduledFrom = null;
+                                $visitDateLabel = null;
+                                $yearLabel = null;
 
-                                        $badgeUrl = $participant['badge_url'] ?? null;
-                                        $rawStatusLabel = $participant['status_label'] ?? ($participant['status']['label'] ?? ($participant['status'] ?? null));
-                                        $statusLabel = $rawStatusLabel ? preg_replace('/^\s*[•·]\s*/u', '', (string) $rawStatusLabel) : null;
-                                        $statusClass = trim(str_replace('bp-status-pill', '', (string) ($participant['status_class'] ?? ($participant['status']['class'] ?? ''))));
-
-                                        $checkInUrl = $participant['check_in_url'] ?? null;
-                                        $checkOutUrl = $participant['check_out_url'] ?? null;
-                                        $checkInLabel = $participant['check_in_label'] ?? __('Check-in');
-                                        $canCheckIn = (bool) ($participant['can_check_in'] ?? false);
-                                        $canCheckOut = (bool) ($participant['can_check_out'] ?? false);
-
-                                        if (! $canCheckIn && ! $canCheckOut && ! empty($participant['action_url'])) {
-                                            $legacyActionLabel = (string) ($participant['action_label'] ?? '');
-                                            $legacyActionUrl = $participant['action_url'];
-                                            $legacyActionLower = mb_strtolower($legacyActionLabel);
-
-                                            if (str_contains($legacyActionLower, 'check-out') || str_contains($legacyActionLower, 'checkout')) {
-                                                $canCheckOut = true;
-                                                $checkOutUrl = $legacyActionUrl;
-                                            } elseif ($legacyActionLabel !== '') {
-                                                $canCheckIn = true;
-                                                $checkInUrl = $legacyActionUrl;
-                                                $checkInLabel = $legacyActionLabel;
-                                            }
-                                        }
-
-                                        echo '<div class="bp-av-row">';
-                                        echo '<div class="bp-av-col"><span class="bp-av-display-name">'.e($displayName).'</span></div>';
-                                        echo '<div class="bp-av-col"><span class="bp-av-company">'.e($participant['company'] ?? '—').'</span></div>';
-                                        echo '<div class="bp-av-col bp-av-badge-cell">';
-                                        if ($badgeUrl) {
-                                            echo '<form method="POST" action="'.e($badgeUrl).'">';
-                                            echo csrf_field();
-                                            echo '<button type="submit" class="btn btn-outline btn-sm rounded-xl bp-av-row-btn">'.e(__('Ausweis')).'</button>';
-                                            echo '</form>';
-                                        } else {
-                                            echo '<button type="button" class="btn btn-outline btn-sm rounded-xl bp-av-row-btn">'.e(__('Ausweis')).'</button>';
-                                        }
-                                        echo '</div>';
-                                        echo '<div class="bp-av-col">';
-                                        if ($statusLabel) {
-                                            echo '<span class="bp-av-status-text '.e($statusClass).'">'.e($statusLabel).'</span>';
-                                        }
-                                        echo '</div>';
-                                        echo '<div class="bp-av-col bp-av-action-cell">';
-                                        if ($canCheckIn && $checkInUrl) {
-                                            echo '<form method="POST" action="'.e($checkInUrl).'" data-bp-ajax="participant-action">';
-                                            echo csrf_field();
-                                            echo '<button type="submit" class="btn btn-primary btn-sm rounded-xl bp-av-row-btn">'.e($checkInLabel).'</button>';
-                                            echo '</form>';
-                                        } elseif ($canCheckOut && $checkOutUrl) {
-                                            echo '<form method="POST" action="'.e($checkOutUrl).'" data-bp-ajax="participant-action">';
-                                            echo csrf_field();
-                                            echo '<button type="submit" class="btn btn-primary btn-sm rounded-xl bp-av-row-btn">'.e(__('Check-out')).'</button>';
-                                            echo '</form>';
-                                        }
-                                        echo '</div>';
-                                        echo '</div>';
+                                if (! empty($visit['scheduled_from'])) {
+                                    try {
+                                        $scheduledFrom = \Illuminate\Support\Carbon::createFromFormat('d.m.Y H:i', $visit['scheduled_from']);
+                                    } catch (\Throwable $e) {
+                                        $scheduledFrom = null;
                                     }
-                                };
+                                }
+
+                                if ($scheduledFrom) {
+                                    $visitDateLabel = ($weekdayMap[$scheduledFrom->dayOfWeekIso] ?? $scheduledFrom->isoFormat('dd')).', '.$scheduledFrom->format('d.m.').' | '.$scheduledFrom->format('H:i').' '.__('Uhr');
+                                    $yearLabel = $scheduledFrom->format('Y');
+                                } elseif (! empty($visit['date']) && ! empty($visit['time'])) {
+                                    $visitDateLabel = $visit['date'].' | '.$visit['time'].' '.__('Uhr');
+                                }
+
+                                if ($yearLabel === null) {
+                                    $yearLabel = __('Ohne Jahr');
+                                }
+
+                                if (is_array($visit['status'] ?? null)) {
+                                    $visitStatusLabel = $visit['status']['label'] ?? '';
+                                    $visitStatusClass = $visit['status']['class'] ?? '';
+                                } else {
+                                    $visitStatusLabel = (string) ($visit['status'] ?? '');
+                                    $visitStatusClass = '';
+                                }
+
+                                $visitStatusLabel = preg_replace('/^\s*[•·]\s*/u', '', $visitStatusLabel);
+                                $visitStatusClass = trim(str_replace('bp-status-pill', '', $visitStatusClass));
+                                $participants = $visit['participants'] ?? array_merge($visit['visible_participants'] ?? [], $visit['hidden_participants'] ?? []);
+                                $detailId = 'bp-av-details-'.$index.'-'.($visit['id'] ?? $index);
+                                $noteText = trim((string) ($visit['notes'] ?? ($visit['note'] ?? '')));
                             @endphp
 
-                            @if (count($visibleParticipants) > 0)
-                                {!! $renderParticipants($visibleParticipants) !!}
-                            @else
-                                <div class="bp-av-empty">{{ __('Keine Teilnehmenden vorhanden.') }}</div>
+                            @if ($yearLabel !== $previousYear)
+                                <div class="bp-av-year-divider"><span>{{ $yearLabel }}</span></div>
+                                @php $previousYear = $yearLabel; @endphp
                             @endif
 
-                            @if ($hiddenCount > 0)
-                                <details class="border-t border-base-300">
-                                    <summary class="cursor-pointer list-none px-4 py-3 text-sm font-medium text-base-content/72">+ {{ $hiddenCount }} {{ __('weitere Teilnehmende') }}</summary>
-                                    <div class="border-t border-base-300">
-                                        {!! $renderParticipants($hiddenParticipants) !!}
+                            <article class="bp-av-entry">
+                                <div class="bp-av-visit-row">
+                                    <div class="bp-av-cell bp-av-cell-check">
+                                        <input type="checkbox" class="checkbox checkbox-sm bp-av-checkbox" name="selected_visits[]" value="{{ $visit['id'] ?? $index }}" data-bp-select-item aria-label="{{ __('Besuch auswählen') }}">
                                     </div>
-                                </details>
-                            @endif
-                        </div>
-                    </article>
-                @empty
-                    <article class="bp-av-visit-card">
-                        <div class="bp-av-empty">{{ __('Keine Besuche gefunden.') }}</div>
-                    </article>
-                @endforelse
+
+                                    <div class="bp-av-cell">
+                                        <div class="bp-av-title-wrap">
+                                            <span class="bp-av-title">{{ $visit['title'] }}</span>
+                                        </div>
+                                    </div>
+
+                                    <div class="bp-av-cell">
+                                        <span class="bp-av-date-label">{{ $visitDateLabel ?: '—' }}</span>
+                                    </div>
+
+                                    <div class="bp-av-cell">
+                                        @if ($visitStatusLabel !== '')
+                                            <span class="bp-av-status-text {{ $visitStatusClass }}">{{ $visitStatusLabel }}</span>
+                                        @else
+                                            <span class="bp-av-status-text">—</span>
+                                        @endif
+                                    </div>
+
+                                    <div class="bp-av-cell">
+                                        <span class="bp-av-host">{{ $visit['host'] ?? '—' }}</span>
+                                    </div>
+
+                                    <div class="bp-av-cell">
+                                        <span class="bp-av-count">{{ $visit['participants_count'] ?? $visit['participant_count'] ?? count($participants) }}</span>
+                                    </div>
+
+                                    <div class="bp-av-cell">
+                                        <span class="bp-av-note" title="{{ $noteText !== '' ? $noteText : '—' }}">{{ $noteText !== '' ? $noteText : '—' }}</span>
+                                    </div>
+
+                                    <div class="bp-av-cell">
+                                        <div class="bp-av-actions">
+                                            <a href="{{ $visit['open_url'] ?? route('portal.visits.show', $visit['id']) }}" class="btn btn-outline btn-sm bp-av-head-btn" data-bp-no-toggle>{{ __('Öffnen') }}</a>
+                                            <a href="{{ $visit['edit_url'] ?? route('portal.visits.edit', $visit['id']) }}" class="btn btn-outline btn-sm bp-av-head-btn" data-bp-no-toggle>{{ __('Bearbeiten') }}</a>
+                                        </div>
+                                    </div>
+
+                                    <div class="bp-av-cell">
+                                        <button type="button" class="btn btn-outline btn-sm bp-av-toggle-btn" data-bp-toggle-details="{{ $detailId }}" aria-expanded="false">
+                                            {{ __('Anzeigen') }}
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <div id="{{ $detailId }}" class="bp-av-entry-details" hidden>
+                                    <div class="bp-av-participant-table">
+                                        <div class="bp-av-participant-head">
+                                            <div>{{ __('Name') }}</div>
+                                            <div>{{ __('Firma') }}</div>
+                                            <div>{{ __('Status') }}</div>
+                                            <div>{{ __('Ausweis') }}</div>
+                                            <div>{{ __('Aktion') }}</div>
+                                        </div>
+
+                                        @php
+                                            $renderParticipants = function ($participants) {
+                                                foreach ($participants as $participant) {
+                                                    $salutation = trim((string) ($participant['salutation'] ?? ''));
+                                                    $title = trim((string) ($participant['title'] ?? ''));
+                                                    $baseName = trim((string) ($participant['name'] ?? '—'));
+                                                    $displayName = trim(collect([$salutation, $title, $baseName])->filter()->implode(' '));
+                                                    $displayName = $displayName !== '' ? $displayName : '—';
+
+                                                    $badgeUrl = $participant['badge_url'] ?? null;
+                                                    $rawStatusLabel = $participant['status_label'] ?? ($participant['status']['label'] ?? ($participant['status'] ?? null));
+                                                    $statusLabel = $rawStatusLabel ? preg_replace('/^\s*[•·]\s*/u', '', (string) $rawStatusLabel) : '—';
+                                                    $statusClass = trim(str_replace('bp-status-pill', '', (string) ($participant['status_class'] ?? ($participant['status']['class'] ?? ''))));
+
+                                                    $checkInUrl = $participant['check_in_url'] ?? null;
+                                                    $checkOutUrl = $participant['check_out_url'] ?? null;
+                                                    $checkInLabel = $participant['check_in_label'] ?? __('Check-in');
+                                                    $canCheckIn = (bool) ($participant['can_check_in'] ?? false);
+                                                    $canCheckOut = (bool) ($participant['can_check_out'] ?? false);
+
+                                                    if (! $canCheckIn && ! $canCheckOut && ! empty($participant['action_url'])) {
+                                                        $legacyActionLabel = (string) ($participant['action_label'] ?? '');
+                                                        $legacyActionUrl = $participant['action_url'];
+                                                        $legacyActionLower = mb_strtolower($legacyActionLabel);
+
+                                                        if (str_contains($legacyActionLower, 'check-out') || str_contains($legacyActionLower, 'checkout')) {
+                                                            $canCheckOut = true;
+                                                            $checkOutUrl = $legacyActionUrl;
+                                                        } elseif ($legacyActionLabel !== '') {
+                                                            $canCheckIn = true;
+                                                            $checkInUrl = $legacyActionUrl;
+                                                            $checkInLabel = $legacyActionLabel;
+                                                        }
+                                                    }
+
+                                                    echo '<div class="bp-av-participant-row">';
+                                                    echo '<div class="bp-av-cell"><span class="bp-av-participant-name">'.e($displayName).'</span></div>';
+                                                    echo '<div class="bp-av-cell"><span class="bp-av-participant-company">'.e($participant['company'] ?? '—').'</span></div>';
+                                                    echo '<div class="bp-av-cell"><span class="bp-av-status-text '.e($statusClass).'">'.e($statusLabel).'</span></div>';
+                                                    echo '<div class="bp-av-cell bp-av-badge-cell">';
+                                                    if ($badgeUrl) {
+                                                        echo '<form method="POST" action="'.e($badgeUrl).'">';
+                                                        echo csrf_field();
+                                                        echo '<button type="submit" class="btn btn-outline btn-sm bp-av-row-btn">'.e(__('Ausweis')).'</button>';
+                                                        echo '</form>';
+                                                    } else {
+                                                        echo '<button type="button" class="btn btn-outline btn-sm bp-av-row-btn">'.e(__('Ausweis')).'</button>';
+                                                    }
+                                                    echo '</div>';
+                                                    echo '<div class="bp-av-cell bp-av-action-cell">';
+                                                    if ($canCheckIn && $checkInUrl) {
+                                                        echo '<form method="POST" action="'.e($checkInUrl).'" data-bp-ajax="participant-action">';
+                                                        echo csrf_field();
+                                                        echo '<button type="submit" class="btn btn-primary btn-sm bp-av-row-btn">'.e($checkInLabel).'</button>';
+                                                        echo '</form>';
+                                                    } elseif ($canCheckOut && $checkOutUrl) {
+                                                        echo '<form method="POST" action="'.e($checkOutUrl).'" data-bp-ajax="participant-action">';
+                                                        echo csrf_field();
+                                                        echo '<button type="submit" class="btn btn-primary btn-sm bp-av-row-btn">'.e(__('Check-out')).'</button>';
+                                                        echo '</form>';
+                                                    } else {
+                                                        echo '<span class="bp-av-participant-status">—</span>';
+                                                    }
+                                                    echo '</div>';
+                                                    echo '</div>';
+                                                }
+                                            };
+                                        @endphp
+
+                                        @if (count($participants) > 0)
+                                            {!! $renderParticipants($participants) !!}
+                                        @else
+                                            <div class="bp-av-empty">{{ __('Keine Teilnehmenden vorhanden.') }}</div>
+                                        @endif
+                                    </div>
+                                </div>
+                            </article>
+                        @empty
+                            <div class="bp-av-empty">{{ __('Keine Besuche gefunden.') }}</div>
+                        @endforelse
+                    </div>
+                </div>
             </div>
         </section>
     </div>
+
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             const page = document.querySelector('.bp-av-page');
@@ -695,6 +742,45 @@
                     current.replaceWith(next);
                 }
             };
+
+            document.addEventListener('click', (event) => {
+                const toggleButton = event.target.closest('[data-bp-toggle-details]');
+
+                if (toggleButton) {
+                    const targetId = toggleButton.getAttribute('data-bp-toggle-details');
+                    const target = document.getElementById(targetId);
+
+                    if (! target) {
+                        return;
+                    }
+
+                    const isExpanded = toggleButton.getAttribute('aria-expanded') === 'true';
+                    toggleButton.setAttribute('aria-expanded', isExpanded ? 'false' : 'true');
+                    toggleButton.textContent = isExpanded ? @json(__('Anzeigen')) : @json(__('Verbergen'));
+                    target.hidden = isExpanded;
+                    return;
+                }
+            });
+
+            document.addEventListener('change', (event) => {
+                const selectAll = event.target.closest('[data-bp-select-all]');
+
+                if (selectAll) {
+                    document.querySelectorAll('[data-bp-select-item]').forEach((checkbox) => {
+                        checkbox.checked = selectAll.checked;
+                    });
+                    return;
+                }
+
+                if (event.target.matches('[data-bp-select-item]')) {
+                    const items = Array.from(document.querySelectorAll('[data-bp-select-item]'));
+                    const selectAllBox = document.querySelector('[data-bp-select-all]');
+
+                    if (selectAllBox) {
+                        selectAllBox.checked = items.length > 0 && items.every((checkbox) => checkbox.checked);
+                    }
+                }
+            });
 
             document.addEventListener('submit', async (event) => {
                 const form = event.target.closest('form[data-bp-ajax="participant-action"]');
@@ -739,7 +825,6 @@
                         return;
                     }
 
-                    replaceSection('#bp-av-header-summary', doc);
                     replaceSection('#bp-av-visit-stack', doc);
                 } catch (error) {
                     form.submit();
@@ -752,4 +837,3 @@
         });
     </script>
 </x-app-layout>
-
