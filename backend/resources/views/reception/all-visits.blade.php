@@ -158,7 +158,7 @@
         }
 
         .bp-av-table {
-            min-width: 61.5rem;
+            min-width: 52rem;
             width: 100%;
         }
 
@@ -172,7 +172,7 @@
 
         .bp-av-table-head,
         .bp-av-visit-row {
-            grid-template-columns: 1.85rem minmax(9rem, 1.05fr) minmax(10.4rem, 1.1fr) minmax(6.5rem, .68fr) minmax(5.75rem, .62fr) 3.1rem minmax(8.5rem, .98fr) minmax(9.25rem, .9fr) 6rem;
+            grid-template-columns: 1.85rem minmax(11rem, 1.28fr) minmax(10.4rem, 1.02fr) minmax(6.75rem, .7fr) minmax(5.8rem, .62fr) 3rem minmax(10rem, 1.06fr);
             gap: .45rem;
         }
 
@@ -212,6 +212,14 @@
 
         .bp-av-entry:hover .bp-av-visit-row {
             background: hsl(var(--b2) / .38);
+        }
+
+        .bp-av-visit-row {
+            cursor: pointer;
+        }
+
+        .bp-av-entry.bp-av-entry-expanded .bp-av-visit-row {
+            background: hsl(var(--b2) / .3);
         }
 
         .bp-av-cell {
@@ -300,31 +308,12 @@
             justify-content: flex-start;
         }
 
-        .bp-av-table-head .bp-av-cell:nth-child(8),
-        .bp-av-table-head .bp-av-cell:nth-child(9) {
-            padding-left: .05rem;
-        }
-
-        .bp-av-table-head .bp-av-cell:nth-child(9),
-        .bp-av-visit-row .bp-av-cell:nth-child(9) {
-            justify-content: flex-end;
-        }
-
         .bp-av-status-text::before,
         .bp-status-pill::before {
             content: none !important;
             display: none !important;
         }
 
-        .bp-av-actions {
-            display: inline-flex;
-            gap: .3rem;
-            justify-content: flex-start;
-            min-width: 0;
-        }
-
-        .bp-av-head-btn,
-        .bp-av-toggle-btn,
         .bp-av-row-btn {
             min-height: 1.72rem;
             height: 1.72rem;
@@ -334,17 +323,8 @@
             white-space: nowrap;
         }
 
-        .bp-av-head-btn {
-            min-width: 4.9rem;
-            padding-left: .7rem;
-            padding-right: .7rem;
-        }
-
-        .bp-av-toggle-btn {
-            width: 100%;
-            justify-content: center;
-            padding-left: .7rem;
-            padding-right: .7rem;
+        .bp-av-no-toggle {
+            cursor: default;
         }
 
         .bp-av-year-divider {
@@ -535,8 +515,6 @@
                         <div class="bp-av-cell">{{ __('Host') }}</div>
                         <div class="bp-av-cell">{{ __('Teiln.') }}</div>
                         <div class="bp-av-cell">{{ __('Notiz') }}</div>
-                        <div class="bp-av-cell">{{ __('Aktionen') }}</div>
-                        <div class="bp-av-cell">{{ __('Besucher') }}</div>
                     </div>
 
                     <div id="bp-av-visit-stack">
@@ -591,7 +569,7 @@
                             @endif
 
                             <article class="bp-av-entry">
-                                <div class="bp-av-visit-row">
+                                <div class="bp-av-visit-row" data-bp-visit-row data-bp-open-url="{{ $visit['open_url'] ?? route('portal.visits.show', $visit['id']) }}" data-bp-toggle-details="{{ $detailId }}" aria-expanded="false">
                                     <div class="bp-av-cell bp-av-cell-check">
                                         <input type="checkbox" class="checkbox checkbox-sm bp-av-checkbox" name="selected_visits[]" value="{{ $visit['id'] ?? $index }}" data-bp-select-item aria-label="{{ __('Besuch auswählen') }}">
                                     </div>
@@ -624,19 +602,6 @@
 
                                     <div class="bp-av-cell">
                                         <span class="bp-av-note" title="{{ $noteText !== '' ? $noteText : '—' }}">{{ $noteText !== '' ? $noteText : '—' }}</span>
-                                    </div>
-
-                                    <div class="bp-av-cell">
-                                        <div class="bp-av-actions">
-                                            <a href="{{ $visit['open_url'] ?? route('portal.visits.show', $visit['id']) }}" class="btn btn-outline btn-sm bp-av-head-btn" data-bp-no-toggle>{{ __('Öffnen') }}</a>
-                                            <a href="{{ $visit['edit_url'] ?? route('portal.visits.edit', $visit['id']) }}" class="btn btn-outline btn-sm bp-av-head-btn" data-bp-no-toggle>{{ __('Bearbeiten') }}</a>
-                                        </div>
-                                    </div>
-
-                                    <div class="bp-av-cell">
-                                        <button type="button" class="btn btn-outline btn-sm bp-av-toggle-btn" data-bp-toggle-details="{{ $detailId }}" aria-expanded="false">
-                                            {{ __('Anzeigen') }}
-                                        </button>
                                     </div>
                                 </div>
 
@@ -757,22 +722,65 @@
                 }
             };
 
-            document.addEventListener('click', (event) => {
-                const toggleButton = event.target.closest('[data-bp-toggle-details]');
+            const rowToggleTimers = new WeakMap();
 
-                if (toggleButton) {
-                    const targetId = toggleButton.getAttribute('data-bp-toggle-details');
-                    const target = document.getElementById(targetId);
-
-                    if (! target) {
-                        return;
-                    }
-
-                    const isExpanded = toggleButton.getAttribute('aria-expanded') === 'true';
-                    toggleButton.setAttribute('aria-expanded', isExpanded ? 'false' : 'true');
-                    toggleButton.textContent = isExpanded ? @json(__('Anzeigen')) : @json(__('Verbergen'));
-                    target.hidden = isExpanded;
+            const toggleVisitRow = (row) => {
+                if (! row) {
                     return;
+                }
+
+                const targetId = row.getAttribute('data-bp-toggle-details');
+                const target = targetId ? document.getElementById(targetId) : null;
+
+                if (! target) {
+                    return;
+                }
+
+                const isExpanded = row.getAttribute('aria-expanded') === 'true';
+                row.setAttribute('aria-expanded', isExpanded ? 'false' : 'true');
+                row.closest('.bp-av-entry')?.classList.toggle('bp-av-entry-expanded', ! isExpanded);
+                target.hidden = isExpanded;
+            };
+
+            document.addEventListener('click', (event) => {
+                const row = event.target.closest('[data-bp-visit-row]');
+
+                if (! row || event.target.closest('[data-bp-select-item], [data-bp-select-all], .bp-av-entry-details, a, button, input, select, textarea, label')) {
+                    return;
+                }
+
+                const existingTimer = rowToggleTimers.get(row);
+
+                if (existingTimer) {
+                    window.clearTimeout(existingTimer);
+                }
+
+                const timerId = window.setTimeout(() => {
+                    toggleVisitRow(row);
+                    rowToggleTimers.delete(row);
+                }, 220);
+
+                rowToggleTimers.set(row, timerId);
+            });
+
+            document.addEventListener('dblclick', (event) => {
+                const row = event.target.closest('[data-bp-visit-row]');
+
+                if (! row || event.target.closest('[data-bp-select-item], [data-bp-select-all], .bp-av-entry-details, a, button, input, select, textarea, label')) {
+                    return;
+                }
+
+                const existingTimer = rowToggleTimers.get(row);
+
+                if (existingTimer) {
+                    window.clearTimeout(existingTimer);
+                    rowToggleTimers.delete(row);
+                }
+
+                const openUrl = row.getAttribute('data-bp-open-url');
+
+                if (openUrl) {
+                    window.location.href = openUrl;
                 }
             });
 
