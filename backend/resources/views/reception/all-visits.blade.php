@@ -60,7 +60,7 @@
         .bp-av-page {
             display: grid;
             grid-template-rows: auto auto minmax(0, 1fr);
-            gap: .78rem;
+            gap: .72rem;
             min-height: calc(100dvh - 7.35rem);
             max-height: calc(100dvh - 7.35rem);
             overflow: visible;
@@ -158,7 +158,7 @@
         }
 
         .bp-av-table {
-            min-width: 67rem;
+            min-width: 61.5rem;
             width: 100%;
         }
 
@@ -172,15 +172,15 @@
 
         .bp-av-table-head,
         .bp-av-visit-row {
-            grid-template-columns: 2rem minmax(10.5rem, 1.35fr) minmax(9.75rem, 1.02fr) minmax(6.75rem, .72fr) minmax(6.5rem, .72fr) 3.9rem minmax(8.5rem, 1.1fr) minmax(10.75rem, 1fr) 6.75rem;
-            gap: .55rem;
+            grid-template-columns: 1.85rem minmax(9rem, 1.05fr) minmax(10.4rem, 1.1fr) minmax(6.5rem, .68fr) minmax(5.75rem, .62fr) 3.1rem minmax(8.5rem, .98fr) minmax(9.25rem, .9fr) 6rem;
+            gap: .45rem;
         }
 
         .bp-av-table-head {
             position: sticky;
             top: 0;
             z-index: 5;
-            padding: .46rem .85rem;
+            padding: .44rem .75rem;
             border-bottom: 1px solid hsl(var(--b3));
             background: hsl(var(--b1));
             color: hsl(var(--bc) / .66);
@@ -197,6 +197,7 @@
 
         .bp-av-entry {
             border-bottom: 1px solid hsl(var(--b3));
+            overflow: hidden;
         }
 
         .bp-av-entry:last-child {
@@ -204,8 +205,8 @@
         }
 
         .bp-av-visit-row {
-            padding: .34rem .85rem;
-            min-height: 2.9rem;
+            padding: .28rem .75rem;
+            min-height: 2.6rem;
             background: hsl(var(--b1));
         }
 
@@ -217,6 +218,7 @@
             min-width: 0;
             display: flex;
             align-items: center;
+            overflow: hidden;
         }
 
         .bp-av-cell-check {
@@ -237,9 +239,9 @@
         }
 
         .bp-av-title {
-            font-size: .92rem;
+            font-size: .9rem;
             font-weight: 700;
-            line-height: 1.12;
+            line-height: 1.08;
             color: hsl(var(--bc));
             white-space: nowrap;
             overflow: hidden;
@@ -252,8 +254,8 @@
         .bp-av-note,
         .bp-av-participant-company,
         .bp-av-participant-status {
-            font-size: .84rem;
-            line-height: 1.18;
+            font-size: .82rem;
+            line-height: 1.16;
             color: hsl(var(--bc) / .72);
         }
 
@@ -270,6 +272,7 @@
 
         .bp-av-note {
             display: block;
+            max-width: 100%;
         }
 
         .bp-av-count {
@@ -284,7 +287,7 @@
             justify-content: flex-start;
             min-width: 0;
             max-width: 100%;
-            font-size: .82rem;
+            font-size: .8rem;
             font-weight: 700;
             line-height: 1.1;
             white-space: nowrap;
@@ -299,7 +302,12 @@
 
         .bp-av-table-head .bp-av-cell:nth-child(8),
         .bp-av-table-head .bp-av-cell:nth-child(9) {
-            padding-left: .1rem;
+            padding-left: .05rem;
+        }
+
+        .bp-av-table-head .bp-av-cell:nth-child(9),
+        .bp-av-visit-row .bp-av-cell:nth-child(9) {
+            justify-content: flex-end;
         }
 
         .bp-av-status-text::before,
@@ -310,35 +318,40 @@
 
         .bp-av-actions {
             display: inline-flex;
-            gap: .35rem;
+            gap: .3rem;
             justify-content: flex-start;
+            min-width: 0;
         }
 
         .bp-av-head-btn,
         .bp-av-toggle-btn,
         .bp-av-row-btn {
-            min-height: 1.8rem;
-            height: 1.8rem;
+            min-height: 1.72rem;
+            height: 1.72rem;
             padding-top: 0;
             padding-bottom: 0;
-            border-radius: .85rem;
+            border-radius: .82rem;
             white-space: nowrap;
         }
 
         .bp-av-head-btn {
-            min-width: 5.35rem;
+            min-width: 4.9rem;
+            padding-left: .7rem;
+            padding-right: .7rem;
         }
 
         .bp-av-toggle-btn {
             width: 100%;
             justify-content: center;
+            padding-left: .7rem;
+            padding-right: .7rem;
         }
 
         .bp-av-year-divider {
             position: sticky;
-            top: 2.1rem;
+            top: 2rem;
             z-index: 4;
-            padding: .38rem .85rem .28rem;
+            padding: .34rem .75rem .22rem;
             background: linear-gradient(to bottom, hsl(var(--b1)) 0%, hsl(var(--b1)) 65%, hsl(var(--b1) / 0) 100%);
         }
 
@@ -361,8 +374,8 @@
         }
 
         .bp-av-entry-details {
-            padding: 0 .85rem .38rem 3.15rem;
-            background: hsl(var(--b2) / .22);
+            padding: 0 .75rem .24rem 2.6rem;
+            background: hsl(var(--b2) / .18);
         }
 
         .bp-av-entry-details[hidden] {
@@ -371,23 +384,23 @@
 
         .bp-av-participant-table {
             border: 1px solid hsl(var(--b3));
-            border-radius: .9rem;
+            border-radius: .82rem;
             background: hsl(var(--b1));
             overflow: hidden;
         }
 
         .bp-av-participant-head,
         .bp-av-participant-row {
-            grid-template-columns: minmax(11rem, 1.2fr) minmax(9rem, 1fr) minmax(7rem, .8fr) 6.5rem 8rem;
-            gap: .45rem;
-            padding: .28rem .65rem;
+            grid-template-columns: minmax(10rem, 1.2fr) minmax(8rem, .95fr) minmax(6.6rem, .78fr) 6rem 7.25rem;
+            gap: .35rem;
+            padding: .24rem .55rem;
         }
 
         .bp-av-participant-head {
             background: hsl(var(--b2) / .5);
             border-bottom: 1px solid hsl(var(--b3));
             color: hsl(var(--bc) / .64);
-            font-size: .72rem;
+            font-size: .7rem;
             font-weight: 700;
             letter-spacing: .04em;
             text-transform: uppercase;
@@ -398,7 +411,7 @@
         }
 
         .bp-av-participant-name {
-            font-size: .86rem;
+            font-size: .82rem;
             color: hsl(var(--bc));
         }
 
@@ -417,8 +430,8 @@
             width: 100%;
             justify-content: center;
             text-align: center;
-            padding-left: .7rem;
-            padding-right: .7rem;
+            padding-left: .6rem;
+            padding-right: .6rem;
         }
 
         .bp-av-empty {
