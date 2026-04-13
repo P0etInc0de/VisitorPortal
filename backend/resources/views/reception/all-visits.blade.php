@@ -113,10 +113,10 @@
         }
 
         .bp-av-date-form .input {
-            width: 6.85rem;
-            min-width: 6.85rem;
-            max-width: 6.85rem;
-            flex: 0 0 6.85rem;
+            width: 7.5rem;
+            min-width: 7.5rem;
+            max-width: 7.5rem;
+            flex: 0 0 7.5rem;
         }
 
         .bp-av-date-form .input,
