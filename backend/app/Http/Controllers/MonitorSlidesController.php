@@ -4,6 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreMonitorSlideRequest;
 use App\Models\Monitor;
+use App\Models\MonitorSlide;
+use App\Models\Visit;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 
 class MonitorSlidesController extends Controller
@@ -28,7 +31,15 @@ class MonitorSlidesController extends Controller
      */
     public function create()
     {
-        return view('monitorSlides.create')->with('monitor', $this->monitor);
+        $defaultSlideNumber = MonitorSlide::query()->where('monitor_id', $this->monitor->id)->max('monitor_slides.slide_number') + 1;
+        $todayVisits = Visit::query()->whereDate('visits.scheduled_from', Carbon::today())->with('visitors')->orderBy('visits.scheduled_from')->get();
+        $todayVisitors = $todayVisits->pluck('visitors')->collapse()->unique('id');
+
+        return view('monitorSlides.create')
+            ->with('monitor', $this->monitor)
+            ->with('defaultSlideNumber', $defaultSlideNumber)
+            ->with('todayVisitors', $todayVisitors)
+            ->with('availableTags', $todayVisitors);
     }
 
     /**
@@ -74,6 +85,8 @@ class MonitorSlidesController extends Controller
      */
     public function destroy(string $id)
     {
-        //
+        MonitorSlide::query()->findOrFail($id)->delete();
+
+        return redirect()->route('monitors.edit', $this->monitor)->with('success', __('Seite gelöscht'));
     }
 }

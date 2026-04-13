@@ -79,7 +79,7 @@ class MonitorController extends Controller
     public function edit(string $id)
     {
         $monitor = Monitor::query()->findOrFail($id);
-        $monitor_slides = MonitorSlide::query()->where('monitor_id', $monitor->id)->get();
+        $monitor_slides = MonitorSlide::query()->where('monitor_id', $monitor->id)->orderBy('monitor_slides.slide_number')->get();
 
         return view('monitor.edit')
             ->with('monitor', $monitor)

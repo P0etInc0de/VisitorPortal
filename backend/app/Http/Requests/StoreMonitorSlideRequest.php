@@ -2,9 +2,9 @@
 
 namespace App\Http\Requests;
 
+use App\Models\MonitorSlide;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Validation\Rule;
 
 class StoreMonitorSlideRequest extends FormRequest
 {
@@ -23,13 +23,14 @@ class StoreMonitorSlideRequest extends FormRequest
      */
     public function rules(): array
     {
+        $maxSlide = MonitorSlide::max('slide_number') + 1;
+
         return [
             'heading' => 'required',
             'slide_number' => [
                 'required',
                 'integer',
-                Rule::unique('monitor_slides')
-                    ->where(fn ($query) => $query->where('monitor_id', $this->input('monitor_id'))),
+                'between:1,'.$maxSlide,
             ],
         ];
     }

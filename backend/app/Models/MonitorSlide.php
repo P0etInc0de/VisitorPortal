@@ -30,4 +30,26 @@ class MonitorSlide extends Model
     {
         return $this->belongsTo(Monitor::class, 'monitor_setting_id');
     }
+
+    protected static function booted()
+    {
+        // Automatically assign the next number on creation
+        static::creating(function ($model) {
+            if (! $model->slide_number) {
+                $model->slide_number = static::where('monitor_id', $model->monitor_id)->max('slide_number') + 1;
+            } else {
+                static::where('monitor_id', $model->monitor_id)
+                    ->where('slide_number', '>=', $model->slide_number)
+                    ->orderBy('slide_number', 'desc')
+                    ->increment('slide_number');
+            }
+        });
+
+        // Re-order remaining records after a deletion
+        static::deleted(function ($model) {
+            static::where('monitor_id', $model->monitor_id)
+                ->where('slide_number', '>', $model->slide_number)
+                ->decrement('slide_number');
+        });
+    }
 }

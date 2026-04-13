@@ -29,8 +29,9 @@
                         <x-slot:actions>
                             <a type="button" href="{{route('monitor_slides.create')}}" class="btn btn-primary btn-sm rounded-xl">{{__('Neue Seite')}}</a>
                         </x-slot:actions>
+                        <div class="bp-visit-item">
                         @forelse ($monitor_slides as $monitor_slide)
-                            <div class="bp-visit-item">
+
 
                                 {{-- ID / Time Box --}}
                                 <div class="bp-visit-timebox">
@@ -44,6 +45,17 @@
                                         {{ __('Personen anzeige:') }} {{ $monitor_slide->viitors }}
                                     </div>
                                 </div>
+
+                                {{--- Delete Button ---}}
+
+                                <form method="POST" action="{{ route('monitor_slides.destroy', $monitor_slide) }}">
+                                    @csrf
+                                    @method('DELETE')
+
+                                    <div class="form-group">
+                                        <input type="submit" class="btn btn-danger delete-user" value="{{ __('Löchen') }}" onclick="return confirm('{{__('Möchten Sie die Seite wirklich löschen?')}}')">
+                                    </div>
+                                </form>
 
                                 @empty
                                     <div class="py-12 text-center">
