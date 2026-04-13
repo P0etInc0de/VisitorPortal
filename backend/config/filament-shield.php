@@ -2,6 +2,10 @@
 
 declare(strict_types=1);
 use BezhanSalleh\FilamentShield\Resources\Roles\RoleResource;
+use BezhanSalleh\FilamentShield\Resources\Roles\UserResource;
+use BezhanSalleh\FilamentShield\Resources\Roles\VisitResource;
+use BezhanSalleh\FilamentShield\Resources\Roles\VisitorResource;
+use BezhanSalleh\FilamentShield\Resources\Roles\MonitorResource;
 use Filament\Pages\Dashboard;
 use Filament\Widgets\AccountWidget;
 use Filament\Widgets\FilamentInfoWidget;
@@ -256,7 +260,7 @@ return [
     */
 
     'discovery' => [
-        'discover_all_resources' => true,
+        'discover_all_resources' => false,
         'discover_all_widgets' => false,
         'discover_all_pages' => false,
     ],
