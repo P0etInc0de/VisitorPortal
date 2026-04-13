@@ -111,7 +111,7 @@ class AdminAdministerUserTest extends TestCase
     {
         $this->app->make(PermissionRegistrar::class)->forgetCachedPermissions();
 
-        $admin = (new PermissionHelper())->getIndividualUser(['ViewAny:User', 'View:User', 'Create:User','ForceDeleteAny:User', 'Delete:User', 'DeleteAny:User'], "admin");
+        $admin = (new PermissionHelper())->getIndividualUser(['ViewAny:User', 'View:User', 'Update:User',  'Create:User','ForceDeleteAny:User', 'Delete:User', 'DeleteAny:User'], "admin");
 
         $userRole = Role::firstOrCreate(['name' => 'employee']);
 
@@ -129,8 +129,7 @@ class AdminAdministerUserTest extends TestCase
         // delete the existing test user
         Livewire::actingAs($admin)
             ->test(\App\Filament\Resources\Users\Pages\EditUser::class, ['record' => $user->getRouteKey()])
-            ->assertOk()
-            ->call('delete')
+            ->callAction('delete')
             ->assertHasNoErrors();
 
 
@@ -156,5 +155,4 @@ class AdminAdministerUserTest extends TestCase
             ->call('create')
             ->assertHasNoFormErrors();
     }
-
 }
