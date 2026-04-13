@@ -2,12 +2,15 @@
 
 namespace App\Mail\Host;
 
+use App\Models\User;
+use App\Models\Visit;
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
 use Illuminate\Mail\Mailables\Attachment;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Collection;
 
 class VisitCreatedMail extends Mailable
 {
@@ -16,10 +19,11 @@ class VisitCreatedMail extends Mailable
     /**
      * Create a new message instance.
      */
-    public function __construct()
-    {
-        //
-    }
+    public function __construct(
+        protected Visit $visit,
+        protected Collection $visitors,
+        protected User $user,
+    ) {}
 
     /**
      * Get the message envelope.
@@ -36,9 +40,12 @@ class VisitCreatedMail extends Mailable
      */
     public function content(): Content
     {
-        return new Content(
+        return (new Content(
             markdown: 'mail.host.visitCreated',
-        );
+        ))
+            ->with('visitors', $this->visitors)
+            ->with('user', $this->user)
+            ->with('visit', $this->visit);
     }
 
     /**

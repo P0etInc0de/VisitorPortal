@@ -3,9 +3,11 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
+use App\Enums\GenderEnum;
 use Database\Factories\UserFactory;
 use Filament\Models\Contracts\FilamentUser;
 use Filament\Panel;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -25,10 +27,16 @@ class User extends Authenticatable implements FilamentUser
      */
     protected $fillable = [
         'name',
+        'first_name',
+        'title',
         'email',
         'password',
         'department_id',
         'gender',
+    ];
+
+    protected $casts = [
+        'gender' => GenderEnum::class,
     ];
 
     /**
@@ -95,5 +103,11 @@ class User extends Authenticatable implements FilamentUser
     {
         // Check if the user has the Superuser role (Shield's default is 'super_admin')
         return $this->hasRole('super_admin');
+    }
+
+    protected function fullName(): Attribute
+    {
+        return Attribute::make(
+            get: fn (mixed $value, array $attributes) => $attributes['first_name'].' '.$attributes['name'], );
     }
 }

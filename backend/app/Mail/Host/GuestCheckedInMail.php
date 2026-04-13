@@ -2,6 +2,8 @@
 
 namespace App\Mail\Host;
 
+use App\Models\User;
+use App\Models\Visitor;
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
 use Illuminate\Mail\Mailables\Attachment;
@@ -16,10 +18,10 @@ class GuestCheckedInMail extends Mailable
     /**
      * Create a new message instance.
      */
-    public function __construct()
-    {
-        //
-    }
+    public function __construct(
+        protected User $user,
+        protected Visitor $visitor,
+    ) {}
 
     /**
      * Get the message envelope.
@@ -36,9 +38,11 @@ class GuestCheckedInMail extends Mailable
      */
     public function content(): Content
     {
-        return new Content(
+        return (new Content(
             markdown: 'mail.host.guestCheckedIn',
-        );
+        ))
+            ->with('user', $this->user)
+            ->with('visitor', $this->visitor);
     }
 
     /**

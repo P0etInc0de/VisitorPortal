@@ -1,5 +1,12 @@
 <?php
 
+use App\Http\Controllers\CheckInOutController;
+use App\Http\Controllers\Monitor\MonitorController;
+use App\Http\Controllers\Portal\DashboardController as PortalDashboardController;
+use App\Http\Controllers\Portal\VisitController as PortalVisitController;
+use App\Http\Controllers\Reception\DashboardController as ReceptionDashboardController;
+use App\Http\Controllers\Reception\VisitController as ReceptionVisitController;
+use App\Http\Controllers\Reception\VisitParticipantActionController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -9,26 +16,61 @@ Route::get('/', function () {
 })->name('home');
 
 Route::middleware(['auth', 'verified'])->group(function () {
-    Route::view('/dashboard', 'portal.dashboard')->name('dashboard');
+    Route::get('/dashboard', [PortalDashboardController::class, 'index'])->name('dashboard');
 
     Route::prefix('portal')->name('portal.')->group(function () {
         Route::prefix('visits')->name('visits.')->group(function () {
-            Route::view('/create', 'portal.visits.create')->name('create');
-            Route::view('/{visit}', 'portal.visits.show')
+            Route::get('/create', [PortalVisitController::class, 'create'])->name('create');
+            Route::post('/', [PortalVisitController::class, 'store'])->name('store');
+            Route::get('/{visit}', [PortalVisitController::class, 'show'])
                 ->whereNumber('visit')
                 ->name('show');
+            Route::get('/{visit}/edit', [PortalVisitController::class, 'edit'])
+                ->whereNumber('visit')
+                ->name('edit');
+            Route::match(['put', 'patch'], '/{visit}', [PortalVisitController::class, 'update'])
+                ->whereNumber('visit')
+                ->name('update');
+            Route::post('/{visit}/cancel', [PortalVisitController::class, 'cancel'])
+                ->whereNumber('visit')
+                ->name('cancel');
+            Route::post('/{visit}/reopen', [PortalVisitController::class, 'reopen'])
+                ->whereNumber('visit')
+                ->name('reopen');
+            Route::patch('/{visit}/reschedule', [PortalVisitController::class, 'reschedule'])
+                ->whereNumber('visit')
+                ->name('reschedule');
         });
+
+        Route::get('/check_in_out', [CheckInOutController::class, 'index'])->name('check_in_out');
+        Route::get('/badge/check_in_out_all', [CheckInOutController::class, 'check_in_out_all'])->name('check_in_out.check_in_out_all');
+        Route::post('/check_in_out', [CheckInOutController::class, 'store'])->name('check_in_out.store');
     });
 
     Route::prefix('reception')->name('reception.')->group(function () {
-        Route::view('/', 'reception.dashboard')->name('dashboard');
-        Route::view('/all-visits', 'reception.all-visits')->name('all-visits');
+        Route::get('/', [ReceptionDashboardController::class, 'index'])->name('dashboard');
+        Route::get('/all-visits', [ReceptionVisitController::class, 'index'])->name('all-visits');
+
+        Route::post('/visits/{visit}/participants/{visitor}/badge', [VisitParticipantActionController::class, 'printBadge'])
+            ->whereNumber('visit')
+            ->whereNumber('visitor')
+            ->name('participants.badge');
+
+        Route::post('/visits/{visit}/participants/{visitor}/check-in', [VisitParticipantActionController::class, 'checkIn'])
+            ->whereNumber('visit')
+            ->whereNumber('visitor')
+            ->name('participants.check-in');
+
+        Route::post('/visits/{visit}/participants/{visitor}/check-out', [VisitParticipantActionController::class, 'checkOut'])
+            ->whereNumber('visit')
+            ->whereNumber('visitor')
+            ->name('participants.check-out');
     });
 
     Route::prefix('monitor')->name('monitor.')->group(function () {
-        Route::view('/', 'monitor.show')->name('show');
-        Route::view('/live', 'monitor.show')->name('live');
-        Route::view('/editor', 'monitor.editor')->name('editor');
+        Route::redirect('/', '/monitor/live');
+        Route::get('/live', [MonitorController::class, 'show'])->name('live');
+        Route::get('/editor', [MonitorController::class, 'edit'])->name('editor');
     });
 });
 
