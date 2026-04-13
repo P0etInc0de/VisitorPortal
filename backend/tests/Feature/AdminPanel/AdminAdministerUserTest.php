@@ -74,7 +74,7 @@ class AdminAdministerUserTest extends TestCase
 
         // update the existing test user
         Livewire::actingAs($admin)
-            ->test(\App\Filament\Resources\Users\Pages\EditUser::class, ['record' => $user->getRouteKey()]) // record returns id of the user
+            ->test(EditUser::class, ['record' => $user->getRouteKey()]) // record returns id of the user
             ->assertOk()
             ->fillForm([
                 'name' => 'New Test User',
