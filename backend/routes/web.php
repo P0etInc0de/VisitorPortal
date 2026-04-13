@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\UserPermissionsController;
+use App\Http\Controllers\RoleController;
 
 Route::get('/', function () {
     return auth()->check()
@@ -33,6 +34,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
     });
 
     Route::get('/user-permissions', [UserPermissionsController::class, 'index'])->name('user-permissions');
+
+	Route::get('/roles/create', [RoleController::class, 'create'])
+        ->name('roles.create');
+    Route::post('/roles', [RoleController::class, 'store'])
+        ->name('roles.store');
+
 });
 
 require __DIR__.'/auth.php';

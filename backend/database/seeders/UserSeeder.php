@@ -38,5 +38,12 @@ class UserSeeder extends Seeder
             ['email' => 'monitor@example.com'],
             ['name' => 'Welcome Monitor', 'password' => Hash::make('password'), 'email_verified_at' => '2024-01-01 00:00:00',]
         );
+
+		// Assign roles to users         
+		User::where('email', 'admin@example.com')->first()->assignRole('admin');
+		User::where('email', 'manager@example.com')->first()->assignRole('manager');
+        User::where('email', 'receptionist@example.com')->first()->assignRole('receptionist');
+        User::where('email', 'user@example.com')->first()->assignRole('user');
+        User::where('email', 'monitor@example.com')->first()->assignRole('welcome monitor');
     }
 }

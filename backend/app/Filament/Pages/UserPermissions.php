@@ -26,8 +26,9 @@ class UserPermissions extends Page
             'roles'       => $user->getRoleNames(),
             'permissions' => $user->getAllPermissions()
                                 ->pluck('name')
-								->filter(fn($p) => str_contains($p, ' '))
-                                ->groupBy(fn($p) => explode(' ', $p)[1] ?? 'general'),
+								->filter(fn($p) => str_contains($p, ':'))
+                                ->groupBy(fn($p) => explode(':', $p)[1] ?? 'general')
+								->map(fn($perms) => $perms->map(fn($p) => explode(':', $p)[0])),
                                 // groups by resource e.g. 'posts', 'users', 'reports'
         ];
     }   

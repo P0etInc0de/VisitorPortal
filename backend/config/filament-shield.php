@@ -106,7 +106,7 @@ return [
 
     'permissions' => [
         'separator' => ':',
-        'case' => 'pascal',
+        'case' => 'camel',
         'generate' => true,
     ],
 
@@ -121,24 +121,19 @@ return [
     |
     */
 
-    'policies' => [
-        'path' => app_path('Policies'),
-        'merge' => true,
-        'generate' => true,
-        'methods' => [
-            'viewAny', 'view', 'create', 'update', 'delete', 'restore',
-            'forceDelete', 'forceDeleteAny', 'restoreAny', 'replicate', 'reorder',
-        ],
-        'single_parameter_methods' => [
-            'viewAny',
-            'create',
-            'deleteAny',
-            'forceDeleteAny',
-            'restoreAny',
-            'reorder',
-        ],
-    ],
-
+	'policies' => [  
+    	'path' => app_path('Policies'),  
+    	'merge' => true,  
+    	'generate' => true,  
+    	'methods' => [  
+        	'viewAny', 'view', 'create', 'update', 'delete',  
+    	],  
+    	'single_parameter_methods' => [  
+        	'viewAny',  
+        	'create',  
+    	],  
+	],
+ 
     /*
     |--------------------------------------------------------------------------
     | Localization
@@ -166,21 +161,34 @@ return [
     |
     */
 
-    'resources' => [
-        'subject' => 'model',
-        'manage' => [
-            RoleResource::class => [
-                'viewAny',
-                'view',
-                'create',
-                'update',
-                'delete',
-            ],
-        ],
-        'exclude' => [
-            //
-        ],
-    ],
+	'resources' => [  
+    	'subject' => 'model',  
+    	'manage' => [  
+        	RoleResource::class => [  
+            	'viewAny', 'view', 'create', 'update', 'delete',  
+        	],  
+        	VisitResource::class => [  
+            	'deleteAny', 'create', 'viewAny', 'editAny',  
+            	'viewDepartment', 'viewOwn', 'editDepartment', 'editOwn',  
+            	'deleteDepartment', 'deleteOwn', 'checkIn', 'checkOut', 'print',  
+        	],  
+        	VisitorResource::class => [  
+            	'deleteAny', 'create',
+            	'viewAny', 'editAny', 'deleteAny',  
+        	],  
+        	UserResource::class => [  
+            	'deleteAny', 'create', 'viewOwn', 'viewAny', 'editOwn', 
+            	'viewDepartment', 'editDepartment', 'deleteDepartment',  
+            	'deactivateAll', 'deactivateDepartment', 'editAny',
+        	],
+			MonitorResource::class => [
+				'edit', 'view',
+			],
+    	],  
+    	'exclude' => [  
+        	//  
+    	],  
+	],
 
     /*
     |--------------------------------------------------------------------------
@@ -248,7 +256,7 @@ return [
     */
 
     'discovery' => [
-        'discover_all_resources' => false,
+        'discover_all_resources' => true,
         'discover_all_widgets' => false,
         'discover_all_pages' => false,
     ],

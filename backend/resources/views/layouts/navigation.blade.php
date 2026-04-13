@@ -183,6 +183,10 @@
                         </svg>
                         <span>{{ __('Admin-Bereich') }}</span>
                     </a>
+					
+					<a href="{{ route('roles.create') }}" class="{{ $navLinkClasses(request()->routeIs('roles.*')) }}">
+    					<span>{{ __('Rollen verwalten') }}</span>
+					</a>
                 @endif
             </div>
         </nav>
@@ -268,6 +272,10 @@
             <a href="{{ url('/admin') }}" class="{{ $navLinkClasses(request()->is('admin') || request()->is('admin/*')) }}" @click="navOpen = false">
                 <span>{{ __('Admin-Bereich') }}</span>
             </a>
+			
+			<a href="{{ route('roles.create') }}" class="{{ $navLinkClasses(request()->routeIs('roles.*')) }}">
+    			<span>{{ __('Rollen verwalten') }}</span>
+			</a>
             @endif
             <a href="{{ route('profile.edit') }}" class="{{ $navLinkClasses(request()->routeIs('profile.*')) }}" @click="navOpen = false">
                 <span>{{ __('Profil') }}</span>
