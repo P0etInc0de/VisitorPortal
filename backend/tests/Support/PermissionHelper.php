@@ -1,17 +1,9 @@
 <?php
 
-
 namespace Tests\Support;
+
 use App\Models\User;
-use App\Filament\Resources\Users\Pages\CreateUser;
-use App\Filament\Resources\Users\Pages\ListUsers;
-use Illuminate\Contracts\Container\BindingResolutionException;
-use Livewire\Livewire;
-use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Foundation\Testing\WithFaker;
 use Spatie\Permission\Models\Permission;
-use Spatie\Permission\PermissionRegistrar;
-use Tests\TestCase;
 use Spatie\Permission\Models\Role;
 
 class PermissionHelper
@@ -93,24 +85,26 @@ class PermissionHelper
 
     public function getSuperAdminUser(): User
     {
-        return $this->getIndividualUser($this->permissions, "super_admin");
+        return $this->getIndividualUser($this->permissions, 'super_admin');
     }
 
-    public function getIndividualUser(array $individualPermissions, string $name):User
+    public function getIndividualUser(array $individualPermissions, string $name): User
     {
         $role = Role::firstOrCreate(['name' => $name, 'guard_name' => 'web']);
 
         foreach ($individualPermissions as $permission) {
             Permission::firstOrCreate([
                 'name' => $permission,
-                'guard_name' => 'web'
+                'guard_name' => 'web',
             ]);
         }
 
+        // replace old permissions with the new ones
         $role->syncPermissions($individualPermissions);
+
         $user = User::factory()->create();
         $user->assignRole($role);
+
         return $user;
     }
-
 }
