@@ -31,14 +31,21 @@ class MonitorSlidesController extends Controller
      */
     public function create()
     {
-        $defaultSlideNumber = MonitorSlide::query()->where('monitor_id', $this->monitor->id)->max('monitor_slides.slide_number') + 1;
-        $todayVisits = Visit::query()->whereDate('visits.scheduled_from', Carbon::today())->with('visitors')->orderBy('visits.scheduled_from')->get();
+        $defaultSlideNumber = MonitorSlide::query()
+            ->where('monitor_id', $this->monitor->id)
+            ->max('monitor_slides.slide_number') + 1;
+        $todayVisits = Visit::query()
+            ->whereDate('visits.scheduled_from', Carbon::today())->with('visitors')
+            ->orderBy('visits.scheduled_from')
+            ->with('responsibleUser')
+            ->get();
         $todayVisitors = $todayVisits->pluck('visitors')->collapse()->unique('id');
 
         return view('monitorSlides.create')
             ->with('monitor', $this->monitor)
             ->with('defaultSlideNumber', $defaultSlideNumber)
             ->with('todayVisitors', $todayVisitors)
+            ->with('todayVisits', $todayVisits)
             ->with('availableTags', $todayVisitors);
     }
 
