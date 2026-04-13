@@ -176,16 +176,24 @@
         .bp-av-table-wrap {
             min-height: 0;
             height: 100%;
-            display: flex;
-            flex-direction: column;
-            justify-content: flex-start;
-            align-items: stretch;
-            overflow: auto;
+            overflow-x: auto;
+            overflow-y: hidden;
         }
 
         .bp-av-table {
             min-width: 52rem;
             width: 100%;
+            min-height: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .bp-av-table-body {
+            min-height: 0;
+            flex: 1 1 auto;
+            overflow-x: hidden;
+            overflow-y: auto;
         }
 
         .bp-av-table-head,
@@ -203,9 +211,9 @@
         }
 
         .bp-av-table-head {
-            position: sticky;
-            top: 0;
-            z-index: 5;
+            position: relative;
+            z-index: 1;
+            flex: 0 0 auto;
             padding: .44rem .75rem;
             border-bottom: 1px solid hsl(var(--b3));
             background: hsl(var(--b1));
@@ -581,184 +589,186 @@
                         <div class="bp-av-cell">{{ __('Notiz') }}</div>
                     </div>
 
-                    <div id="bp-av-visit-stack">
-                        @php
-                            $previousYear = null;
-                            $weekdayMap = [1 => 'Mo', 2 => 'Di', 3 => 'Mi', 4 => 'Do', 5 => 'Fr', 6 => 'Sa', 7 => 'So'];
-                        @endphp
-
-                        @forelse ($visits as $index => $visit)
+                    <div class="bp-av-table-body">
+                        <div id="bp-av-visit-stack">
                             @php
-                                $scheduledFrom = null;
-                                $visitDateLabel = null;
-                                $yearLabel = null;
-
-                                if (! empty($visit['scheduled_from'])) {
-                                    try {
-                                        $scheduledFrom = \Illuminate\Support\Carbon::createFromFormat('d.m.Y H:i', $visit['scheduled_from']);
-                                    } catch (\Throwable $e) {
-                                        $scheduledFrom = null;
-                                    }
-                                }
-
-                                if ($scheduledFrom) {
-                                    $visitDateLabel = ($weekdayMap[$scheduledFrom->dayOfWeekIso] ?? $scheduledFrom->isoFormat('dd')).', '.$scheduledFrom->format('d.m.').' | '.$scheduledFrom->format('H:i').' '.__('Uhr');
-                                    $yearLabel = $scheduledFrom->format('Y');
-                                } elseif (! empty($visit['date']) && ! empty($visit['time'])) {
-                                    $visitDateLabel = $visit['date'].' | '.$visit['time'].' '.__('Uhr');
-                                }
-
-                                if ($yearLabel === null) {
-                                    $yearLabel = __('Ohne Jahr');
-                                }
-
-                                if (is_array($visit['status'] ?? null)) {
-                                    $visitStatusLabel = $visit['status']['label'] ?? '';
-                                    $visitStatusClass = $visit['status']['class'] ?? '';
-                                } else {
-                                    $visitStatusLabel = (string) ($visit['status'] ?? '');
-                                    $visitStatusClass = '';
-                                }
-
-                                $visitStatusLabel = preg_replace('/^\s*[•·]\s*/u', '', $visitStatusLabel);
-                                $visitStatusClass = trim(str_replace('bp-status-pill', '', $visitStatusClass));
-                                $participants = $visit['participants'] ?? array_merge($visit['visible_participants'] ?? [], $visit['hidden_participants'] ?? []);
-                                $detailId = 'bp-av-details-'.$index.'-'.($visit['id'] ?? $index);
-                                $noteText = trim((string) ($visit['notes'] ?? ($visit['note'] ?? '')));
+                                $previousYear = null;
+                                $weekdayMap = [1 => 'Mo', 2 => 'Di', 3 => 'Mi', 4 => 'Do', 5 => 'Fr', 6 => 'Sa', 7 => 'So'];
                             @endphp
 
-                            @if ($yearLabel !== $previousYear)
-                                <div class="bp-av-year-divider"><span>{{ $yearLabel }}</span></div>
-                                @php $previousYear = $yearLabel; @endphp
-                            @endif
+                            @forelse ($visits as $index => $visit)
+                                @php
+                                    $scheduledFrom = null;
+                                    $visitDateLabel = null;
+                                    $yearLabel = null;
 
-                            <article class="bp-av-entry">
-                                <div class="bp-av-visit-row" data-bp-visit-row data-bp-open-url="{{ $visit['open_url'] ?? route('portal.visits.show', $visit['id']) }}" data-bp-toggle-details="{{ $detailId }}" aria-expanded="false">
-                                    <div class="bp-av-cell bp-av-cell-check">
-                                        <input type="checkbox" class="checkbox checkbox-sm bp-av-checkbox" name="selected_visits[]" value="{{ $visit['id'] ?? $index }}" data-bp-select-item aria-label="{{ __('Besuch auswählen') }}">
-                                    </div>
+                                    if (! empty($visit['scheduled_from'])) {
+                                        try {
+                                            $scheduledFrom = \Illuminate\Support\Carbon::createFromFormat('d.m.Y H:i', $visit['scheduled_from']);
+                                        } catch (\Throwable $e) {
+                                            $scheduledFrom = null;
+                                        }
+                                    }
 
-                                    <div class="bp-av-cell">
-                                        <div class="bp-av-title-wrap">
-                                            <span class="bp-av-title">{{ $visit['title'] }}</span>
+                                    if ($scheduledFrom) {
+                                        $visitDateLabel = ($weekdayMap[$scheduledFrom->dayOfWeekIso] ?? $scheduledFrom->isoFormat('dd')).', '.$scheduledFrom->format('d.m.').' | '.$scheduledFrom->format('H:i').' '.__('Uhr');
+                                        $yearLabel = $scheduledFrom->format('Y');
+                                    } elseif (! empty($visit['date']) && ! empty($visit['time'])) {
+                                        $visitDateLabel = $visit['date'].' | '.$visit['time'].' '.__('Uhr');
+                                    }
+
+                                    if ($yearLabel === null) {
+                                        $yearLabel = __('Ohne Jahr');
+                                    }
+
+                                    if (is_array($visit['status'] ?? null)) {
+                                        $visitStatusLabel = $visit['status']['label'] ?? '';
+                                        $visitStatusClass = $visit['status']['class'] ?? '';
+                                    } else {
+                                        $visitStatusLabel = (string) ($visit['status'] ?? '');
+                                        $visitStatusClass = '';
+                                    }
+
+                                    $visitStatusLabel = preg_replace('/^\s*[•·]\s*/u', '', $visitStatusLabel);
+                                    $visitStatusClass = trim(str_replace('bp-status-pill', '', $visitStatusClass));
+                                    $participants = $visit['participants'] ?? array_merge($visit['visible_participants'] ?? [], $visit['hidden_participants'] ?? []);
+                                    $detailId = 'bp-av-details-'.$index.'-'.($visit['id'] ?? $index);
+                                    $noteText = trim((string) ($visit['notes'] ?? ($visit['note'] ?? '')));
+                                @endphp
+
+                                @if ($yearLabel !== $previousYear)
+                                    <div class="bp-av-year-divider"><span>{{ $yearLabel }}</span></div>
+                                    @php $previousYear = $yearLabel; @endphp
+                                @endif
+
+                                <article class="bp-av-entry">
+                                    <div class="bp-av-visit-row" data-bp-visit-row data-bp-open-url="{{ $visit['open_url'] ?? route('portal.visits.show', $visit['id']) }}" data-bp-toggle-details="{{ $detailId }}" aria-expanded="false">
+                                        <div class="bp-av-cell bp-av-cell-check">
+                                            <input type="checkbox" class="checkbox checkbox-sm bp-av-checkbox" name="selected_visits[]" value="{{ $visit['id'] ?? $index }}" data-bp-select-item aria-label="{{ __('Besuch auswählen') }}">
+                                        </div>
+
+                                        <div class="bp-av-cell">
+                                            <div class="bp-av-title-wrap">
+                                                <span class="bp-av-title">{{ $visit['title'] }}</span>
+                                            </div>
+                                        </div>
+
+                                        <div class="bp-av-cell">
+                                            <span class="bp-av-date-label">{{ $visitDateLabel ?: '—' }}</span>
+                                        </div>
+
+                                        <div class="bp-av-cell">
+                                            @if ($visitStatusLabel !== '')
+                                                <span class="bp-av-status-text {{ $visitStatusClass }}">{{ $visitStatusLabel }}</span>
+                                            @else
+                                                <span class="bp-av-status-text">—</span>
+                                            @endif
+                                        </div>
+
+                                        <div class="bp-av-cell">
+                                            <span class="bp-av-host">{{ $visit['host_display'] ?? $visit['host'] ?? '—' }}</span>
+                                        </div>
+
+                                        <div class="bp-av-cell">
+                                            <span class="bp-av-count">{{ $visit['participants_count'] ?? $visit['participant_count'] ?? count($participants) }}</span>
+                                        </div>
+
+                                        <div class="bp-av-cell">
+                                            <span class="bp-av-note" title="{{ $noteText !== '' ? $noteText : '—' }}">{{ $noteText !== '' ? $noteText : '—' }}</span>
                                         </div>
                                     </div>
 
-                                    <div class="bp-av-cell">
-                                        <span class="bp-av-date-label">{{ $visitDateLabel ?: '—' }}</span>
-                                    </div>
+                                    <div id="{{ $detailId }}" class="bp-av-entry-details" hidden>
+                                        <div class="bp-av-participant-table">
+                                            <div class="bp-av-participant-head">
+                                                <div>{{ __('Name') }}</div>
+                                                <div>{{ __('Unternehmen') }}</div>
+                                                <div>{{ __('Status') }}</div>
+                                                <div>{{ __('Ausweis') }}</div>
+                                                <div>{{ __('Aktion') }}</div>
+                                            </div>
 
-                                    <div class="bp-av-cell">
-                                        @if ($visitStatusLabel !== '')
-                                            <span class="bp-av-status-text {{ $visitStatusClass }}">{{ $visitStatusLabel }}</span>
-                                        @else
-                                            <span class="bp-av-status-text">—</span>
-                                        @endif
-                                    </div>
+                                            @php
+                                                $renderParticipants = function ($participants) {
+                                                    foreach ($participants as $participant) {
+                                                        $salutation = trim((string) ($participant['salutation'] ?? ''));
+                                                        $title = trim((string) ($participant['title'] ?? ''));
+                                                        $baseName = trim((string) ($participant['name'] ?? '—'));
+                                                        $displayName = trim(collect([$salutation, $title, $baseName])->filter()->implode(' '));
+                                                        $displayName = $displayName !== '' ? $displayName : '—';
 
-                                    <div class="bp-av-cell">
-                                        <span class="bp-av-host">{{ $visit['host_display'] ?? $visit['host'] ?? '—' }}</span>
-                                    </div>
+                                                        $badgeUrl = $participant['badge_url'] ?? null;
+                                                        $rawStatusLabel = $participant['status_label'] ?? ($participant['status']['label'] ?? ($participant['status'] ?? null));
+                                                        $statusLabel = $rawStatusLabel ? preg_replace('/^\s*[•·]\s*/u', '', (string) $rawStatusLabel) : '—';
+                                                        $statusClass = trim(str_replace('bp-status-pill', '', (string) ($participant['status_class'] ?? ($participant['status']['class'] ?? ''))));
 
-                                    <div class="bp-av-cell">
-                                        <span class="bp-av-count">{{ $visit['participants_count'] ?? $visit['participant_count'] ?? count($participants) }}</span>
-                                    </div>
+                                                        $checkInUrl = $participant['check_in_url'] ?? null;
+                                                        $checkOutUrl = $participant['check_out_url'] ?? null;
+                                                        $checkInLabel = $participant['check_in_label'] ?? __('Check-in');
+                                                        $canCheckIn = (bool) ($participant['can_check_in'] ?? false);
+                                                        $canCheckOut = (bool) ($participant['can_check_out'] ?? false);
 
-                                    <div class="bp-av-cell">
-                                        <span class="bp-av-note" title="{{ $noteText !== '' ? $noteText : '—' }}">{{ $noteText !== '' ? $noteText : '—' }}</span>
-                                    </div>
-                                </div>
+                                                        if (! $canCheckIn && ! $canCheckOut && ! empty($participant['action_url'])) {
+                                                            $legacyActionLabel = (string) ($participant['action_label'] ?? '');
+                                                            $legacyActionUrl = $participant['action_url'];
+                                                            $legacyActionLower = mb_strtolower($legacyActionLabel);
 
-                                <div id="{{ $detailId }}" class="bp-av-entry-details" hidden>
-                                    <div class="bp-av-participant-table">
-                                        <div class="bp-av-participant-head">
-                                            <div>{{ __('Name') }}</div>
-                                            <div>{{ __('Unternehmen') }}</div>
-                                            <div>{{ __('Status') }}</div>
-                                            <div>{{ __('Ausweis') }}</div>
-                                            <div>{{ __('Aktion') }}</div>
-                                        </div>
-
-                                        @php
-                                            $renderParticipants = function ($participants) {
-                                                foreach ($participants as $participant) {
-                                                    $salutation = trim((string) ($participant['salutation'] ?? ''));
-                                                    $title = trim((string) ($participant['title'] ?? ''));
-                                                    $baseName = trim((string) ($participant['name'] ?? '—'));
-                                                    $displayName = trim(collect([$salutation, $title, $baseName])->filter()->implode(' '));
-                                                    $displayName = $displayName !== '' ? $displayName : '—';
-
-                                                    $badgeUrl = $participant['badge_url'] ?? null;
-                                                    $rawStatusLabel = $participant['status_label'] ?? ($participant['status']['label'] ?? ($participant['status'] ?? null));
-                                                    $statusLabel = $rawStatusLabel ? preg_replace('/^\s*[•·]\s*/u', '', (string) $rawStatusLabel) : '—';
-                                                    $statusClass = trim(str_replace('bp-status-pill', '', (string) ($participant['status_class'] ?? ($participant['status']['class'] ?? ''))));
-
-                                                    $checkInUrl = $participant['check_in_url'] ?? null;
-                                                    $checkOutUrl = $participant['check_out_url'] ?? null;
-                                                    $checkInLabel = $participant['check_in_label'] ?? __('Check-in');
-                                                    $canCheckIn = (bool) ($participant['can_check_in'] ?? false);
-                                                    $canCheckOut = (bool) ($participant['can_check_out'] ?? false);
-
-                                                    if (! $canCheckIn && ! $canCheckOut && ! empty($participant['action_url'])) {
-                                                        $legacyActionLabel = (string) ($participant['action_label'] ?? '');
-                                                        $legacyActionUrl = $participant['action_url'];
-                                                        $legacyActionLower = mb_strtolower($legacyActionLabel);
-
-                                                        if (str_contains($legacyActionLower, 'check-out') || str_contains($legacyActionLower, 'checkout')) {
-                                                            $canCheckOut = true;
-                                                            $checkOutUrl = $legacyActionUrl;
-                                                        } elseif ($legacyActionLabel !== '') {
-                                                            $canCheckIn = true;
-                                                            $checkInUrl = $legacyActionUrl;
-                                                            $checkInLabel = $legacyActionLabel;
+                                                            if (str_contains($legacyActionLower, 'check-out') || str_contains($legacyActionLower, 'checkout')) {
+                                                                $canCheckOut = true;
+                                                                $checkOutUrl = $legacyActionUrl;
+                                                            } elseif ($legacyActionLabel !== '') {
+                                                                $canCheckIn = true;
+                                                                $checkInUrl = $legacyActionUrl;
+                                                                $checkInLabel = $legacyActionLabel;
+                                                            }
                                                         }
-                                                    }
 
-                                                    echo '<div class="bp-av-participant-row">';
-                                                    echo '<div class="bp-av-cell"><span class="bp-av-participant-name">'.e($displayName).'</span></div>';
-                                                    echo '<div class="bp-av-cell"><span class="bp-av-participant-company">'.e($participant['company'] ?? '—').'</span></div>';
-                                                    echo '<div class="bp-av-cell"><span class="bp-av-status-text '.e($statusClass).'">'.e($statusLabel).'</span></div>';
-                                                    echo '<div class="bp-av-cell bp-av-badge-cell">';
-                                                    if ($badgeUrl) {
-                                                        echo '<form method="POST" action="'.e($badgeUrl).'">';
-                                                        echo csrf_field();
-                                                        echo '<button type="submit" class="btn btn-outline btn-sm bp-av-row-btn">'.e(__('Ausweis')).'</button>';
-                                                        echo '</form>';
-                                                    } else {
-                                                        echo '<button type="button" class="btn btn-outline btn-sm bp-av-row-btn">'.e(__('Ausweis')).'</button>';
+                                                        echo '<div class="bp-av-participant-row">';
+                                                        echo '<div class="bp-av-cell"><span class="bp-av-participant-name">'.e($displayName).'</span></div>';
+                                                        echo '<div class="bp-av-cell"><span class="bp-av-participant-company">'.e($participant['company'] ?? '—').'</span></div>';
+                                                        echo '<div class="bp-av-cell"><span class="bp-av-status-text '.e($statusClass).'">'.e($statusLabel).'</span></div>';
+                                                        echo '<div class="bp-av-cell bp-av-badge-cell">';
+                                                        if ($badgeUrl) {
+                                                            echo '<form method="POST" action="'.e($badgeUrl).'">';
+                                                            echo csrf_field();
+                                                            echo '<button type="submit" class="btn btn-outline btn-sm bp-av-row-btn">'.e(__('Ausweis')).'</button>';
+                                                            echo '</form>';
+                                                        } else {
+                                                            echo '<button type="button" class="btn btn-outline btn-sm bp-av-row-btn">'.e(__('Ausweis')).'</button>';
+                                                        }
+                                                        echo '</div>';
+                                                        echo '<div class="bp-av-cell bp-av-action-cell">';
+                                                        if ($canCheckIn && $checkInUrl) {
+                                                            echo '<form method="POST" action="'.e($checkInUrl).'" data-bp-ajax="participant-action">';
+                                                            echo csrf_field();
+                                                            echo '<button type="submit" class="btn btn-primary btn-sm bp-av-row-btn">'.e($checkInLabel).'</button>';
+                                                            echo '</form>';
+                                                        } elseif ($canCheckOut && $checkOutUrl) {
+                                                            echo '<form method="POST" action="'.e($checkOutUrl).'" data-bp-ajax="participant-action">';
+                                                            echo csrf_field();
+                                                            echo '<button type="submit" class="btn btn-primary btn-sm bp-av-row-btn">'.e(__('Check-out')).'</button>';
+                                                            echo '</form>';
+                                                        } else {
+                                                            echo '<span class="bp-av-participant-status">—</span>';
+                                                        }
+                                                        echo '</div>';
+                                                        echo '</div>';
                                                     }
-                                                    echo '</div>';
-                                                    echo '<div class="bp-av-cell bp-av-action-cell">';
-                                                    if ($canCheckIn && $checkInUrl) {
-                                                        echo '<form method="POST" action="'.e($checkInUrl).'" data-bp-ajax="participant-action">';
-                                                        echo csrf_field();
-                                                        echo '<button type="submit" class="btn btn-primary btn-sm bp-av-row-btn">'.e($checkInLabel).'</button>';
-                                                        echo '</form>';
-                                                    } elseif ($canCheckOut && $checkOutUrl) {
-                                                        echo '<form method="POST" action="'.e($checkOutUrl).'" data-bp-ajax="participant-action">';
-                                                        echo csrf_field();
-                                                        echo '<button type="submit" class="btn btn-primary btn-sm bp-av-row-btn">'.e(__('Check-out')).'</button>';
-                                                        echo '</form>';
-                                                    } else {
-                                                        echo '<span class="bp-av-participant-status">—</span>';
-                                                    }
-                                                    echo '</div>';
-                                                    echo '</div>';
-                                                }
-                                            };
-                                        @endphp
+                                                };
+                                            @endphp
 
-                                        @if (count($participants) > 0)
-                                            {!! $renderParticipants($participants) !!}
-                                        @else
-                                            <div class="bp-av-empty">{{ __('Keine Teilnehmenden vorhanden.') }}</div>
-                                        @endif
+                                            @if (count($participants) > 0)
+                                                {!! $renderParticipants($participants) !!}
+                                            @else
+                                                <div class="bp-av-empty">{{ __('Keine Teilnehmenden vorhanden.') }}</div>
+                                            @endif
+                                        </div>
                                     </div>
-                                </div>
-                            </article>
-                        @empty
-                            <div class="bp-av-empty">{{ __('Keine Besuche gefunden.') }}</div>
-                        @endforelse
+                                </article>
+                            @empty
+                                <div class="bp-av-empty">{{ __('Keine Besuche gefunden.') }}</div>
+                            @endforelse
+                        </div>
                     </div>
                 </div>
             </div>
