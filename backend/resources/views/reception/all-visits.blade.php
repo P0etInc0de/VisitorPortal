@@ -502,14 +502,14 @@
                 </label>
             </form>
 
-            <form method="GET" action="{{ route('reception.all-visits') }}" class="bp-av-date-form" data-bp-reset-url="{{ route('reception.all-visits', array_filter(['range' => 'all', 'q' => $search ?: null], fn ($value) => $value !== null && $value !== '')) }}">
+            <form method="GET" action="{{ route('reception.all-visits') }}" class="bp-av-date-form" data-bp-reset-url="{{ route('reception.all-visits', ['range' => 'all']) }}">
                 <input type="hidden" name="q" value="{{ $search }}">
                 <input type="hidden" name="range" value="custom">
                 <input type="date" name="from" value="{{ $dateFrom }}" class="input input-bordered input-sm">
                 <span>{{ __('bis') }}</span>
                 <input type="date" name="to" value="{{ $dateTo }}" class="input input-bordered input-sm">
                 <button type="submit" class="btn btn-outline btn-sm">{{ __('Anwenden') }}</button>
-                <a href="{{ route('reception.all-visits', array_filter(['range' => 'all', 'q' => $search ?: null], fn ($value) => $value !== null && $value !== '')) }}" class="btn btn-outline btn-sm">{{ __('Zurücksetzen') }}</a>
+                <a href="{{ route('reception.all-visits', ['range' => 'all']) }}" class="btn btn-outline btn-sm">{{ __('Zurücksetzen') }}</a>
             </form>
         </div>
 
