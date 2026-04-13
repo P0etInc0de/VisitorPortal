@@ -113,7 +113,7 @@
         }
 
         .bp-av-date-form .input {
-            width: 9rem;
+            width: 8.1rem;
         }
 
         .bp-av-date-form .input,
@@ -195,8 +195,8 @@
 
         .bp-av-table-head,
         .bp-av-visit-row {
-            grid-template-columns: 1.85rem minmax(11rem, 1.28fr) minmax(10.4rem, 1.02fr) minmax(6.75rem, .7fr) minmax(5.8rem, .62fr) 3rem minmax(10rem, 1.06fr);
-            gap: .45rem;
+            grid-template-columns: 1.85rem minmax(9.5rem, 11rem) minmax(10rem, 11.5rem) minmax(6.4rem, 7.2rem) minmax(8.5rem, 10.5rem) 3.2rem minmax(12rem, 1fr);
+            gap: .28rem;
         }
 
         .bp-av-table-head {
@@ -311,7 +311,9 @@
         }
 
         .bp-av-count {
-            justify-content: flex-start;
+            width: 100%;
+            justify-content: center;
+            text-align: center;
             font-weight: 600;
             color: hsl(var(--bc) / .82);
         }
@@ -333,7 +335,7 @@
 
         .bp-av-table-head .bp-av-cell:nth-child(6),
         .bp-av-visit-row .bp-av-cell:nth-child(6) {
-            justify-content: flex-start;
+            justify-content: center;
         }
 
         .bp-av-status-text::before,
