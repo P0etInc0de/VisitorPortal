@@ -3,6 +3,7 @@
 namespace AdminPanel;
 
 use App\Filament\Resources\Users\Pages\CreateUser;
+use App\Filament\Resources\Users\Pages\EditUser;
 use App\Models\User;
 use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -128,7 +129,7 @@ class AdminAdministerUserTest extends TestCase
 
         // delete the existing test user
         Livewire::actingAs($admin)
-            ->test(\App\Filament\Resources\Users\Pages\EditUser::class, ['record' => $user->getRouteKey()])
+            ->test(EditUser::class, ['record' => $user->getRouteKey()])
             ->callAction('delete')
             ->assertHasNoErrors();
 
