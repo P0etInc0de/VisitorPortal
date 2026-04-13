@@ -23,7 +23,7 @@ class VisitController extends Controller
 
         $query = Visit::query()
             ->with([
-                'host:id,name',
+                'host:id,first_name,name',
                 'visitors' => function ($query) {
                     $query->orderBy('first_name')->orderBy('name');
                 },
@@ -36,7 +36,9 @@ class VisitController extends Controller
                     $query->where('title', 'like', '%'.$search.'%')
                         ->orWhere('notes', 'like', '%'.$search.'%')
                         ->orWhereHas('host', function ($query) use ($search) {
-                            $query->where('name', 'like', '%'.$search.'%');
+                            $query->where('first_name', 'like', '%'.$search.'%')
+                                ->orWhere('name', 'like', '%'.$search.'%')
+                                ->orWhereRaw("concat(first_name, ' ', name) like ?", ['%'.$search.'%']);
                         })
                         ->orWhereHas('visitors', function ($query) use ($search) {
                             $query->where('first_name', 'like', '%'.$search.'%')
@@ -62,7 +64,8 @@ class VisitController extends Controller
                 'date' => optional($visit->scheduled_from)->format('d.m.'),
                 'scheduled_from' => optional($visit->scheduled_from)->format('d.m.Y H:i'),
                 'scheduled_until' => optional($visit->scheduled_until)->format('d.m.Y H:i'),
-                'host' => $visit->host?->name ?: '-',
+                                'host' => trim(($visit->host?->first_name ?? '').' '.($visit->host?->name ?? '')),
+                'host_display' => trim(($visit->host?->first_name ?? '').' '.($visit->host?->name ?? '')),
                 'status' => $this->resolveVisitStatusLabel($visit->status),
                 'notes' => $visit->notes,
                 'participants' => $participants,

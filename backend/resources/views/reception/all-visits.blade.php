@@ -59,8 +59,9 @@
 
         .bp-av-page {
             display: grid;
-            grid-template-rows: auto auto minmax(0, 1fr);
-            gap: .72rem;
+            grid-template-rows: auto auto auto minmax(0, 1fr);
+            gap: .45rem;
+            align-content: start;
             min-height: calc(100dvh - 7.35rem);
             max-height: calc(100dvh - 7.35rem);
             overflow: visible;
@@ -134,6 +135,20 @@
             display: flex;
             flex-wrap: wrap;
             gap: .5rem;
+            margin-bottom: -.08rem;
+        }
+
+        .bp-av-interaction-hint {
+            margin-top: -.16rem;
+            padding: 0 .1rem 0;
+            font-size: .84rem;
+            line-height: 1.25;
+            color: hsl(var(--bc) / .62);
+        }
+
+        .bp-av-interaction-hint strong {
+            font-weight: 600;
+            color: hsl(var(--bc) / .74);
         }
 
         .bp-av-filter-bar .btn {
@@ -144,6 +159,10 @@
         .bp-av-table-card {
             min-height: 0;
             height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            align-self: stretch;
             border: 1px solid hsl(var(--b3));
             background: hsl(var(--b1));
             border-radius: 1.35rem;
@@ -154,6 +173,10 @@
         .bp-av-table-wrap {
             min-height: 0;
             height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            align-items: stretch;
             overflow: auto;
         }
 
@@ -205,8 +228,8 @@
         }
 
         .bp-av-visit-row {
-            padding: .28rem .75rem;
-            min-height: 2.6rem;
+            padding: .18rem .75rem;
+            min-height: 2.35rem;
             background: hsl(var(--b1));
         }
 
@@ -226,7 +249,11 @@
             min-width: 0;
             display: flex;
             align-items: center;
-            overflow: hidden;
+            overflow: visible;
+        }
+
+        .bp-av-cell > * {
+            min-width: 0;
         }
 
         .bp-av-cell-check {
@@ -249,7 +276,7 @@
         .bp-av-title {
             font-size: .9rem;
             font-weight: 700;
-            line-height: 1.08;
+            line-height: 1.18;
             color: hsl(var(--bc));
             white-space: nowrap;
             overflow: hidden;
@@ -263,7 +290,7 @@
         .bp-av-participant-company,
         .bp-av-participant-status {
             font-size: .82rem;
-            line-height: 1.16;
+            line-height: 1.24;
             color: hsl(var(--bc) / .72);
         }
 
@@ -297,10 +324,11 @@
             max-width: 100%;
             font-size: .8rem;
             font-weight: 700;
-            line-height: 1.1;
+            line-height: 1.22;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
+            padding-bottom: .04rem;
         }
 
         .bp-av-table-head .bp-av-cell:nth-child(6),
@@ -502,6 +530,10 @@
             @endforeach
         </div>
 
+        <div class="bp-av-interaction-hint">
+            <span><strong>{{ __('Einmal klicken') }}</strong> {{ __('→ Besucher-Details') }} &nbsp;·&nbsp; <strong>{{ __('Doppelt klicken') }}</strong> {{ __('→ Besuch öffnen') }}</span>
+        </div>
+
         <section class="bp-av-table-card">
             <div class="bp-av-table-wrap">
                 <div class="bp-av-table">
@@ -593,7 +625,7 @@
                                     </div>
 
                                     <div class="bp-av-cell">
-                                        <span class="bp-av-host">{{ $visit['host'] ?? '—' }}</span>
+                                        <span class="bp-av-host">{{ $visit['host_display'] ?? $visit['host'] ?? '—' }}</span>
                                     </div>
 
                                     <div class="bp-av-cell">
