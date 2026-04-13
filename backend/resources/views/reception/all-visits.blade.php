@@ -394,10 +394,10 @@
             display: inline-block;
             width: auto;
             max-width: 100%;
-            border: 1px solid hsl(var(--bc) / .12);
+            border: 2px solid rgba(15, 23, 42, .14);
             border-radius: 1rem;
-            background: hsl(var(--b2) / .98);
-            box-shadow: 0 0 0 1px rgba(15, 23, 42, .03), inset 0 1px 0 rgba(255, 255, 255, .45);
+            background: rgba(15, 23, 42, .045);
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, .28);
             overflow: hidden;
         }
 
@@ -410,8 +410,8 @@
         }
 
         .bp-av-participant-head {
-            background: hsl(var(--b3) / .34);
-            border-bottom: 1px solid hsl(var(--bc) / .08);
+            background: rgba(15, 23, 42, .055);
+            border-bottom: 1px solid rgba(15, 23, 42, .10);
             color: hsl(var(--bc) / .74);
             font-size: .7rem;
             font-weight: 700;
