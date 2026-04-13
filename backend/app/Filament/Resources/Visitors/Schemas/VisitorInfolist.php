@@ -11,8 +11,13 @@ class VisitorInfolist
     {
         return $schema
             ->components([
-                TextEntry::make('first_name'),
-                TextEntry::make('last_name'),
+                TextEntry::make('first_name')
+                    ->label('Vorname'),
+                TextEntry::make('name')
+                    ->label('Nachname'),
+                TextEntry::make('title')
+                    ->label('Titel'),
+                TextEntry::make('gender'),
                 TextEntry::make('email')
                     ->label('Email address'),
                 TextEntry::make('phone'),

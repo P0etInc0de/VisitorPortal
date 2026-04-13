@@ -3,10 +3,14 @@
 namespace App\Notifications\Host;
 
 use App\Mail\Host\VisitCreatedMail;
+use App\Models\User;
+use App\Models\Visit;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
 use Illuminate\Notifications\Notification;
+use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Log;
 
 class VisitCreated extends Notification implements ShouldQueue
 {
@@ -15,17 +19,17 @@ class VisitCreated extends Notification implements ShouldQueue
     /**
      * Create a new notification instance.
      */
-    public function __construct()
-    {
-        //
-    }
+    public function __construct(
+        protected Visit $visit,
+        protected Collection $visitors,
+    ) {}
 
     /**
      * Get the notification's delivery channels.
      *
      * @return array<int, string>
      */
-    public function via(object $notifiable): array
+    public function via(User $notifiable): array
     {
         return ['mail'];
     }
@@ -33,9 +37,16 @@ class VisitCreated extends Notification implements ShouldQueue
     /**
      * Get the mail representation of the notification.
      */
-    public function toMail(object $notifiable): Mailable
+    public function toMail(User $notifiable): Mailable
     {
-        return (new VisitCreatedMail)->to($notifiable->email);
+        Log::channel('mail')->info('Notifying Host(User) per E-Mail, that a visit was created', [
+            'user_id' => $notifiable->id,
+            'visit_id' => $this->visit->id,
+            'visitor_count' => $this->visitors->count(),
+            'class' => get_class(),
+        ]);
+
+        return (new VisitCreatedMail($this->visit, $this->visitors, $notifiable))->to($notifiable->email);
     }
 
     /**

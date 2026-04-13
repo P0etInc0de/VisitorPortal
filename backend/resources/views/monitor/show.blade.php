@@ -1,16 +1,19 @@
 @php
     $hasLogo = file_exists(public_path('images/logo.png'));
-    $hasCustomBackground = file_exists(public_path('images/monitor-background.jpg')) || file_exists(public_path('images/monitor-background.png'));
-    $backgroundAsset = file_exists(public_path('images/monitor-background.jpg'))
-        ? asset('images/monitor-background.jpg')
-        : (file_exists(public_path('images/monitor-background.png')) ? asset('images/monitor-background.png') : null);
 
-    $visitors = [
-        ['time' => '09:30', 'name' => 'Max Mustermann', 'company' => 'Beispiel GmbH'],
-        ['time' => '11:00', 'name' => 'Anna Becker', 'company' => 'ACME AG'],
-        ['time' => '13:30', 'name' => 'David Keller', 'company' => 'Tech Solutions'],
-        ['time' => '15:00', 'name' => 'Sven Maurer', 'company' => 'Maurer Industrie'],
-    ];
+    $customBackgroundJpg = public_path('images/monitor-background.jpg');
+    $customBackgroundPng = public_path('images/monitor-background.png');
+
+    $backgroundAsset = null;
+    $hasCustomBackground = false;
+
+    if (file_exists($customBackgroundJpg)) {
+        $backgroundAsset = asset('images/monitor-background.jpg');
+        $hasCustomBackground = true;
+    } elseif (file_exists($customBackgroundPng)) {
+        $backgroundAsset = asset('images/monitor-background.png');
+        $hasCustomBackground = true;
+    }
 @endphp
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}" data-theme="light">
@@ -37,9 +40,7 @@
                     @endif
 
                     <div>
-                        <p class="text-sm font-medium uppercase tracking-[0.28em] text-base-content/50">
-                            {{ __('Besucherportal') }}
-                        </p>
+                        <p class="text-sm font-medium uppercase tracking-[0.28em] text-base-content/50">{{ __('Besucherportal') }}</p>
                     </div>
                 </div>
 
@@ -53,33 +54,38 @@
                 <section class="flex flex-col justify-between gap-10">
                     <div class="max-w-4xl">
                         <h1 class="bp-monitor-title">{{ __('Herzlich willkommen') }}</h1>
-                        <p class="bp-monitor-subtitle">
-                            {{ __('Wir freuen uns auf Ihren Besuch. Bitte melden Sie sich bei Ihrer Ankunft am Empfang oder nutzen Sie den bereitgestellten Self-Check-in.') }}
-                        </p>
+                        <p class="bp-monitor-subtitle">{{ __('Wir freuen uns auf Ihren Besuch. Bitte melden Sie sich bei Ihrer Ankunft am Empfang oder nutzen Sie den bereitgestellten Self-Check-in.') }}</p>
                     </div>
 
                     <div class="grid gap-5 lg:grid-cols-2">
-                        @foreach ($visitors as $visitor)
+                        @forelse ($monitorVisitors as $visitor)
                             <article class="bp-monitor-visit-card">
                                 <div class="bp-monitor-visit-time">{{ $visitor['time'] }}</div>
                                 <div>
                                     <h2 class="bp-monitor-visit-name">{{ $visitor['name'] }}</h2>
                                     <p class="bp-monitor-visit-company">{{ $visitor['company'] }}</p>
+                                    <p class="mt-2 text-sm text-base-content/58">{{ $visitor['title'] }}</p>
                                 </div>
                             </article>
-                        @endforeach
+                        @empty
+                            <article class="bp-monitor-visit-card">
+                                <div>
+                                    <h2 class="bp-monitor-visit-name">{{ __('Heute sind noch keine Besuche geplant.') }}</h2>
+                                </div>
+                            </article>
+                        @endforelse
                     </div>
                 </section>
 
                 <aside class="bp-monitor-side-panel">
                     <div>
                         <div class="bp-monitor-side-label">{{ __('Als Nächstes') }}</div>
-                        <div class="mt-4 bp-monitor-chip inline-flex">{{ $visitors[0]['time'] }}</div>
+                        <div class="mt-4 bp-monitor-chip inline-flex">{{ $monitorVisitors[0]['time'] ?? '–' }}</div>
                     </div>
 
                     <div class="mt-8">
-                        <h2 class="text-4xl font-semibold tracking-tight">{{ $visitors[0]['name'] }}</h2>
-                        <p class="mt-3 text-2xl text-base-content/72">{{ $visitors[0]['company'] }}</p>
+                        <h2 class="text-4xl font-semibold tracking-tight">{{ $monitorVisitors[0]['name'] ?? __('Kein Besuch geplant') }}</h2>
+                        <p class="mt-3 text-2xl text-base-content/72">{{ $monitorVisitors[0]['company'] ?? __('—') }}</p>
                     </div>
 
                     <div class="mt-10 rounded-3xl border border-white/45 bg-white/55 px-6 py-5">

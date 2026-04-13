@@ -1,28 +1,30 @@
-@php use Carbon\Carbon; @endphp
+@php
+    use App\Enums\GenderEnum;
+    use Carbon\Carbon;
+@endphp
 <x-mail.message_component :message="$message">
-# Anstehende Besuche
+# {{__('Anstehende Besuche')}}
 
-@if($gender == 'male')
-Guten Morgen Herr {{ $last_name }},
-@elseif($gender == 'female')
-Guten Morgen Frau {{ $last_name }},
+@if($user->gender == GenderEnum::Male)
+{{__('Guten Tag Herr')}} {{$user->title . ' '}} {{ $user->name }},
+@elseif($user->gender == GenderEnum::Female)
+{{__('Guten Tag Frau')}} {{$user->title . ' '}} {{ $user->name }},
 @else
-Guten Morgen,
+{{__('Guten Tag')}} {{$user->title . ' '}}{{ $user->first_name }} {{ $user->name }},
 @endif
 
-Sie haben heute Folgende Besuche:
+{{__('Sie haben heute folgende Besuche')}}:
 
 <x-mail::table>
-    | Start | Ende | Notizen |
-    | :-----------: | :------------: | :------------: |
+    |{{__('Titel')}} | {{__('Start')}} | {{__('Ende')}} | {{__('Besucher')}} |
+    | :-----------:| :-----------: | :-----------: | :------------: |
     @foreach($visitCollection as $visit)
-        | {{ Carbon::parse($visit->scheduled_from)->format('H:i') }} | {{ Carbon::parse($visit->scheduled_until)->format('H:i') }} | {{ $visit->notes }} |
+        | {{$visit->title}} | {{ Carbon::parse($visit->scheduled_from)->format('H:i') }} | {{ Carbon::parse($visit->scheduled_until)->format('H:i') }} | @foreach($visitorCollection[$visit->id] as $v){{ $v->title.' ' }}{{ $v->first_name }} {{ $v->name }}<br>@endforeach |
     @endforeach
-
 </x-mail::table>
 
 <x-mail::button :url='route("dashboard")'>
-    Weiter Informationen
+    {{__('Weitere Informationen')}}
 </x-mail::button>
 
 </x-mail.message_component>

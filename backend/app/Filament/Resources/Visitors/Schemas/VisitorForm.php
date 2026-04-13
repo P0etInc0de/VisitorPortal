@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Visitors\Schemas;
 
+use App\Enums\GenderEnum;
 use App\Enums\VisitorStatusEnum;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
@@ -15,9 +16,17 @@ class VisitorForm
         return $schema
             ->components([
                 TextInput::make('first_name')
+                    ->label('Vorname')
                     ->required(),
-                TextInput::make('last_name')
+                TextInput::make('name')
+                    ->label('Nachname')
                     ->required(),
+                TextInput::make('title')
+                    ->label('Titel'),
+                Select::make('gender')
+                    ->options(GenderEnum::class)
+                    ->required()
+                    ->default(GenderEnum::Not_Specified),
                 TextInput::make('email')
                     ->label('Email address')
                     ->email()
