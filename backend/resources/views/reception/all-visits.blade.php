@@ -113,7 +113,7 @@
         }
 
         .bp-av-date-form .input {
-            width: 8.1rem;
+            width: 9rem;
         }
 
         .bp-av-date-form .input,
@@ -195,8 +195,8 @@
 
         .bp-av-table-head,
         .bp-av-visit-row {
-            grid-template-columns: 1.85rem minmax(9.5rem, 11rem) minmax(10rem, 11.5rem) minmax(6.4rem, 7.2rem) minmax(8.5rem, 10.5rem) 3.2rem minmax(12rem, 1fr);
-            gap: .28rem;
+            grid-template-columns: 1.85rem minmax(11rem, 1.28fr) minmax(10.4rem, 1.02fr) minmax(6.75rem, .7fr) minmax(5.8rem, .62fr) 3rem minmax(10rem, 1.06fr);
+            gap: .45rem;
         }
 
         .bp-av-table-head {
@@ -311,9 +311,7 @@
         }
 
         .bp-av-count {
-            width: 100%;
-            justify-content: center;
-            text-align: center;
+            justify-content: flex-start;
             font-weight: 600;
             color: hsl(var(--bc) / .82);
         }
@@ -335,7 +333,7 @@
 
         .bp-av-table-head .bp-av-cell:nth-child(6),
         .bp-av-visit-row .bp-av-cell:nth-child(6) {
-            justify-content: center;
+            justify-content: flex-start;
         }
 
         .bp-av-status-text::before,
@@ -384,8 +382,8 @@
         }
 
         .bp-av-entry-details {
-            padding: 0 .75rem .24rem 2.6rem;
-            background: hsl(var(--b2) / .18);
+            padding: .18rem .75rem .48rem 2.6rem;
+            background: transparent;
         }
 
         .bp-av-entry-details[hidden] {
@@ -393,23 +391,28 @@
         }
 
         .bp-av-participant-table {
-            border: 1px solid hsl(var(--b3));
-            border-radius: .82rem;
-            background: hsl(var(--b1));
+            display: inline-block;
+            width: auto;
+            max-width: 100%;
+            border: 1px solid hsl(var(--bc) / .12);
+            border-radius: 1rem;
+            background: hsl(var(--b2) / .98);
+            box-shadow: 0 0 0 1px rgba(15, 23, 42, .03), inset 0 1px 0 rgba(255, 255, 255, .45);
             overflow: hidden;
         }
 
         .bp-av-participant-head,
         .bp-av-participant-row {
-            grid-template-columns: minmax(10rem, 1.2fr) minmax(8rem, .95fr) minmax(6.6rem, .78fr) 6rem 7.25rem;
-            gap: .35rem;
-            padding: .24rem .55rem;
+            grid-template-columns: minmax(7.5rem, 8.9rem) minmax(5rem, 6rem) minmax(4.9rem, 5.8rem) 6.4rem 11.4rem;
+            justify-content: start;
+            gap: .42rem;
+            padding: .3rem .56rem;
         }
 
         .bp-av-participant-head {
-            background: hsl(var(--b2) / .5);
-            border-bottom: 1px solid hsl(var(--b3));
-            color: hsl(var(--bc) / .64);
+            background: hsl(var(--b3) / .34);
+            border-bottom: 1px solid hsl(var(--bc) / .08);
+            color: hsl(var(--bc) / .74);
             font-size: .7rem;
             font-weight: 700;
             letter-spacing: .04em;
@@ -417,7 +420,7 @@
         }
 
         .bp-av-participant-row + .bp-av-participant-row {
-            border-top: 1px solid hsl(var(--b3));
+            border-top: 1px solid hsl(var(--bc) / .06);
         }
 
         .bp-av-participant-name {
@@ -436,12 +439,34 @@
             margin: 0;
         }
 
+        .bp-av-badge-cell,
+        .bp-av-action-cell {
+            justify-content: flex-start;
+        }
+
         .bp-av-row-btn {
             width: 100%;
             justify-content: center;
             text-align: center;
-            padding-left: .6rem;
-            padding-right: .6rem;
+            padding-left: .56rem;
+            padding-right: .56rem;
+        }
+
+        .bp-av-badge-cell form,
+        .bp-av-badge-cell .bp-av-row-btn {
+            width: auto;
+        }
+
+        .bp-av-badge-cell .bp-av-row-btn {
+            min-width: 0;
+            width: 100%;
+            padding-left: .34rem;
+            padding-right: .34rem;
+        }
+
+        .bp-av-action-cell .bp-av-row-btn {
+            min-width: 0;
+            width: 100%;
         }
 
         .bp-av-empty {
