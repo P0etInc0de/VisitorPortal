@@ -4,6 +4,47 @@
     $search = $search ?? '';
     $dateFrom = $dateFrom ?? request('from', '');
     $dateTo = $dateTo ?? request('to', '');
+    $visits = $visits ?? [];
+    $longestParticipantActionLabel = (string) __('Check-out');
+
+    foreach ($visits as $visitData) {
+        $visitParticipants = $visitData['participants'] ?? array_merge($visitData['visible_participants'] ?? [], $visitData['hidden_participants'] ?? []);
+
+        foreach ($visitParticipants as $participant) {
+            $labelsToMeasure = [];
+            $canCheckIn = (bool) ($participant['can_check_in'] ?? false);
+            $canCheckOut = (bool) ($participant['can_check_out'] ?? false);
+
+            if ($canCheckIn) {
+                $labelsToMeasure[] = (string) ($participant['check_in_label'] ?? __('Check-in'));
+            }
+
+            if ($canCheckOut) {
+                $labelsToMeasure[] = (string) __('Check-out');
+            }
+
+            if (! $canCheckIn && ! $canCheckOut && ! empty($participant['action_url'])) {
+                $legacyActionLabel = trim((string) ($participant['action_label'] ?? ''));
+                $legacyActionLower = mb_strtolower($legacyActionLabel);
+
+                if (str_contains($legacyActionLower, 'check-out') || str_contains($legacyActionLower, 'checkout')) {
+                    $labelsToMeasure[] = (string) __('Check-out');
+                } elseif ($legacyActionLabel !== '') {
+                    $labelsToMeasure[] = $legacyActionLabel;
+                }
+            }
+
+            foreach ($labelsToMeasure as $labelToMeasure) {
+                $labelToMeasure = trim($labelToMeasure);
+
+                if ($labelToMeasure !== '' && mb_strwidth($labelToMeasure) > mb_strwidth($longestParticipantActionLabel)) {
+                    $longestParticipantActionLabel = $labelToMeasure;
+                }
+            }
+        }
+    }
+
+    $participantActionWidthFallback = 'calc('.max(mb_strwidth($longestParticipantActionLabel), mb_strwidth((string) __('Aktion')), 8).'ch + 1.35rem)';
     $rangeDateValues = [
         'today' => [
             'from' => now()->toDateString(),
@@ -113,7 +154,10 @@
         }
 
         .bp-av-date-form .input {
-            width: 9rem;
+            width: 6.85rem;
+            min-width: 6.85rem;
+            max-width: 6.85rem;
+            flex: 0 0 6.85rem;
         }
 
         .bp-av-date-form .input,
@@ -311,7 +355,9 @@
         }
 
         .bp-av-count {
-            justify-content: flex-start;
+            width: 100%;
+            justify-content: center;
+            text-align: center;
             font-weight: 600;
             color: hsl(var(--bc) / .82);
         }
@@ -333,7 +379,7 @@
 
         .bp-av-table-head .bp-av-cell:nth-child(6),
         .bp-av-visit-row .bp-av-cell:nth-child(6) {
-            justify-content: flex-start;
+            justify-content: center;
         }
 
         .bp-av-status-text::before,
@@ -403,7 +449,7 @@
 
         .bp-av-participant-head,
         .bp-av-participant-row {
-            grid-template-columns: minmax(7.5rem, 8.9rem) minmax(5rem, 6rem) minmax(4.9rem, 5.8rem) 6.4rem 11.4rem;
+            grid-template-columns: minmax(7.5rem, 8.9rem) minmax(5rem, 6rem) minmax(4.9rem, 5.8rem) 6.4rem var(--bp-av-action-width, var(--bp-av-action-width-fallback, 10rem));
             justify-content: start;
             gap: .42rem;
             padding: .3rem .56rem;
@@ -430,13 +476,17 @@
 
         .bp-av-action-cell,
         .bp-av-badge-cell {
-            width: 100%;
+            width: auto;
         }
 
         .bp-av-action-cell form,
         .bp-av-badge-cell form {
-            width: 100%;
+            width: auto;
             margin: 0;
+        }
+
+        .bp-av-action-cell form {
+            display: inline-flex;
         }
 
         .bp-av-badge-cell,
@@ -445,7 +495,7 @@
         }
 
         .bp-av-row-btn {
-            width: 100%;
+            width: auto;
             justify-content: center;
             text-align: center;
             padding-left: .56rem;
@@ -459,14 +509,26 @@
 
         .bp-av-badge-cell .bp-av-row-btn {
             min-width: 0;
-            width: 100%;
+            width: auto;
             padding-left: .34rem;
             padding-right: .34rem;
         }
 
         .bp-av-action-cell .bp-av-row-btn {
-            min-width: 0;
-            width: 100%;
+            min-width: var(--bp-av-action-width, var(--bp-av-action-width-fallback, 10rem));
+            width: var(--bp-av-action-width, var(--bp-av-action-width-fallback, 10rem));
+            max-width: var(--bp-av-action-width, var(--bp-av-action-width-fallback, 10rem));
+        }
+
+        .bp-av-action-width-probe {
+            position: absolute;
+            left: -9999px;
+            top: -9999px;
+            visibility: hidden;
+            pointer-events: none;
+            min-width: 0 !important;
+            width: auto !important;
+            max-width: none !important;
         }
 
         .bp-av-empty {
@@ -504,7 +566,7 @@
         }
     </style>
 
-    <div class="bp-content bp-av-page">
+    <div class="bp-content bp-av-page" style="--bp-av-action-width-fallback: {{ $participantActionWidthFallback }};">
         <div class="bp-av-toolbar">
             <form method="GET" action="{{ route('reception.all-visits') }}" class="bp-av-search-form">
                 <label class="bp-search bp-av-search">
@@ -560,6 +622,10 @@
         <div class="bp-av-interaction-hint">
             <span><strong>{{ __('Einmal klicken') }}</strong> {{ __('→ Besucher-Details') }} &nbsp;·&nbsp; <strong>{{ __('Doppelt klicken') }}</strong> {{ __('→ Besuch öffnen') }}</span>
         </div>
+
+        <button type="button" class="btn btn-primary btn-sm bp-av-row-btn bp-av-action-width-probe" data-bp-action-width-probe aria-hidden="true" tabindex="-1">
+            {{ $longestParticipantActionLabel }}
+        </button>
 
         <section class="bp-av-table-card">
             <div class="bp-av-table-wrap">
@@ -778,6 +844,7 @@
 
                 if (current && next) {
                     current.replaceWith(next);
+                    syncActionButtonWidth();
                 }
             };
 
@@ -800,6 +867,30 @@
                 row.closest('.bp-av-entry')?.classList.toggle('bp-av-entry-expanded', ! isExpanded);
                 target.hidden = isExpanded;
             };
+
+            const syncActionButtonWidth = () => {
+                const pageRoot = document.querySelector('.bp-av-page');
+                const probe = document.querySelector('[data-bp-action-width-probe]');
+
+                if (! pageRoot) {
+                    return;
+                }
+
+                if (! probe) {
+                    pageRoot.style.removeProperty('--bp-av-action-width');
+                    return;
+                }
+
+                const probeWidth = Math.ceil(probe.getBoundingClientRect().width);
+
+                if (probeWidth > 0) {
+                    pageRoot.style.setProperty('--bp-av-action-width', `${probeWidth}px`);
+                } else {
+                    pageRoot.style.removeProperty('--bp-av-action-width');
+                }
+            };
+
+            syncActionButtonWidth();
 
             document.addEventListener('click', (event) => {
                 const row = event.target.closest('[data-bp-visit-row]');
