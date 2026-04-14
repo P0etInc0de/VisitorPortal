@@ -5,59 +5,53 @@ namespace Database\Seeders;
 use App\Enums\GenderEnum;
 use App\Models\Department;
 use App\Models\User;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
-use Spatie\Permission\Models\Role;
-use Spatie\Permission\PermissionRegistrar;
 
-class DemoSeeder extends Seeder
+class UserSeeder extends Seeder
 {
+    /**
+     * Seeder for the users table, creates 3 default users (one for each role)
+     */
     public function run(): void
     {
-        // Reset cached roles and permissions
-        app()[PermissionRegistrar::class]->forgetCachedPermissions();
-
-        // Make Roles
-        $this->command?->info('Create Roles');
-
-        $roleEmployee = Role::firstOrCreate(['name' => 'employee']);
-        $roleAdmin = Role::firstOrCreate(['name' => 'super_admin']);
-
-        // Make Users
         $defaultPassword = 'Passwort123!';
 
+        // Create all Users
         $this->createOrUpdateUser(
             name: 'Admin',
-            first_name: 'Demo 2',
+            first_name: 'User',
             gender: GenderEnum::Male,
             title: null,
             email: 'admin@demo.local',
             password: $defaultPassword,
             department: 'IT/Administration',
-        )->assignRole($roleAdmin);
+            role: 'super_admin'
+        );
 
         $this->createOrUpdateUser(
             name: 'Empfang',
-            first_name: 'Demo 1',
+            first_name: 'User',
             gender: GenderEnum::Female,
             title: null,
             email: 'empfang@demo.local',
             password: $defaultPassword,
             department: 'Empfang',
+            role: null,
         );
 
         $this->createOrUpdateUser(
             name: 'Mitarbeiter',
-            first_name: 'Demo 3',
+            first_name: 'User',
             gender: GenderEnum::Male,
             title: null,
             email: 'mitarbeiter@demo.local',
             password: $defaultPassword,
             department: 'Vertrieb',
-        )->assignRole($roleEmployee);
+            role: 'employee',
+        );
 
-        $this->command?->info('DemoSeeder ausgeführt.');
+        $this->command?->info('UserSeeder ausgeführt.');
         $this->command?->info('Demo-Login (alle): Passwort123!');
         $this->command?->line('- admin@demo.local');
         $this->command?->line('- empfang@demo.local');
@@ -72,8 +66,9 @@ class DemoSeeder extends Seeder
         string $email,
         string $password,
         string $department,
-    ): User|Model {
-        // search if department name matches any department in the departments table and get id as foreign key
+        ?string $role = null,
+    ): void {
+        // Search if department name matches any department in the departments table and get id as foreign key
         $dept = Department::query()->where('name', $department)->first();
         $data = [
             'name' => $name,
@@ -85,9 +80,13 @@ class DemoSeeder extends Seeder
             'department_id' => $dept?->id,
         ];
 
-        return User::query()->updateOrCreate(
+        $user = User::query()->updateOrCreate(
             ['email' => $email],
             $data
         );
+
+        if ($role) {
+            $user->syncRoles([$role]);
+        }
     }
 }

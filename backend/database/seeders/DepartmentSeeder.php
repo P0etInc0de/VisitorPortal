@@ -14,7 +14,7 @@ class DepartmentSeeder extends Seeder
     {
         $this->createOrUpdateDept('IT/Administration', 'Achstetten', true); // NOTE: is active is true by default, can be changed here if wanted
         $this->createOrUpdateDept('Empfang', 'Achstetten', true);
-        $this->createOrUpdateDept('Vertrieb', null, true);
+        $this->createOrUpdateDept('Vertrieb', 'Achstetten', true);
     }
 
     private function createOrUpdateDept(string $name, ?string $location, ?bool $is_active): void
