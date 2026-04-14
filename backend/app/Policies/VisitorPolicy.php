@@ -14,27 +14,37 @@ class VisitorPolicy
     
     public function viewAny(AuthUser $authUser): bool
     {
-        return $authUser->can('viewAny:visitor');
+        return $authUser->can('ViewAny:Visitor');
     }
 
     public function view(AuthUser $authUser, Visitor $visitor): bool
     {
-        return $authUser->can('view:visitor');
+        return $authUser->can('View:Visitor');
     }
 
     public function create(AuthUser $authUser): bool
     {
-        return $authUser->can('create:visitor');
+        return $authUser->can('Create:Visitor');
     }
 
     public function update(AuthUser $authUser, Visitor $visitor): bool
     {
-        return $authUser->can('update:visitor');
+        return $authUser->can('Update:Visitor');
     }
 
     public function delete(AuthUser $authUser, Visitor $visitor): bool
     {
-        return $authUser->can('delete:visitor');
+        return $authUser->can('Delete:Visitor');
+    }
+
+    public function deleteAny(AuthUser $authUser, Visitor $visitor): bool
+    {
+        return $authUser->can('DeleteAny:Visitor');
+    }
+
+    public function editAny(AuthUser $authUser, Visitor $visitor): bool
+    {
+        return $authUser->can('EditAny:Visitor');
     }
 
 }

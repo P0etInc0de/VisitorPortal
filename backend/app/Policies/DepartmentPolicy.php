@@ -14,27 +14,27 @@ class DepartmentPolicy
     
     public function viewAny(AuthUser $authUser): bool
     {
-        return $authUser->can('viewAny:department');
+        return $authUser->can('ViewAny:Department');
     }
 
     public function view(AuthUser $authUser, Department $department): bool
     {
-        return $authUser->can('view:department');
+        return $authUser->can('View:Department');
     }
 
     public function create(AuthUser $authUser): bool
     {
-        return $authUser->can('create:department');
+        return $authUser->can('Create:Department');
     }
 
     public function update(AuthUser $authUser, Department $department): bool
     {
-        return $authUser->can('update:department');
+        return $authUser->can('Update:Department');
     }
 
     public function delete(AuthUser $authUser, Department $department): bool
     {
-        return $authUser->can('delete:department');
+        return $authUser->can('Delete:Department');
     }
 
 }

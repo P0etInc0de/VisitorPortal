@@ -2,10 +2,9 @@
 
 namespace Database\Seeders;
 
-use BezhanSalleh\FilamentShield\Support\Utils;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
+use BezhanSalleh\FilamentShield\Support\Utils;
 use Spatie\Permission\PermissionRegistrar;
 
 class ShieldSeeder extends Seeder
@@ -17,7 +16,7 @@ class ShieldSeeder extends Seeder
         $tenants = '[]';
         $users = '[]';
         $userTenantPivot = '[]';
-        $rolesWithPermissions = '[{"name":"super_admin","guard_name":"web","permissions":["ViewAny:User","View:User","Create:User","Update:User","Delete:User","Restore:User","ForceDelete:User","ForceDeleteAny:User","RestoreAny:User","Replicate:User","Reorder:User","ViewAny:Role","View:Role","Create:Role","Update:Role","Delete:Role","Restore:Role","ForceDelete:Role","ForceDeleteAny:Role","RestoreAny:Role","Replicate:Role","Reorder:Role","ViewAny:Department","View:Department","Create:Department","Update:Department","Delete:Department","Restore:Department","ForceDelete:Department","ForceDeleteAny:Department","RestoreAny:Department","Replicate:Department","Reorder:Department","ViewAny:Visitor","View:Visitor","Create:Visitor","Update:Visitor","Delete:Visitor","Restore:Visitor","ForceDelete:Visitor","ForceDeleteAny:Visitor","RestoreAny:Visitor","Replicate:Visitor","Reorder:Visitor","ViewAny:Visit","View:Visit","Create:Visit","Update:Visit","Delete:Visit","Restore:Visit","ForceDelete:Visit","ForceDeleteAny:Visit","RestoreAny:Visit","Replicate:Visit","Reorder:Visit","View:Dashboard"]},{"name":"employee","guard_name":"web","permissions":[]}]';
+        $rolesWithPermissions = '[{"name":"super_admin","guard_name":"web","permissions":["ViewAny:User","View:User","Create:User","Update:User","Delete:User","Restore:User","ForceDelete:User","ForceDeleteAny:User","RestoreAny:User","Replicate:User","Reorder:User","ViewAny:Role","View:Role","Create:Role","Update:Role","Delete:Role","Restore:Role","ForceDelete:Role","ForceDeleteAny:Role","RestoreAny:Role","Replicate:Role","Reorder:Role","ViewAny:Department","View:Department","Create:Department","Update:Department","Delete:Department","Restore:Department","ForceDelete:Department","ForceDeleteAny:Department","RestoreAny:Department","Replicate:Department","Reorder:Department","ViewAny:Visitor","View:Visitor","Create:Visitor","Update:Visitor","Delete:Visitor","Restore:Visitor","ForceDelete:Visitor","ForceDeleteAny:Visitor","RestoreAny:Visitor","Replicate:Visitor","Reorder:Visitor","ViewAny:Visit","View:Visit","Create:Visit","Update:Visit","Delete:Visit","Restore:Visit","ForceDelete:Visit","ForceDeleteAny:Visit","RestoreAny:Visit","Replicate:Visit","Reorder:Visit","View:Dashboard","ViewAny:Monitor","View:Monitor","Create:Monitor","Update:Monitor","Delete:Monitor","DeleteAny:User","ViewOwn:User","EditOwn:User","ViewDepartment:User","EditDepartment:User","DeleteDepartment:User","DeactivateAny:User","DeactivateDepartment:User","EditAny:User","DeleteAny:Visitor","EditAny:Visitor","DeleteAny:Visit","EditAny:Visit","ViewDepartment:Visit","ViewOwn:Visit","EditDepartment:Visit","EditOwn:Visit","DeleteDepartment:Visit","DeleteOwn:Visit","CheckIn:Visit","CheckOut:Visit","Print:Visit","View:UserPermissions","Edit:Monitor","Test:Monitor"]},{"name":"employee","guard_name":"web","permissions":[]},{"name":"user","guard_name":"web","permissions":["ViewAny:Visitor","Create:Visitor","Create:Visit","ViewOwn:User","EditOwn:User","ViewOwn:Visit","EditOwn:Visit","DeleteOwn:Visit"]},{"name":"manager","guard_name":"web","permissions":["ViewAny:Visitor","Create:Visitor","Create:Visit","ViewOwn:User","EditOwn:User","ViewDepartment:User","EditDepartment:User","ViewDepartment:Visit","ViewOwn:Visit","EditDepartment:Visit","EditOwn:Visit","DeleteDepartment:Visit","DeleteOwn:Visit"]},{"name":"receptionist","guard_name":"web","permissions":[]}]';
         $directPermissions = '[]';
 
         // 1. Seed tenants first (if present)
@@ -146,9 +145,9 @@ class ShieldSeeder extends Seeder
             return;
         }
 
-        /** @var Model $roleModel */
+        /** @var \Illuminate\Database\Eloquent\Model $roleModel */
         $roleModel = Utils::getRoleModel();
-        /** @var Model $permissionModel */
+        /** @var \Illuminate\Database\Eloquent\Model $permissionModel */
         $permissionModel = Utils::getPermissionModel();
 
         $tenancyEnabled = false;
@@ -193,7 +192,7 @@ class ShieldSeeder extends Seeder
             return;
         }
 
-        /** @var Model $permissionModel */
+        /** @var \Illuminate\Database\Eloquent\Model $permissionModel */
         $permissionModel = Utils::getPermissionModel();
 
         foreach ($permissions as $permission) {

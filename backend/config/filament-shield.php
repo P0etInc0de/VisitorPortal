@@ -1,11 +1,11 @@
 <?php
 
 declare(strict_types=1);
+use App\Filament\Resources\Users\UserResource;
+use App\Filament\Resources\Visitors\VisitorResource;
+use App\Filament\Resources\Visits\VisitResource;
+use App\Filament\Resources\Monitors\MonitorResource;
 use BezhanSalleh\FilamentShield\Resources\Roles\RoleResource;
-use BezhanSalleh\FilamentShield\Resources\Roles\UserResource;
-use BezhanSalleh\FilamentShield\Resources\Roles\VisitResource;
-use BezhanSalleh\FilamentShield\Resources\Roles\VisitorResource;
-use BezhanSalleh\FilamentShield\Resources\Roles\MonitorResource;
 use Filament\Pages\Dashboard;
 use Filament\Widgets\AccountWidget;
 use Filament\Widgets\FilamentInfoWidget;
@@ -110,7 +110,7 @@ return [
 
     'permissions' => [
         'separator' => ':',
-        'case' => 'camel',
+        'case' => 'pascal',
         'generate' => true,
     ],
 
@@ -172,21 +172,21 @@ return [
             	'viewAny', 'view', 'create', 'update', 'delete',  
         	],  
         	VisitResource::class => [  
-            	'deleteAny', 'create', 'viewAny', 'editAny',  
-            	'viewDepartment', 'viewOwn', 'editDepartment', 'editOwn',  
-            	'deleteDepartment', 'deleteOwn', 'checkIn', 'checkOut', 'print',  
+            	'delete_any', 'edit_any',  
+            	'view_department', 'view_own', 'edit_department', 'edit_own',  
+            	'delete_department', 'delete_own', 'check_in', 'check_out', 'print',  
         	],  
         	VisitorResource::class => [  
-            	'deleteAny', 'create',
-            	'viewAny', 'editAny', 'deleteAny',  
+            	'delete_any',
+            	'edit_any', 
         	],  
         	UserResource::class => [  
-            	'deleteAny', 'create', 'viewOwn', 'viewAny', 'editOwn', 
-            	'viewDepartment', 'editDepartment', 'deleteDepartment',  
-            	'deactivateAll', 'deactivateDepartment', 'editAny',
+            	'delete_any', 'view_own', 'edit_own', 
+            	'view_department', 'edit_department', 'delete_department',  
+            	'deactivate_any', 'deactivate_department', 'edit_any',
         	],
 			MonitorResource::class => [
-				'edit', 'view',
+				'edit',
 			],
     	],  
     	'exclude' => [  
@@ -244,9 +244,7 @@ return [
     |
     */
 
-    'custom_permissions' => [
-		'enabled' => true,
-	],
+    'custom_permissions' => [],
 
     /*
     |--------------------------------------------------------------------------

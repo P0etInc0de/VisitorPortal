@@ -11,27 +11,72 @@ class UserPolicy
     
     public function viewAny(AuthUser $authUser): bool
     {
-        return $authUser->can('viewAny:user');
+        return $authUser->can('ViewAny:User');
     }
 
     public function view(AuthUser $authUser): bool
     {
-        return $authUser->can('view:user');
+        return $authUser->can('View:User');
     }
 
     public function create(AuthUser $authUser): bool
     {
-        return $authUser->can('create:user');
+        return $authUser->can('Create:User');
     }
 
     public function update(AuthUser $authUser): bool
     {
-        return $authUser->can('update:user');
+        return $authUser->can('Update:User');
     }
 
     public function delete(AuthUser $authUser): bool
     {
-        return $authUser->can('delete:user');
+        return $authUser->can('Delete:User');
+    }
+
+    public function deleteAny(AuthUser $authUser): bool
+    {
+        return $authUser->can('DeleteAny:User');
+    }
+
+    public function viewOwn(AuthUser $authUser): bool
+    {
+        return $authUser->can('ViewOwn:User');
+    }
+
+    public function editOwn(AuthUser $authUser): bool
+    {
+        return $authUser->can('EditOwn:User');
+    }
+
+    public function viewDepartment(AuthUser $authUser): bool
+    {
+        return $authUser->can('ViewDepartment:User');
+    }
+
+    public function editDepartment(AuthUser $authUser): bool
+    {
+        return $authUser->can('EditDepartment:User');
+    }
+
+    public function deleteDepartment(AuthUser $authUser): bool
+    {
+        return $authUser->can('DeleteDepartment:User');
+    }
+
+    public function deactivateAny(AuthUser $authUser): bool
+    {
+        return $authUser->can('DeactivateAny:User');
+    }
+
+    public function deactivateDepartment(AuthUser $authUser): bool
+    {
+        return $authUser->can('DeactivateDepartment:User');
+    }
+
+    public function editAny(AuthUser $authUser): bool
+    {
+        return $authUser->can('EditAny:User');
     }
 
 }

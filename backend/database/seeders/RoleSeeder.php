@@ -12,7 +12,7 @@ class RoleSeeder extends Seeder
     {
         // Always reset cached roles and permissions first
         app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();
-
+/*
 		// Create custom permissions that Shield won't generate
    		$customPermissions = [
         	'checkIn:Visit', 'checkOut:Visit', 'print:Visit',
@@ -31,21 +31,21 @@ class RoleSeeder extends Seeder
             	'guard_name' => 'web',
         	]);
     	}
-
+*/
 		$userPermissions = [ 
-            'viewOwn:User', 'editOwn:User', 'Create:Visit', 'Create:Visitor',
-            'viewOwn:Visit', 'editOwn:Visit', 'deleteOwn:Visit',
+            'ViewOwn:User', 'EditOwn:User', 'Create:Visit', 'Create:Visitor',
+            'ViewOwn:Visit', 'EditOwn:Visit', 'DeleteOwn:Visit',
             'ViewAny:Visitor'];
 
         $managerPermissions = array_merge($userPermissions, [
-            'viewDepartment:User', 'editDepartment:User',
-            'viewDepartment:Visit', 'editDepartment:Visit',
-            'deleteDepartment:Visit']);
+            'ViewDepartment:User', 'EditDepartment:User',
+            'ViewDepartment:Visit', 'EditDepartment:Visit',
+            'DeleteDepartment:Visit']);
 
         $receptionistPermissions = array_merge($userPermissions, [
-            'ViewAny:Visit', 'editAny:Visit', 'deleteAny:Visit', 
-            'editAny:Visitor',
-            'checkIn:Visit', 'checkOut:Visit', 'print:Visit',
+            'ViewAny:Visit', 'EditAny:Visit', 'DeleteAny:Visit', 
+            'EditAny:Visitor',
+            'CheckIn:Visit', 'CheckOut:Visit', 'Print:Visit',
             'View:Monitor', 'Edit:Monitor']);
 
         $roles = [

@@ -14,27 +14,32 @@ class MonitorPolicy
     
     public function viewAny(AuthUser $authUser): bool
     {
-        return $authUser->can('viewAny:monitor');
+        return $authUser->can('ViewAny:Monitor');
     }
 
     public function view(AuthUser $authUser, Monitor $monitor): bool
     {
-        return $authUser->can('view:monitor');
+        return $authUser->can('View:Monitor');
     }
 
     public function create(AuthUser $authUser): bool
     {
-        return $authUser->can('create:monitor');
+        return $authUser->can('Create:Monitor');
     }
 
     public function update(AuthUser $authUser, Monitor $monitor): bool
     {
-        return $authUser->can('update:monitor');
+        return $authUser->can('Update:Monitor');
     }
 
     public function delete(AuthUser $authUser, Monitor $monitor): bool
     {
-        return $authUser->can('delete:monitor');
+        return $authUser->can('Delete:Monitor');
+    }
+
+    public function edit(AuthUser $authUser, Monitor $monitor): bool
+    {
+        return $authUser->can('Edit:Monitor');
     }
 
 }
