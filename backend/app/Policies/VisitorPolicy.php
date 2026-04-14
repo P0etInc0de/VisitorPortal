@@ -37,12 +37,12 @@ class VisitorPolicy
         return $authUser->can('Delete:Visitor');
     }
 
-    public function deleteAny(AuthUser $authUser, Visitor $visitor): bool
+    public function deleteAny(AuthUser $authUser): bool
     {
         return $authUser->can('DeleteAny:Visitor');
     }
 
-    public function editAny(AuthUser $authUser, Visitor $visitor): bool
+    public function editAny(AuthUser $authUser): bool
     {
         return $authUser->can('EditAny:Visitor');
     }

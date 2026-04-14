@@ -12,26 +12,7 @@ class RoleSeeder extends Seeder
     {
         // Always reset cached roles and permissions first
         app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();
-/*
-		// Create custom permissions that Shield won't generate
-   		$customPermissions = [
-        	'checkIn:Visit', 'checkOut:Visit', 'print:Visit',
-			'deleteAny:Visit', 'Create:Visit', 'ViewAny:Visit', 'editAny:Visit',
-        	'viewOwn:Visit', 'editOwn:Visit', 'deleteOwn:Visit',
-        	'viewDepartment:Visit', 'editDepartment:Visit', 'deleteDepartment:Visit',
-			'deleteAny:Visitor', 'Create:Visitor', 'ViewAny:Visitor', 'editAny:Visitor', 'deleteAny:Visitor',
-        	'viewAny:User', 'editAny:User', 'deleteAny:User', 'viewOwn:User', 'editOwn:User',
-        	'viewDepartment:User', 'editDepartment:User', 'deleteDepartment:User',
-        	'deactivateAll:User', 'deactivateDepartment:User', 'Create:User', 'Edit:Monitor', 'View:Monitor',
-    	];
 
-    	foreach ($customPermissions as $permission) {
-        	Permission::firstOrCreate([
-            	'name' => $permission,
-            	'guard_name' => 'web',
-        	]);
-    	}
-*/
 		$userPermissions = [ 
             'ViewOwn:User', 'EditOwn:User', 'Create:Visit', 'Create:Visitor',
             'ViewOwn:Visit', 'EditOwn:Visit', 'DeleteOwn:Visit',
