@@ -2,10 +2,9 @@
 
 namespace Tests\Feature\Visit;
 
-use App\Enums\VisitStatusEnum;
 use App\Filament\Resources\Users\Pages\CreateUser;
-use App\Filament\Resources\Visits\Pages\CreateVisit;
 use App\Models\User;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 use Livewire\Livewire;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
@@ -13,6 +12,8 @@ use Tests\TestCase;
 
 class AdministerVisitTest extends TestCase
 {
+    use RefreshDatabase;
+
     /**
      * Feature test relating to visits
      */
@@ -24,22 +25,23 @@ class AdministerVisitTest extends TestCase
 
         $visitors = User::factory(4)->create();
 
-        Livewire::actingAs($user)
-            ->test(CreateVisit::class)
-            ->assertOk()
-            ->fillForm([
+        $response = $this
+            ->actingAs($user)
+            ->post(route('portal.visits.store'), [
+                'title' => 'TestVisit',
                 'user_id' => $user->id,
                 'responsible_user_id' => $responsibleUser->id,
-                'scheduled_from' => now()->addDay()->toDateTimeString(),
-                'scheduled_until' => now()->addDays(2)->toDateTimeString(),
-                'status' => VisitStatusEnum::Planned->value,
-                'notes' => 'Test visit notes',
-                'canceled_at' => null,
-                'canceledBy' => null,
-                'visitors' => $visitors->pluck('id')->toArray(),
-            ])
-            ->call('create')
-            ->assertHasNoErrors();
+                'scheduled_from' => now()->addDay()->setTime(9, 0)->format('Y-m-d H:i:s'),
+                'scheduled_until' => now()->addDay()->setTime(10, 0)->format('Y-m-d H:i:s'),
+                'status' => 'planned',
+                'notes' => 'notes...',
+                'participants' => $visitors->pluck('id')->toArray(),
+            ]);
+
+        $this->assertDatabaseHas('visits', [
+            'title' => 'TestVisit',
+            'responsible_user_id' => $responsibleUser->id,
+        ]);
 
     }
 
