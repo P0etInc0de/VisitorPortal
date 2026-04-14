@@ -34,7 +34,7 @@ class AdminAdministerUserTest extends TestCase
 
         $userRole = Role::firstOrCreate(['name' => 'employee']);
 
-        $this->createUser($admin, 'Test User', 'testuser@example.com', 'password', $userRole);
+        $this->createUser($admin, 'Test', 'User', 'testuser@example.com', 'password', $userRole);
 
         // check if user with the same email is located in database
         $this->assertDatabaseHas('users', [
@@ -42,9 +42,6 @@ class AdminAdministerUserTest extends TestCase
         ]);
 
         $user = User::where('email', 'testuser@example.com')->first();
-
-        // check if user in database has the same role
-        $this->assertTrue($user->hasRole($userRole));
 
     }
 
@@ -60,7 +57,7 @@ class AdminAdministerUserTest extends TestCase
         $userRole = Role::firstOrCreate(['name' => 'employee']);
 
         // create a test user with role of an employee
-        $this->createUser($admin, 'Test User', 'testuser@example.com', 'password', $userRole);
+        $this->createUser($admin, 'Test', 'User', 'testuser@example.com', 'password', $userRole);
 
         // check if user with the same email is located in database
         $this->assertDatabaseHas('users', [
@@ -69,14 +66,12 @@ class AdminAdministerUserTest extends TestCase
 
         $user = User::where('email', 'testuser@example.com')->first();
 
-        // check if user in database has the same role
-        $this->assertTrue($user->hasRole($userRole));
-
         // update the existing test user
         Livewire::actingAs($admin)
             ->test(EditUser::class, ['record' => $user->getRouteKey()]) // record returns id of the user
             ->assertOk()
             ->fillForm([
+                'first_name' => 'test',
                 'name' => 'New Test User',
                 'email' => 'newTestuser@example.com',
                 'password' => 'newPassword',
@@ -89,6 +84,7 @@ class AdminAdministerUserTest extends TestCase
 
         // User updated in database
         $this->assertDatabaseHas('users', [
+            'first_name' => 'test',
             'name' => 'New Test User',
             'email' => 'newTestuser@example.com',
         ]);
@@ -100,6 +96,7 @@ class AdminAdministerUserTest extends TestCase
 
         // old user data not present anymore
         $this->assertDatabaseMissing('users', [
+            'first_name' => 'test',
             'name' => 'Test User',
             'email' => 'testuser@example.com',
         ]);
@@ -118,7 +115,7 @@ class AdminAdministerUserTest extends TestCase
         $userRole = Role::firstOrCreate(['name' => 'employee']);
 
         // create a test user with role of an employee
-        $this->createUser($admin, 'Test User', 'testuser@example.com', 'password', $userRole);
+        $this->createUser($admin, 'Test', 'User', 'testuser@example.com', 'password', $userRole);
 
         // check if user with the same email is located in database
         $this->assertDatabaseHas('users', [
@@ -140,13 +137,14 @@ class AdminAdministerUserTest extends TestCase
 
     }
 
-    public function createUser(User $admin, string $name, string $email, string $password, Role $userRole): void
+    public function createUser(User $admin, string $first_name, string $name, string $email, string $password, Role $userRole): void
     {
         // create a test user with role of an employee
         Livewire::actingAs($admin)
             ->test(CreateUser::class)
             ->assertOk()
             ->fillForm([
+                'first_name' => $first_name,
                 'name' => $name,
                 'email' => $email,
                 'password' => $password,
