@@ -19,7 +19,7 @@ class DatabaseSeeder extends Seeder
         * - Scan the app/Filament folder for resources and generate CRUD permissions: `php artisan shield:generate --all`
         * - Auto-Generate a Seeder for the current shield database: `php artisan shield:seeder`
         */
-        $this->call([ShieldSeeder::class, RoleSeeder::class, UserSeeder::class,]);
+        $this->call([ShieldSeeder::class, RoleSeeder::class, UserSeeder::class]);
 
         $this->call(DepartmentSeeder::class);
 

@@ -7,9 +7,8 @@ use App\Http\Controllers\Portal\VisitController as PortalVisitController;
 use App\Http\Controllers\Reception\DashboardController as ReceptionDashboardController;
 use App\Http\Controllers\Reception\VisitController as ReceptionVisitController;
 use App\Http\Controllers\Reception\VisitParticipantActionController;
-use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\UserPermissionsController;
-use App\Http\Controllers\RoleController;
+use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
     return auth()->check()

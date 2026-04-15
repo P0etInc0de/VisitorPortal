@@ -20,7 +20,6 @@ use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Session\Middleware\StartSession;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
-use App\Filament\Pages\UserPermissions;
 
 class AdminPanelProvider extends PanelProvider
 {

@@ -3,8 +3,8 @@
 namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
-use Spatie\Permission\Models\Role;
 use Spatie\Permission\Models\Permission;
+use Spatie\Permission\Models\Role;
 
 class RoleSeeder extends Seeder
 {
@@ -13,7 +13,7 @@ class RoleSeeder extends Seeder
         // Always reset cached roles and permissions first
         app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();
 
-		$userPermissions = [ 
+        $userPermissions = [
             'ViewOwn:User', 'EditOwn:User', 'Create:Visit', 'Create:Visitor',
             'ViewOwn:Visit', 'EditOwn:Visit', 'DeleteOwn:Visit',
             'ViewAny:Visitor'];
@@ -24,14 +24,14 @@ class RoleSeeder extends Seeder
             'DeleteDepartment:Visit']);
 
         $receptionistPermissions = array_merge($userPermissions, [
-            'ViewAny:Visit', 'EditAny:Visit', 'DeleteAny:Visit', 
+            'ViewAny:Visit', 'EditAny:Visit', 'DeleteAny:Visit',
             'EditAny:Visitor',
             'CheckIn:Visit', 'CheckOut:Visit', 'Print:Visit',
             'View:Monitor', 'Edit:Monitor']);
 
         $roles = [
-			'user' => $userPermissions,
-			'manager' => $managerPermissions,
+            'user' => $userPermissions,
+            'manager' => $managerPermissions,
             'receptionist' => $receptionistPermissions,
             'welcome monitor' => [
                 'View:Monitor',
