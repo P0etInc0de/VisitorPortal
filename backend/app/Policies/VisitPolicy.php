@@ -37,33 +37,58 @@ class VisitPolicy
         return $authUser->can('Delete:Visit');
     }
 
-    public function restore(AuthUser $authUser, Visit $visit): bool
+    public function deleteAny(AuthUser $authUser): bool
     {
-        return $authUser->can('Restore:Visit');
+        return $authUser->can('DeleteAny:Visit');
     }
 
-    public function forceDelete(AuthUser $authUser, Visit $visit): bool
+    public function editAny(AuthUser $authUser): bool
     {
-        return $authUser->can('ForceDelete:Visit');
+        return $authUser->can('EditAny:Visit');
     }
 
-    public function forceDeleteAny(AuthUser $authUser): bool
+    public function viewDepartment(AuthUser $authUser, Visit $visit): bool
     {
-        return $authUser->can('ForceDeleteAny:Visit');
+        return $authUser->can('ViewDepartment:Visit');
     }
 
-    public function restoreAny(AuthUser $authUser): bool
+    public function viewOwn(AuthUser $authUser, Visit $visit): bool
     {
-        return $authUser->can('RestoreAny:Visit');
+        return $authUser->can('ViewOwn:Visit');
     }
 
-    public function replicate(AuthUser $authUser, Visit $visit): bool
+    public function editDepartment(AuthUser $authUser, Visit $visit): bool
     {
-        return $authUser->can('Replicate:Visit');
+        return $authUser->can('EditDepartment:Visit');
     }
 
-    public function reorder(AuthUser $authUser): bool
+    public function editOwn(AuthUser $authUser, Visit $visit): bool
     {
-        return $authUser->can('Reorder:Visit');
+        return $authUser->can('EditOwn:Visit');
+    }
+
+    public function deleteDepartment(AuthUser $authUser, Visit $visit): bool
+    {
+        return $authUser->can('DeleteDepartment:Visit');
+    }
+
+    public function deleteOwn(AuthUser $authUser, Visit $visit): bool
+    {
+        return $authUser->can('DeleteOwn:Visit');
+    }
+
+    public function checkIn(AuthUser $authUser, Visit $visit): bool
+    {
+        return $authUser->can('CheckIn:Visit');
+    }
+
+    public function checkOut(AuthUser $authUser, Visit $visit): bool
+    {
+        return $authUser->can('CheckOut:Visit');
+    }
+
+    public function print(AuthUser $authUser, Visit $visit): bool
+    {
+        return $authUser->can('Print:Visit');
     }
 }
