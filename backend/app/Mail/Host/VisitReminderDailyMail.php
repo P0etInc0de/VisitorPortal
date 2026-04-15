@@ -16,10 +16,6 @@ class VisitReminderDailyMail extends Mailable
 {
     use Queueable, SerializesModels;
 
-    public string $last_name;
-
-    public string $gender;
-
     /**
      * Create a new message instance.
      */
@@ -28,12 +24,9 @@ class VisitReminderDailyMail extends Mailable
      */
     public function __construct(
         protected Collection $visitCollection,
+        protected Collection $visitorCollection,
         protected User $user,
-    ) {
-        $nameParts = explode(' ', $user->name);
-        $this->last_name = end($nameParts);
-        $this->gender = $user->gender;
-    }
+    ) {}
 
     /**
      * Get the message envelope.
@@ -54,9 +47,8 @@ class VisitReminderDailyMail extends Mailable
             markdown: 'mail.host.visitReminderDaily',
         ))
             ->with('visitCollection', $this->visitCollection)
-            ->with('user', $this->user)
-            ->with('last_name', $this->last_name)
-            ->with('gender', $this->gender);
+            ->with('visitorCollection', $this->visitorCollection)
+            ->with('user', $this->user);
     }
 
     /**

@@ -2,6 +2,8 @@
 
 namespace App\Mail\Guest;
 
+use App\Models\Visit;
+use App\Models\Visitor;
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
 use Illuminate\Mail\Mailables\Attachment;
@@ -16,8 +18,10 @@ class VisitCreatedMail extends Mailable
     /**
      * Create a new message instance.
      */
-    public function __construct()
-    {
+    public function __construct(
+        protected Visit $visit,
+        protected Visitor $visitor,
+    ) {
         //
     }
 
@@ -27,7 +31,7 @@ class VisitCreatedMail extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Ihr Besuch bei [Company] wurde registriert',
+            subject: 'Ihr Besuch wurde registriert',
         );
     }
 
@@ -36,9 +40,11 @@ class VisitCreatedMail extends Mailable
      */
     public function content(): Content
     {
-        return new Content(
+        return (new Content(
             markdown: 'mail.guest.visitCreated',
-        );
+        ))
+            ->with('visitor', $this->visitor)
+            ->with('visit', $this->visit);
     }
 
     /**

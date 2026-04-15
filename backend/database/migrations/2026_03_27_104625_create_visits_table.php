@@ -15,11 +15,12 @@ return new class extends Migration
             $table->id(); // primary key
             $table->foreignId('user_id')->constrained('users')->restrictOnDelete(); // foreign key, user cannot be deleted if visit exists
             $table->foreignId('responsible_user_id')->constrained('users')->restrictOnDelete(); // foreign key, user cannot be deleted if visit exists
-            $table->timestamp('scheduled_from');
-            $table->timestamp('scheduled_until');
+            $table->string('title')->nullable();
+            $table->datetime('scheduled_from');
+            $table->datetime('scheduled_until');
             $table->string('status')->default('planned');
             $table->text('notes')->nullable();
-            $table->timestamp('canceled_at')->nullable();
+            $table->datetime('canceled_at')->nullable();
             $table->foreignId('canceled_by_user_id')->nullable()->constrained('users')->onDelete('set null'); // foreign key, only there if a user canceled it
             $table->timestamps();
         });

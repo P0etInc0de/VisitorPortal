@@ -7,28 +7,46 @@ use Illuminate\Database\Eloquent\Relations\Pivot;
 
 class VisitVisitor extends Pivot
 {
-    /**
-     * The attributes that are mass assignable meaning they can be changed via an array
-     *
-     * @var list<string>
-     */
+    protected $table = 'visit_visitor';
+
+    public $incrementing = false;
+
     protected $fillable = [
+        'visit_id',
+        'visitor_id',
         'badge_printed_at',
         'checked_in_at',
         'checked_out_at',
+        'checked_in_by_user_id',
+        'checked_out_by_user_id',
+        'notes',
     ];
 
-    public $timestamps = true;
+    protected function casts(): array
+    {
+        return [
+            'badge_printed_at' => 'datetime',
+            'checked_in_at' => 'datetime',
+            'checked_out_at' => 'datetime',
+        ];
+    }
 
-    /**
-     * Relationships to table users for users who did check-in/check-out
-     */
-    public function checkedInBy(): BelongsTo
+    public function visit(): BelongsTo
+    {
+        return $this->belongsTo(Visit::class);
+    }
+
+    public function visitor(): BelongsTo
+    {
+        return $this->belongsTo(Visitor::class);
+    }
+
+    public function checkedInByUser(): BelongsTo
     {
         return $this->belongsTo(User::class, 'checked_in_by_user_id');
     }
 
-    public function checkedOutBy(): BelongsTo
+    public function checkedOutByUser(): BelongsTo
     {
         return $this->belongsTo(User::class, 'checked_out_by_user_id');
     }

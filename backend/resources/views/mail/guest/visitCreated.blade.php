@@ -1,19 +1,25 @@
+@php
+    use Carbon\Carbon;
+    use \App\Enums\GenderEnum
+ @endphp
+
 <x-mail.message_component :message="$message">
-# Termin für Ihren Besuch
+# {{__('Termin für Ihren Besuch')}}
 
-Sehr geehrter [Kunde],
+@if($visitor->gender == GenderEnum::Male )
+{{__('Sehr geehrter Herr')}} {{$visitor->title . ' '}} {{ $visitor->name }},
+@elseif($visitor->gender == GenderEnum::Female)
+{{__('Sehr geehrter Frau')}} {{$visitor->title . ' '}}{{ $visitor->name  }},
+@else
+{{__('Guten Tag')}} {{$visitor->title. ' '}}{{$visitor->first_name}} {{$visitor->name}},
+@endif
 
-wir freuen und sehr über Ihren Besuch.
+{{__('wir freuen uns sehr über Ihren Besuch')}}.
 
 <x-mail::table>
-    | Eigenschaft   | Information   |
-    | ------------- | :-----------: |
-    | Name          | test          |
-    | Firma         | test          |
+    |{{__('Datum')}}   | {{__('Start')}} | {{__('Ende')}} |
+    | :-----------: | :-----------: | :------------: | :------------: |
+    | {{ Carbon::parse($visit->scheduled_from)->format('d.m.Y') }} | {{ Carbon::parse($visit->scheduled_from)->format('H:i') }} | {{ Carbon::parse($visit->scheduled_until)->format('H:i') }} |
 </x-mail::table>
-
-<x-mail::button :url="''">
-    Weiter Informationen
-</x-mail::button>
 
 </x-mail.message_component>
