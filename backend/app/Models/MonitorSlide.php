@@ -45,6 +45,30 @@ class MonitorSlide extends Model
             }
         });
 
+        static::updating(function ($model) {
+            // Only run if slide_number is changed
+            if ($model->isDirty('slide_number')) {
+
+                $old_number = $model->getOriginal('slide_number');
+                $new_number = $model->slide_number;
+
+                // If moving the slide DOWN the list (e.g., from position 2 to 4)
+                if ($new_number > $old_number) {
+                    static::where('monitor_id', $model->monitor_id)
+                        ->where('slide_number', '>', $old_number)
+                        ->where('slide_number', '<=', $new_number)
+                        ->decrement('slide_number');
+                }
+                // If moving the slide UP the list (e.g., from position 4 to 2)
+                elseif ($new_number < $old_number) {
+                    static::where('monitor_id', $model->monitor_id)
+                        ->where('slide_number', '>=', $new_number)
+                        ->where('slide_number', '<', $old_number)
+                        ->increment('slide_number');
+                }
+            }
+        });
+
         // Re-order remaining records after a deletion
         static::deleted(function ($model) {
             static::where('monitor_id', $model->monitor_id)

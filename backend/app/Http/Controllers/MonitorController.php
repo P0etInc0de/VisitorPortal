@@ -3,10 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreMonitorRequest;
+use App\Http\Requests\UpdateMonitorRequest;
 use App\Models\Monitor;
 use App\Models\MonitorSlide;
 use App\Models\Visitor;
-use Illuminate\Http\Request;
 
 class MonitorController extends Controller
 {
@@ -37,14 +37,7 @@ class MonitorController extends Controller
      * Store a newly created resource in storage.
      * Not needed yet
      */
-    public function store(StoreMonitorRequest $request)
-    {
-        // $validated = $request->validated();
-        // Monitor::create($validated);
-
-        // return redirect()->route('monitors.index')
-        //    ->with('success', 'Monitor wurde erfolgreich angelegt.');
-    }
+    public function store(StoreMonitorRequest $request) {}
 
     /**
      * Display the specified resource.
@@ -52,24 +45,12 @@ class MonitorController extends Controller
      */
     public function show(string $id)
     {
-        $hasLogo = file_exists(public_path('images/logo.png'));
-        $hasCustomBackground = file_exists(public_path('images/monitor-background.jpg')) || file_exists(public_path('images/monitor-background.png'));
-        $backgroundAsset = file_exists(public_path('images/monitor-background.jpg'))
-            ? asset('images/monitor-background.jpg')
-            : (file_exists(public_path('images/monitor-background.png')) ? asset('images/monitor-background.png') : null);
-
-        $visitors = [
-            ['time' => '09:30', 'name' => 'Max Mustermann', 'company' => 'Beispiel GmbH'],
-            ['time' => '11:00', 'name' => 'Anna Becker', 'company' => 'ACME AG'],
-            ['time' => '13:30', 'name' => 'David Keller', 'company' => 'Tech Solutions'],
-            ['time' => '15:00', 'name' => 'Sven Maurer', 'company' => 'Maurer Industrie'],
-        ];
+        $monitor = Monitor::query()->findOrFail($id);
+        $slides = $monitor->monitorSlides()->get();
 
         return view('monitor.show')
-            ->with('hasLogo', $hasLogo)
-            ->with('hasCustomBackground', $hasCustomBackground)
-            ->with('backgroundAsset', $backgroundAsset)
-            ->with('visitors', $visitors);
+            ->with('monitor', $monitor)
+            ->with('slides', $slides);
     }
 
     /**
@@ -81,18 +62,27 @@ class MonitorController extends Controller
         $monitor = Monitor::query()->findOrFail($id);
         $monitor_slides = MonitorSlide::query()->where('monitor_id', $monitor->id)->orderBy('monitor_slides.slide_number')->get();
 
-        return view('monitor.edit')
-            ->with('monitor', $monitor)
-            ->with('monitor_slides', $monitor_slides);
+        $response = response()->view('monitor.edit', ['monitor' => $monitor, 'monitor_slides' => $monitor_slides]);
+
+        if (session()->has('success')) {
+            $response->header('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0');
+        }
+
+        return $response;
     }
 
     /**
      * Update the specified resource in storage.
      * Not needed yet
      */
-    public function update(Request $request, string $id)
+    public function update(UpdateMonitorRequest $request, string $id)
     {
-        //
+        $validated = $request->validated();
+        Monitor::query()->findOrFail($id)->update($validated);
+
+        return redirect()->route('monitors.edit', $id)
+            ->with('success', __('Monitor Einstellungen gespeichert'))
+            ->header('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0');
     }
 
     /**

@@ -10,7 +10,7 @@
         {{-- The Toggle Input --}}
         <input
             type="checkbox"
-
+            value="1"
             @if(is_string($name)) name="{{ $name }}" @endif
 
         @if(is_string($name))

@@ -32,6 +32,10 @@ class StoreMonitorSlideRequest extends FormRequest
                 'integer',
                 'between:1,'.$maxSlide,
             ],
+            'show_logo' => 'boolean',
+            'show_date' => 'boolean',
+            'show_time' => 'boolean',
+            'subheading' => 'string|nullable',
         ];
     }
 }

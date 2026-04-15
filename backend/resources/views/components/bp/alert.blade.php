@@ -15,4 +15,3 @@
         <span class="font-medium">{{ session('success') }}</span>
     </div>
 @endif
-

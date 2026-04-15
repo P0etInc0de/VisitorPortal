@@ -15,7 +15,6 @@ return new class extends Migration
             $table->id();
             $table->foreignId('monitor_id')->constrained()->cascadeOnDelete();
             $table->integer('slide_number')->default(0);
-            $table->unique(['monitor_id', 'slide_number']);
             $table->timestamps();
             $table->string('background_path')->default('');
             $table->string('heading');
@@ -23,7 +22,7 @@ return new class extends Migration
             $table->boolean('show_logo')->default(false);
             $table->boolean('show_date')->default(false);
             $table->boolean('show_time')->default(false);
-            $table->json('visitors');
+            $table->json('visitors')->nullable();
         });
     }
 

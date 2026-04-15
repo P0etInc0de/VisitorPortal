@@ -699,7 +699,6 @@ body {
 
 .bp-monitor-subtitle {
     margin-top: 1.5rem;
-    max-width: 52rem;
     font-size: clamp(1.2rem, 1rem + 0.55vw, 1.65rem);
     line-height: 1.65;
     color: rgba(31, 42, 68, 0.78);
@@ -744,7 +743,7 @@ body {
 }
 
 .bp-monitor-visit-name {
-    font-size: 2rem;
+    font-size: 3rem;
     line-height: 1.1;
     letter-spacing: -0.04em;
     font-weight: 700;

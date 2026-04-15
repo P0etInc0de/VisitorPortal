@@ -3,27 +3,29 @@
         <div class="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
             <div>
                 <h1 class="text-3xl font-semibold tracking-tight text-slate-900">
-                    {{ __('Editor') }}
+                    {{ __('Monitor Editor') }}
                 </h1>
             </div>
 
             <div class="flex flex-wrap items-center gap-3">
-                <a href="{{ route('monitor.live') }}" class="btn btn-outline rounded-xl">
+                <a
+                    href="{{ route('monitors.show', $monitor) }}"
+                    class="btn btn-outline rounded-xl">
                     {{ __('Live-Anzeige öffnen') }}
                 </a>
             </div>
         </div>
     </x-slot>
 
-    {{-- Das Haupt-Grid: Links Formular, Rechts Sticky-Preview --}}
+    {{-- Main Grid --}}
     <div class="grid gap-6 xl:grid-cols-[minmax(0,1.15fr)_minmax(420px,0.85fr)]">
 
-        {{-- LINKER BEREICH: FORMULAR --}}
+        {{-- LEFT AREA --}}
         <div class="space-y-6">
             <div class="bp-page">
                 <div class="bp-content">
 
-                    <x-alert/>
+                    <x-bp.alert/>
 
                     <x-bp.card title="{{ __('Monitor Seiten') }}">
                         <x-slot:actions>
@@ -33,29 +35,45 @@
                         @forelse ($monitor_slides as $monitor_slide)
 
 
-                                {{-- ID / Time Box --}}
+                                {{-- Slide Number --}}
                                 <div class="bp-visit-timebox">
-                                    <span class="bp-visit-time">#{{ $monitor_slide->slide_number }}</span>
+                                    <span class="bp-visit-time">{{ $monitor_slide->slide_number }}</span>
                                 </div>
 
                                 {{-- Main Info --}}
                                 <div class="bp-visit-main">
                                     <div class="bp-visit-title">{{ $monitor_slide->heading }}</div>
+                                    <div class="bp-visit-company">{{ $monitor_slide->subheading }}</div>
                                     <div class="bp-visit-meta">
-                                        {{ __('Personen anzeige:') }} {{ $monitor_slide->viitors }}
+                                        <div class="flex flex-wrap gap-2">
+                                            @foreach($monitor_slide->visitors as $visitor)
+                                                <button
+                                                    type="button"
+                                                    class="btn btn-xs btn-outline rounded-full"
+                                                >
+                                                   {{ $visitor['name'] }}
+                                                </button>
+                                            @endforeach
+                                        </div>
                                     </div>
                                 </div>
 
                                 {{--- Delete Button ---}}
-
-                                <form method="POST" action="{{ route('monitor_slides.destroy', $monitor_slide) }}">
-                                    @csrf
-                                    @method('DELETE')
-
+                                <div>
+                                    <form id="delete-button-{{$monitor_slide->id}}" method="POST" action="{{ route('monitor_slides.destroy', $monitor_slide) }}">
+                                        @csrf
+                                        @method('DELETE')
+                                    </form>
+                                    <form id="edit-button-{{$monitor_slide->id}}" method="GET" action="{{ route('monitor_slides.edit', $monitor_slide) }}">
+                                        @csrf
+                                    </form>
                                     <div class="form-group">
-                                        <input type="submit" class="btn btn-danger delete-user" value="{{ __('Löchen') }}" onclick="return confirm('{{__('Möchten Sie die Seite wirklich löschen?')}}')">
+                                        <input form="edit-button-{{$monitor_slide->id}}" type="submit" class="btn-sm rounded-xl btn" value="{{ __('Bearbeiten') }}">
+                                        <input form="delete-button-{{$monitor_slide->id}}" type="submit" class="btn-sm rounded-xl btn" value="{{ __('Löschen') }}" onclick="return confirm('{{ __('Sicher löschen?') }}')">
                                     </div>
-                                </form>
+                                </div>
+
+
 
                                 @empty
                                     <div class="py-12 text-center">
@@ -64,52 +82,27 @@
                             </div>
                         @endforelse
                     </x-bp.card>
+                    <x-bp.card title="{{__('Monitor Einstellungen')}}">
+                        <x-slot:actions>
+                            <input type="submit" form="monitorSettings"  class="btn btn-primary btn-sm rounded-xl" value="{{__('Speichern')}}"/>
+                        </x-slot:actions>
+                        <form id="monitorSettings" method="POST" action="{{route('monitors.update', $monitor)}}">
+                            @csrf
+                            @method('PUT')
+                            <x-bp.input label="{{__('Übergangszeit (ms)')}}" value="{{$monitor->transition_time_milliseconds}}" name="transition_time_milliseconds"></x-bp.input>
+                        </form>
+                    </x-bp.card>
                 </div>
             </div>
         </div>
-            {{-- RECHTER BEREICH: LIVE PREVIEW (STICKY) --}}
+            {{-- RIGHT AREA --}}
         <aside class="xl:sticky xl:top-6 xl:self-start">
             <x-bp.card title="{{ __('Vorschau') }}">
 
                 <div class="p-5">
-                    <div class="aspect-[16/10] overflow-hidden rounded-[1.75rem] border border-slate-200 bg-gradient-to-br from-slate-100 to-slate-200">
-                        <div class="flex h-full flex-col p-8 lg:p-10">
-                            <div class="flex items-start justify-between gap-6">
-                                <div class="flex items-center gap-4">
-                                    <img
-                                        src="{{ asset('images/logo.png') }}"
-                                        alt="Logo"
-                                        class="h-10 w-auto object-contain"
-                                        onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"
-                                    >
-                                    <div class="hidden h-10 items-center rounded-xl border border-slate-300 px-4 text-sm font-medium text-slate-700">
-                                        ACD
-                                    </div>
-                                </div>
-
-                                <div class="rounded-2xl bg-white/85 px-4 py-2 text-right shadow-sm ring-1 ring-slate-200/80 backdrop-blur">
-                                    <div class="text-xs uppercase tracking-[0.24em] text-slate-500">{{ __('Heute') }}</div>
-                                    <div class="mt-1 text-lg font-semibold text-slate-900">30.03.2026</div>
-                                </div>
-                            </div>
-
-                            <div class="mt-10 max-w-3xl">
-                                <h3 class="text-4xl font-semibold tracking-tight text-slate-900 lg:text-5xl">
-                                    {{ __('Herzlich willkommen') }}
-                                </h3>
-                                <p class="mt-4 text-lg leading-8 text-slate-700">
-                                    {{ __('Wir freuen uns auf Ihren Besuch.') }}
-                                </p>
-                            </div>
-
-                            <div class="mt-10 grid gap-4 md:grid-cols-2">
-                            </div>
-
-                            <div class="mt-auto pt-6">
-                                <div class="text-sm text-slate-500">
-                                    {{ __('Empfang') }} · {{ __('Self-Check-in') }}
-                                </div>
-                            </div>
+                    <div id="preview-container" class="relative w-full aspect-[16/10] overflow-hidden rounded-[1.75rem] border border-slate-200 bg-slate-100">
+                        <div id="preview-content" class="absolute left-0 top-0 w-[1920px] h-[1080px] origin-top-left transition-transform duration-75">
+                            <x-monitor.show-monitor :monitor="$monitor" :slides="$monitor_slides"/>
                         </div>
                     </div>
                 </div>
@@ -119,3 +112,21 @@
     </div>
 
 </x-app-layout>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const container = document.getElementById('preview-container');
+        const content = document.getElementById('preview-content');
+
+        if (!container || !content) return;
+
+        const scalePreview = () => {
+            const scale = container.clientWidth / 1920;
+            content.style.transform = `scale(${scale})`;
+        };
+
+        scalePreview();
+
+        window.addEventListener('resize', scalePreview);
+    });
+</script>

@@ -3,11 +3,11 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreMonitorSlideRequest;
+use App\Http\Requests\UpdateMonitorSlideRequest;
 use App\Models\Monitor;
 use App\Models\MonitorSlide;
 use App\Models\Visit;
 use Carbon\Carbon;
-use Illuminate\Http\Request;
 
 class MonitorSlidesController extends Controller
 {
@@ -45,8 +45,7 @@ class MonitorSlidesController extends Controller
             ->with('monitor', $this->monitor)
             ->with('defaultSlideNumber', $defaultSlideNumber)
             ->with('todayVisitors', $todayVisitors)
-            ->with('todayVisits', $todayVisits)
-            ->with('availableTags', $todayVisitors);
+            ->with('todayVisits', $todayVisits);
     }
 
     /**
@@ -55,12 +54,12 @@ class MonitorSlidesController extends Controller
     public function store(StoreMonitorSlideRequest $request)
     {
         $validated = $request->validated();
-
-        $validated['visitors'] = 'test';
+        $validated['visitors'] = json_decode($request->visitors, true) ?? [];
 
         $this->monitor->monitorSlides()->create($validated);
 
-        return redirect()->route('monitors.edit', $this->monitor);
+        return redirect()->route('monitors.edit', $this->monitor)
+            ->with('success', __('Neue Seite erstellt'));
     }
 
     /**
@@ -76,15 +75,38 @@ class MonitorSlidesController extends Controller
      */
     public function edit(string $id)
     {
-        //
+        $slide = MonitorSlide::query()->findOrFail($id);
+        $monitor = $this->monitor;
+
+        $todayVisits = Visit::query()
+            ->whereDate('visits.scheduled_from', '<=', Carbon::today())
+            ->whereDate('visits.scheduled_until', '>=', Carbon::today())
+            ->orderBy('visits.scheduled_from')
+            ->with('responsibleUser')
+            ->with('visitors')
+            ->get();
+        $todayVisitors = $todayVisits->pluck('visitors')->collapse()->unique('id');
+
+        return view('monitorSlides.edit')
+            ->with('slide', $slide)
+            ->with('monitor', $monitor)
+            ->with('todayVisitors', $todayVisitors)
+            ->with('todayVisits', $todayVisits);
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(UpdateMonitorSlideRequest $request, string $id)
     {
-        //
+        $validated = $request->validated();
+        $validated['visitors'] = json_decode($request->visitors, true) ?? [];
+
+        MonitorSlide::query()->findOrFail($id)->update($validated);
+
+        return redirect()->route('monitors.edit', $this->monitor)
+            ->with('success', __('Seite aktualisiert'));
+
     }
 
     /**
