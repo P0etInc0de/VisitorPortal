@@ -145,7 +145,7 @@
                         {{ __('Monitor') }}
                     </div>
 
-                    <a href="{{ route('monitors.show', $monitor) }}" class="{{ $navLinkClasses(request()->routeIs('monitor.live')) }}">
+                    <a href="{{ route('monitors.show', $monitor) }}" class="{{ $navLinkClasses(request()->routeIs('monitors.show*')) }}">
                         <svg xmlns="http://www.w3.org/2000/svg" class="bp-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
                             <rect x="3" y="4" width="18" height="12" rx="2" />
                             <path stroke-linecap="round" stroke-linejoin="round" d="M8 20h8M12 16v4" />
@@ -153,7 +153,7 @@
                         <span>{{ __('Live-Anzeige') }}</span>
                     </a>
 
-                    <a href="{{ route('monitors.edit', $monitor) }}" class="{{ $navLinkClasses(request()->routeIs('monitor.editor')) }}">
+                    <a href="{{ route('monitors.edit', $monitor) }}" class="{{ $navLinkClasses(request()->routeIs('monitors.edit*')) }}">
                         <svg xmlns="http://www.w3.org/2000/svg" class="bp-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M4 20h4l10-10a2.121 2.121 0 10-4-4L4 16v4z" />
                         </svg>
@@ -174,7 +174,7 @@
                     </svg>
                     <span>{{ __('Profil') }}</span>
                 </a>
-	
+
 				<a href="{{ route('user-permissions') }}" class="{{ $navLinkClasses(request()->routeIs('user-permissions')) }}">
     				<svg xmlns="http://www.w3.org/2000/svg" class="bp-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
         				<path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4" />
@@ -305,8 +305,8 @@
                 @endif
 
                 @if ($canSeeMonitor)
-                    <a href="{{ route('monitor.live') }}" class="{{ $navLinkClasses(request()->routeIs('monitor.live')) }}">{{ __('Live-Anzeige') }}</a>
-                    <a href="{{ route('monitor.editor') }}" class="{{ $navLinkClasses(request()->routeIs('monitor.editor')) }}">{{ __('Editor') }}</a>
+                    <a href="{{ route('monitors.show', $monitor) }}" class="{{ $navLinkClasses(request()->routeIs('monitors.show*')) }}">{{ __('Live-Anzeige') }}</a>
+                    <a href="{{ route('monitors.edit', $monitor) }}" class="{{ $navLinkClasses(request()->routeIs('monitors.edit*')) }}">{{ __('Editor') }}</a>
                 @endif
 
                 @if ($canSeeAdmin)
