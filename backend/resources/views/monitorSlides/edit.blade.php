@@ -26,9 +26,9 @@
                     <x-bp.input label="{{ __('Unterüberschrift') }}" name="subheading" value="{{$slide->subheading}}"/>
                     <x-bp.input label="{{ __('Seitennummer') }}" name="slide_number" value="{{ $slide->slide_number }}"/>
 
-                    <x-bp.toggle label="{{ __('Logo Anzeigen') }}" name="show_logo" :checked="$slide->show_logo"/>
-                    <x-bp.toggle label="{{ __('Datum Anzeigen') }}" name="show_date" :checked="$slide->show_date"/>
-                    <x-bp.toggle label="{{ __('Zeit Anzeigen') }}" name="show_time" :checked="$slide->show_time"/>
+                    <x-bp.toggle label="{{ __('Logo Anzeigen') }}" name="show_logo" checked="{{$slide->show_logo}}"/>
+                    <x-bp.toggle label="{{ __('Datum Anzeigen') }}" name="show_date" checked="{{$slide->show_date}}"/>
+                    <x-bp.toggle label="{{ __('Zeit Anzeigen') }}" name="show_time" checked="{{$slide->show_time}}"/>
 
                     <div class="md:col-span-3">
                         <label class="form-control w-full">

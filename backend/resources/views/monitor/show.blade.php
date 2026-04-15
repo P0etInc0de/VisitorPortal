@@ -8,6 +8,6 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 <body class="min-h-screen bg-[var(--bp-bg)] text-base-content antialiased">
-    <x-monitor.show-monitor :monitor="$monitor" :slides="$slides" />
+    <livewire:monitor.monitor-slides :monitor="$monitor"/>
 </body>
 </html>

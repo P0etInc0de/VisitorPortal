@@ -102,7 +102,7 @@
                 <div class="p-5">
                     <div id="preview-container" class="relative w-full aspect-[16/10] overflow-hidden rounded-[1.75rem] border border-slate-200 bg-slate-100">
                         <div id="preview-content" class="absolute left-0 top-0 w-[1920px] h-[1080px] origin-top-left transition-transform duration-75">
-                            <x-monitor.show-monitor :monitor="$monitor" :slides="$monitor_slides"/>
+                            <livewire:monitor.monitor-slides :monitor="$monitor"/>
                         </div>
                     </div>
                 </div>

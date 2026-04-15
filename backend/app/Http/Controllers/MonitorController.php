@@ -46,11 +46,9 @@ class MonitorController extends Controller
     public function show(string $id)
     {
         $monitor = Monitor::query()->findOrFail($id);
-        $slides = $monitor->monitorSlides()->get();
 
         return view('monitor.show')
-            ->with('monitor', $monitor)
-            ->with('slides', $slides);
+            ->with('monitor', $monitor);
     }
 
     /**

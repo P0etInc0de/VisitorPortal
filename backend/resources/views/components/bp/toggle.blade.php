@@ -6,7 +6,10 @@
 
 <div class="form-control w-full">
     <label class="label cursor-pointer flex justify-start gap-4 py-2">
-
+        {{-- Hidden Fallback Input --}}
+        @if(is_string($name))
+            <input type="hidden" name="{{ $name }}" value="0">
+        @endif
         {{-- The Toggle Input --}}
         <input
             type="checkbox"
