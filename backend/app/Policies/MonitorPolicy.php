@@ -6,39 +6,40 @@ namespace App\Policies;
 
 use App\Models\Monitor;
 use Illuminate\Auth\Access\HandlesAuthorization;
-use Illuminate\Foundation\Auth\User as AuthUser;
+//use Illuminate\Foundation\Auth\User as AuthUser;
+use App\Models\User;
 
 class MonitorPolicy
 {
     use HandlesAuthorization;
 
-    public function viewAny(AuthUser $authUser): bool
+    public function viewAny(User $user): bool
     {
-        return $authUser->can('ViewAny:Monitor');
+        return $user->can('ViewAny:Monitor');
     }
 
-    public function view(AuthUser $authUser, Monitor $monitor): bool
+    public function view(User $user, Monitor $monitor): bool
     {
-        return $authUser->can('View:Monitor');
+        return $user->can('View:Monitor');
     }
 
-    public function create(AuthUser $authUser): bool
+    public function create(User $user): bool
     {
-        return $authUser->can('Create:Monitor');
+        return $user->can('Create:Monitor');
     }
 
-    public function update(AuthUser $authUser, Monitor $monitor): bool
+    public function update(User $user, Monitor $monitor): bool
     {
-        return $authUser->can('Update:Monitor');
+        return $user->can('Update:Monitor');
     }
 
-    public function delete(AuthUser $authUser, Monitor $monitor): bool
+    public function delete(User $user, Monitor $monitor): bool
     {
-        return $authUser->can('Delete:Monitor');
+        return $user->can('Delete:Monitor');
     }
 
-    public function edit(AuthUser $authUser, Monitor $monitor): bool
+    public function edit(User $user, Monitor $monitor): bool
     {
-        return $authUser->can('Edit:Monitor');
+        return $user->can('Edit:Monitor');
     }
 }

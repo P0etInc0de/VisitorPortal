@@ -6,34 +6,35 @@ namespace App\Policies;
 
 use App\Models\Department;
 use Illuminate\Auth\Access\HandlesAuthorization;
-use Illuminate\Foundation\Auth\User as AuthUser;
+//use Illuminate\Foundation\Auth\User as AuthUser;
+use App\Models\User;
 
 class DepartmentPolicy
 {
     use HandlesAuthorization;
 
-    public function viewAny(AuthUser $authUser): bool
+    public function viewAny(User $user): bool
     {
-        return $authUser->can('ViewAny:Department');
+        return $user->can('ViewAny:Department');
     }
 
-    public function view(AuthUser $authUser, Department $department): bool
+    public function view(User $user, Department $department): bool
     {
-        return $authUser->can('View:Department');
+        return $user->can('View:Department');
     }
 
-    public function create(AuthUser $authUser): bool
+    public function create(User $user): bool
     {
-        return $authUser->can('Create:Department');
+        return $user->can('Create:Department');
     }
 
-    public function update(AuthUser $authUser, Department $department): bool
+    public function update(User $user, Department $department): bool
     {
-        return $authUser->can('Update:Department');
+        return $user->can('Update:Department');
     }
 
-    public function delete(AuthUser $authUser, Department $department): bool
+    public function delete(User $user, Department $department): bool
     {
-        return $authUser->can('Delete:Department');
+        return $user->can('Delete:Department');
     }
 }

@@ -5,35 +5,36 @@ declare(strict_types=1);
 namespace App\Policies;
 
 use Illuminate\Auth\Access\HandlesAuthorization;
-use Illuminate\Foundation\Auth\User as AuthUser;
+//use Illuminate\Foundation\Auth\User as AuthUser;
+use App\Models\User;
 use Spatie\Permission\Models\Role;
 
 class RolePolicy
 {
     use HandlesAuthorization;
 
-    public function viewAny(AuthUser $authUser): bool
+    public function viewAny(User $user): bool
     {
-        return $authUser->can('ViewAny:Role');
+        return $user->can('ViewAny:Role');
     }
 
-    public function view(AuthUser $authUser, Role $role): bool
+    public function view(User $user, Role $role): bool
     {
-        return $authUser->can('View:Role');
+        return $user->can('View:Role');
     }
 
-    public function create(AuthUser $authUser): bool
+    public function create(User $user): bool
     {
-        return $authUser->can('Create:Role');
+        return $user->can('Create:Role');
     }
 
-    public function update(AuthUser $authUser, Role $role): bool
+    public function update(User $user, Role $role): bool
     {
-        return $authUser->can('Update:Role');
+        return $user->can('Update:Role');
     }
 
-    public function delete(AuthUser $authUser, Role $role): bool
+    public function delete(User $user, Role $role): bool
     {
-        return $authUser->can('Delete:Role');
+        return $user->can('Delete:Role');
     }
 }

@@ -6,44 +6,45 @@ namespace App\Policies;
 
 use App\Models\Visitor;
 use Illuminate\Auth\Access\HandlesAuthorization;
-use Illuminate\Foundation\Auth\User as AuthUser;
+//use Illuminate\Foundation\Auth\User as AuthUser;
+use App\Models\User;
 
 class VisitorPolicy
 {
     use HandlesAuthorization;
 
-    public function viewAny(AuthUser $authUser): bool
+    public function viewAny(User $user): bool
     {
-        return $authUser->can('ViewAny:Visitor');
+        return $user->can('ViewAny:Visitor');
     }
 
-    public function view(AuthUser $authUser, Visitor $visitor): bool
+    public function view(User $user, Visitor $visitor): bool
     {
-        return $authUser->can('View:Visitor');
+        return $user->can('View:Visitor');
     }
 
-    public function create(AuthUser $authUser): bool
+    public function create(User $user): bool
     {
-        return $authUser->can('Create:Visitor');
+        return $user->can('Create:Visitor');
     }
 
-    public function update(AuthUser $authUser, Visitor $visitor): bool
+    public function update(User $user, Visitor $visitor): bool
     {
-        return $authUser->can('Update:Visitor');
+        return $user->can('Update:Visitor');
     }
 
-    public function delete(AuthUser $authUser, Visitor $visitor): bool
+    public function delete(User $user, Visitor $visitor): bool
     {
-        return $authUser->can('Delete:Visitor');
+        return $user->can('Delete:Visitor');
     }
 
-    public function deleteAny(AuthUser $authUser): bool
+    public function deleteAny(User $user): bool
     {
-        return $authUser->can('DeleteAny:Visitor');
+        return $user->can('DeleteAny:Visitor');
     }
 
-    public function editAny(AuthUser $authUser): bool
+    public function editAny(User $user): bool
     {
-        return $authUser->can('EditAny:Visitor');
+        return $user->can('EditAny:Visitor');
     }
 }
