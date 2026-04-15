@@ -102,7 +102,7 @@ class User extends Authenticatable implements FilamentUser
     public function canAccessPanel(Panel $panel): bool
     {
         // Check if the user has the Superuser role (Shield's default is 'super_admin')
-        return $this->hasRole('super_admin');
+        return $this->hasRole('admin') || $this->hasRole('super_admin');
     }
 
     protected function fullName(): Attribute

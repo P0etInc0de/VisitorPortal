@@ -1,6 +1,10 @@
 <?php
 
 declare(strict_types=1);
+use App\Filament\Resources\Monitors\MonitorResource;
+use App\Filament\Resources\Users\UserResource;
+use App\Filament\Resources\Visitors\VisitorResource;
+use App\Filament\Resources\Visits\VisitResource;
 use BezhanSalleh\FilamentShield\Resources\Roles\RoleResource;
 use Filament\Pages\Dashboard;
 use Filament\Widgets\AccountWidget;
@@ -126,16 +130,11 @@ return [
         'merge' => true,
         'generate' => true,
         'methods' => [
-            'viewAny', 'view', 'create', 'update', 'delete', 'restore',
-            'forceDelete', 'forceDeleteAny', 'restoreAny', 'replicate', 'reorder',
+            'viewAny', 'view', 'create', 'update', 'delete',
         ],
         'single_parameter_methods' => [
             'viewAny',
             'create',
-            'deleteAny',
-            'forceDeleteAny',
-            'restoreAny',
-            'reorder',
         ],
     ],
 
@@ -170,11 +169,24 @@ return [
         'subject' => 'model',
         'manage' => [
             RoleResource::class => [
-                'viewAny',
-                'view',
-                'create',
-                'update',
-                'delete',
+                'viewAny', 'view', 'create', 'update', 'delete',
+            ],
+            VisitResource::class => [
+                'delete_any', 'edit_any',
+                'view_department', 'view_own', 'edit_department', 'edit_own',
+                'delete_department', 'delete_own', 'check_in', 'check_out', 'print',
+            ],
+            VisitorResource::class => [
+                'delete_any',
+                'edit_any',
+            ],
+            UserResource::class => [
+                'delete_any', 'view_own', 'edit_own',
+                'view_department', 'edit_department', 'delete_department',
+                'deactivate_any', 'deactivate_department', 'edit_any',
+            ],
+            MonitorResource::class => [
+                'edit',
             ],
         ],
         'exclude' => [
