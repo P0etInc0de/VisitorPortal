@@ -13,7 +13,7 @@ use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
 use Tests\TestCase;
 
-class AdministerVisitTest extends TestCase
+class UserAdministerVisitTest extends TestCase
 {
     use RefreshDatabase;
 
