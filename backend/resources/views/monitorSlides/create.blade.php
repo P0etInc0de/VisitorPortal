@@ -16,12 +16,12 @@
                 @csrf
                 <div class="grid gap-5 md:grid-cols-3">
                     <x-bp.input label="{{ __('Überschrift') }}" name="heading" value="{{ __('Herzlich willkommen!') }}"/>
-                    <x-bp.input label="{{ __('Unterüberschrift') }}" name="subheading" value="{{ __('Schön das Sie da sind!') }}"/>
+                    <x-bp.input label="{{ __('Unterüberschrift') }}" name="subheading" value="{{ __('Schön, dass Sie da sind!') }}"/>
                     <x-bp.input label="{{ __('Seitennummer') }}" name="slide_number" value="{{ $defaultSlideNumber }}"/>
 
                     <x-bp.toggle label="{{ __('Logo Anzeigen') }}" name="show_logo" checked="1"/>
                     <x-bp.toggle label="{{ __('Datum Anzeigen') }}" name="show_date" checked="1"/>
-                    <x-bp.toggle label="{{ __('Zeit Anzeigen') }}" name="show_time"/>
+                    {{--<x-bp.toggle label="{{ __('Zeit Anzeigen') }}" name="show_time"/>--}}
 
                     <div class="md:col-span-3">
                         <label class="form-control w-full">

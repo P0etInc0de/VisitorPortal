@@ -23,20 +23,20 @@
 
                 <x-bp.toggle label="{{ __('Logo Anzeigen') }}" name="show_logo" checked="{{$slide->show_logo}}"/>
                 <x-bp.toggle label="{{ __('Datum Anzeigen') }}" name="show_date" checked="{{$slide->show_date}}"/>
-                <x-bp.toggle label="{{ __('Zeit Anzeigen') }}" name="show_time" checked="{{$slide->show_time}}"/>
+                {{--<x-bp.toggle label="{{ __('Zeit Anzeigen') }}" name="show_time" checked="{{$slide->show_time}}"/>--}}
 
-                <div class="md:col-span-3">
-                    <label class="form-control w-full">
-                        <span class="label-text text-sm font-medium text-base-content">{{ __('Ausgewählte Besucher') }}</span>
-                    </label>
+               <div class="md:col-span-3">
+                   <label class="form-control w-full">
+                       <span class="label-text text-sm font-medium text-base-content">{{ __('Ausgewählte Besucher') }}</span>
+                   </label>
 
-                    <div id="selectedVisitors" class="flex flex-wrap gap-2 p-3 border rounded-xl bg-base-100 min-h-15">
-                        <!-- selected visitors are put here  -->
-                    </div>
-                    <span class="mt-1 block text-sm text-red-500 font-medium" id="visitorError" ></span>
-                </div>
+                   <div id="selectedVisitors" class="flex flex-wrap gap-2 p-3 border rounded-xl bg-base-100 min-h-15">
+                       <!-- selected visitors are put here  -->
+                   </div>
+                   <span class="mt-1 block text-sm text-red-500 font-medium" id="visitorError" ></span>
+               </div>
 
-                {{-- Hidden inputs for the POST request of the form to laravel --}}
+               {{-- Hidden inputs for the POST request of the form to laravel --}}
                 <input type="hidden" id="visitorsInput" name="visitors" />
                 <input type="hidden" value="{{ $monitor->id }}" name="monitor_id"/>
             </div>
