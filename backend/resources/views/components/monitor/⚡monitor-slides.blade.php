@@ -62,7 +62,7 @@ new class extends Component
                     >
                         <div class="bp-monitor-overlay"></div>
 
-                        <div class="mt-5 relative z-10 mx-auto flex min-h-screen w-full max-w-[1600px] flex-col px-10 py-10 sm:px-14 xl:px-18">
+                        <div class="mt-5 relative z-10 mx-auto flex min-h-screen w-full max-w-400 flex-col px-10 py-10 sm:px-14 xl:px-18">
                             <div class="flex items-start justify-between gap-8">
                                 <div class="flex items-center gap-6">
                                     @if ($slide->show_logo)

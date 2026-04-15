@@ -52,10 +52,10 @@
         <x-bp.card title="{{ __('Heutige Besuche') }}">
             <div class="space-y-4">
                 @foreach ($todayVisits as $visit)
-                    <article class="rounded-[1.5rem] border border-base-300 bg-base-100 px-5 py-4">
+                    <article class="rounded-3xl border border-base-300 bg-base-100 px-5 py-4">
                         <div class="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
                             <div class="flex gap-4">
-                                <div class="min-w-[72px] shrink-0">
+                                <div class="min-w-18 shrink-0">
                                     <div class="text-2xl font-semibold leading-none tracking-tight text-base-content">
                                         {{ \Carbon\Carbon::parse($visit->scheduled_from)->format('H:i') }}
                                     </div>
