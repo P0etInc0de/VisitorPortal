@@ -35,7 +35,7 @@
                             <span class="label-text text-sm font-medium text-base-content">{{ __('Ausgewählte Besucher') }}</span>
                         </label>
 
-                        <div id="selectedVisitors" class="flex flex-wrap gap-2 p-3 border rounded-xl bg-base-100 min-h-[60px]">
+                        <div id="selectedVisitors" class="flex flex-wrap gap-2 p-3 border rounded-xl bg-base-100 min-h-15">
                             <!-- selected visitors are put here  -->
                         </div>
                         <span class="mt-1 block text-sm text-red-500 font-medium" id="visitorError" ></span>
