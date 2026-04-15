@@ -3,38 +3,81 @@
 namespace App\Http\Controllers\Monitor;
 
 use App\Http\Controllers\Controller;
-use App\Models\Visit;
-use Illuminate\Contracts\View\View;
+use App\Http\Requests\Monitor\UpdateMonitorRequest;
+use App\Models\Monitor;
+use App\Models\MonitorSlide;
+use Request;
 
 class MonitorController extends Controller
 {
-    public function show(): View
+    /**
+     * Display a listing of monitors.
+     * Not needed yet
+     */
+    public function index() {}
+
+    /**
+     * Show the form for creating a new resource.
+     * Not needed yet
+     */
+    public function create() {}
+
+    /**
+     * Store a newly created resource in storage.
+     * Not needed yet
+     */
+    public function store(Request $request) {}
+
+    /**
+     * Display the specified resource.
+     * (Show the Welcome Monitor)
+     */
+    public function show(string $id)
     {
-        $todayVisits = Visit::query()
-            ->with(['visitors'])
-            ->whereBetween('scheduled_from', [now()->startOfDay(), now()->endOfDay()])
-            ->orderBy('scheduled_from')
-            ->get();
+        $monitor = Monitor::query()->findOrFail($id);
 
-        $visitors = $todayVisits
-            ->flatMap(fn (Visit $visit) => $visit->visitors->map(function ($visitor) use ($visit) {
-                return [
-                    'time' => $visit->scheduled_from->format('H:i'),
-                    'name' => $visitor->full_name,
-                    'company' => $visitor->display_company,
-                    'title' => $visit->display_title,
-                ];
-            }))
-            ->take(4)
-            ->values();
-
-        return view('monitor.show', [
-            'monitorVisitors' => $visitors,
-        ]);
+        return view('monitor.show')
+            ->with('monitor', $monitor);
     }
 
-    public function edit(): View
+    /**
+     * Show the form for editing the specified resource.
+     * Edit Monitor and See Monitor_Slide resource
+     */
+    public function edit(string $id)
     {
-        return view('monitor.editor');
+        $monitor = Monitor::query()->findOrFail($id);
+        $monitor_slides = MonitorSlide::query()->where('monitor_id', $monitor->id)->orderBy('monitor_slides.slide_number')->get();
+
+        $response = response()->view('monitor.edit', ['monitor' => $monitor, 'monitor_slides' => $monitor_slides]);
+
+        if (session()->has('success')) {
+            $response->header('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0');
+        }
+
+        return $response;
+    }
+
+    /**
+     * Update the specified resource in storage.
+     * Not needed yet
+     */
+    public function update(UpdateMonitorRequest $request, string $id)
+    {
+        $validated = $request->validated();
+        Monitor::query()->findOrFail($id)->update($validated);
+
+        return redirect()->route('monitors.edit', $id)
+            ->with('success', __('Monitor Einstellungen gespeichert'))
+            ->header('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0');
+    }
+
+    /**
+     * Remove the specified resource from storage.
+     * not needed yet
+     */
+    public function destroy(string $id)
+    {
+        //
     }
 }

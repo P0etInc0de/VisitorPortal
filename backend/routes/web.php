@@ -1,8 +1,8 @@
 <?php
 
 use App\Http\Controllers\CheckInOutController;
-use App\Http\Controllers\MonitorController;
-use App\Http\Controllers\MonitorSlidesController;
+use App\Http\Controllers\Monitor\MonitorController;
+use App\Http\Controllers\Monitor\MonitorSlidesController;
 use App\Http\Controllers\Portal\DashboardController as PortalDashboardController;
 use App\Http\Controllers\Portal\VisitController as PortalVisitController;
 use App\Http\Controllers\Reception\DashboardController as ReceptionDashboardController;

@@ -1,12 +1,12 @@
 <?php
 
-namespace App\Http\Requests;
+namespace App\Http\Requests\Monitor;
 
 use App\Models\MonitorSlide;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 
-class StoreMonitorSlideRequest extends FormRequest
+class UpdateMonitorSlideRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -23,7 +23,7 @@ class StoreMonitorSlideRequest extends FormRequest
      */
     public function rules(): array
     {
-        $maxSlide = MonitorSlide::max('slide_number') + 1;
+        $maxSlide = MonitorSlide::max('slide_number');
 
         return [
             'heading' => 'required',
