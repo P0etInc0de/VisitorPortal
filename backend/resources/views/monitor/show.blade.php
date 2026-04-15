@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" data-theme="light">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" data-theme="light" >
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -7,7 +7,7 @@
 
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
-<body class="min-h-screen bg-(--bp-bg) text-base-content antialiased">
+<body class="h-screen w-screen overflow-hidden">
     <livewire:monitor.monitor-slides :monitor="$monitor"/>
 </body>
 </html>
