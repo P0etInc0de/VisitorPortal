@@ -37,33 +37,13 @@ class VisitorPolicy
         return $authUser->can('Delete:Visitor');
     }
 
-    public function restore(AuthUser $authUser, Visitor $visitor): bool
+    public function deleteAny(AuthUser $authUser): bool
     {
-        return $authUser->can('Restore:Visitor');
+        return $authUser->can('DeleteAny:Visitor');
     }
 
-    public function forceDelete(AuthUser $authUser, Visitor $visitor): bool
+    public function editAny(AuthUser $authUser): bool
     {
-        return $authUser->can('ForceDelete:Visitor');
-    }
-
-    public function forceDeleteAny(AuthUser $authUser): bool
-    {
-        return $authUser->can('ForceDeleteAny:Visitor');
-    }
-
-    public function restoreAny(AuthUser $authUser): bool
-    {
-        return $authUser->can('RestoreAny:Visitor');
-    }
-
-    public function replicate(AuthUser $authUser, Visitor $visitor): bool
-    {
-        return $authUser->can('Replicate:Visitor');
-    }
-
-    public function reorder(AuthUser $authUser): bool
-    {
-        return $authUser->can('Reorder:Visitor');
+        return $authUser->can('EditAny:Visitor');
     }
 }

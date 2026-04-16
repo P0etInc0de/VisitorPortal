@@ -2,8 +2,6 @@
 
 namespace Database\Seeders;
 
-use App\Enums\GenderEnum;
-use App\Models\Department;
 use App\Models\User;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
@@ -26,7 +24,7 @@ class UserSeeder extends Seeder
             email: 'admin@demo.local',
             password: $defaultPassword,
             department: 'IT/Administration',
-            role: 'super_admin'
+            role: 'admin'
         );
 
         $this->createOrUpdateUser(
@@ -37,7 +35,7 @@ class UserSeeder extends Seeder
             email: 'empfang@demo.local',
             password: $defaultPassword,
             department: 'Empfang',
-            role: null,
+            role: 'receptionist',
         );
 
         $this->createOrUpdateUser(
@@ -48,7 +46,29 @@ class UserSeeder extends Seeder
             email: 'mitarbeiter@demo.local',
             password: $defaultPassword,
             department: 'Vertrieb',
-            role: 'employee',
+            role: 'user',
+        );
+
+        $this->createOrUpdateUser(
+            name: 'Manager',
+            first_name: 'User',
+            gender: GenderEnum::Male,
+            title: null,
+            email: 'Manager@demo.local',
+            password: $defaultPassword,
+            department: 'Vertrieb',
+            role: 'manager',
+        );
+
+        $this->createOrUpdateUser(
+            name: 'WelcomeMonitor',
+            first_name: 'User',
+            gender: GenderEnum::Male,
+            title: null,
+            email: 'WelcomeMonitor@demo.local',
+            password: $defaultPassword,
+            department: 'Vertrieb',
+            role: 'welcome monitor',
         );
 
         $this->command?->info('UserSeeder ausgeführt.');
