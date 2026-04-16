@@ -7,12 +7,28 @@ use App\Http\Controllers\Controller;
 use App\Models\Visit;
 use App\Models\Visitor;
 use Illuminate\Contracts\View\View;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 
 class VisitController extends Controller
 {
-    public function index(Request $request): View
+    public function index(Request $request): View|JsonResponse
+    {
+        $viewData = $this->buildIndexViewData($request);
+
+        if ($request->expectsJson() && $request->header('X-BP-Context') === 'reception-all-visits-list') {
+            return response()->json([
+                'toolbar_html' => view('reception.partials.all-visits.toolbar', $viewData)->render(),
+                'filter_bar_html' => view('reception.partials.all-visits.filter-bar', $viewData)->render(),
+                'visit_stack_html' => view('reception.partials.all-visits.visit-stack', $viewData)->render(),
+            ]);
+        }
+
+        return view('reception.all-visits', $viewData);
+    }
+
+    private function buildIndexViewData(Request $request): array
     {
         $range = $request->string('range')->toString() ?: 'week';
         $search = trim((string) $request->string('q'));
@@ -101,15 +117,35 @@ class VisitController extends Controller
             'all' => __('Alle'),
         ];
 
-        return view('reception.all-visits', [
+        $rangeDateValues = [
+            'today' => [
+                'from' => now()->toDateString(),
+                'to' => now()->toDateString(),
+            ],
+            'week' => [
+                'from' => now()->startOfWeek()->toDateString(),
+                'to' => now()->endOfWeek()->toDateString(),
+            ],
+            'next-week' => [
+                'from' => now()->copy()->addWeek()->startOfWeek()->toDateString(),
+                'to' => now()->copy()->addWeek()->endOfWeek()->toDateString(),
+            ],
+            'all' => [
+                'from' => '',
+                'to' => '',
+            ],
+        ];
+
+        return [
             'stats' => $stats,
             'visits' => $visits,
             'ranges' => $ranges,
+            'rangeDateValues' => $rangeDateValues,
             'activeRange' => $range,
             'search' => $search,
             'dateFrom' => $dateFrom,
             'dateTo' => $dateTo,
-        ]);
+        ];
     }
 
     private function resolveRange(string $range, string $dateFromInput = '', string $dateToInput = ''): array

@@ -7,3 +7,5 @@ Alpine.plugin(focus);
 
 window.Alpine = Alpine;
 Alpine.start();
+
+import './pages/reception/all-visits';
