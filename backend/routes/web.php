@@ -1,7 +1,6 @@
 <?php
 
 use App\Http\Controllers\CheckInOutController;
-use App\Http\Controllers\ImageController;
 use App\Http\Controllers\Monitor\MonitorController;
 use App\Http\Controllers\Monitor\MonitorSlidesController;
 use App\Http\Controllers\Portal\DashboardController as PortalDashboardController;
@@ -72,10 +71,6 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     Route::resource('monitors', MonitorController::class);
     Route::resource('monitor_slides', MonitorSlidesController::class);
-
-    Route::get('/images', [ImageController::class, 'index'])->name('images.index');
-    Route::post('/images-upload', [ImageController::class, 'upload'])->name('images.upload');
-    Route::post('/images/{id}/delete', [ImageController::class, 'destroy'])->name('images.destroy');
 
     Route::get('/user-permissions', [UserPermissionsController::class, 'index'])->name('user-permissions');
 });

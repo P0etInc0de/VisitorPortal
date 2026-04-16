@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Monitor;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Monitor\UpdateMonitorRequest;
-use App\Models\Image;
 use App\Models\Monitor;
 use App\Models\MonitorSlide;
 use Illuminate\Support\Facades\Storage;
