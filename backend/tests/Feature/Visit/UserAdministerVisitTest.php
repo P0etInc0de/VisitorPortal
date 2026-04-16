@@ -3,17 +3,12 @@
 namespace Tests\Feature\Visit;
 
 use App\Enums\VisitStatusEnum;
-use App\Filament\Resources\Users\Pages\CreateUser;
 use App\Models\User;
 use App\Models\Visit;
 use App\Models\Visitor;
-use Carbon\Carbon;
 use Database\Factories\VisitorFactory;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Livewire\Livewire;
-use Spatie\Permission\Models\Permission;
-use Spatie\Permission\Models\Role;
 use Tests\TestCase;
 
 class UserAdministerVisitTest extends TestCase
@@ -35,8 +30,7 @@ class UserAdministerVisitTest extends TestCase
         $visitTitle = 'Test Visit';
 
         // create the visit
-        $visit = $this->makeVisit($user->id, $visitTitle,VisitStatusEnum::Planned, $responsibleUser->id, $visitors);
-
+        $visit = $this->makeVisit($user->id, $visitTitle, VisitStatusEnum::Planned, $responsibleUser->id, $visitors);
 
         // check if visit is present in database
         $this->assertDatabaseHas('visits', [
@@ -46,7 +40,8 @@ class UserAdministerVisitTest extends TestCase
 
     }
 
-    public function test_user_can_cancel_visit(): void {
+    public function test_user_can_cancel_visit(): void
+    {
 
         // create necessary instances
         $visitTitle = 'Test Visit';
@@ -69,7 +64,8 @@ class UserAdministerVisitTest extends TestCase
 
     }
 
-    public function test_user_can_edit_visit(): void {
+    public function test_user_can_edit_visit(): void
+    {
 
         // create necessary instances
         $visitTitle = 'Test Visit';
@@ -87,7 +83,7 @@ class UserAdministerVisitTest extends TestCase
         $updatedVisitNotes = 'Updated Visit Notes';
 
         // create visit
-        $visit = $this->makeVisit($user->id,$visitTitle, VisitStatusEnum::Planned, $responsibleUser->id);
+        $visit = $this->makeVisit($user->id, $visitTitle, VisitStatusEnum::Planned, $responsibleUser->id);
 
         // send update form
         $response = $this->actingAs($user)
@@ -111,8 +107,6 @@ class UserAdministerVisitTest extends TestCase
             'notes' => $updatedVisitNotes,
         ]);
     }
-
-
 
     private function makeVisit(
         int $user_id,

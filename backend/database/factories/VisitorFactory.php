@@ -6,7 +6,6 @@ use App\Enums\GenderEnum;
 use App\Enums\VisitorStatusEnum;
 use App\Models\Visitor;
 use Illuminate\Database\Eloquent\Factories\Factory;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 
 /**
  * @extends Factory<Visitor>
