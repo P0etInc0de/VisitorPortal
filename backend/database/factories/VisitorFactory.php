@@ -13,7 +13,7 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
  */
 class VisitorFactory extends Factory
 {
-    use RefreshDatabase;
+    protected $model = Visitor::class;
 
     /**
      * Define the model's default state.

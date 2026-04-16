@@ -6,7 +6,10 @@ use App\Enums\VisitStatusEnum;
 use App\Filament\Resources\Users\Pages\CreateUser;
 use App\Models\User;
 use App\Models\Visit;
+use App\Models\Visitor;
 use Carbon\Carbon;
+use Database\Factories\VisitorFactory;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Livewire\Livewire;
 use Spatie\Permission\Models\Permission;
@@ -27,25 +30,17 @@ class UserAdministerVisitTest extends TestCase
 
         $responsibleUser = User::factory()->create();
 
-        $visitors = User::factory(4)->create();
+        $visitors = Visitor::factory(3)->create();
 
+        $visitTitle = 'Test Visit';
 
+        // create the visit
+        $visit = $this->makeVisit($user->id, $visitTitle,VisitStatusEnum::Planned, $responsibleUser->id, $visitors);
 
-        // create a visit
-        $this->createVisit('TestVisit',
-            $user,
-            $responsibleUser->id,
-            now()->addDay()->setTime(9, 0)->format('Y-m-d H:i:s'),
-            now()->addDay()->setTime(10, 0)->format('Y-m-d H:i:s'),
-            'planned',
-            'notes...',
-            $visitors->pluck('id')->toArray(),
-
-        );
 
         // check if visit is present in database
         $this->assertDatabaseHas('visits', [
-            'title' => 'TestVisit',
+            'title' => $visitTitle,
             'responsible_user_id' => $responsibleUser->id,
         ]);
 
@@ -53,94 +48,93 @@ class UserAdministerVisitTest extends TestCase
 
     public function test_user_can_cancel_visit(): void {
 
-        $visit = $this->makeVisit(VisitStatusEnum::Planned);
+        // create necessary instances
+        $visitTitle = 'Test Visit';
 
         $user = User::factory()->create();
 
+        $responsibleUser = User::factory()->create();
+
+        // create visit
+        $visit = $this->makeVisit($user->id, $visitTitle, VisitStatusEnum::Planned, $responsibleUser->id);
+
+        // cancel the visit
         $this->actingAs($user)->post(route('portal.visits.cancel', $visit));
 
+        // check if visit status is updated to 'canceled'
         $this->assertDatabaseHas('visits', [
-            'title' => 'Test Visit',
+            'title' => $visitTitle,
             'status' => VisitStatusEnum::Canceled,
         ]);
 
-
-
     }
 
-    public function test_user_can_edit_visit(): void {}
+    public function test_user_can_edit_visit(): void {
 
-    public function getIndividualUser(array $individualPermissions, string $name): User
-    {
-        $role = Role::firstOrCreate(['name' => $name, 'guard_name' => 'web']);
+        // create necessary instances
+        $visitTitle = 'Test Visit';
 
-        foreach ($individualPermissions as $permission) {
-            Permission::firstOrCreate([
-                'name' => $permission,
-                'guard_name' => 'web',
-            ]);
-        }
-
-        // replace old permissions with the new ones
-        $role->syncPermissions($individualPermissions);
+        $participant = VisitorFactory::new()->create();
 
         $user = User::factory()->create();
-        $user->assignRole($role);
 
-        return $user;
-    }
+        $responsibleUser = User::factory()->create();
 
-    public function createUser(User $admin, string $first_name, string $name, string $email, string $password, Role $userRole): void
-    {
-        // create a test user with role of an employee
-        Livewire::actingAs($admin)
-            ->test(CreateUser::class)
-            ->assertOk()
-            ->fillForm([
-                'first_name' => $first_name,
-                'name' => $name,
-                'email' => $email,
-                'password' => $password,
-                'roles' => [$userRole->id],
-            ])
-            ->call('create')
-            ->assertHasNoFormErrors();
-    }
+        // create updated fields
+        $updatedVisitTitle = 'Updated Visit Title';
+        $updatedScheduledFrom = '2026-04-29 10:00:00';
+        $updatedScheduledUntil = '2026-04-29 11:00:00';
+        $updatedVisitNotes = 'Updated Visit Notes';
 
-    public function createVisit(
-        string $title,
-        User $user,
-        int $responsible_user_id,
-        string $scheduled_from,
-        string $scheduled_until,
-        string $status,
-        string $notes,
-        $participants
-    ): void {
+        // create visit
+        $visit = $this->makeVisit($user->id,$visitTitle, VisitStatusEnum::Planned, $responsibleUser->id);
 
-
-
-        $response = $this
-            ->actingAs($user)
-            ->post(route('portal.visits.store'), [
-                'title' => $title,
+        // send update form
+        $response = $this->actingAs($user)
+            ->patch(route('portal.visits.update', $visit), [
                 'user_id' => $user->id,
-                'responsible_user_id' => $responsible_user_id,
-                'scheduled_from' => $scheduled_from,
-                'scheduled_until' => $scheduled_until,
-                'status' => $status,
-                'notes' => $notes,
-                'participants' => $participants,
+                'responsible_user_id' => $responsibleUser->id,
+                'title' => $updatedVisitTitle,
+                'scheduled_from' => $updatedScheduledFrom,
+                'scheduled_until' => $updatedScheduledUntil,
+                'status' => VisitStatusEnum::Planned->value,
+                'notes' => $updatedVisitNotes,
+                'participants' => [$participant],
             ]);
 
+        // check if database contains updated versions
+        $this->assertDatabaseHas('visits', [
+            'id' => $visit->id,
+            'title' => $updatedVisitTitle,
+            'scheduled_from' => $updatedScheduledFrom,
+            'scheduled_until' => $updatedScheduledUntil,
+            'notes' => $updatedVisitNotes,
+        ]);
     }
 
 
-    private function makeVisit(VisitStatusEnum $status):Visit
-    {
-        return Visit::factory()->create([
-            'title' => "Test Visit",
+
+    private function makeVisit(
+        int $user_id,
+        string $title,
+        VisitStatusEnum $status,
+        int $responsible_user_id,
+        ?Collection $visitors = null
+    ): Visit {
+
+        // create a visit
+        $visit = Visit::factory()->create([
+            'title' => $title,
             'status' => $status,
+            'responsible_user_id' => $responsible_user_id,
+            'user_id' => $user_id,
         ]);
+
+        // check if visitors parameter is passed and add them, if so
+        if ($visitors && $visitors->isNotEmpty()) {
+            $visit->visitors()->sync($visitors->pluck('id')->toArray());
+        }
+
+        return $visit;
     }
 }
