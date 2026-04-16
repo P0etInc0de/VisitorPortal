@@ -49,6 +49,17 @@ class VisitSeeder extends Seeder
 
         $this->createOrUpdateVisit(
             1,
+            2,
+            Carbon::now()->addDays(1)->setHour(15)->setMinute(0),
+            Carbon::now()->addDays(1)->setHour(16)->setMinute(0),
+            'FROG',
+            VisitStatusEnum::Planned,
+            'Firmen Rundgang Ohne Grund',
+            [2, 4]
+        );
+
+        $this->createOrUpdateVisit(
+            1,
             1,
             Carbon::now()->addDays(7)->setHour(13)->setMinute(0),
             Carbon::now()->addDays(7)->setHour(14)->setMinute(0),
@@ -56,6 +67,17 @@ class VisitSeeder extends Seeder
             VisitStatusEnum::Planned,
             'Kickoff neues Projekt',
             [1]
+        );
+
+        $this->createOrUpdateVisit(
+            1,
+            1,
+            Carbon::now()->addDays(7)->setHour(15)->setMinute(0),
+            Carbon::now()->addDays(7)->setHour(16)->setMinute(0),
+            'Kaffeekränzchen',
+            VisitStatusEnum::Planned,
+            'Kaffee und Tee',
+            [1, 5, 6]
         );
 
         $this->createOrUpdateVisit(
