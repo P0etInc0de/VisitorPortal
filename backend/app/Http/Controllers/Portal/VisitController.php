@@ -22,6 +22,8 @@ class VisitController extends Controller
 {
     public function create(): View
     {
+		$this->authorize('create', Visit::class);		
+
         return $this->formView(new Visit([
             'user_id' => auth()->id(),
             'status' => VisitStatusEnum::Draft->value,
@@ -61,6 +63,8 @@ class VisitController extends Controller
 
     public function show(Visit $visit): View
     {
+		$this->authorize('view', $visit);
+
         $visit->load([
             'host:id,name',
             'responsibleUser:id,name',

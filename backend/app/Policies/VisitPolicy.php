@@ -20,7 +20,7 @@ class VisitPolicy
 
     public function view(User $user, Visit $visit): bool
     {
-        return $user->can('View:Visit');
+        return $user->can('ViewAny:Visit') || viewOwn($user, $visit) || viewDepartment($user, $visit);
     }
 
     public function create(User $user): bool
@@ -30,12 +30,12 @@ class VisitPolicy
 
     public function update(User $user, Visit $visit): bool
     {
-        return $user->can('Update:Visit');
+        return editAny($user, $visit) || editDepartment($user, $visit) || editOwn($user, $visit);
     }
 
     public function delete(User $user, Visit $visit): bool
     {
-        return $user->can('Delete:Visit');
+        return deleteAny($user, $visit) || deleteDepartment($user, $visit) || deleteOwn($user, $visit);
     }
 
     public function deleteAny(User $user): bool

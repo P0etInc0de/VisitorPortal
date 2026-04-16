@@ -17,7 +17,7 @@ class RoleSeeder extends Seeder
         $userPermissions = [
             'ViewOwn:User', 'EditOwn:User', 'Create:Visit', 'Create:Visitor',
             'ViewOwn:Visit', 'EditOwn:Visit', 'DeleteOwn:Visit',
-            'ViewAny:Visitor'];
+            'ViewAny:Visitor', 'View:Role'];
 
         $managerPermissions = array_merge($userPermissions, [
             'ViewDepartment:User', 'EditDepartment:User',

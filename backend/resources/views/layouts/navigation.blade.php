@@ -34,8 +34,8 @@
         return false;
     };
 
-    $canSeeReception = $hasAnyRole(['empfang', 'reception', 'admin']);
-    $canSeeMonitor = $hasAnyRole(['empfang', 'reception', 'admin', 'monitor']);
+    $canSeeReception = $hasAnyRole(['receptionist', 'admin']);
+    $canSeeMonitor = $hasAnyRole(['receptionist', 'admin', 'welcome monitor']);
     $canSeeAdmin = $hasAnyRole(['admin']);
 @endphp
 
@@ -101,20 +101,24 @@
                 <div class="mb-1 px-3 text-[11px] font-medium uppercase tracking-[0.18em] text-base-content/42">
                     {{ __('Portal') }}
                 </div>
-
+				
+				@can('create', Visit::class)
                 <a href="{{ route('portal.visits.create') }}" class="{{ $navLinkClasses(request()->routeIs('portal.visits.create')) }}">
                     <svg xmlns="http://www.w3.org/2000/svg" class="bp-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M12 5v14M5 12h14" />
                     </svg>
                     <span>{{ __('Besuch anlegen') }}</span>
                 </a>
-
+				@endcan
+				
+				@canany(['checkIn', 'checkOut'], Visit::class)
                 <a href="{{ route('portal.check_in_out') }}" class="{{ $navLinkClasses(request()->routeIs('portal.check_in_out')) }}">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1" />
                     </svg>
                     <span>{{ __('Check-In/Out') }}</span>
                 </a>
+				@endcanany
             </div>
 
             @if ($canSeeReception)
@@ -129,7 +133,7 @@
                         </svg>
                         <span>{{ __('Dashboard') }}</span>
                     </a>
-
+		
                     <a href="{{ route('reception.all-visits') }}" class="{{ $navLinkClasses(request()->routeIs('reception.all-visits')) }}">
                         <svg xmlns="http://www.w3.org/2000/svg" class="bp-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M4 7h16M4 12h16M4 17h16" />
@@ -144,7 +148,8 @@
                     <div class="mb-1 px-3 text-[11px] font-medium uppercase tracking-[0.18em] text-base-content/42">
                         {{ __('Monitor') }}
                     </div>
-
+					
+					@can('view', Monitor::class)
                     <a href="{{ route('monitor.live') }}" class="{{ $navLinkClasses(request()->routeIs('monitor.live')) }}">
                         <svg xmlns="http://www.w3.org/2000/svg" class="bp-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
                             <rect x="3" y="4" width="18" height="12" rx="2" />
@@ -152,13 +157,16 @@
                         </svg>
                         <span>{{ __('Live-Anzeige') }}</span>
                     </a>
+					@endcan
 
+					@can('edit', Monitor::class)
                     <a href="{{ route('monitor.editor') }}" class="{{ $navLinkClasses(request()->routeIs('monitor.editor')) }}">
                         <svg xmlns="http://www.w3.org/2000/svg" class="bp-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M4 20h4l10-10a2.121 2.121 0 10-4-4L4 16v4z" />
                         </svg>
                         <span>{{ __('Editor') }}</span>
                     </a>
+					@endcan
                 </div>
             @endif
 
@@ -167,6 +175,7 @@
                     {{ __('Profil') }}
                 </div>
 
+				@can('viewOwn', auth()->user())
                 <a href="{{ route('profile.edit') }}" class="{{ $navLinkClasses(request()->routeIs('profile.*')) }}">
                     <svg xmlns="http://www.w3.org/2000/svg" class="bp-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M20 21a8 8 0 10-16 0" />
@@ -174,7 +183,9 @@
                     </svg>
                     <span>{{ __('Profil') }}</span>
                 </a>
+				@endcan
 	
+				@can('view', Role::class)
 				<a href="{{ route('user-permissions') }}" class="{{ $navLinkClasses(request()->routeIs('user-permissions')) }}">
     				<svg xmlns="http://www.w3.org/2000/svg" class="bp-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
         				<path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4" />
@@ -182,6 +193,7 @@
     				</svg>
    	 				<span>{{ __('Meine Berechtigungen') }}</span>
 				</a>
+				@endcan
 
                 @if ($canSeeAdmin)
                     <a href="{{ url('/admin') }}" class="{{ $navLinkClasses(request()->is('admin') || request()->is('admin/*')) }}">
