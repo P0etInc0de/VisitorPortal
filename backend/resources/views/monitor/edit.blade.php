@@ -71,10 +71,12 @@
                 <x-slot:actions>
                     <input type="submit" form="monitorSettings"  class="btn btn-primary btn-sm rounded-xl" value="{{__('Speichern')}}"/>
                 </x-slot:actions>
-                <form id="monitorSettings" method="POST" action="{{route('monitors.update', $monitor)}}">
+                <form id="monitorSettings" method="POST" action="{{route('monitors.update', $monitor)}}" enctype="multipart/form-data">
                     @csrf
                     @method('PUT')
-                    <x-bp.input label="{{__('Übergangszeit (ms)')}}" value="{{$monitor->transition_time_milliseconds}}" name="transition_time_milliseconds"></x-bp.input>
+                    <x-bp.input label="{{__('Übergangszeit (ms)')}}" value="{{$monitor->transition_time_milliseconds}}" name="transition_time_milliseconds"/>
+                   <x-bp.picture-upload label="{{__('Hintergrundbild auswählen')}}" name="image" src="{{$monitor->image_path}}" form_id="monitorSettings" id="picture-upload"/>
+
                 </form>
             </x-bp.card>
 
@@ -83,7 +85,7 @@
         <aside class="xl:sticky xl:top-6 xl:self-start">
             <x-bp.card title="{{ __('Vorschau') }}">
                 <div class="p-5">
-                    <div id="preview-container" class="relative w-full aspect-16/10 overflow-hidden rounded-[1.75rem] border border-slate-200 bg-slate-100">
+                    <div id="preview-container" class="relative w-full aspect-16/7 overflow-hidden rounded-[1.75rem] border border-slate-200 bg-slate-100">
                         <div id="preview-content" class="absolute left-0 top-0 w-480 h-270 origin-top-left transition-transform duration-75">
                             <livewire:monitor.monitor-slides :monitor="$monitor"/>
                         </div>

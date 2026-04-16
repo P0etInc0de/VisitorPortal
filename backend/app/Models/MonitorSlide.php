@@ -3,7 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class MonitorSlide extends Model
 {
@@ -26,12 +26,12 @@ class MonitorSlide extends Model
         'visitors' => 'array',
     ];
 
-    public function monitorSetting(): BelongsTo
+    public function monitor(): HasOne
     {
-        return $this->belongsTo(Monitor::class, 'monitor_setting_id');
+        return $this->hasOne(Monitor::class);
     }
 
-    protected static function booted()
+    protected static function booted(): void
     {
         // Automatically assign the next number on creation
         static::creating(function ($model) {

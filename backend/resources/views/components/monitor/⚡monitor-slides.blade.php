@@ -42,10 +42,12 @@ new class extends Component
     >
         @php
             $hasLogo = file_exists(public_path('images/logo.png'));
-            $hasCustomBackground = file_exists(public_path('images/monitor-background.jpg')) || file_exists(public_path('images/monitor-background.png'));
-            $backgroundAsset = file_exists(public_path('images/monitor-background.jpg'))
-                ? asset('images/monitor-background.jpg')
-                : (file_exists(public_path('images/monitor-background.png')) ? asset('images/monitor-background.png') : null);
+            $hasCustomBackground = !empty($monitor->image_path) && Storage::disk('public')->exists($monitor->image_path);
+            $backgroundAsset = $hasCustomBackground
+                ? asset('storage/'.$monitor->image_path)
+                : null;
+
+
         @endphp
 
         @foreach($slides as $index => $slide)
@@ -55,8 +57,10 @@ new class extends Component
                  style="display: none;">
 
                 <main class="bp-monitor-display {{ $hasCustomBackground ? 'bp-monitor-display-with-image' : 'bp-monitor-display-default' }}"
-                      @if ($backgroundAsset)
-                          style="background-image: linear-gradient(135deg, rgba(243,245,249,0.78), rgba(255,255,255,0.62)), url('{{ $backgroundAsset }}');"
+                    @if ($backgroundAsset)
+                        style="background-image:
+                        linear-gradient(135deg, rgba(20,20,20,0.45), rgba(20,20,20,0.25)),
+                        url('{{ $backgroundAsset }}');"
                     @endif
                 >
                     <div class="bp-monitor-overlay"></div>

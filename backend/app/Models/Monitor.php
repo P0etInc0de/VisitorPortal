@@ -15,6 +15,7 @@ class Monitor extends Model
     protected $fillable = [
         'name',
         'transition_time_milliseconds',
+        'image_path',
     ];
 
     public function monitorSlides(): HasMany

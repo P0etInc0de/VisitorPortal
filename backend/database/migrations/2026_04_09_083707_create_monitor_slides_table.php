@@ -14,9 +14,9 @@ return new class extends Migration
         Schema::create('monitor_slides', function (Blueprint $table) {
             $table->id();
             $table->foreignId('monitor_id')->constrained()->cascadeOnDelete();
+            $table->string('image_path')->default(null)->nullable();
             $table->integer('slide_number')->default(0);
             $table->timestamps();
-            $table->string('background_path')->default('');
             $table->string('heading');
             $table->string('subheading')->nullable();
             $table->boolean('show_logo')->default(false);
