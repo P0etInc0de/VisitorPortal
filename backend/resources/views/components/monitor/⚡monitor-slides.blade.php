@@ -16,8 +16,9 @@ new class extends Component
     }
 };
 ?>
-<div wire:poll.5s>
+<div wire:poll.5s class="h-full w-full">
     <div id="monitor-slides-container"
+         class="h-full w-full"
          wire:poll.1s.keep-alive
 
          {{-- Alpine.js handles the slideshow state --}}
@@ -52,11 +53,11 @@ new class extends Component
 
         @foreach($slides as $index => $slide)
             <div wire:key="slide-{{ $slide->id }}-{{ $slide->updated_at }}"
-                 class="slide"
+                 class="slide h-full w-full"
                  x-show="{{ $index }} === current"
                  style="display: none;">
 
-                <main class="bp-monitor-display {{ $hasCustomBackground ? 'bp-monitor-display-with-image' : 'bp-monitor-display-default' }}"
+                <main class="bp-monitor-display h-full {{ $hasCustomBackground ? 'bp-monitor-display-with-image' : 'bp-monitor-display-default' }}"
                     @if ($backgroundAsset)
                         style="background-image:
                         linear-gradient(135deg, rgba(20,20,20,0.45), rgba(20,20,20,0.25)),
@@ -65,7 +66,7 @@ new class extends Component
                 >
                     <div class="bp-monitor-overlay"></div>
 
-                    <div class="mt-5 relative z-10 mx-auto flex min-h-screen w-full max-w-400 flex-col px-10 py-10 sm:px-14 xl:px-18">
+                    <div class="mt-5 relative z-10 mx-auto flex h-full w-full max-w-400 flex-col px-10 py-10 sm:px-14 xl:px-18">
                         <div class="flex items-start justify-between gap-8">
                             <div class="flex items-center gap-6">
                                 @if ($slide->show_logo)

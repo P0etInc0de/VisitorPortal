@@ -85,9 +85,27 @@
         <aside class="xl:sticky xl:top-6 xl:self-start">
             <x-bp.card title="{{ __('Vorschau') }}">
                 <div class="p-5">
-                    <div id="preview-container" class="relative w-full aspect-16/7 overflow-hidden rounded-[1.75rem] border border-slate-200 bg-slate-100">
-                        <div id="preview-content" class="absolute left-0 top-0 w-480 h-270 origin-top-left transition-transform duration-75">
+                    <div id="preview-container"
+                         x-data="{
+                     scale: 1,
+                     updateScale() {
+                         // Scale = Container Width / Native Content Width
+                         this.scale = this.$el.clientWidth / this.$refs.content.offsetWidth;
+                     }
+                 }"
+                         x-init="
+                     updateScale();
+                     new ResizeObserver(() => updateScale()).observe($el);
+                 "
+                         class="relative w-full aspect-video overflow-hidden rounded-[1.75rem] border border-slate-200 bg-slate-100">
+
+                        <div id="preview-content"
+                             x-ref="content"
+                             :style="`transform: scale(${scale});`"
+                             class="absolute left-0 top-0 w-480 h-270 origin-top-left transition-transform duration-75">
+
                             <livewire:monitor.monitor-slides :monitor="$monitor"/>
+
                         </div>
                     </div>
                 </div>
@@ -103,21 +121,3 @@
         </aside>
     </div>
 </x-app-layout>
-
-<script>
-    document.addEventListener('DOMContentLoaded', () => {
-        const container = document.getElementById('preview-container');
-        const content = document.getElementById('preview-content');
-
-        if (!container || !content) return;
-
-        const scalePreview = () => {
-            const scale = container.clientWidth / 1920;
-            content.style.transform = `scale(${scale})`;
-        };
-
-        scalePreview();
-
-        window.addEventListener('resize', scalePreview);
-    });
-</script>
