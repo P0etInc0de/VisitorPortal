@@ -38,7 +38,7 @@ class MonitorPolicy
         return $user->can('Delete:Monitor');
     }
 
-    public function edit(User $user, Monitor $monitor): bool
+    public function edit(User $user): bool
     {
         return $user->can('Edit:Monitor');
     }

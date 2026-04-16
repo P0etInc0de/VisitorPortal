@@ -34,9 +34,13 @@
         return false;
     };
 
-    $canSeeReception = $hasAnyRole(['receptionist', 'admin']);
-    $canSeeMonitor = $hasAnyRole(['receptionist', 'admin', 'welcome monitor']);
+    //$canSeeReception = $hasAnyRole(['receptionist', 'admin']);
+    //$canSeeMonitor = $hasAnyRole(['receptionist', 'admin', 'welcome monitor']);
     $canSeeAdmin = $hasAnyRole(['admin']);
+	$canSeeReception = auth()->user()->hasAnyPermission(['ViewAny:Visit']);
+	$canSeeMonitor = auth()->user()->hasAnyPermission(['View:Monitor', 'Edit:Monitor']);
+	$canSeeVisits = auth()->user()->hasAnyPermission(['Create:Visit', 'CheckIn:Visit', 'CheckOut:Visit']);
+	$canSeeProfile = auth()->user()->hasAnyPermission(['ViewOwn:User', 'View:Role']);
 @endphp
 
 <div class="sticky top-0 z-30 border-b border-base-300/70 bp-topbar-surface lg:hidden">
@@ -97,12 +101,13 @@
                 </a>
             </div>
 
+			@if ($canSeeVisits)
             <div>
                 <div class="mb-1 px-3 text-[11px] font-medium uppercase tracking-[0.18em] text-base-content/42">
                     {{ __('Portal') }}
                 </div>
 				
-				@can('create', Visit::class)
+				@can('Create:Visit')
                 <a href="{{ route('portal.visits.create') }}" class="{{ $navLinkClasses(request()->routeIs('portal.visits.create')) }}">
                     <svg xmlns="http://www.w3.org/2000/svg" class="bp-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M12 5v14M5 12h14" />
@@ -111,7 +116,7 @@
                 </a>
 				@endcan
 				
-				@canany(['checkIn', 'checkOut'], Visit::class)
+				@canany(['CheckIn:Visit', 'CheckOut:Visit'])
                 <a href="{{ route('portal.check_in_out') }}" class="{{ $navLinkClasses(request()->routeIs('portal.check_in_out')) }}">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1" />
@@ -120,6 +125,7 @@
                 </a>
 				@endcanany
             </div>
+			@endif
 
             @if ($canSeeReception)
                 <div>
@@ -149,7 +155,7 @@
                         {{ __('Monitor') }}
                     </div>
 					
-					@can('view', Monitor::class)
+					@can('View:Monitor')
                     <a href="{{ route('monitor.live') }}" class="{{ $navLinkClasses(request()->routeIs('monitor.live')) }}">
                         <svg xmlns="http://www.w3.org/2000/svg" class="bp-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
                             <rect x="3" y="4" width="18" height="12" rx="2" />
@@ -159,7 +165,7 @@
                     </a>
 					@endcan
 
-					@can('edit', Monitor::class)
+					@can('Edit:Monitor')
                     <a href="{{ route('monitor.editor') }}" class="{{ $navLinkClasses(request()->routeIs('monitor.editor')) }}">
                         <svg xmlns="http://www.w3.org/2000/svg" class="bp-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M4 20h4l10-10a2.121 2.121 0 10-4-4L4 16v4z" />
@@ -170,6 +176,7 @@
                 </div>
             @endif
 
+			@if ($canSeeProfile)
             <div>
                 <div class="mb-1 px-3 text-[11px] font-medium uppercase tracking-[0.18em] text-base-content/42">
                     {{ __('Profil') }}
@@ -184,8 +191,8 @@
                     <span>{{ __('Profil') }}</span>
                 </a>
 				@endcan
-	
-				@can('view', Role::class)
+				
+				@can('View:Role')
 				<a href="{{ route('user-permissions') }}" class="{{ $navLinkClasses(request()->routeIs('user-permissions')) }}">
     				<svg xmlns="http://www.w3.org/2000/svg" class="bp-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
         				<path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4" />
@@ -204,6 +211,7 @@
                     </a>
                 @endif
             </div>
+			@endif
         </nav>
     </div>
 
