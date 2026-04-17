@@ -38,12 +38,12 @@
     <div class="bp-av-cell"><span class="bp-av-status-text {{ $statusClass }}">{{ $statusLabel }}</span></div>
     <div class="bp-av-cell bp-av-badge-cell">
         @if ($badgeUrl)
-            <form method="POST" action="{{ $badgeUrl }}">
+            <form method="POST" action="{{ $badgeUrl }}" data-bp-badge-download data-bp-visit-id="{{ $visitId ?? ($participant['visit_id'] ?? '') }}">
                 @csrf
                 <button type="submit" class="btn btn-outline btn-sm bp-av-row-btn">{{ __('Ausweis') }}</button>
             </form>
         @else
-            <button type="button" class="btn btn-outline btn-sm bp-av-row-btn">{{ __('Ausweis') }}</button>
+            <span class="bp-av-participant-status">—</span>
         @endif
     </div>
     <div class="bp-av-cell bp-av-action-cell">

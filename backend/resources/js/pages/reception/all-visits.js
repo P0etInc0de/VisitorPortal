@@ -7,6 +7,43 @@ document.addEventListener('DOMContentLoaded', () => {
 
     page.dataset.bpAjaxReady = '1';
 
+    const createLogger = () => {
+        let debugEnabled = false;
+
+        try {
+            debugEnabled = window.localStorage?.getItem('bp:all-visits:debug') === '1';
+        } catch (error) {
+            debugEnabled = false;
+        }
+
+        const prefix = '[AllVisits]';
+
+        const write = (level, message, context = {}) => {
+            if ((level === 'debug' || level === 'info') && !debugEnabled) {
+                return;
+            }
+
+            const method = level === 'debug'
+                ? 'debug'
+                : level === 'info'
+                    ? 'info'
+                    : level === 'warn'
+                        ? 'warn'
+                        : 'error';
+
+            console[method](`${prefix} ${message}`, context);
+        };
+
+        return {
+            debug: (message, context = {}) => write('debug', message, context),
+            info: (message, context = {}) => write('info', message, context),
+            warn: (message, context = {}) => write('warn', message, context),
+            error: (message, context = {}) => write('error', message, context),
+            isDebugEnabled: () => debugEnabled,
+        };
+    };
+
+    const logger = createLogger();
     const rowToggleTimers = new WeakMap();
 
     const toggleVisitRow = (row, forceExpanded = null) => {
@@ -119,6 +156,154 @@ document.addEventListener('DOMContentLoaded', () => {
         template.innerHTML = html.trim();
 
         return template.content.firstElementChild;
+    };
+
+    const getVisitIdFromElement = (element) => {
+        if (!element) {
+            return null;
+        }
+
+        return element.getAttribute('data-bp-visit-id')
+            || element.closest('[data-bp-visit-entry]')?.getAttribute('data-bp-visit-id')
+            || null;
+    };
+
+    const findVisitEntryById = (visitId) => {
+        if (!visitId) {
+            return null;
+        }
+
+        return document.querySelector(`[data-bp-visit-entry][data-bp-visit-id="${String(visitId)}"]`);
+    };
+
+    const delay = (ms) => new Promise((resolve) => {
+        window.setTimeout(resolve, ms);
+    });
+
+    const ensureBadgeDownloadFrame = () => {
+        let frame = document.getElementById('bp-av-badge-download-frame');
+
+        if (frame) {
+            return frame;
+        }
+
+        frame = document.createElement('iframe');
+        frame.id = 'bp-av-badge-download-frame';
+        frame.name = 'bpAvBadgeDownloadFrame';
+        frame.hidden = true;
+        frame.setAttribute('aria-hidden', 'true');
+        frame.tabIndex = -1;
+        frame.src = 'about:blank';
+        document.body.appendChild(frame);
+
+        return frame;
+    };
+
+    const waitForFrameLoad = (frame, timeoutMs = 8000) => new Promise((resolve) => {
+        let settled = false;
+
+        const cleanup = () => {
+            frame.removeEventListener('load', handleLoad);
+            window.clearTimeout(timeoutId);
+        };
+
+        const finish = () => {
+            if (settled) {
+                return;
+            }
+
+            settled = true;
+            cleanup();
+            resolve();
+        };
+
+        const handleLoad = () => {
+            finish();
+        };
+
+        const timeoutId = window.setTimeout(() => {
+            finish();
+        }, timeoutMs);
+
+        frame.addEventListener('load', handleLoad, { once: true });
+    });
+
+    const submitFormToFrame = (form, frameName) => {
+        const previousTarget = form.getAttribute('target');
+
+        form.setAttribute('target', frameName);
+        HTMLFormElement.prototype.submit.call(form);
+
+        if (previousTarget === null) {
+            form.removeAttribute('target');
+        } else {
+            form.setAttribute('target', previousTarget);
+        }
+    };
+
+    const extractVisitEntryHtml = (visitStackHtml, visitId) => {
+        const visitStack = createFragmentFromHtml(visitStackHtml);
+
+        if (!visitStack) {
+            return null;
+        }
+
+        const nextEntry = visitStack.querySelector(`[data-bp-visit-entry][data-bp-visit-id="${String(visitId)}"]`);
+
+        return nextEntry ? nextEntry.outerHTML : null;
+    };
+
+    const refreshVisitEntryFromCurrentList = async (visitId) => {
+        const currentEntry = findVisitEntryById(visitId);
+
+        if (!currentEntry) {
+            logger.warn('Refresh skipped because the current visit entry was not found.', { visitId });
+            return false;
+        }
+
+        logger.debug('Refreshing visit entry from the current list view.', { visitId });
+
+        const response = await fetch(window.location.href, {
+            method: 'GET',
+            credentials: 'same-origin',
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+                'X-BP-Context': 'reception-all-visits-list',
+                'Accept': 'application/json',
+            },
+        });
+
+        logger.debug('Visit entry refresh response received.', {
+            visitId,
+            ok: response.ok,
+            status: response.status,
+        });
+
+        if (!response.ok) {
+            throw new Error(`Refresh request failed with status ${response.status}`);
+        }
+
+        const data = await response.json();
+        const nextEntryHtml = data.visit_stack_html ? extractVisitEntryHtml(data.visit_stack_html, visitId) : null;
+
+        logger.debug('Visit entry refresh payload parsed.', {
+            visitId,
+            hasVisitStackHtml: Boolean(data.visit_stack_html),
+            hasEntryHtml: Boolean(nextEntryHtml),
+        });
+
+        if (!nextEntryHtml) {
+            throw new Error('Missing refreshed entry html');
+        }
+
+        const replaced = replaceVisitEntry(currentEntry, nextEntryHtml);
+
+        logger.debug('Visit entry refresh replacement finished.', {
+            visitId,
+            replaced,
+        });
+
+        return replaced;
     };
 
     const replaceVisitEntry = (currentEntry, nextEntryHtml) => {
@@ -352,6 +537,49 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
+        const badgeForm = event.target.closest('form[data-bp-badge-download]');
+
+        if (badgeForm) {
+            event.preventDefault();
+
+            const visitEntry = badgeForm.closest('[data-bp-visit-entry]');
+            const visitId = visitEntry?.getAttribute('data-bp-visit-id');
+            const submitButton = badgeForm.querySelector('button[type="submit"]');
+
+            if (!visitEntry || !visitId) {
+                HTMLFormElement.prototype.submit.call(badgeForm);
+                return;
+            }
+
+            if (submitButton) {
+                submitButton.disabled = true;
+            }
+
+            try {
+                const frame = ensureBadgeDownloadFrame();
+                const loadPromise = waitForFrameLoad(frame);
+
+                submitFormToFrame(badgeForm, frame.name);
+
+                await Promise.race([loadPromise, delay(1200)]);
+
+                try {
+                    await refreshVisitEntryFromCurrentList(visitId);
+                } catch (error) {
+                    // Keep the current page state and leave the UI unchanged when the refresh fails.
+                }
+            } catch (error) {
+                HTMLFormElement.prototype.submit.call(badgeForm);
+                return;
+            } finally {
+                if (submitButton) {
+                    submitButton.disabled = false;
+                }
+            }
+
+            return;
+        }
+
         const form = event.target.closest('form[data-bp-ajax="participant-action"]');
 
         if (!form) {
@@ -361,12 +589,21 @@ document.addEventListener('DOMContentLoaded', () => {
         event.preventDefault();
 
         const submitButton = form.querySelector('button[type="submit"]');
-        const visitEntry = form.closest('[data-bp-visit-entry]');
+        const visitId = getVisitIdFromElement(form);
+        const initialVisitEntry = form.closest('[data-bp-visit-entry]') || findVisitEntryById(visitId);
 
-        if (!visitEntry) {
-            form.submit();
+        if (!visitId) {
+            logger.error('Participant action aborted because the visit id is missing.', {
+                action: form.action,
+            });
             return;
         }
+
+        logger.debug('Participant action started.', {
+            visitId,
+            action: form.action,
+            hasInitialVisitEntry: Boolean(initialVisitEntry),
+        });
 
         if (submitButton) {
             submitButton.disabled = true;
@@ -384,28 +621,86 @@ document.addEventListener('DOMContentLoaded', () => {
                 },
             });
 
+            logger.debug('Participant action response received.', {
+                visitId,
+                action: form.action,
+                ok: response.ok,
+                status: response.status,
+                redirected: response.redirected,
+            });
+
             if (response.redirected && response.url && !response.url.includes('/reception')) {
                 window.location.href = response.url;
                 return;
             }
 
             if (!response.ok) {
-                throw new Error('Request failed');
+                throw new Error(`Request failed with status ${response.status}`);
             }
 
             const data = await response.json();
+            const hasEntryHtml = typeof data.entry_html === 'string' && data.entry_html.trim() !== '';
 
-            if (!data.entry_html) {
-                throw new Error('Missing entry html');
+            logger.debug('Participant action payload parsed.', {
+                visitId,
+                hasEntryHtml,
+            });
+
+            if (hasEntryHtml) {
+                const currentEntry = findVisitEntryById(visitId) || initialVisitEntry;
+
+                logger.debug('Trying direct visit entry replacement after participant action.', {
+                    visitId,
+                    hasCurrentEntry: Boolean(currentEntry),
+                });
+
+                if (currentEntry) {
+                    const replaced = replaceVisitEntry(currentEntry, data.entry_html);
+
+                    logger.debug('Direct visit entry replacement finished.', {
+                        visitId,
+                        replaced,
+                    });
+
+                    if (replaced) {
+                        return;
+                    }
+                }
             }
 
-            const replaced = replaceVisitEntry(visitEntry, data.entry_html);
+            logger.warn('Direct participant action update did not replace the visit entry. Trying list-based refresh.', {
+                visitId,
+                hasEntryHtml,
+            });
 
-            if (!replaced) {
-                throw new Error('Entry replacement failed');
+            const refreshed = await refreshVisitEntryFromCurrentList(visitId);
+
+            if (!refreshed) {
+                logger.warn('Participant action finished, but the visit entry could not be refreshed. Keeping the current page state.', {
+                    visitId,
+                });
             }
         } catch (error) {
-            form.submit();
+            logger.error('Participant action request failed. Trying list-based refresh instead of a full page reload.', {
+                visitId,
+                action: form.action,
+                message: error instanceof Error ? error.message : String(error),
+            });
+
+            try {
+                const refreshed = await refreshVisitEntryFromCurrentList(visitId);
+
+                if (!refreshed) {
+                    logger.warn('Participant action refresh fallback did not update the visit entry. Keeping the current page state.', {
+                        visitId,
+                    });
+                }
+            } catch (refreshError) {
+                logger.error('Participant action refresh fallback failed. Keeping the current page state without a full page reload.', {
+                    visitId,
+                    message: refreshError instanceof Error ? refreshError.message : String(refreshError),
+                });
+            }
         } finally {
             if (submitButton) {
                 submitButton.disabled = false;
