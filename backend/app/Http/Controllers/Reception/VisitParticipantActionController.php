@@ -37,7 +37,7 @@ class VisitParticipantActionController extends Controller
             ->driver('gotenberg')
             ->paperSize(85.6, 53.98, 'mm')
             ->margins(0, 0, 0, 0)
-            ->name(__('Besucherausweis_') . trim(($participant->first_name ?? '') . '_' . ($participant->name ?? 'Gast')) . '.pdf')
+            ->name(__('Besucherausweis_').trim(($participant->first_name ?? '').'_'.($participant->name ?? 'Gast')).'.pdf')
             ->download();
     }
 

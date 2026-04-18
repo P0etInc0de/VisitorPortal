@@ -45,7 +45,6 @@ class AllVisitsPage extends Component
         }
     }
 
-
     public function setRange(string $range): void
     {
         $range = $this->normalizeRange($range);
@@ -155,7 +154,6 @@ class AllVisitsPage extends Component
             $this->interactionToken++;
         }
     }
-
 
     public function render()
     {
