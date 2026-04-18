@@ -8,6 +8,7 @@ use App\Models\Visitor;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Log;
 use Livewire\Component;
+use Spatie\LaravelPdf\Facades\Pdf;
 
 class AllVisitsPage extends Component
 {
@@ -18,6 +19,8 @@ class AllVisitsPage extends Component
     public string $dateFrom = '';
 
     public string $dateTo = '';
+
+    public int $interactionToken = 0;
 
     /**
      * @var array<int>
@@ -43,10 +46,6 @@ class AllVisitsPage extends Component
         }
     }
 
-    public function updatedSearch(string $value): void
-    {
-        $this->search = trim($value);
-    }
 
     public function setRange(string $range): void
     {
@@ -56,6 +55,7 @@ class AllVisitsPage extends Component
         [$from, $to, $fromValue, $toValue] = $this->resolveRange($range);
         $this->dateFrom = $fromValue;
         $this->dateTo = $toValue;
+        $this->interactionToken++;
     }
 
     public function applyCustomRange(): void
@@ -65,6 +65,7 @@ class AllVisitsPage extends Component
         [$from, $to, $fromValue, $toValue] = $this->resolveRange('custom', $this->dateFrom, $this->dateTo);
         $this->dateFrom = $fromValue;
         $this->dateTo = $toValue;
+        $this->interactionToken++;
     }
 
     public function resetFilters(): void
@@ -82,11 +83,14 @@ class AllVisitsPage extends Component
                 static fn (int $expandedVisitId): bool => $expandedVisitId !== $visitId,
             ));
 
+            $this->interactionToken++;
+
             return;
         }
 
         $this->expandedVisitIds[] = $visitId;
         $this->expandedVisitIds = array_values(array_unique(array_map('intval', $this->expandedVisitIds)));
+        $this->interactionToken++;
     }
 
     public function checkIn(int $visitId, int $visitorId): void
@@ -122,6 +126,8 @@ class AllVisitsPage extends Component
                     'user_id' => auth()->id(),
                 ]
             );
+
+            $this->interactionToken++;
         }
     }
 
@@ -146,7 +152,55 @@ class AllVisitsPage extends Component
                 'visitor_id' => $visitorId,
                 'user_id' => auth()->id(),
             ]);
+
+            $this->interactionToken++;
         }
+    }
+
+
+    public function printBadge(int $visitId, int $visitorId)
+    {
+        $visit = Visit::query()
+            ->with([
+                'responsibleUser:id,first_name,name',
+                'visitors' => function ($query) use ($visitorId) {
+                    $query->where('visitors.id', $visitorId);
+                },
+            ])
+            ->findOrFail($visitId);
+
+        $participant = $visit->visitors->firstWhere('id', $visitorId);
+
+        if (! $participant) {
+            return null;
+        }
+
+        if (blank($participant->pivot->badge_printed_at)) {
+            $visit->visitors()->updateExistingPivot($visitorId, [
+                'badge_printed_at' => now(),
+                'updated_at' => now(),
+            ]);
+
+            $participant->pivot->badge_printed_at = now();
+        }
+
+        Log::channel('web')->info('Visit participant badge downloaded', [
+            'visit_id' => $visitId,
+            'visitor_id' => $visitorId,
+            'user_id' => auth()->id(),
+        ]);
+
+        $this->interactionToken++;
+
+        return Pdf::view('pdf.visitor_badge', [
+            'visit' => $visit,
+            'visitor' => $participant,
+        ])
+            ->driver('gotenberg')
+            ->format('A4')
+            ->landscape()
+            ->name(__('Besucherausweis_').($participant->name ?? 'visitor').'.pdf')
+            ->download();
     }
 
     public function render()

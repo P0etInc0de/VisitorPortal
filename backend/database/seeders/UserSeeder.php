@@ -23,7 +23,7 @@ class UserSeeder extends Seeder
             first_name: 'User',
             gender: GenderEnum::Male,
             title: null,
-            email: 'admin@demo.local',
+            email: 'l',
             password: $defaultPassword,
             department: 'IT/Administration',
             role: 'admin'

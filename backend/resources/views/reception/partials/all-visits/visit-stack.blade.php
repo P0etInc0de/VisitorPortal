@@ -1,5 +1,5 @@
 <section class="bp-av-table-card">
-    <div class="bp-av-table-wrap">
+    <div class="bp-av-table-wrap" x-ref="tableWrap">
         <div class="bp-av-table">
             <div class="bp-av-table-head">
                 <div class="bp-av-cell bp-av-cell-check">
@@ -13,7 +13,7 @@
                 <div class="bp-av-cell">{{ __('Notiz') }}</div>
             </div>
 
-            <div class="bp-av-table-body">
+            <div class="bp-av-table-body" x-ref="tableBody">
                 <div id="bp-av-visit-stack">
                     @php
                         $previousYear = null;

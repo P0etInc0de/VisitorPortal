@@ -23,6 +23,8 @@ class VisitParticipantActionController extends Controller
             ]);
         }
 
+        $visit->loadMissing('responsibleUser');
+
         Log::channel('web')->info('Visit participant badge downloaded', [
             'visit_id' => $visit->id,
             'visitor_id' => $visitor->id,
@@ -30,12 +32,13 @@ class VisitParticipantActionController extends Controller
         ]);
 
         return Pdf::view('pdf.visitor_badge', [
-            'visitor' => $visitor,
+            'visit' => $visit,
+            'visitor' => $participant,
         ])
             ->driver('gotenberg')
             ->format('A4')
             ->landscape()
-            ->name(__('Besucherausweis_').$visitor->last_name.'.pdf')
+            ->name(__('Besucherausweis_').($participant->name ?: 'Gast').'.pdf')
             ->download();
     }
 
