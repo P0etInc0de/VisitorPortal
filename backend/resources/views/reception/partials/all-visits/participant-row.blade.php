@@ -24,7 +24,7 @@
                 method="POST"
                 action="{{ $badgeUrl }}"
                 target="bp-av-badge-download-frame"
-                x-on:submit="$dispatch('bp-av-capture-scroll'); $dispatch('bp-av-badge-requested')"
+                x-on:submit="$dispatch('bp-av-capture-scroll')"
             >
                 @csrf
                 <button type="submit" class="btn btn-outline btn-sm bp-av-row-btn">{{ __('Ausweis') }}</button>
