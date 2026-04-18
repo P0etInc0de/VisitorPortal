@@ -17,29 +17,11 @@
                 <div id="bp-av-visit-stack">
                     @php
                         $previousYear = null;
-                        $weekdayMap = [1 => 'Mo', 2 => 'Di', 3 => 'Mi', 4 => 'Do', 5 => 'Fr', 6 => 'Sa', 7 => 'So'];
                     @endphp
 
                     @forelse ($visits as $index => $visit)
                         @php
-                            $scheduledFrom = null;
-                            $yearLabel = null;
-
-                            if (! empty($visit['scheduled_from'])) {
-                                try {
-                                    $scheduledFrom = \Illuminate\Support\Carbon::createFromFormat('d.m.Y H:i', $visit['scheduled_from']);
-                                } catch (\Throwable $e) {
-                                    $scheduledFrom = null;
-                                }
-                            }
-
-                            if ($scheduledFrom) {
-                                $yearLabel = $scheduledFrom->format('Y');
-                            }
-
-                            if ($yearLabel === null) {
-                                $yearLabel = __('Ohne Jahr');
-                            }
+                            $yearLabel = $visit['year_label'] ?? __('Ohne Jahr');
                         @endphp
 
                         @if ($yearLabel !== $previousYear)
@@ -50,7 +32,6 @@
                         @include('reception.partials.all-visits.visit-entry', [
                             'visit' => $visit,
                             'index' => $index,
-                            'weekdayMap' => $weekdayMap,
                             'expandedVisitIds' => $expandedVisitIds ?? [],
                         ])
                     @empty

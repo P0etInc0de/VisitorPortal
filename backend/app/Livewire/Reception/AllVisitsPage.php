@@ -221,17 +221,25 @@ class AllVisitsPage extends Component
                     ->values()
                     ->all();
 
+                $scheduledFrom = $visit->scheduled_from;
+                $visitStatus = $this->resolveVisitStatusMeta((string) $visit->status);
+                $hostDisplay = trim(($visit->host?->first_name ?? '').' '.($visit->host?->name ?? ''));
+
                 return [
                     'id' => $visit->id,
                     'title' => $visit->title ?: __('Besuch'),
-                    'time' => optional($visit->scheduled_from)->format('H:i'),
-                    'date' => optional($visit->scheduled_from)->format('d.m.'),
-                    'scheduled_from' => optional($visit->scheduled_from)->format('d.m.Y H:i'),
+                    'time' => optional($scheduledFrom)->format('H:i'),
+                    'date' => optional($scheduledFrom)->format('d.m.'),
+                    'scheduled_from' => optional($scheduledFrom)->format('d.m.Y H:i'),
                     'scheduled_until' => optional($visit->scheduled_until)->format('d.m.Y H:i'),
-                    'host' => trim(($visit->host?->first_name ?? '').' '.($visit->host?->name ?? '')),
-                    'host_display' => trim(($visit->host?->first_name ?? '').' '.($visit->host?->name ?? '')),
-                    'status' => $this->resolveVisitStatusLabel($visit->status),
+                    'date_time_label' => $this->formatVisitDateTimeLabel($scheduledFrom),
+                    'year_label' => $scheduledFrom?->format('Y') ?? __('Ohne Jahr'),
+                    'host' => $hostDisplay,
+                    'host_display' => $hostDisplay,
+                    'status_label' => $visitStatus['label'],
+                    'status_class' => $visitStatus['class'],
                     'notes' => $visit->notes,
+                    'note_text' => trim((string) ($visit->notes ?? '')),
                     'participants' => $participants,
                     'participants_count' => count($participants),
                     'open_url' => route('portal.visits.show', $visit->id),
@@ -313,14 +321,55 @@ class AllVisitsPage extends Component
         ];
     }
 
-    private function resolveVisitStatusLabel(string $status): string
+    /**
+     * @return array{label: string, class: string}
+     */
+    private function resolveVisitStatusMeta(string $status): array
     {
         return match ($status) {
-            VisitStatusEnum::Draft->value => VisitStatusEnum::Draft->label(),
-            VisitStatusEnum::Planned->value => VisitStatusEnum::Planned->label(),
-            VisitStatusEnum::Completed->value => VisitStatusEnum::Completed->label(),
-            VisitStatusEnum::Canceled->value => VisitStatusEnum::Canceled->label(),
-            default => __($status),
+            VisitStatusEnum::Draft->value => [
+                'label' => VisitStatusEnum::Draft->label(),
+                'class' => 'badge-error badge-outline',
+            ],
+            VisitStatusEnum::Completed->value => [
+                'label' => VisitStatusEnum::Completed->label(),
+                'class' => 'badge-success badge-outline',
+            ],
+            VisitStatusEnum::Canceled->value => [
+                'label' => VisitStatusEnum::Canceled->label(),
+                'class' => 'badge-neutral',
+            ],
+            VisitStatusEnum::Planned->value => [
+                'label' => VisitStatusEnum::Planned->label(),
+                'class' => 'badge-warning badge-outline',
+            ],
+            default => [
+                'label' => __($status),
+                'class' => '',
+            ],
+        };
+    }
+
+    private function formatVisitDateTimeLabel(?Carbon $scheduledFrom): ?string
+    {
+        if (! $scheduledFrom) {
+            return null;
+        }
+
+        return $this->weekdayLabel($scheduledFrom).', '.$scheduledFrom->format('d.m.').' | '.$scheduledFrom->format('H:i').' '.__('Uhr');
+    }
+
+    private function weekdayLabel(Carbon $date): string
+    {
+        return match ($date->dayOfWeekIso) {
+            1 => 'Mo',
+            2 => 'Di',
+            3 => 'Mi',
+            4 => 'Do',
+            5 => 'Fr',
+            6 => 'Sa',
+            7 => 'So',
+            default => $date->isoFormat('dd'),
         };
     }
 
@@ -339,6 +388,7 @@ class AllVisitsPage extends Component
 
         return match ($range) {
             'today' => [now()->startOfDay(), now()->endOfDay(), now()->toDateString(), now()->toDateString()],
+            'week' => [now()->startOfWeek(), now()->endOfWeek(), now()->startOfWeek()->toDateString(), now()->endOfWeek()->toDateString()],
             'next-week' => [
                 now()->copy()->addWeek()->startOfWeek(),
                 now()->copy()->addWeek()->endOfWeek(),
@@ -346,17 +396,19 @@ class AllVisitsPage extends Component
                 now()->copy()->addWeek()->endOfWeek()->toDateString(),
             ],
             'all' => [null, null, '', ''],
-            default => [
-                now()->startOfWeek(),
-                now()->endOfWeek(),
-                now()->startOfWeek()->toDateString(),
-                now()->endOfWeek()->toDateString(),
-            ],
+            default => [$fromDate, $untilDate, $dateFromInput, $dateToInput],
         };
     }
 
-    private function parseDateInput(string $value, bool $endOfDay = false): ?Carbon
+    private function normalizeRange(?string $range): string
     {
+        return in_array($range, ['today', 'week', 'next-week', 'all', 'custom'], true) ? (string) $range : 'week';
+    }
+
+    private function parseDateInput(?string $value, bool $endOfDay): ?Carbon
+    {
+        $value = trim((string) $value);
+
         if ($value === '') {
             return null;
         }
@@ -370,20 +422,11 @@ class AllVisitsPage extends Component
         return $endOfDay ? $date->endOfDay() : $date->startOfDay();
     }
 
-    private function normalizeRange(string $range): string
-    {
-        return array_key_exists($range, $this->ranges()) || $range === 'custom'
-            ? $range
-            : 'week';
-    }
-
     private function loadVisitParticipantPair(int $visitId, int $visitorId): Visit
     {
         return Visit::query()
             ->with([
-                'visitors' => function ($query) use ($visitorId) {
-                    $query->where('visitors.id', $visitorId);
-                },
+                'visitors' => fn ($query) => $query->whereKey($visitorId),
             ])
             ->findOrFail($visitId);
     }

@@ -1,36 +1,11 @@
 @php
-    $scheduledFrom = null;
-    $visitDateLabel = null;
     $visitId = $visit['id'] ?? $index ?? null;
     $detailId = $detailId ?? ('bp-av-details-visit-'.$visitId);
     $isExpanded = in_array((int) $visitId, array_map('intval', $expandedVisitIds ?? []), true);
-
-    if (! empty($visit['scheduled_from'])) {
-        try {
-            $scheduledFrom = \Illuminate\Support\Carbon::createFromFormat('d.m.Y H:i', $visit['scheduled_from']);
-        } catch (\Throwable $e) {
-            $scheduledFrom = null;
-        }
-    }
-
-    if ($scheduledFrom) {
-        $visitDateLabel = ($weekdayMap[$scheduledFrom->dayOfWeekIso] ?? $scheduledFrom->isoFormat('dd')).', '.$scheduledFrom->format('d.m.').' | '.$scheduledFrom->format('H:i').' '.__('Uhr');
-    } elseif (! empty($visit['date']) && ! empty($visit['time'])) {
-        $visitDateLabel = $visit['date'].' | '.$visit['time'].' '.__('Uhr');
-    }
-
-    if (is_array($visit['status'] ?? null)) {
-        $visitStatusLabel = $visit['status']['label'] ?? '';
-        $visitStatusClass = $visit['status']['class'] ?? '';
-    } else {
-        $visitStatusLabel = (string) ($visit['status'] ?? '');
-        $visitStatusClass = '';
-    }
-
-    $visitStatusLabel = preg_replace('/^\s*[•·]\s*/u', '', $visitStatusLabel);
-    $visitStatusClass = trim(str_replace('bp-status-pill', '', $visitStatusClass));
+    $visitStatusLabel = (string) ($visit['status_label'] ?? ($visit['status']['label'] ?? ($visit['status'] ?? '')));
+    $visitStatusClass = trim(str_replace('bp-status-pill', '', (string) ($visit['status_class'] ?? ($visit['status']['class'] ?? ''))));
     $participants = $visit['participants'] ?? array_merge($visit['visible_participants'] ?? [], $visit['hidden_participants'] ?? []);
-    $noteText = trim((string) ($visit['notes'] ?? ($visit['note'] ?? '')));
+    $noteText = (string) ($visit['note_text'] ?? trim((string) ($visit['notes'] ?? ($visit['note'] ?? ''))));
 @endphp
 
 <article
@@ -81,7 +56,7 @@
         </div>
 
         <div class="bp-av-cell">
-            <span class="bp-av-date-label">{{ $visitDateLabel ?: '—' }}</span>
+            <span class="bp-av-date-label">{{ $visit['date_time_label'] ?? '—' }}</span>
         </div>
 
         <div class="bp-av-cell">
