@@ -143,6 +143,9 @@ body {
     min-height: calc(100vh - 2.5rem);
     flex-direction: column;
     border-radius: 0;
+    background: var(--bp-surface-strong);
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
     padding: 1.4rem 1.15rem 1.15rem;
 }
 

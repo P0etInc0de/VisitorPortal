@@ -55,7 +55,16 @@
 
             <div class="flex min-w-0 items-center gap-3">
                 @if ($hasLogo)
-                    <img src="{{ asset('images/logo.png') }}" alt="{{ __('Logo') }}" width="160" height="40" loading="eager" decoding="async" fetchpriority="high" class="block max-h-9 w-auto object-contain" style="display:block;height:2.25rem;width:auto;max-width:10rem;">
+                    <img
+                        src="{{ asset('images/logo.png') }}"
+                        alt="{{ __('Logo') }}"
+                        width="108"
+                        height="36"
+                        loading="eager"
+                        decoding="async"
+                        fetchpriority="high"
+                        class="block h-9 w-[6.75rem] shrink-0 object-cover object-center"
+                    >
                 @endif
 
                 <p class="truncate text-sm font-semibold">{{ __('Besucherportal') }}</p>
@@ -72,7 +81,16 @@
     <div class="border-b border-base-300/70 px-4 py-4">
         <a href="{{ route('dashboard') }}" class="flex flex-col items-start gap-3">
             @if ($hasLogo)
-                <img src="{{ asset('images/logo.png') }}" alt="{{ __('Logo') }}" width="192" height="48" loading="eager" decoding="async" fetchpriority="high" class="block max-h-10 w-auto object-contain" style="display:block;height:2.5rem;width:auto;max-width:12rem;">
+                <img
+                    src="{{ asset('images/logo.png') }}"
+                    alt="{{ __('Logo') }}"
+                    width="120"
+                    height="40"
+                    loading="eager"
+                    decoding="async"
+                    fetchpriority="high"
+                    class="block h-10 w-[7.5rem] shrink-0 object-cover object-center"
+                >
             @endif
 
             <div class="min-w-0">
@@ -110,8 +128,8 @@
                 </a>
 
                 <a href="{{ route('portal.check_in_out') }}" class="{{ $navLinkClasses(request()->routeIs('portal.check_in_out')) }}">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1" />
+                    <svg xmlns="http://www.w3.org/2000/svg" class="bp-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1" />
                     </svg>
                     <span>{{ __('Check-In/Out') }}</span>
                 </a>
@@ -174,14 +192,14 @@
                     </svg>
                     <span>{{ __('Profil') }}</span>
                 </a>
-	
-				<a href="{{ route('user-permissions') }}" class="{{ $navLinkClasses(request()->routeIs('user-permissions')) }}">
-    				<svg xmlns="http://www.w3.org/2000/svg" class="bp-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
-        				<path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4" />
-        				<path stroke-linecap="round" stroke-linejoin="round" d="M12 3a9 9 0 1 0 0 18A9 9 0 0 0 12 3Z" />
-    				</svg>
-   	 				<span>{{ __('Meine Berechtigungen') }}</span>
-				</a>
+
+                <a href="{{ route('user-permissions') }}" class="{{ $navLinkClasses(request()->routeIs('user-permissions')) }}">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="bp-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4" />
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 3a9 9 0 1 0 0 18A9 9 0 0 0 12 3Z" />
+                    </svg>
+                    <span>{{ __('Meine Berechtigungen') }}</span>
+                </a>
 
                 @if ($canSeeAdmin)
                     <a href="{{ url('/admin') }}" class="{{ $navLinkClasses(request()->is('admin') || request()->is('admin/*')) }}">
@@ -218,102 +236,67 @@
         <div class="flex items-center justify-between border-b border-base-300/70 px-5 py-4">
             <div class="flex min-w-0 items-center gap-3">
                 @if ($hasLogo)
-                    <img src="{{ asset('images/logo.png') }}" alt="{{ __('Logo') }}" width="160" height="40" loading="eager" decoding="async" fetchpriority="high" class="block max-h-9 w-auto object-contain" style="display:block;height:2.25rem;width:auto;max-width:10rem;">
+                    <img
+                        src="{{ asset('images/logo.png') }}"
+                        alt="{{ __('Logo') }}"
+                        width="108"
+                        height="36"
+                        loading="eager"
+                        decoding="async"
+                        fetchpriority="high"
+                        class="block h-9 w-[6.75rem] shrink-0 object-cover object-center"
+                    >
                 @endif
                 <span class="truncate text-base font-semibold">{{ __('Besucherportal') }}</span>
             </div>
 
-<!--<<<<<<< HEAD
-        <button
-            type="button"
-            class="btn btn-ghost btn-square rounded-xl"
-            @click="navOpen = false"
-            aria-label="{{ __('Navigation schließen') }}"
-        >
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M6 6l12 12M18 6 6 18" />
-            </svg>
-        </button>
-    </div>
-
-    <div class="flex-1 overflow-y-auto px-4 py-5">
-        <nav class="space-y-2">
-            <a href="{{ route('dashboard') }}" class="{{ $navLinkClasses(request()->routeIs('dashboard')) }}" @click="navOpen = false">
-                <span>{{ __('Übersicht') }}</span>
-            </a>
-            <a href="{{ route('portal.visits.create') }}" class="{{ $navLinkClasses(request()->routeIs('portal.visits.create')) }}" @click="navOpen = false">
-                <span>{{ __('Besuch anlegen') }}</span>
-            </a>
-            @if ($canSeeReception)
-            <a href="{{ route('reception.dashboard') }}" class="{{ $navLinkClasses(request()->routeIs('reception.dashboard')) }}" @click="navOpen = false">
-                <span>{{ __('Dashboard') }}</span>
-            </a>
-            <a href="{{ \Illuminate\Support\Facades\Route::has('reception.all-visits') ? route('reception.all-visits') : url('/reception/all-visits') }}" class="{{ $navLinkClasses(request()->routeIs('reception.all-visits') || request()->is('reception/all-visits')) }}" @click="navOpen = false">
-                <span>{{ __('Alle Besuche') }}</span>
-            </a>
-            @endif
-            @if ($canSeeMonitor)
-            <a href="{{ route('monitor.live') }}" class="{{ $navLinkClasses(request()->routeIs('monitor.live')) }}" @click="navOpen = false">
-                <span>{{ __('Live-Anzeige') }}</span>
-            </a>
-            <a href="{{ route('monitor.editor') }}" class="{{ $navLinkClasses(request()->routeIs('monitor.editor')) }}" @click="navOpen = false">
-                <span>{{ __('Editor') }}</span>
-            </a>
-            @endif
-            @if ($canSeeAdmin)
-            <a href="{{ url('/admin') }}" class="{{ $navLinkClasses(request()->is('admin') || request()->is('admin/*')) }}" @click="navOpen = false">
-                <span>{{ __('Admin-Bereich') }}</span>
-            </a>
-            @endif
-            <a href="{{ route('profile.edit') }}" class="{{ $navLinkClasses(request()->routeIs('profile.*')) }}" @click="navOpen = false">
-                <span>{{ __('Profil') }}</span>
-            </a>
-
-			<a href="{{ route('user-permissions') }}" class="{{ $navLinkClasses(request()->routeIs('user-permissions')) }}" @click="navOpen = false">
-    			<span>{{ __('Meine Berechtigungen') }}</span>
-			</a>
-        </nav>
-    </div>
-
-    <div class="border-t border-base-300 px-4 py-4">
-        <div class="rounded-2xl border border-base-300/80 bg-base-100/80 px-4 py-4">
-            <p class="text-sm font-semibold">{{ $user->name }}</p>
-            <p class="mt-1 text-sm text-base-content/65">{{ $user->email }}</p>
-        </div>
-
-        <form method="POST" action="{{ route('logout') }}" class="mt-3">
-            @csrf
-            <button type="submit" class="btn btn-outline w-full rounded-xl">
-                {{ __('Abmelden') }}
-=======-->
-            <button type="button" class="btn btn-ghost btn-square rounded-xl" @click="navOpen = false" aria-label="{{ __('Navigation schließen') }}">
+            <button
+                type="button"
+                class="btn btn-ghost btn-square rounded-xl"
+                @click="navOpen = false"
+                aria-label="{{ __('Navigation schließen') }}"
+            >
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
                 </svg>
             </button>
         </div>
 
-        <div class="flex-1 overflow-y-auto px-4 py-4">
+        <div class="flex-1 overflow-y-auto px-4 py-5">
             <nav class="space-y-2">
-                <a href="{{ route('dashboard') }}" class="{{ $navLinkClasses(request()->routeIs('dashboard')) }}">{{ __('Übersicht') }}</a>
-                <a href="{{ route('portal.visits.create') }}" class="{{ $navLinkClasses(request()->routeIs('portal.visits.create')) }}">{{ __('Besuch anlegen') }}</a>
+                <a href="{{ route('dashboard') }}" class="{{ $navLinkClasses(request()->routeIs('dashboard')) }}" @click="navOpen = false">{{ __('Übersicht') }}</a>
+                <a href="{{ route('portal.visits.create') }}" class="{{ $navLinkClasses(request()->routeIs('portal.visits.create')) }}" @click="navOpen = false">{{ __('Besuch anlegen') }}</a>
+                <a href="{{ route('portal.check_in_out') }}" class="{{ $navLinkClasses(request()->routeIs('portal.check_in_out')) }}" @click="navOpen = false">{{ __('Check-In/Out') }}</a>
 
                 @if ($canSeeReception)
-                    <a href="{{ route('reception.dashboard') }}" class="{{ $navLinkClasses(request()->routeIs('reception.dashboard')) }}">{{ __('Dashboard') }}</a>
-                    <a href="{{ route('reception.all-visits') }}" class="{{ $navLinkClasses(request()->routeIs('reception.all-visits')) }}">{{ __('Alle Besuche') }}</a>
+                    <a href="{{ route('reception.dashboard') }}" class="{{ $navLinkClasses(request()->routeIs('reception.dashboard')) }}" @click="navOpen = false">{{ __('Dashboard') }}</a>
+                    <a href="{{ route('reception.all-visits') }}" class="{{ $navLinkClasses(request()->routeIs('reception.all-visits')) }}" @click="navOpen = false">{{ __('Alle Besuche') }}</a>
                 @endif
 
                 @if ($canSeeMonitor)
-                    <a href="{{ route('monitor.live') }}" class="{{ $navLinkClasses(request()->routeIs('monitor.live')) }}">{{ __('Live-Anzeige') }}</a>
-                    <a href="{{ route('monitor.editor') }}" class="{{ $navLinkClasses(request()->routeIs('monitor.editor')) }}">{{ __('Editor') }}</a>
+                    <a href="{{ route('monitor.live') }}" class="{{ $navLinkClasses(request()->routeIs('monitor.live')) }}" @click="navOpen = false">{{ __('Live-Anzeige') }}</a>
+                    <a href="{{ route('monitor.editor') }}" class="{{ $navLinkClasses(request()->routeIs('monitor.editor')) }}" @click="navOpen = false">{{ __('Editor') }}</a>
                 @endif
+
+                <a href="{{ route('profile.edit') }}" class="{{ $navLinkClasses(request()->routeIs('profile.*')) }}" @click="navOpen = false">{{ __('Profil') }}</a>
+                <a href="{{ route('user-permissions') }}" class="{{ $navLinkClasses(request()->routeIs('user-permissions')) }}" @click="navOpen = false">{{ __('Meine Berechtigungen') }}</a>
 
                 @if ($canSeeAdmin)
-                    <a href="{{ url('/admin') }}" class="{{ $navLinkClasses(request()->is('admin') || request()->is('admin/*')) }}">{{ __('Admin-Bereich') }}</a>
+                    <a href="{{ url('/admin') }}" class="{{ $navLinkClasses(request()->is('admin') || request()->is('admin/*')) }}" @click="navOpen = false">{{ __('Admin-Bereich') }}</a>
                 @endif
-
-                <a href="{{ route('profile.edit') }}" class="{{ $navLinkClasses(request()->routeIs('profile.*')) }}">{{ __('Profil') }}</a>
             </nav>
+        </div>
+
+        <div class="border-t border-base-300 px-4 py-4">
+            <div class="rounded-2xl border border-base-300/80 bg-base-100/80 px-4 py-4">
+                <p class="text-sm font-semibold">{{ $user->name }}</p>
+                <p class="mt-1 text-sm text-base-content/65">{{ $user->email }}</p>
+            </div>
+
+            <form method="POST" action="{{ route('logout') }}" class="mt-3">
+                @csrf
+                <button type="submit" class="btn btn-outline w-full rounded-xl">{{ __('Abmelden') }}</button>
+            </form>
         </div>
     </div>
 </div>

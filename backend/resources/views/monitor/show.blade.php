@@ -16,7 +16,7 @@
     }
 @endphp
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" data-theme="light">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -27,7 +27,7 @@
 <body class="min-h-screen bg-[var(--bp-bg)] text-base-content antialiased">
     <main class="bp-monitor-display {{ $hasCustomBackground ? 'bp-monitor-display-with-image' : 'bp-monitor-display-default' }}"
         @if ($backgroundAsset)
-            style="background-image: linear-gradient(135deg, rgba(243,245,249,0.78), rgba(255,255,255,0.62)), url('{{ $backgroundAsset }}');"
+            style="background-image: linear-gradient(135deg, color-mix(in srgb, var(--color-base-200) 78%, transparent), color-mix(in srgb, var(--color-base-100) 62%, transparent)), url('{{ $backgroundAsset }}');"
         @endif
     >
         <div class="bp-monitor-overlay"></div>
@@ -88,7 +88,7 @@
                         <p class="mt-3 text-2xl text-base-content/72">{{ $monitorVisitors[0]['company'] ?? __('—') }}</p>
                     </div>
 
-                    <div class="mt-10 rounded-3xl border border-white/45 bg-white/55 px-6 py-5">
+                    <div class="mt-10 rounded-3xl border border-base-100/40 bg-base-100/55 px-6 py-5 backdrop-blur">
                         <div class="bp-monitor-side-label">{{ __('Nächster Besuch') }}</div>
                         <div class="mt-3 text-lg text-base-content/78">{{ __('Bitte bei Ankunft am Empfang melden oder den Self-Check-in nutzen.') }}</div>
                     </div>
