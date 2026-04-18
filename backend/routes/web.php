@@ -7,6 +7,7 @@ use App\Http\Controllers\Portal\VisitController as PortalVisitController;
 use App\Http\Controllers\Reception\DashboardController as ReceptionDashboardController;
 use App\Http\Controllers\Reception\VisitController as ReceptionVisitController;
 use App\Http\Controllers\Reception\VisitParticipantActionController;
+use App\Http\Controllers\UserPermissionsController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -72,6 +73,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/live', [MonitorController::class, 'show'])->name('live');
         Route::get('/editor', [MonitorController::class, 'edit'])->name('editor');
     });
+
+    Route::get('/user-permissions', [UserPermissionsController::class, 'index'])->name('user-permissions');
 });
 
 require __DIR__.'/auth.php';

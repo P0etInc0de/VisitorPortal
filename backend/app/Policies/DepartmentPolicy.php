@@ -36,34 +36,4 @@ class DepartmentPolicy
     {
         return $authUser->can('Delete:Department');
     }
-
-    public function restore(AuthUser $authUser, Department $department): bool
-    {
-        return $authUser->can('Restore:Department');
-    }
-
-    public function forceDelete(AuthUser $authUser, Department $department): bool
-    {
-        return $authUser->can('ForceDelete:Department');
-    }
-
-    public function forceDeleteAny(AuthUser $authUser): bool
-    {
-        return $authUser->can('ForceDeleteAny:Department');
-    }
-
-    public function restoreAny(AuthUser $authUser): bool
-    {
-        return $authUser->can('RestoreAny:Department');
-    }
-
-    public function replicate(AuthUser $authUser, Department $department): bool
-    {
-        return $authUser->can('Replicate:Department');
-    }
-
-    public function reorder(AuthUser $authUser): bool
-    {
-        return $authUser->can('Reorder:Department');
-    }
 }

@@ -35,11 +35,11 @@ class VisitParticipantActionController extends Controller
 
         return Pdf::view('pdf.visitor_badge', [
             'visitor' => $visitor,
+            'visit' => $visit,
         ])
             ->driver('gotenberg')
-            ->format('A4')
-            ->landscape()
-            ->name(__('Besucherausweis_').$visitor->last_name.'.pdf')
+            ->paperSize(85.6, 53.98, 'mm')
+            ->name(__('Besucherausweis_').$visitor->name.'.pdf')
             ->download();
     }
 
