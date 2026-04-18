@@ -14,6 +14,7 @@ class VisitParticipantActionController extends Controller
 {
     public function printBadge(Visit $visit, Visitor $visitor)
     {
+        $visit->loadMissing('responsibleUser');
         $participant = $this->resolveParticipant($visit, $visitor);
 
         if (blank($participant->pivot->badge_printed_at)) {
@@ -22,8 +23,6 @@ class VisitParticipantActionController extends Controller
                 'updated_at' => now(),
             ]);
         }
-
-        $visit->loadMissing('responsibleUser');
 
         Log::channel('web')->info('Visit participant badge downloaded', [
             'visit_id' => $visit->id,
@@ -36,9 +35,9 @@ class VisitParticipantActionController extends Controller
             'visitor' => $participant,
         ])
             ->driver('gotenberg')
-            ->format('A4')
-            ->landscape()
-            ->name(__('Besucherausweis_').($participant->name ?: 'Gast').'.pdf')
+            ->paperSize(85.6, 53.98, 'mm')
+            ->margins(0, 0, 0, 0)
+            ->name(__('Besucherausweis_') . trim(($participant->first_name ?? '') . '_' . ($participant->name ?? 'Gast')) . '.pdf')
             ->download();
     }
 
