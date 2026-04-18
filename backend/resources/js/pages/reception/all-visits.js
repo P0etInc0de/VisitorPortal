@@ -471,9 +471,6 @@ document.addEventListener('DOMContentLoaded', () => {
             throw new Error('Fragment replacement failed');
         }
 
-        // Deliberately do not mutate the browser history here.
-        // Partial list updates should not turn the browser back button into
-        // in-page AJAX navigation unless popstate handling is implemented cleanly.
         applyStateSnapshot(stateSnapshot);
     };
 
