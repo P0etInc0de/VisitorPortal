@@ -17,7 +17,7 @@ class VisitController extends Controller
     {
         $viewData = $this->buildIndexViewData($request);
 
-        if ($request->expectsJson() && $request->header('X-BP-Context') === 'reception-all-visits-list') {
+        if ($request->ajax() && $request->expectsJson() && $request->header('X-BP-Context') === 'reception-all-visits-list') {
             return response()->json([
                 'toolbar_html' => view('reception.partials.all-visits.toolbar', $viewData)->render(),
                 'filter_bar_html' => view('reception.partials.all-visits.filter-bar', $viewData)->render(),

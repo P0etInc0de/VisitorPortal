@@ -39,23 +39,40 @@ document.addEventListener('DOMContentLoaded', () => {
             info: (message, context = {}) => write('info', message, context),
             warn: (message, context = {}) => write('warn', message, context),
             error: (message, context = {}) => write('error', message, context),
-            isDebugEnabled: () => debugEnabled,
         };
     };
 
     const logger = createLogger();
     const rowToggleTimers = new WeakMap();
 
+    const getVisitIdFromElement = (element) => {
+        if (!element) {
+            return null;
+        }
+
+        return element.getAttribute('data-bp-visit-id')
+            || element.closest('[data-bp-visit-entry]')?.getAttribute('data-bp-visit-id')
+            || null;
+    };
+
+    const findVisitEntryById = (visitId) => {
+        if (!visitId) {
+            return null;
+        }
+
+        return document.querySelector(`[data-bp-visit-entry][data-bp-visit-id="${String(visitId)}"]`);
+    };
+
     const toggleVisitRow = (row, forceExpanded = null) => {
         if (!row) {
-            return;
+            return false;
         }
 
         const targetId = row.getAttribute('data-bp-toggle-details');
         const target = targetId ? document.getElementById(targetId) : null;
 
         if (!target) {
-            return;
+            return false;
         }
 
         const isExpanded = row.getAttribute('aria-expanded') === 'true';
@@ -64,6 +81,8 @@ document.addEventListener('DOMContentLoaded', () => {
         row.setAttribute('aria-expanded', nextExpanded ? 'true' : 'false');
         row.closest('.bp-av-entry')?.classList.toggle('bp-av-entry-expanded', nextExpanded);
         target.hidden = !nextExpanded;
+
+        return nextExpanded;
     };
 
     const syncSelectAllState = () => {
@@ -120,37 +139,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
-    const extractVisitEntryState = (entry) => {
-        if (!entry) {
-            return {
-                isExpanded: false,
-                isSelected: false,
-            };
-        }
-
-        return {
-            isExpanded: entry.querySelector('[data-bp-visit-row]')?.getAttribute('aria-expanded') === 'true',
-            isSelected: entry.querySelector('[data-bp-select-item]')?.checked ?? false,
-        };
-    };
-
-    const restoreVisitEntryState = (entry, state) => {
-        if (!entry || !state) {
-            return;
-        }
-
-        const checkbox = entry.querySelector('[data-bp-select-item]');
-        const row = entry.querySelector('[data-bp-visit-row]');
-
-        if (checkbox) {
-            checkbox.checked = Boolean(state.isSelected);
-        }
-
-        if (row) {
-            toggleVisitRow(row, Boolean(state.isExpanded));
-        }
-    };
-
     const createFragmentFromHtml = (html) => {
         const template = document.createElement('template');
         template.innerHTML = html.trim();
@@ -158,23 +146,131 @@ document.addEventListener('DOMContentLoaded', () => {
         return template.content.firstElementChild;
     };
 
-    const getVisitIdFromElement = (element) => {
-        if (!element) {
-            return null;
-        }
+    const createStateStore = () => {
+        const state = {
+            expandedVisitIds: new Set(),
+            selectedVisitIds: new Set(),
+            listScrollTop: 0,
+            listScrollLeft: 0,
+        };
 
-        return element.getAttribute('data-bp-visit-id')
-            || element.closest('[data-bp-visit-entry]')?.getAttribute('data-bp-visit-id')
-            || null;
+        const cloneSnapshot = () => ({
+            expandedVisitIds: new Set(state.expandedVisitIds),
+            selectedVisitIds: new Set(state.selectedVisitIds),
+            listScrollTop: state.listScrollTop,
+            listScrollLeft: state.listScrollLeft,
+        });
+
+        const rememberScrollPositions = () => {
+            const tableBody = document.querySelector('.bp-av-table-body');
+            const tableWrap = document.querySelector('.bp-av-table-wrap');
+
+            state.listScrollTop = tableBody ? tableBody.scrollTop : 0;
+            state.listScrollLeft = tableWrap ? tableWrap.scrollLeft : 0;
+        };
+
+        return {
+            syncFromDom() {
+                state.expandedVisitIds.clear();
+                state.selectedVisitIds.clear();
+
+                document.querySelectorAll('[data-bp-visit-entry]').forEach((entry) => {
+                    const visitId = entry.getAttribute('data-bp-visit-id');
+
+                    if (!visitId) {
+                        return;
+                    }
+
+                    const row = entry.querySelector('[data-bp-visit-row]');
+                    const checkbox = entry.querySelector('[data-bp-select-item]');
+                    const targetId = row?.getAttribute('data-bp-toggle-details');
+                    const details = targetId ? document.getElementById(targetId) : null;
+                    const isExpanded = row?.getAttribute('aria-expanded') === 'true' || Boolean(details && !details.hidden);
+
+                    if (isExpanded) {
+                        state.expandedVisitIds.add(String(visitId));
+                    }
+
+                    if (checkbox?.checked) {
+                        state.selectedVisitIds.add(String(visitId));
+                    }
+                });
+
+                rememberScrollPositions();
+            },
+            snapshot() {
+                rememberScrollPositions();
+                return cloneSnapshot();
+            },
+            captureDomSnapshot() {
+                this.syncFromDom();
+                return cloneSnapshot();
+            },
+            rememberExpandedState(visitId, isExpanded) {
+                if (!visitId) {
+                    return;
+                }
+
+                if (isExpanded) {
+                    state.expandedVisitIds.add(String(visitId));
+                } else {
+                    state.expandedVisitIds.delete(String(visitId));
+                }
+            },
+            rememberSelectionState(visitId, isSelected) {
+                if (!visitId) {
+                    return;
+                }
+
+                if (isSelected) {
+                    state.selectedVisitIds.add(String(visitId));
+                } else {
+                    state.selectedVisitIds.delete(String(visitId));
+                }
+            },
+            rememberCurrentScroll() {
+                rememberScrollPositions();
+            },
+            restore(snapshot = null) {
+                const source = snapshot ?? cloneSnapshot();
+
+                document.querySelectorAll('[data-bp-visit-entry]').forEach((entry) => {
+                    const visitId = entry.getAttribute('data-bp-visit-id');
+                    const row = entry.querySelector('[data-bp-visit-row]');
+                    const checkbox = entry.querySelector('[data-bp-select-item]');
+
+                    if (checkbox) {
+                        checkbox.checked = Boolean(visitId && source.selectedVisitIds.has(String(visitId)));
+                    }
+
+                    if (row) {
+                        toggleVisitRow(row, Boolean(visitId && source.expandedVisitIds.has(String(visitId))));
+                    }
+                });
+
+                const tableBody = document.querySelector('.bp-av-table-body');
+                const tableWrap = document.querySelector('.bp-av-table-wrap');
+
+                if (tableBody) {
+                    tableBody.scrollTop = source.listScrollTop;
+                }
+
+                if (tableWrap) {
+                    tableWrap.scrollLeft = source.listScrollLeft;
+                }
+
+                syncSelectAllState();
+                syncActionButtonWidth();
+
+                state.expandedVisitIds = new Set(source.expandedVisitIds);
+                state.selectedVisitIds = new Set(source.selectedVisitIds);
+                state.listScrollTop = source.listScrollTop;
+                state.listScrollLeft = source.listScrollLeft;
+            },
+        };
     };
 
-    const findVisitEntryById = (visitId) => {
-        if (!visitId) {
-            return null;
-        }
-
-        return document.querySelector(`[data-bp-visit-entry][data-bp-visit-id="${String(visitId)}"]`);
-    };
+    const stateStore = createStateStore();
 
     const delay = (ms) => new Promise((resolve) => {
         window.setTimeout(resolve, ms);
@@ -253,7 +349,26 @@ document.addEventListener('DOMContentLoaded', () => {
         return nextEntry ? nextEntry.outerHTML : null;
     };
 
-    const refreshVisitEntryFromCurrentList = async (visitId) => {
+    const applyStateSnapshot = (snapshot) => {
+        stateStore.restore(snapshot);
+    };
+
+    const replaceVisitEntry = (currentEntry, nextEntryHtml, snapshot = null) => {
+        const nextEntry = createFragmentFromHtml(nextEntryHtml);
+
+        if (!currentEntry || !nextEntry || !nextEntry.matches('[data-bp-visit-entry]')) {
+            return false;
+        }
+
+        const stateSnapshot = snapshot ?? stateStore.snapshot();
+
+        currentEntry.replaceWith(nextEntry);
+        applyStateSnapshot(stateSnapshot);
+
+        return true;
+    };
+
+    const refreshVisitEntryFromCurrentList = async (visitId, snapshot = null) => {
         const currentEntry = findVisitEntryById(visitId);
 
         if (!currentEntry) {
@@ -263,6 +378,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         logger.debug('Refreshing visit entry from the current list view.', { visitId });
 
+        const stateSnapshot = snapshot ?? stateStore.snapshot();
         const response = await fetch(window.location.href, {
             method: 'GET',
             credentials: 'same-origin',
@@ -296,7 +412,7 @@ document.addEventListener('DOMContentLoaded', () => {
             throw new Error('Missing refreshed entry html');
         }
 
-        const replaced = replaceVisitEntry(currentEntry, nextEntryHtml);
+        const replaced = replaceVisitEntry(currentEntry, nextEntryHtml, stateSnapshot);
 
         logger.debug('Visit entry refresh replacement finished.', {
             visitId,
@@ -304,66 +420,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
 
         return replaced;
-    };
-
-    const replaceVisitEntry = (currentEntry, nextEntryHtml) => {
-        const nextEntry = createFragmentFromHtml(nextEntryHtml);
-
-        if (!currentEntry || !nextEntry || !nextEntry.matches('[data-bp-visit-entry]')) {
-            return false;
-        }
-
-        const state = extractVisitEntryState(currentEntry);
-        currentEntry.replaceWith(nextEntry);
-        restoreVisitEntryState(nextEntry, state);
-        syncSelectAllState();
-        syncActionButtonWidth();
-
-        return true;
-    };
-
-    const captureListState = () => {
-        const tableBody = document.querySelector('.bp-av-table-body');
-        const entryStates = new Map();
-
-        document.querySelectorAll('[data-bp-visit-entry]').forEach((entry) => {
-            const visitId = entry.getAttribute('data-bp-visit-id');
-
-            if (visitId) {
-                entryStates.set(visitId, extractVisitEntryState(entry));
-            }
-        });
-
-        return {
-            entryStates,
-            listScrollTop: tableBody ? tableBody.scrollTop : 0,
-        };
-    };
-
-    const restoreListState = (state) => {
-        if (!state) {
-            syncSelectAllState();
-            syncActionButtonWidth();
-            return;
-        }
-
-        document.querySelectorAll('[data-bp-visit-entry]').forEach((entry) => {
-            const visitId = entry.getAttribute('data-bp-visit-id');
-            const entryState = visitId ? state.entryStates.get(visitId) : null;
-
-            if (entryState) {
-                restoreVisitEntryState(entry, entryState);
-            }
-        });
-
-        const tableBody = document.querySelector('.bp-av-table-body');
-
-        if (tableBody) {
-            tableBody.scrollTop = state.listScrollTop;
-        }
-
-        syncSelectAllState();
-        syncActionButtonWidth();
     };
 
     const replaceFragment = (fragmentName, nextHtml) => {
@@ -380,7 +436,7 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     const loadListFragments = async (targetUrl) => {
-        const listState = captureListState();
+        const stateSnapshot = stateStore.captureDomSnapshot();
 
         const response = await fetch(targetUrl, {
             method: 'GET',
@@ -415,12 +471,15 @@ document.addEventListener('DOMContentLoaded', () => {
             throw new Error('Fragment replacement failed');
         }
 
-        window.history.replaceState({}, '', targetUrl);
-        restoreListState(listState);
+        // Deliberately do not mutate the browser history here.
+        // Partial list updates should not turn the browser back button into
+        // in-page AJAX navigation unless popstate handling is implemented cleanly.
+        applyStateSnapshot(stateSnapshot);
     };
 
     syncActionButtonWidth();
     syncSelectAllState();
+    stateStore.syncFromDom();
 
     document.addEventListener('click', (event) => {
         const row = event.target.closest('[data-bp-visit-row]');
@@ -436,7 +495,10 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         const timerId = window.setTimeout(() => {
-            toggleVisitRow(row);
+            const expanded = toggleVisitRow(row);
+            const visitId = getVisitIdFromElement(row);
+
+            stateStore.rememberExpandedState(visitId, expanded);
             rowToggleTimers.delete(row);
         }, 220);
 
@@ -488,14 +550,23 @@ document.addEventListener('DOMContentLoaded', () => {
         if (selectAll) {
             document.querySelectorAll('[data-bp-select-item]').forEach((checkbox) => {
                 checkbox.checked = selectAll.checked;
+                stateStore.rememberSelectionState(getVisitIdFromElement(checkbox), checkbox.checked);
             });
+            syncSelectAllState();
             return;
         }
 
         if (event.target.matches('[data-bp-select-item]')) {
+            stateStore.rememberSelectionState(getVisitIdFromElement(event.target), event.target.checked);
             syncSelectAllState();
         }
     });
+
+    document.addEventListener('scroll', (event) => {
+        if (event.target.matches('.bp-av-table-body, .bp-av-table-wrap')) {
+            stateStore.rememberCurrentScroll();
+        }
+    }, true);
 
     document.addEventListener('submit', async (event) => {
         const dateForm = event.target.closest('.bp-av-date-form');
@@ -542,11 +613,11 @@ document.addEventListener('DOMContentLoaded', () => {
         if (badgeForm) {
             event.preventDefault();
 
-            const visitEntry = badgeForm.closest('[data-bp-visit-entry]');
-            const visitId = visitEntry?.getAttribute('data-bp-visit-id');
+            const visitId = getVisitIdFromElement(badgeForm);
             const submitButton = badgeForm.querySelector('button[type="submit"]');
+            const stateSnapshot = stateStore.captureDomSnapshot();
 
-            if (!visitEntry || !visitId) {
+            if (!visitId) {
                 HTMLFormElement.prototype.submit.call(badgeForm);
                 return;
             }
@@ -564,9 +635,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 await Promise.race([loadPromise, delay(1200)]);
 
                 try {
-                    await refreshVisitEntryFromCurrentList(visitId);
+                    await refreshVisitEntryFromCurrentList(visitId, stateSnapshot);
                 } catch (error) {
-                    // Keep the current page state and leave the UI unchanged when the refresh fails.
+                    applyStateSnapshot(stateSnapshot);
                 }
             } catch (error) {
                 HTMLFormElement.prototype.submit.call(badgeForm);
@@ -591,6 +662,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const submitButton = form.querySelector('button[type="submit"]');
         const visitId = getVisitIdFromElement(form);
         const initialVisitEntry = form.closest('[data-bp-visit-entry]') || findVisitEntryById(visitId);
+        const stateSnapshot = stateStore.captureDomSnapshot();
 
         if (!visitId) {
             logger.error('Participant action aborted because the visit id is missing.', {
@@ -655,7 +727,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 });
 
                 if (currentEntry) {
-                    const replaced = replaceVisitEntry(currentEntry, data.entry_html);
+                    const replaced = replaceVisitEntry(currentEntry, data.entry_html, stateSnapshot);
 
                     logger.debug('Direct visit entry replacement finished.', {
                         visitId,
@@ -673,12 +745,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 hasEntryHtml,
             });
 
-            const refreshed = await refreshVisitEntryFromCurrentList(visitId);
+            const refreshed = await refreshVisitEntryFromCurrentList(visitId, stateSnapshot);
 
             if (!refreshed) {
                 logger.warn('Participant action finished, but the visit entry could not be refreshed. Keeping the current page state.', {
                     visitId,
                 });
+                applyStateSnapshot(stateSnapshot);
             }
         } catch (error) {
             logger.error('Participant action request failed. Trying list-based refresh instead of a full page reload.', {
@@ -688,18 +761,20 @@ document.addEventListener('DOMContentLoaded', () => {
             });
 
             try {
-                const refreshed = await refreshVisitEntryFromCurrentList(visitId);
+                const refreshed = await refreshVisitEntryFromCurrentList(visitId, stateSnapshot);
 
                 if (!refreshed) {
                     logger.warn('Participant action refresh fallback did not update the visit entry. Keeping the current page state.', {
                         visitId,
                     });
+                    applyStateSnapshot(stateSnapshot);
                 }
             } catch (refreshError) {
                 logger.error('Participant action refresh fallback failed. Keeping the current page state without a full page reload.', {
                     visitId,
                     message: refreshError instanceof Error ? refreshError.message : String(refreshError),
                 });
+                applyStateSnapshot(stateSnapshot);
             }
         } finally {
             if (submitButton) {

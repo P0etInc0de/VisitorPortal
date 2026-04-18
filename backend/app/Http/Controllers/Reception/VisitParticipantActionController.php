@@ -98,7 +98,7 @@ class VisitParticipantActionController extends Controller
 
     private function buildResponse(Request $request, Visit $visit, Visitor $visitor): RedirectResponse|JsonResponse
     {
-        if (! $request->expectsJson()) {
+        if (! $request->ajax() || ! $request->expectsJson()) {
             return back();
         }
 
