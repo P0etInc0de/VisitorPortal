@@ -1,29 +1,3 @@
-@php
-    $ranges = $ranges ?? [];
-    $activeRange = $activeRange ?? null;
-    $search = $search ?? '';
-    $dateFrom = $dateFrom ?? request('from', '');
-    $dateTo = $dateTo ?? request('to', '');
-    $rangeDateValues = [
-        'today' => [
-            'from' => now()->toDateString(),
-            'to' => now()->toDateString(),
-        ],
-        'week' => [
-            'from' => now()->startOfWeek()->toDateString(),
-            'to' => now()->endOfWeek()->toDateString(),
-        ],
-        'next-week' => [
-            'from' => now()->copy()->addWeek()->startOfWeek()->toDateString(),
-            'to' => now()->copy()->addWeek()->endOfWeek()->toDateString(),
-        ],
-        'all' => [
-            'from' => '',
-            'to' => '',
-        ],
-    ];
-@endphp
-
 <x-app-layout>
     <x-slot name="header">
         <div class="bp-screen-head bp-av-screen-head">
@@ -341,88 +315,32 @@
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
-            padding-bottom: .04rem;
-        }
-
-        .bp-av-table-head .bp-av-cell:nth-child(6),
-        .bp-av-visit-row .bp-av-cell:nth-child(6) {
-            justify-content: center;
-        }
-
-        .bp-av-status-text::before,
-        .bp-status-pill::before {
-            content: none !important;
-            display: none !important;
-        }
-
-        .bp-av-row-btn {
-            min-height: 1.72rem;
-            height: 1.72rem;
-            padding-top: 0;
-            padding-bottom: 0;
-            border-radius: .82rem;
-            white-space: nowrap;
-        }
-
-        .bp-av-no-toggle {
-            cursor: default;
-        }
-
-        .bp-av-year-divider {
-            position: relative;
-            z-index: 0;
-            padding: .34rem .75rem .22rem;
-            background: hsl(var(--b1));
-        }
-
-        .bp-av-year-divider span {
-            display: inline-flex;
-            align-items: center;
-            gap: .5rem;
-            font-size: .8rem;
-            font-weight: 700;
-            letter-spacing: .04em;
-            text-transform: uppercase;
-            color: hsl(var(--bc) / .62);
-        }
-
-        .bp-av-year-divider span::after {
-            content: '';
-            width: 3.5rem;
-            height: 1px;
-            background: hsl(var(--b3));
+            color: hsl(var(--bc) / .78);
         }
 
         .bp-av-entry-details {
-            padding: .18rem .75rem .48rem 2.6rem;
-            background: transparent;
-        }
-
-        .bp-av-entry-details[hidden] {
-            display: none !important;
+            padding: 0 .75rem .55rem 3.05rem;
+            background: hsl(var(--b2) / .14);
         }
 
         .bp-av-participant-table {
-            display: inline-block;
-            width: auto;
-            max-width: 100%;
-            border: 2px solid rgba(15, 23, 42, .14);
+            display: grid;
+            gap: 0;
+            border: 1px solid hsl(var(--bc) / .08);
             border-radius: 1rem;
-            background: rgba(15, 23, 42, .045);
-            box-shadow: inset 0 1px 0 rgba(255, 255, 255, .28);
+            background: hsl(var(--b1));
             overflow: hidden;
         }
 
         .bp-av-participant-head,
         .bp-av-participant-row {
-            grid-template-columns: minmax(7.5rem, 8.9rem) minmax(5rem, 6rem) minmax(4.9rem, 5.8rem) 6.4rem var(--bp-av-action-width, 10rem);
-            justify-content: start;
-            gap: .42rem;
-            padding: .3rem .56rem;
+            grid-template-columns: minmax(14rem, 1.55fr) minmax(10rem, 1.1fr) minmax(7rem, .95fr) minmax(5.25rem, .8fr) minmax(9rem, .92fr);
+            gap: .55rem;
+            padding: .34rem .65rem;
         }
 
         .bp-av-participant-head {
-            background: rgba(15, 23, 42, .055);
+            background: hsl(var(--b2) / .28);
             border-bottom: 1px solid rgba(15, 23, 42, .10);
             color: hsl(var(--bc) / .74);
             font-size: .7rem;
@@ -517,29 +435,5 @@
         }
     </style>
 
-    <div class="bp-content bp-av-page">
-        @include('reception.partials.all-visits.toolbar', [
-            'search' => $search,
-            'activeRange' => $activeRange,
-            'dateFrom' => $dateFrom,
-            'dateTo' => $dateTo,
-        ])
-
-        @include('reception.partials.all-visits.filter-bar', [
-            'ranges' => $ranges,
-            'search' => $search,
-            'activeRange' => $activeRange,
-            'rangeDateValues' => $rangeDateValues,
-        ])
-
-        <div class="bp-av-interaction-hint">
-            <span><strong>{{ __('Einmal klicken') }}</strong> {{ __('→ Besucher-Details') }} &nbsp;·&nbsp; <strong>{{ __('Doppelt klicken') }}</strong> {{ __('→ Besuch öffnen') }}</span>
-        </div>
-
-        @include('reception.partials.all-visits.visit-stack', [
-            'visits' => $visits,
-        ])
-    </div>
-
-
+    @livewire('reception.all-visits-page')
 </x-app-layout>

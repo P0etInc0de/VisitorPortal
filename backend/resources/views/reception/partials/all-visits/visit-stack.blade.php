@@ -1,9 +1,9 @@
-<section class="bp-av-table-card" data-bp-fragment="visit-stack">
+<section class="bp-av-table-card">
     <div class="bp-av-table-wrap">
         <div class="bp-av-table">
             <div class="bp-av-table-head">
                 <div class="bp-av-cell bp-av-cell-check">
-                    <input type="checkbox" class="checkbox checkbox-sm bp-av-checkbox" data-bp-select-all aria-label="{{ __('Alle Besuche auswählen') }}">
+                    <input type="checkbox" class="checkbox checkbox-sm bp-av-checkbox" aria-label="{{ __('Alle Besuche auswählen') }}">
                 </div>
                 <div class="bp-av-cell">{{ __('Termin') }}</div>
                 <div class="bp-av-cell">{{ __('Datum / Zeit') }}</div>
@@ -51,6 +51,7 @@
                             'visit' => $visit,
                             'index' => $index,
                             'weekdayMap' => $weekdayMap,
+                            'expandedVisitIds' => $expandedVisitIds ?? [],
                         ])
                     @empty
                         <div class="bp-av-empty">{{ __('Keine Besuche gefunden.') }}</div>

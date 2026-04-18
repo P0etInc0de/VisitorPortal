@@ -3,6 +3,7 @@
     $visitDateLabel = null;
     $visitId = $visit['id'] ?? $index ?? null;
     $detailId = $detailId ?? ('bp-av-details-visit-'.$visitId);
+    $isExpanded = in_array((int) $visitId, array_map('intval', $expandedVisitIds ?? []), true);
 
     if (! empty($visit['scheduled_from'])) {
         try {
@@ -32,10 +33,21 @@
     $noteText = trim((string) ($visit['notes'] ?? ($visit['note'] ?? '')));
 @endphp
 
-<article class="bp-av-entry" data-bp-visit-entry data-bp-visit-id="{{ $visitId }}">
-    <div class="bp-av-visit-row" data-bp-visit-row data-bp-open-url="{{ $visit['open_url'] ?? route('portal.visits.show', $visit['id']) }}" data-bp-toggle-details="{{ $detailId }}" aria-expanded="false">
-        <div class="bp-av-cell bp-av-cell-check">
-            <input type="checkbox" class="checkbox checkbox-sm bp-av-checkbox" name="selected_visits[]" value="{{ $visit['id'] ?? $index }}" data-bp-select-item aria-label="{{ __('Besuch auswählen') }}">
+<article
+    class="bp-av-entry {{ $isExpanded ? 'bp-av-entry-expanded' : '' }}"
+    wire:key="visit-entry-{{ $visitId }}"
+    x-data="{ open: @js($isExpanded), openUrl: @js($visit['open_url'] ?? route('portal.visits.show', $visit['id'])) }"
+    x-bind:class="open ? 'bp-av-entry-expanded' : ''"
+>
+    <div
+        class="bp-av-visit-row"
+        aria-expanded="{{ $isExpanded ? 'true' : 'false' }}"
+        x-bind:aria-expanded="open ? 'true' : 'false'"
+        @click="$wire.toggleExpanded({{ (int) $visitId }}); open = !open"
+        @dblclick.stop="window.location = openUrl"
+    >
+        <div class="bp-av-cell bp-av-cell-check" @click.stop>
+            <input type="checkbox" class="checkbox checkbox-sm bp-av-checkbox" name="selected_visits[]" value="{{ $visit['id'] ?? $index }}" aria-label="{{ __('Besuch auswählen') }}">
         </div>
 
         <div class="bp-av-cell">
@@ -69,7 +81,7 @@
         </div>
     </div>
 
-    <div id="{{ $detailId }}" class="bp-av-entry-details" hidden>
+    <div id="{{ $detailId }}" class="bp-av-entry-details" x-show="open" x-cloak>
         <div class="bp-av-participant-table">
             <div class="bp-av-participant-head">
                 <div>{{ __('Name') }}</div>
