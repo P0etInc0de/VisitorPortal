@@ -41,7 +41,7 @@
     </x-slot>
 
     <div
-        class="bp-content"
+        class="bp-content bp-visit-form-page"
         x-data="{
             beginDate: {{ \Illuminate\Support\Js::from($beginDate) }},
             beginTime: {{ \Illuminate\Support\Js::from($beginTime) }},

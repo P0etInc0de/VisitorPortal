@@ -53,7 +53,7 @@
         </div>
     @endif
 
-    <div class="bp-content" x-data="{ selectedVisitor: { name: '', email: '' } }">
+    <div class="bp-content bp-check-page" x-data="{ selectedVisitor: { name: '', email: '' } }">
         <section class="bp-main-grid bp-main-grid-wide">
             <article class="card rounded-3xl border border-base-300 bg-base-100 shadow-sm">
                 <div class="card-body p-6 sm:p-8">
