@@ -13,6 +13,10 @@ class DashboardController extends Controller
     public function index(Request $request): View
     {
         $user = $request->user();
+		if(!($user->can('ViewAny:Visit') || $user->can('ViewDepartment:Visit') || $user->can('ViewOwn:Visit')))
+		{
+			abort(403);
+		}
 
         $baseQuery = Visit::query()
             ->with([

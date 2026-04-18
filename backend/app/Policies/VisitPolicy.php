@@ -20,7 +20,7 @@ class VisitPolicy
 
     public function view(User $user, Visit $visit): bool
     {
-        return $user->can('ViewAny:Visit') || viewOwn($user, $visit) || viewDepartment($user, $visit);
+        return $this->viewAny($user) || $this->viewOwn($user, $visit) || $this->viewDepartment($user, $visit);
     }
 
     public function create(User $user): bool
@@ -30,12 +30,12 @@ class VisitPolicy
 
     public function update(User $user, Visit $visit): bool
     {
-        return editAny($user, $visit) || editDepartment($user, $visit) || editOwn($user, $visit);
+        return $this->editAny($user, $visit) || $this->editDepartment($user, $visit) || $this->editOwn($user, $visit);
     }
 
     public function delete(User $user, Visit $visit): bool
     {
-        return deleteAny($user, $visit) || deleteDepartment($user, $visit) || deleteOwn($user, $visit);
+        return $this->deleteAny($user, $visit) || $this->deleteDepartment($user, $visit) || $this->deleteOwn($user, $visit);
     }
 
     public function deleteAny(User $user): bool
@@ -78,12 +78,12 @@ class VisitPolicy
         return $user->can('DeleteOwn:Visit') && ($user->id === $visit->user_id || $user->id === $visit->responsible_user_id);
     }
 
-    public function checkIn(User $user, Visit $visit): bool
+    public function checkIn(User $user): bool
     {
         return $user->can('CheckIn:Visit');
     }
 
-    public function checkOut(User $user, Visit $visit): bool
+    public function checkOut(User $user): bool
     {
         return $user->can('CheckOut:Visit');
     }

@@ -14,6 +14,8 @@ class CheckInOutController extends Controller
 {
     public function index()
     {
+		$this->authorizeAny(['checkIn', 'checkOut'], Visit::class);
+
         $visits = Visit::with(['responsibleUser', 'visitors'])->get();
 
         return view('portal.check_in_out.check_in_out', compact('visits'));

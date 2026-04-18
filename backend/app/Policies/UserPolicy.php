@@ -15,9 +15,9 @@ class UserPolicy
         return $user->can('ViewAny:User');
     }
 
-    public function view(User $user): bool
+    public function view(User $user, User $requested_user): bool
     {
-        return $user->can('View:User');
+        return $this->viewAny($user) || $this->viewDepartment($user, $requested_user) || $this->viewOwn($user, $requested_user);
     }
 
     public function create(User $user): bool
@@ -25,16 +25,21 @@ class UserPolicy
         return $user->can('Create:User');
     }
 
-    public function update(User $user): bool
+    public function update(User $user, User $requested_user): bool
     {
-        return $user->can('Update:User');
+        return $this->editAny($user) || $this->editDepartment($user, $requested_user) || $this->editOwn($user, $requested_user);
     }
 
-    public function delete(User $user): bool
+    public function delete(User $user, User $requested_user): bool
     {
-        return $user->can('Delete:User');
+        return $this->deleteAny($user) || $this->deleteDepartment($user, $requested_user);
     }
 
+    public function deactivate(User $user, User $requested_user): bool
+    {
+        return $this->deactivateAny($user) || $this->deactivateDepartment($user, $requested_user);
+    }
+	
     public function deleteAny(User $user): bool
     {
         return $user->can('DeleteAny:User');

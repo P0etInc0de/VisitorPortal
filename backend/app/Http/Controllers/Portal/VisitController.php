@@ -44,7 +44,7 @@ class VisitController extends Controller
                 'status' => $payload['status'],
                 'notes' => $payload['notes'] ?? null,
             ]);
-
+			
             $this->syncParticipants($visit, $payload['participants'] ?? []);
 
             return $visit;
