@@ -9,40 +9,40 @@
 
     <div class="bp-profile-stack">
         <section class="bp-panel p-6 sm:p-7">
-            <h2 class="text-xl font-semibold tracking-tight text-base-content">
+            <h2 class="text-2xl font-bold tracking-tight text-base-content">
                 {{ $data['name'] }}
             </h2>
 
             <div class="mt-3 flex flex-wrap gap-2">
                 @foreach ($data['roles'] as $role)
-                    <span class="inline-flex items-center rounded-full border border-primary/15 bg-primary/10 px-2.5 py-1 text-xs font-semibold text-primary">
-                        {{ $role }}
-                    </span>
+                    <span class="bp-role-pill">{{ $role }}</span>
                 @endforeach
             </div>
         </section>
 
-        <section class="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
-            @forelse ($data['permissions'] as $resource => $permissions)
-                <article class="bp-panel p-5">
-                    <h3 class="mb-3 text-sm font-semibold uppercase tracking-[0.18em] text-base-content/50">
-                        {{ $resource }}
-                    </h3>
+        <section>
+            <div class="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
+                @forelse ($data['permissions'] as $resource => $permissions)
+                    <div class="bp-permission-card">
+                        <h3 class="mb-3 text-sm font-semibold uppercase tracking-[0.18em] text-base-content/45">
+                            {{ $resource }}
+                        </h3>
 
-                    <ul class="space-y-2">
-                        @foreach ($permissions as $permission)
-                            <li class="flex items-center gap-2 text-sm text-base-content/80">
-                                <span class="text-success">✓</span>
-                                <span>{{ $permission }}</span>
-                            </li>
-                        @endforeach
-                    </ul>
-                </article>
-            @empty
-                <section class="bp-panel p-5">
-                    <p class="text-sm text-base-content/65">{{ __('No permissions assigned.') }}</p>
-                </section>
-            @endforelse
+                        <ul class="space-y-2">
+                            @foreach ($permissions as $permission)
+                                <li class="flex items-center gap-2 text-sm text-base-content/80">
+                                    <span class="text-primary">✓</span>
+                                    <span>{{ $permission }}</span>
+                                </li>
+                            @endforeach
+                        </ul>
+                    </div>
+                @empty
+                    <div class="bp-permission-card md:col-span-2 xl:col-span-3">
+                        <p class="bp-text-muted">{{ __('No permissions assigned.') }}</p>
+                    </div>
+                @endforelse
+            </div>
         </section>
     </div>
 </x-app-layout>

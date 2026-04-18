@@ -1,6 +1,6 @@
 <x-guest-layout>
     <div class="bp-panel p-6 sm:p-7">
-        <div class="mb-4 text-sm leading-7 text-base-content/70">
+        <div class="mb-5 text-sm leading-7 bp-text-muted">
             {{ __('Forgot your password? No problem. Just let us know your email address and we will email you a password reset link that will allow you to choose a new one.') }}
         </div>
 
@@ -11,11 +11,11 @@
 
             <div>
                 <x-input-label for="email" :value="__('Email')" />
-                <x-text-input id="email" class="mt-1 w-full" type="email" name="email" :value="old('email')" required autofocus />
+                <x-text-input id="email" type="email" name="email" :value="old('email')" required autofocus />
                 <x-input-error :messages="$errors->get('email')" class="mt-2" />
             </div>
 
-            <div class="flex items-center justify-end pt-2">
+            <div class="flex justify-end">
                 <x-primary-button>
                     {{ __('Email Password Reset Link') }}
                 </x-primary-button>

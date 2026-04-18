@@ -229,10 +229,10 @@
 <div
     x-cloak
     x-show="navOpen"
-    class="fixed inset-0 z-40 bg-slate-950/30 backdrop-blur-[1px] lg:hidden"
+    class="fixed inset-0 z-40 bg-base-content/20 lg:hidden"
     @click.self="navOpen = false"
 >
-    <div class="absolute inset-y-0 left-0 flex w-80 max-w-[88vw] flex-col border-r border-base-300/70 bg-white shadow-2xl">
+    <div class="bp-drawer-surface absolute inset-y-0 left-0 flex w-80 max-w-[88vw] flex-col border-r border-base-300/70">
         <div class="flex items-center justify-between border-b border-base-300/70 px-5 py-4">
             <div class="flex min-w-0 items-center gap-3">
                 @if ($hasLogo)

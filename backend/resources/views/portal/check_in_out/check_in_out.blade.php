@@ -150,7 +150,7 @@
 
                             <article x-data="{ open: false }" class="rounded-[1.5rem] border border-base-300 bg-base-100">
                                 <div
-                                    class="px-5 py-4 flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between cursor-pointer bg-gray-100 rounded-[1.5rem]"
+                                    class="px-5 py-4 flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between cursor-pointer rounded-[1.5rem] bp-soft-surface"
                                     @click="open = !open"
                                 >
                                     <div class="flex gap-4">
