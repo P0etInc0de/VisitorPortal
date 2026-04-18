@@ -50,46 +50,46 @@
         </div>
     </x-slot>
 
-    <div class="bp-content">
+    <div class="bp-content bp-visit-show-page">
         @if (session('status'))
             <div class="alert alert-success mb-4 rounded-2xl">
                 <span>{{ session('status') }}</span>
             </div>
         @endif
 
-        <section class="card rounded-[1.5rem] border border-base-300 bg-base-100 shadow-sm">
-            <div class="card-body p-5 sm:p-6">
-                <div class="mb-4 flex flex-wrap items-center gap-2">
+        <section class="bp-panel bp-visit-show-shell">
+            <div class="sm:p-1">
+                <div class="bp-visit-show-meta">
                     <span class="badge {{ $statusBadge['class'] }} rounded-full px-3 py-3 text-sm font-semibold">
                         {{ $statusBadge['label'] }}
                     </span>
 
-                    <span class="badge badge-ghost rounded-full px-3 py-3 text-sm">
+                    <span class="bp-visit-show-pill">
                         {{ optional($visit->scheduled_from)->format('d.m.Y H:i') ?: '-' }}
                         @if ($visit->scheduled_until)
                             · {{ $visit->scheduled_until->format('H:i') }}
                         @endif
                     </span>
 
-                    <span class="rounded-full border border-base-300 bg-base-100 px-3 py-1.5 text-sm text-base-content/75">
+                    <span class="bp-visit-show-pill">
                         {{ __('Host') }}: {{ $visit->host?->name ?: '-' }}
                     </span>
 
-                    <span class="rounded-full border border-base-300 bg-base-100 px-3 py-1.5 text-sm text-base-content/75">
+                    <span class="bp-visit-show-pill">
                         {{ __('Empfang') }}: {{ $visit->responsibleUser?->name ?: '-' }}
                     </span>
 
-                    <span class="rounded-full border border-base-300 bg-base-100 px-3 py-1.5 text-sm text-base-content/75">
+                    <span class="bp-visit-show-pill">
                         {{ __('Teilnehmende') }}: {{ $visit->participant_count }}
                     </span>
 
-                    <span class="rounded-full border border-base-300 bg-base-100 px-3 py-1.5 text-sm text-base-content/75">
+                    <span class="bp-visit-show-pill">
                         {{ __('Offene Badges') }}: {{ $visit->badge_pending_count }}
                     </span>
                 </div>
 
                 @if (!empty($visit->notes))
-                    <div class="mb-4 rounded-2xl border border-base-300 bg-base-100 px-4 py-3 text-sm text-base-content/80">
+                    <div class="bp-visit-show-note">
                         {{ $visit->notes }}
                     </div>
                 @endif
@@ -108,7 +108,7 @@
                         @else
                             <div class="space-y-3">
                                 @foreach ($participantItems as $participant)
-                                    <details class="rounded-2xl border border-base-300 bg-base-100 group" @if ($loop->first) open @endif>
+                                    <details class="bp-visit-show-participant group" @if ($loop->first) open @endif>
                                         <summary class="flex cursor-pointer list-none items-center justify-between gap-3 px-4 py-3">
                                             <div class="min-w-0">
                                                 <div class="flex flex-wrap items-center gap-2">
@@ -127,33 +127,33 @@
                                             </svg>
                                         </summary>
 
-                                        <div class="border-t border-base-300 px-4 py-3">
-                                            <div class="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
-                                                <div class="rounded-xl border border-base-300 bg-base-100 px-3 py-2">
+                                        <div class="bp-visit-show-participant-body">
+                                            <div class="bp-visit-show-meta-grid">
+                                                <div class="bp-visit-show-meta-box">
                                                     <div class="text-xs text-base-content/60">{{ __('E-Mail') }}</div>
                                                     <div class="mt-1 text-sm text-base-content">{{ $participant['email'] ?: '–' }}</div>
                                                 </div>
-                                                <div class="rounded-xl border border-base-300 bg-base-100 px-3 py-2">
+                                                <div class="bp-visit-show-meta-box">
                                                     <div class="text-xs text-base-content/60">{{ __('Telefon') }}</div>
                                                     <div class="mt-1 text-sm text-base-content">{{ $participant['phone'] ?: '–' }}</div>
                                                 </div>
-                                                <div class="rounded-xl border border-base-300 bg-base-100 px-3 py-2">
+                                                <div class="bp-visit-show-meta-box">
                                                     <div class="text-xs text-base-content/60">{{ __('Firma') }}</div>
                                                     <div class="mt-1 text-sm text-base-content">{{ $participant['company'] ?: '–' }}</div>
                                                 </div>
-                                                <div class="rounded-xl border border-base-300 bg-base-100 px-3 py-2">
+                                                <div class="bp-visit-show-meta-box">
                                                     <div class="text-xs text-base-content/60">{{ __('Badge') }}</div>
                                                     <div class="mt-1 text-sm text-base-content">
                                                         {{ $formatParticipantDateTime($participant['badge_printed_at'], __('offen')) }}
                                                     </div>
                                                 </div>
-                                                <div class="rounded-xl border border-base-300 bg-base-100 px-3 py-2">
+                                                <div class="bp-visit-show-meta-box">
                                                     <div class="text-xs text-base-content/60">{{ __('Check-in') }}</div>
                                                     <div class="mt-1 text-sm text-base-content">
                                                         {{ $formatParticipantDateTime($participant['checked_in_at']) }}
                                                     </div>
                                                 </div>
-                                                <div class="rounded-xl border border-base-300 bg-base-100 px-3 py-2">
+                                                <div class="bp-visit-show-meta-box">
                                                     <div class="text-xs text-base-content/60">{{ __('Check-out') }}</div>
                                                     <div class="mt-1 text-sm text-base-content">
                                                         {{ $formatParticipantDateTime($participant['checked_out_at']) }}
@@ -168,11 +168,11 @@
                     </div>
 
                     <div class="space-y-3">
-                        <details class="rounded-2xl border border-base-300 bg-base-100" open>
+                        <details class="bp-visit-show-sidecard" open>
                             <summary class="cursor-pointer list-none px-4 py-3 text-base font-semibold text-base-content">
                                 {{ __('Termin verschieben') }}
                             </summary>
-                            <div class="border-t border-base-300 px-4 py-4">
+                            <div class="bp-visit-show-sidecard-body">
                                 <form method="POST" action="{{ route('portal.visits.reschedule', $visit) }}" class="space-y-3">
                                     @csrf
                                     @method('PATCH')
@@ -198,7 +198,7 @@
                             </div>
                         </details>
 
-                        <div class="rounded-2xl border border-base-300 bg-base-100 px-4 py-4">
+                        <div class="bp-visit-show-sidecard bp-visit-show-status-card">
                             <div class="mb-3 text-base font-semibold text-base-content">{{ __('Terminstatus') }}</div>
 
                             @if ($visit->status === 'canceled' || filled($visit->canceled_at))
