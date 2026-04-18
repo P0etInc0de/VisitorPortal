@@ -28,10 +28,10 @@ abstract class TestCase extends BaseTestCase
             // Check if the migrations table exists to ensure a migrated schema
             $this->assertTrue(
                 Schema::hasTable('migrations'),
-                "MySQL is running, but tables are missing! Did you forget to migrate?"
+                'MySQL is running, but tables are missing! Did you forget to migrate?'
             );
         } catch (\Exception $e) {
-            $this->fail("MySQL connection error: " . $e->getMessage());
+            $this->fail('MySQL connection error: '.$e->getMessage());
         }
     }
 }
