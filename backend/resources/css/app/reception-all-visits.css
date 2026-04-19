@@ -1,0 +1,72 @@
+/* Reception: all visits */
+/* Page shell */
+.bp-av-page {
+    --bp-av-grid-columns: 1.85rem minmax(11rem, 1.28fr) minmax(10.4rem, 1.02fr) minmax(6.75rem, 0.7fr) minmax(5.8rem, 0.62fr) 3rem minmax(10rem, 1.06fr);
+    --bp-av-participant-grid-columns: minmax(14rem, 1.55fr) minmax(10rem, 1.1fr) minmax(7rem, 0.95fr) minmax(5.25rem, 0.8fr) minmax(9rem, 0.92fr);
+    display: grid;
+    grid-template-rows: auto auto auto minmax(0, 1fr);
+    gap: 0.45rem;
+    align-content: start;
+    min-height: calc(100dvh - 7.35rem);
+    max-height: calc(100dvh - 7.35rem);
+    overflow: visible;
+}
+
+.bp-page.bp-av-page-shell {
+    padding-top: 0.22rem;
+    padding-bottom: 1.25rem;
+}
+
+.bp-screen-head.bp-av-screen-head {
+    background: var(--bp-surface-strong);
+    box-shadow: none;
+}
+
+/* Row helpers */
+.bp-av-entry {
+    overflow: hidden;
+    border-bottom: 1px solid var(--bp-border);
+}
+
+.bp-av-entry:last-child {
+    border-bottom: 0;
+}
+
+.bp-av-checkbox {
+    width: 1rem;
+    height: 1rem;
+    border-radius: 0.35rem;
+}
+
+.bp-av-row-btn {
+    width: auto;
+    justify-content: center;
+    text-align: center;
+}
+
+.bp-av-action-btn {
+    min-width: 8.5rem;
+    width: 8.5rem;
+    max-width: 8.5rem;
+}
+
+.bp-av-year-divider {
+    padding: 0.32rem 0.75rem 0.18rem;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--bp-text);
+}
+
+.bp-av-empty {
+    padding: 0.7rem 0.85rem;
+    color: rgba(31, 42, 68, 0.7);
+    font-size: 0.88rem;
+}
+
+@media (max-width: 1100px) {
+    .bp-av-page {
+        min-height: auto;
+        max-height: none;
+        overflow: visible;
+    }
+}

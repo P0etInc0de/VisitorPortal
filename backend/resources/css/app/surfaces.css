@@ -1,0 +1,38 @@
+/* Shared surfaces */
+.bp-panel {
+    border: 1px solid var(--bp-border);
+    border-radius: 1.5rem;
+    background: var(--bp-surface);
+    box-shadow: var(--bp-shadow-soft);
+}
+
+.bp-panel-pad {
+    padding: 1.3rem 1.4rem;
+}
+
+.bp-panel-pad-tight {
+    padding: 1rem 1.1rem;
+}
+
+.bp-subpanel {
+    border: 1px solid var(--bp-border);
+    border-radius: 1.1rem;
+    background: rgba(255, 255, 255, 0.9);
+}
+
+.bp-subpanel-pad {
+    padding: 0.9rem 1rem;
+}
+
+.bp-empty-state {
+    border: 1px dashed var(--bp-border-strong);
+    border-radius: 1.15rem;
+    background: rgba(255, 255, 255, 0.74);
+    padding: 1rem 1.1rem;
+    color: rgba(31, 42, 68, 0.66);
+}
+
+.bp-section-stack {
+    display: grid;
+    gap: 1rem;
+}

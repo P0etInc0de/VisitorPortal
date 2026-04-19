@@ -1,0 +1,64 @@
+/* Status styles */
+.bp-status-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    border-radius: 999px;
+    border: 1px solid transparent;
+    padding: 0.45rem 0.8rem;
+    font-size: 0.85rem;
+    line-height: 1;
+    font-weight: 700;
+}
+
+.bp-status-pill::before {
+    content: '';
+    width: 0.48rem;
+    height: 0.48rem;
+    border-radius: 999px;
+    background: currentColor;
+    opacity: 0.85;
+}
+
+.bp-status-planned {
+    color: #a1751e;
+    background: rgba(231, 184, 84, 0.12);
+    border-color: rgba(231, 184, 84, 0.24);
+}
+
+.bp-status-checked-in,
+.bp-status-active {
+    color: var(--bp-success);
+    background: rgba(47, 125, 98, 0.11);
+    border-color: rgba(47, 125, 98, 0.2);
+}
+
+.bp-status-draft,
+.bp-status-neutral {
+    color: #667085;
+    background: rgba(102, 112, 133, 0.1);
+    border-color: rgba(102, 112, 133, 0.18);
+}
+
+.bp-status-warning {
+    color: var(--bp-warning);
+    background: rgba(169, 121, 28, 0.11);
+    border-color: rgba(169, 121, 28, 0.18);
+}
+
+/* Status text */
+.bp-status-text-success {
+    color: var(--bp-success);
+}
+
+.bp-status-text-warning {
+    color: var(--bp-warning);
+}
+
+.bp-status-text-danger {
+    color: var(--bp-danger);
+}
+
+.bp-status-text-muted {
+    color: var(--bp-text-soft);
+}

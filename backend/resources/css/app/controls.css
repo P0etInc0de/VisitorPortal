@@ -1,0 +1,115 @@
+/* Shared controls */
+.btn,
+.input,
+.select,
+.textarea {
+    transition:
+        border-color 160ms ease,
+        background-color 160ms ease,
+        color 160ms ease,
+        box-shadow 160ms ease,
+        transform 160ms ease;
+}
+
+.btn {
+    min-height: var(--bp-control-height);
+    height: var(--bp-control-height);
+    padding-inline: 1rem;
+    border-width: 1px;
+    border-radius: var(--bp-control-radius);
+    font-weight: 600;
+    box-shadow: none;
+}
+
+.btn-sm,
+.btn-xs,
+.input-sm,
+.select-sm {
+    min-height: var(--bp-control-height-compact) !important;
+    height: var(--bp-control-height-compact) !important;
+    border-radius: var(--bp-control-radius-compact) !important;
+}
+
+.btn-sm,
+.btn-xs {
+    padding-inline: 0.9rem;
+}
+
+.btn:hover {
+    transform: translateY(-1px);
+}
+
+.btn-primary {
+    border-color: var(--bp-accent);
+    background: var(--bp-accent);
+    color: #ffffff;
+}
+
+.btn-primary:hover {
+    border-color: var(--bp-accent-hover);
+    background: var(--bp-accent-hover);
+}
+
+.btn-error {
+    border-color: var(--bp-danger);
+    background: var(--bp-danger);
+    color: #ffffff;
+}
+
+.btn-error:hover {
+    border-color: #a33434;
+    background: #a33434;
+}
+
+.btn-outline {
+    border-color: rgba(31, 42, 68, 0.22);
+    background: #ffffff;
+    color: var(--bp-text);
+}
+
+.btn-outline:hover {
+    border-color: rgba(31, 42, 68, 0.34);
+    background: #ffffff;
+    color: var(--bp-text);
+}
+
+.btn-ghost {
+    border-color: transparent;
+    background: transparent;
+    color: var(--bp-text-soft);
+}
+
+.btn-ghost:hover {
+    background: rgba(31, 42, 68, 0.05);
+    color: var(--bp-text);
+}
+
+.input,
+.select,
+.textarea {
+    border-color: var(--bp-border);
+    background: rgba(255, 255, 255, 0.98);
+    color: var(--bp-text);
+}
+
+.input,
+.select {
+    min-height: var(--bp-control-height);
+    height: var(--bp-control-height);
+    border-radius: var(--bp-control-radius);
+}
+
+.textarea {
+    min-height: 7rem;
+    border-radius: var(--bp-control-radius);
+}
+
+.input:focus,
+.select:focus,
+.textarea:focus,
+.btn:focus-visible {
+    outline: none;
+    box-shadow:
+        0 0 0 4px rgba(79, 70, 229, 0.12),
+        0 0 0 1px rgba(79, 70, 229, 0.18);
+}

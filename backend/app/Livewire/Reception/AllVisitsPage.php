@@ -284,41 +284,41 @@ class AllVisitsPage extends Component
         if (filled($pivot->checked_out_at)) {
             return [
                 'label' => __('Ausgecheckt'),
-                'class' => 'bp-status-muted',
+                'class' => 'bp-status-text-muted',
             ];
         }
 
         if (filled($pivot->checked_in_at)) {
             return [
                 'label' => __('Eingecheckt'),
-                'class' => 'bp-status-success',
+                'class' => 'bp-status-text-success',
             ];
         }
 
         if (filled($pivot->badge_printed_at)) {
             return [
                 'label' => __('Badge bereit'),
-                'class' => 'bp-status-success',
+                'class' => 'bp-status-text-success',
             ];
         }
 
         if ($visitStatus === VisitStatusEnum::Draft->value) {
             return [
                 'label' => __('Entwurf'),
-                'class' => 'bp-status-muted',
+                'class' => 'bp-status-text-muted',
             ];
         }
 
         if ($visitStatus === VisitStatusEnum::Canceled->value) {
             return [
                 'label' => __('Abgesagt'),
-                'class' => 'bp-status-danger',
+                'class' => 'bp-status-text-danger',
             ];
         }
 
         return [
             'label' => __('Geplant'),
-            'class' => 'bp-status-warning',
+            'class' => 'bp-status-text-warning',
         ];
     }
 
@@ -328,10 +328,10 @@ class AllVisitsPage extends Component
     private function resolveVisitStatusMeta(string $status): array
     {
         return match ($status) {
-            VisitStatusEnum::Draft->value => ['label' => VisitStatusEnum::Draft->label(), 'class' => 'bp-status-muted'],
-            VisitStatusEnum::Planned->value => ['label' => VisitStatusEnum::Planned->label(), 'class' => 'bp-status-warning'],
-            VisitStatusEnum::Completed->value => ['label' => VisitStatusEnum::Completed->label(), 'class' => 'bp-status-success'],
-            VisitStatusEnum::Canceled->value => ['label' => VisitStatusEnum::Canceled->label(), 'class' => 'bp-status-danger'],
+            VisitStatusEnum::Draft->value => ['label' => VisitStatusEnum::Draft->label(), 'class' => 'bp-status-text-muted'],
+            VisitStatusEnum::Planned->value => ['label' => VisitStatusEnum::Planned->label(), 'class' => 'bp-status-text-warning'],
+            VisitStatusEnum::Completed->value => ['label' => VisitStatusEnum::Completed->label(), 'class' => 'bp-status-text-success'],
+            VisitStatusEnum::Canceled->value => ['label' => VisitStatusEnum::Canceled->label(), 'class' => 'bp-status-text-danger'],
             default => ['label' => __($status), 'class' => ''],
         };
     }
