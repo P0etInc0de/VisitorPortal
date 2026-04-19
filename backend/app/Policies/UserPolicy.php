@@ -2,9 +2,9 @@
 
 namespace App\Policies;
 
-use Illuminate\Auth\Access\HandlesAuthorization;
-//use Illuminate\Foundation\Auth\User as AuthUser;
 use App\Models\User;
+// use Illuminate\Foundation\Auth\User as AuthUser;
+use Illuminate\Auth\Access\HandlesAuthorization;
 
 class UserPolicy
 {
@@ -39,7 +39,7 @@ class UserPolicy
     {
         return $this->deactivateAny($user) || $this->deactivateDepartment($user, $requested_user);
     }
-	
+
     public function deleteAny(User $user): bool
     {
         return $user->can('DeleteAny:User');

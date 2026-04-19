@@ -22,7 +22,7 @@ class VisitController extends Controller
 {
     public function create(): View
     {
-		$this->authorize('create', Visit::class);		
+        $this->authorize('create', Visit::class);
 
         return $this->formView(new Visit([
             'user_id' => auth()->id(),
@@ -44,7 +44,7 @@ class VisitController extends Controller
                 'status' => $payload['status'],
                 'notes' => $payload['notes'] ?? null,
             ]);
-			
+
             $this->syncParticipants($visit, $payload['participants'] ?? []);
 
             return $visit;
@@ -63,7 +63,7 @@ class VisitController extends Controller
 
     public function show(Visit $visit): View
     {
-		$this->authorize('view', $visit);
+        $this->authorize('view', $visit);
 
         $visit->load([
             'host:id,name',

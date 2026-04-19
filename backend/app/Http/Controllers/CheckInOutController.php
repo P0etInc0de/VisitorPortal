@@ -14,7 +14,7 @@ class CheckInOutController extends Controller
 {
     public function index()
     {
-		$this->authorizeAny(['checkIn', 'checkOut'], Visit::class);
+        $this->authorizeAny(['checkIn', 'checkOut'], Visit::class);
 
         $visits = Visit::with(['responsibleUser', 'visitors'])->get();
 
