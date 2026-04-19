@@ -283,9 +283,4 @@
     .bp-page {
         padding-block: 1.2rem 1.6rem;
     }
-
-    .bp-content,
-    .bp-stat-grid {
-        gap: 1.1rem;
-    }
 }

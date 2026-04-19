@@ -47,7 +47,7 @@
                 <h1 class="bp-screen-title">{{ $visit->display_title }}</h1>
             </div>
 
-            <div class="bp-screen-actions">
+            <div class="flex flex-wrap gap-3">
                 <a href="{{ route('portal.visits.edit', $visit) }}" class="btn btn-outline btn-sm rounded-xl">
                     {{ __('Bearbeiten') }}
                 </a>

@@ -22,7 +22,7 @@
     x-on:bp-av-capture-scroll.window="captureScroll()"
     x-effect="interactionToken; restoreScroll()"
 >
-    <div class="bp-content bp-av-page">
+    <div class="min-w-0 bp-av-page">
         @include('reception.partials.all-visits.toolbar')
 
         @include('reception.partials.all-visits.filter-bar', [

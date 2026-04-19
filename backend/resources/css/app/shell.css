@@ -65,12 +65,6 @@
     color: var(--bp-text-soft);
 }
 
-.bp-content {
-    display: grid;
-    gap: 1.25rem;
-    min-width: 0;
-}
-
 /*
  * .bp-screen-head and .bp-screen-head-with-actions have been removed.
  * Their layout logic is now expressed directly in Blade templates via
@@ -84,29 +78,11 @@
     font-weight: 700;
 }
 
-.bp-screen-actions {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.65rem;
-}
-
-.bp-stat-grid {
-    display: grid;
-    gap: 1.25rem;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-}
-
 /* Shared layout helpers */
 @media (max-width: 1279px) {
     .bp-sidebar {
         position: static;
         min-height: auto;
-    }
-}
-
-@media (max-width: 1023px) {
-    .bp-stat-grid {
-        grid-template-columns: 1fr;
     }
 }
 
