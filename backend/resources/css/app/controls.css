@@ -39,28 +39,16 @@
     transform: translateY(-1px);
 }
 
-.btn-primary {
-    border-color: var(--bp-accent);
-    background: var(--bp-accent);
-    color: #ffffff;
-}
+/*
+ * .btn-primary and .btn-error are intentionally absent here.
+ * DaisyUI v5 generates these from --color-primary / --color-error
+ * defined in [data-theme="light"] inside tokens.css.
+ */
 
-.btn-primary:hover {
-    border-color: var(--bp-accent-hover);
-    background: var(--bp-accent-hover);
-}
-
-.btn-error {
-    border-color: var(--bp-danger);
-    background: var(--bp-danger);
-    color: #ffffff;
-}
-
-.btn-error:hover {
-    border-color: #a33434;
-    background: #a33434;
-}
-
+/*
+ * Neutral outline style – diverges from DaisyUI default (which tints
+ * the border in the variant colour). Kept as an explicit override.
+ */
 .btn-outline {
     border-color: rgba(31, 42, 68, 0.22);
     background: #ffffff;
@@ -73,6 +61,9 @@
     color: var(--bp-text);
 }
 
+/*
+ * Ghost style – kept as an explicit override for the same reason.
+ */
 .btn-ghost {
     border-color: transparent;
     background: transparent;
