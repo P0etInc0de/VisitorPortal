@@ -11,7 +11,7 @@
 @endphp
 
 <article
-    class="bp-av-entry group {{ $isExpanded ? 'bp-av-entry-expanded' : '' }}"
+    class="group overflow-hidden border-b border-base-300 last:border-b-0"
     wire:key="visit-entry-{{ $visitId }}"
     x-data="{
         open: @js($isExpanded),
@@ -38,11 +38,10 @@
             window.location = this.openUrl;
         },
     }"
-    x-bind:class="open ? 'bp-av-entry-expanded' : ''"
 >
     <div
-        class="grid min-h-[2.35rem] cursor-pointer grid-cols-[var(--bp-av-grid-columns)] items-center gap-[0.45rem] bg-[var(--bp-surface-strong)] px-3 py-[0.18rem] transition-colors duration-150 group-hover:bg-[rgba(31,42,68,0.03)]"
-        x-bind:class="open ? 'bg-[rgba(31,42,68,0.025)]' : ''"
+        class="grid min-h-[2.35rem] cursor-pointer grid-cols-[var(--bp-av-grid-columns)] items-center gap-[0.45rem] bg-base-100 px-3 py-[0.18rem] transition-colors duration-150 group-hover:bg-base-200/50"
+        x-bind:class="open ? 'bg-base-200/40' : ''"
         aria-expanded="{{ $isExpanded ? 'true' : 'false' }}"
         x-bind:aria-expanded="open ? 'true' : 'false'"
         @click="queueToggle()"
@@ -53,11 +52,11 @@
         </div>
 
         <div class="flex min-w-0 items-center">
-            <span class="truncate text-[0.9rem] font-bold leading-[1.18] text-[var(--bp-text)]">{{ $visit['title'] }}</span>
+            <span class="truncate text-[0.9rem] font-bold leading-[1.18] text-base-content">{{ $visit['title'] }}</span>
         </div>
 
         <div class="flex min-w-0 items-center">
-            <span class="truncate text-[0.82rem] leading-[1.24] text-[rgba(31,42,68,0.72)]">{{ $visitDateLabel ?: '—' }}</span>
+            <span class="truncate text-[0.82rem] leading-[1.24] text-base-content/70">{{ $visitDateLabel ?: '—' }}</span>
         </div>
 
         <div class="flex min-w-0 items-center">
@@ -69,21 +68,21 @@
         </div>
 
         <div class="flex min-w-0 items-center">
-            <span class="truncate text-[0.82rem] leading-[1.24] text-[rgba(31,42,68,0.72)]">{{ $visit['host_display'] ?? $visit['host'] ?? '—' }}</span>
+            <span class="truncate text-[0.82rem] leading-[1.24] text-base-content/70">{{ $visit['host_display'] ?? $visit['host'] ?? '—' }}</span>
         </div>
 
         <div class="flex min-w-0 items-center justify-center">
-            <span class="w-full text-center text-[0.82rem] font-semibold leading-[1.24] text-[rgba(31,42,68,0.82)]">{{ $visit['participants_count'] ?? count($participants) }}</span>
+            <span class="w-full text-center text-[0.82rem] font-semibold leading-[1.24] text-base-content/80">{{ $visit['participants_count'] ?? count($participants) }}</span>
         </div>
 
         <div class="flex min-w-0 items-center">
-            <span class="block max-w-full truncate text-[0.82rem] leading-[1.24] text-[rgba(31,42,68,0.72)]" title="{{ $noteText !== '' ? $noteText : '—' }}">{{ $noteText !== '' ? $noteText : '—' }}</span>
+            <span class="block max-w-full truncate text-[0.82rem] leading-[1.24] text-base-content/70" title="{{ $noteText !== '' ? $noteText : '—' }}">{{ $noteText !== '' ? $noteText : '—' }}</span>
         </div>
     </div>
 
-    <div id="{{ $detailId }}" class="bg-[rgba(31,42,68,0.02)] px-3 pb-[0.55rem] pl-[3.05rem]" x-show="open" x-cloak>
-        <div class="overflow-hidden rounded-[1rem] border border-[rgba(31,42,68,0.08)] bg-[var(--bp-surface-strong)]">
-            <div class="grid grid-cols-[var(--bp-av-participant-grid-columns)] items-center gap-[0.55rem] border-b border-[rgba(15,23,42,0.10)] bg-[rgba(31,42,68,0.04)] px-[0.65rem] py-[0.34rem] text-[0.7rem] font-bold uppercase tracking-[0.04em] text-[rgba(31,42,68,0.74)]">
+    <div id="{{ $detailId }}" class="bg-base-200/30 px-3 pb-[0.55rem] pl-[3.05rem]" x-show="open" x-cloak>
+        <div class="overflow-hidden rounded-[1rem] border border-base-300 bg-base-100">
+            <div class="grid grid-cols-[var(--bp-av-participant-grid-columns)] items-center gap-[0.55rem] border-b border-base-300 bg-base-200/60 px-[0.65rem] py-[0.34rem] text-[0.7rem] font-bold uppercase tracking-[0.04em] text-base-content/75">
                 <div>{{ __('Name') }}</div>
                 <div>{{ __('Unternehmen') }}</div>
                 <div>{{ __('Status') }}</div>
@@ -99,7 +98,7 @@
                     ])
                 @endforeach
             @else
-                <div class="bp-av-empty">{{ __('Keine Teilnehmenden vorhanden.') }}</div>
+                <div class="px-3 py-3 text-[0.88rem] text-base-content/70">{{ __('Keine Teilnehmenden vorhanden.') }}</div>
             @endif
         </div>
     </div>

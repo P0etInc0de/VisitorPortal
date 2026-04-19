@@ -1,7 +1,7 @@
 <div class="grid items-center gap-[0.65rem] min-[1400px]:grid-cols-[minmax(17rem,1.18fr)_auto] max-[1100px]:grid-cols-1">
     <form class="min-w-0" wire:submit.prevent>
         <label class="relative block">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true" class="pointer-events-none absolute left-[0.95rem] top-1/2 z-1 h-4 w-4 -translate-y-1/2 text-[rgba(31,42,68,0.56)]">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true" class="pointer-events-none absolute left-[0.95rem] top-1/2 z-1 h-4 w-4 -translate-y-1/2 text-base-content/55">
                 <circle cx="11" cy="11" r="6" />
                 <path d="M20 20l-3.5-3.5" />
             </svg>

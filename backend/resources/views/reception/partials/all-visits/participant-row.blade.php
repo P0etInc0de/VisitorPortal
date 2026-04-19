@@ -15,13 +15,13 @@
     $canCheckOut = (bool) ($participant['can_check_out'] ?? false);
 @endphp
 
-<div class="grid grid-cols-[var(--bp-av-participant-grid-columns)] items-center gap-[0.55rem] border-t border-[rgba(31,42,68,0.06)] px-[0.65rem] py-[0.34rem] first:border-t-0" wire:key="{{ $participant['row_key'] ?? ('participant-row-'.$visitId.'-'.($participant['visitor_id'] ?? uniqid())) }}">
+<div class="grid grid-cols-[var(--bp-av-participant-grid-columns)] items-center gap-[0.55rem] border-t border-base-200 px-[0.65rem] py-[0.34rem] first:border-t-0" wire:key="{{ $participant['row_key'] ?? ('participant-row-'.$visitId.'-'.($participant['visitor_id'] ?? uniqid())) }}">
     <div class="flex min-w-0 items-center">
-        <span class="truncate text-[0.82rem] text-[var(--bp-text)]">{{ $displayName }}</span>
+        <span class="truncate text-[0.82rem] text-base-content">{{ $displayName }}</span>
     </div>
 
     <div class="flex min-w-0 items-center">
-        <span class="truncate text-[0.82rem] leading-[1.24] text-[rgba(31,42,68,0.72)]">{{ $participant['company'] ?? '—' }}</span>
+        <span class="truncate text-[0.82rem] leading-[1.24] text-base-content/70">{{ $participant['company'] ?? '—' }}</span>
     </div>
 
     <div class="flex min-w-0 items-center">
@@ -40,7 +40,7 @@
                 <button type="submit" class="btn btn-outline btn-sm bp-av-row-btn px-2">{{ __('Ausweis') }}</button>
             </form>
         @else
-            <span class="text-[0.82rem] leading-[1.24] text-[rgba(31,42,68,0.72)]">—</span>
+            <span class="text-[0.82rem] leading-[1.24] text-base-content/70">—</span>
         @endif
     </div>
 
@@ -68,7 +68,7 @@
                 {{ __('Check-out') }}
             </button>
         @else
-            <span class="text-[0.82rem] leading-[1.24] text-[rgba(31,42,68,0.72)]">—</span>
+            <span class="text-[0.82rem] leading-[1.24] text-base-content/70">—</span>
         @endif
     </div>
 </div>
