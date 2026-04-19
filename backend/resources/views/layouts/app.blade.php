@@ -22,7 +22,7 @@
 <div class="min-h-screen bp-page-shell" x-data="{ navOpen: false }">
     @include('layouts.navigation')
 
-    <div class="min-w-0 lg:ml-72">
+    <div class="min-w-0 xl:ml-72">
         @if (isset($header))
             <header class="relative z-20 border-b border-base-300/70 bp-topbar-surface">
                 <div class="mx-auto max-w-7xl px-4 py-5 sm:px-6 lg:px-8">
@@ -38,6 +38,6 @@
         </main>
     </div>
 </div>
-    @livewireScripts
+@livewireScripts
 </body>
 </html>

@@ -13,9 +13,11 @@
     }
 
     $navLinkClasses = function (bool $active): string {
+        $base = 'flex items-center gap-3 rounded-2xl border px-4 py-3 text-base-content/75 transition-colors';
+
         return $active
-            ? 'bp-nav-link bp-nav-link-active'
-            : 'bp-nav-link';
+            ? $base . ' border-primary/20 bg-primary/10 text-primary hover:bg-primary/15'
+            : $base . ' border-transparent hover:bg-base-200 hover:text-base-content';
     };
 
     $normalizedRoles = $roleNames
@@ -77,7 +79,7 @@
     </div>
 </div>
 
-<aside class="bp-sidebar fixed inset-y-0 left-0 z-30 hidden w-72 border-r border-base-300/70 lg:flex lg:flex-col">
+<aside class="hidden w-72 border-r border-base-300/70 bp-topbar-surface lg:flex lg:flex-col lg:px-4 lg:pt-4 lg:pb-4 xl:fixed xl:inset-y-0 xl:left-0 xl:z-30 xl:min-h-screen">
     <div class="border-b border-base-300/70 px-4 py-4">
         <a href="{{ route('dashboard') }}" class="flex flex-col items-start gap-3">
             @if ($hasLogo)
@@ -107,7 +109,7 @@
                 </div>
 
                 <a href="{{ route('dashboard') }}" class="{{ $navLinkClasses(request()->routeIs('dashboard')) }}">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="bp-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M3 12l9-8 9 8" />
                         <path stroke-linecap="round" stroke-linejoin="round" d="M5 10v10h14V10" />
                     </svg>
@@ -121,14 +123,14 @@
                 </div>
 
                 <a href="{{ route('portal.visits.create') }}" class="{{ $navLinkClasses(request()->routeIs('portal.visits.create')) }}">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="bp-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M12 5v14M5 12h14" />
                     </svg>
                     <span>{{ __('Besuch anlegen') }}</span>
                 </a>
 
                 <a href="{{ route('portal.check_in_out') }}" class="{{ $navLinkClasses(request()->routeIs('portal.check_in_out')) }}">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="bp-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1" />
                     </svg>
                     <span>{{ __('Check-In/Out') }}</span>
@@ -142,14 +144,14 @@
                     </div>
 
                     <a href="{{ route('reception.dashboard') }}" class="{{ $navLinkClasses(request()->routeIs('reception.dashboard')) }}">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="bp-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M4 7h16M4 12h16M4 17h8" />
                         </svg>
                         <span>{{ __('Dashboard') }}</span>
                     </a>
 
                     <a href="{{ route('reception.all-visits') }}" class="{{ $navLinkClasses(request()->routeIs('reception.all-visits')) }}">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="bp-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M4 7h16M4 12h16M4 17h16" />
                         </svg>
                         <span>{{ __('Alle Besuche') }}</span>
@@ -164,7 +166,7 @@
                     </div>
 
                     <a href="{{ route('monitor.live') }}" class="{{ $navLinkClasses(request()->routeIs('monitor.live')) }}">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="bp-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
                             <rect x="3" y="4" width="18" height="12" rx="2" />
                             <path stroke-linecap="round" stroke-linejoin="round" d="M8 20h8M12 16v4" />
                         </svg>
@@ -172,7 +174,7 @@
                     </a>
 
                     <a href="{{ route('monitor.editor') }}" class="{{ $navLinkClasses(request()->routeIs('monitor.editor')) }}">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="bp-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M4 20h4l10-10a2.121 2.121 0 10-4-4L4 16v4z" />
                         </svg>
                         <span>{{ __('Editor') }}</span>
@@ -186,7 +188,7 @@
                 </div>
 
                 <a href="{{ route('profile.edit') }}" class="{{ $navLinkClasses(request()->routeIs('profile.*')) }}">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="bp-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M20 21a8 8 0 10-16 0" />
                         <circle cx="12" cy="8" r="4" />
                     </svg>
@@ -194,7 +196,7 @@
                 </a>
 
                 <a href="{{ route('user-permissions') }}" class="{{ $navLinkClasses(request()->routeIs('user-permissions')) }}">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="bp-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4" />
                         <path stroke-linecap="round" stroke-linejoin="round" d="M12 3a9 9 0 1 0 0 18A9 9 0 0 0 12 3Z" />
                     </svg>
@@ -203,7 +205,7 @@
 
                 @if ($canSeeAdmin)
                     <a href="{{ url('/admin') }}" class="{{ $navLinkClasses(request()->is('admin') || request()->is('admin/*')) }}">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="bp-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M4 7h16M4 12h16M4 17h16" />
                         </svg>
                         <span>{{ __('Admin-Bereich') }}</span>
