@@ -52,7 +52,7 @@ class AdminAdministerUserTest extends TestCase
     {
         $this->app->make(PermissionRegistrar::class)->forgetCachedPermissions();
 
-        $admin = (new PermissionHelper)->getIndividualUser(['ViewAny:User', 'View:User', 'Create:User', 'Update:User'], 'admin');
+        $admin = (new PermissionHelper)->getIndividualUser(['ViewAny:User', 'View:User', 'Create:User', 'Update:User', 'EditAny:User'], 'admin');
 
         $userRole = Role::firstOrCreate(['name' => 'employee']);
 

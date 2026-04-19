@@ -21,8 +21,10 @@ class UserAdministerVisitTest extends TestCase
     {
         // create necessary instances
         $user = User::factory()->create();
+		$user->assignRole('user');
 
         $responsibleUser = User::factory()->create();
+		$responsibleUser->assignRole('user');
 
         $visitors = Visitor::factory(3)->create();
 
@@ -46,8 +48,10 @@ class UserAdministerVisitTest extends TestCase
         $visitTitle = 'Test Visit';
 
         $user = User::factory()->create();
+		$user->assignRole('user');
 
         $responsibleUser = User::factory()->create();
+		$responsibleUser->assignRole('user');
 
         // create visit
         $visit = $this->makeVisit($user->id, $visitTitle, VisitStatusEnum::Planned, $responsibleUser->id);
@@ -72,8 +76,10 @@ class UserAdministerVisitTest extends TestCase
         $participant = Visitor::Factory()->create();
 
         $user = User::factory()->create();
+		$user->assignRole('user');
 
         $responsibleUser = User::factory()->create();
+		$responsibleUser->assignRole('user');
 
         // create updated fields
         $updatedVisitTitle = 'Updated Visit Title';
