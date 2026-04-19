@@ -30,8 +30,8 @@
             'activeRange' => $activeRange,
         ])
 
-        <div class="bp-av-interaction-hint">
-            <span><strong>{{ __('Einmal klicken') }}</strong> {{ __('→ Besucher-Details') }} &nbsp;·&nbsp; <strong>{{ __('Doppelt klicken') }}</strong> {{ __('→ Besuch öffnen') }}</span>
+        <div class="px-0.5 text-[0.84rem] leading-[1.25] text-[rgba(31,42,68,0.62)]">
+            <span><strong class="font-semibold text-[rgba(31,42,68,0.74)]">{{ __('Einmal klicken') }}</strong> {{ __('→ Besucher-Details') }} &nbsp;·&nbsp; <strong class="font-semibold text-[rgba(31,42,68,0.74)]">{{ __('Doppelt klicken') }}</strong> {{ __('→ Besuch öffnen') }}</span>
         </div>
 
         @include('reception.partials.all-visits.visit-stack', [

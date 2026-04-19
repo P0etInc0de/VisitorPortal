@@ -14,11 +14,20 @@
     $canCheckOut = (bool) ($participant['can_check_out'] ?? false);
 @endphp
 
-<div class="bp-av-participant-row" wire:key="{{ $participant['row_key'] ?? ('participant-row-'.$visitId.'-'.($participant['visitor_id'] ?? uniqid())) }}">
-    <div class="bp-av-cell"><span class="bp-av-participant-name">{{ $displayName }}</span></div>
-    <div class="bp-av-cell"><span class="bp-av-participant-company">{{ $participant['company'] ?? '—' }}</span></div>
-    <div class="bp-av-cell"><span class="bp-av-status-text {{ $statusClass }}">{{ $statusLabel }}</span></div>
-    <div class="bp-av-cell bp-av-badge-cell">
+<div class="grid grid-cols-[var(--bp-av-participant-grid-columns)] items-center gap-[0.55rem] border-t border-[rgba(31,42,68,0.06)] px-[0.65rem] py-[0.34rem] first:border-t-0" wire:key="{{ $participant['row_key'] ?? ('participant-row-'.$visitId.'-'.($participant['visitor_id'] ?? uniqid())) }}">
+    <div class="flex min-w-0 items-center">
+        <span class="truncate text-[0.82rem] text-[var(--bp-text)]">{{ $displayName }}</span>
+    </div>
+
+    <div class="flex min-w-0 items-center">
+        <span class="truncate text-[0.82rem] leading-[1.24] text-[rgba(31,42,68,0.72)]">{{ $participant['company'] ?? '—' }}</span>
+    </div>
+
+    <div class="flex min-w-0 items-center">
+        <span class="inline-flex max-w-full min-w-0 items-center truncate text-[0.8rem] font-bold leading-[1.22] text-[rgba(31,42,68,0.78)] {{ $statusClass }}">{{ $statusLabel }}</span>
+    </div>
+
+    <div class="flex min-w-0 items-center">
         @if ($badgeUrl)
             <form
                 method="POST"
@@ -27,19 +36,20 @@
                 x-on:submit="$dispatch('bp-av-capture-scroll')"
             >
                 @csrf
-                <button type="submit" class="btn btn-outline btn-sm bp-av-row-btn">{{ __('Ausweis') }}</button>
+                <button type="submit" class="btn btn-outline btn-sm bp-av-row-btn px-2">{{ __('Ausweis') }}</button>
             </form>
         @else
-            <span class="bp-av-participant-status">—</span>
+            <span class="text-[0.82rem] leading-[1.24] text-[rgba(31,42,68,0.72)]">—</span>
         @endif
     </div>
-    <div class="bp-av-cell bp-av-action-cell">
+
+    <div class="flex min-w-0 items-center">
         @if ($canCheckIn)
             <button
                 type="button"
                 wire:click="checkIn({{ (int) ($participant['visit_id'] ?? $visitId) }}, {{ (int) $participant['visitor_id'] }})"
                 x-on:click="$dispatch('bp-av-capture-scroll')"
-                class="btn btn-primary btn-sm bp-av-row-btn"
+                class="btn btn-primary btn-sm bp-av-row-btn bp-av-action-btn"
                 wire:loading.attr="disabled"
                 wire:target="checkIn"
             >
@@ -50,14 +60,14 @@
                 type="button"
                 wire:click="checkOut({{ (int) ($participant['visit_id'] ?? $visitId) }}, {{ (int) $participant['visitor_id'] }})"
                 x-on:click="$dispatch('bp-av-capture-scroll')"
-                class="btn btn-primary btn-sm bp-av-row-btn"
+                class="btn btn-primary btn-sm bp-av-row-btn bp-av-action-btn"
                 wire:loading.attr="disabled"
                 wire:target="checkOut"
             >
                 {{ __('Check-out') }}
             </button>
         @else
-            <span class="bp-av-participant-status">—</span>
+            <span class="text-[0.82rem] leading-[1.24] text-[rgba(31,42,68,0.72)]">—</span>
         @endif
     </div>
 </div>

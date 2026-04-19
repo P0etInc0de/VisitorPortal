@@ -1,4 +1,4 @@
-<div class="bp-av-filter-bar">
+<div class="flex flex-wrap gap-2">
     @foreach ($ranges as $value => $label)
         <button
             type="button"
