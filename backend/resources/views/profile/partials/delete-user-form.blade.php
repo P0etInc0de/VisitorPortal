@@ -1,4 +1,4 @@
-<section class="space-y-6">
+<section class="bp-section-stack">
     <header>
         <h2 class="text-xl font-semibold tracking-tight text-base-content">
             {{ __('Konto löschen') }}
@@ -11,7 +11,7 @@
     >{{ __('Konto löschen') }}</x-danger-button>
 
     <x-modal name="confirm-user-deletion" :show="$errors->userDeletion->isNotEmpty()" focusable>
-        <form method="post" action="{{ route('profile.destroy') }}" class="p-6">
+        <form method="post" action="{{ route('profile.destroy') }}" class="bp-modal-body">
             @csrf
             @method('delete')
 
@@ -36,7 +36,7 @@
                 <x-input-error :messages="$errors->userDeletion->get('password')" class="mt-2" />
             </div>
 
-            <div class="mt-6 flex justify-end gap-3">
+            <div class="mt-6 bp-action-row justify-end">
                 <x-secondary-button x-on:click="$dispatch('close')">
                     {{ __('Abbrechen') }}
                 </x-secondary-button>

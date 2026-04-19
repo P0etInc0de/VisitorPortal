@@ -55,8 +55,8 @@
 
     <div class="bp-content bp-checkin-page" x-data="{ selectedVisitor: { name: '', email: '' } }">
         <section class="bp-main-grid bp-main-grid-wide">
-            <article class="card rounded-3xl border border-base-300 bg-base-100 shadow-sm">
-                <div class="card-body">
+            <article class="bp-panel">
+                <div class="bp-panel-pad">
                     <div>
                         <form method="post" action="{{ route('portal.check_in_out.store') }}">
                             @csrf
@@ -72,7 +72,7 @@
                                         type="text"
                                         name="name"
                                         placeholder="Name"
-                                        class="input input-bordered w-full rounded-2xl"
+                                        class="input input-bordered w-full"
                                         x-model="selectedVisitor.name"
                                         required
                                     >
@@ -88,22 +88,22 @@
                                         type="text"
                                         name="email"
                                         placeholder="Beispiel@gmail.com"
-                                        class="input input-bordered w-full rounded-2xl"
+                                        class="input input-bordered w-full"
                                         x-model="selectedVisitor.email"
                                         required
                                     >
                                 </label>
                             </div>
 
-                            <div class="mt-6 flex justify-end gap-3">
-                                <button type="submit" name="action" value="check_out" class="btn btn-outline rounded-2xl">
+                            <div class="mt-6 bp-action-row justify-end">
+                                <button type="submit" name="action" value="check_out" class="btn btn-outline">
                                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
                                     </svg>
                                     {{ __('Check-Out') }}
                                 </button>
 
-                                <button type="submit" name="action" value="check_in" class="btn btn-primary rounded-2xl">
+                                <button type="submit" name="action" value="check_in" class="btn btn-primary">
                                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1" />
                                     </svg>
@@ -117,8 +117,8 @@
         </section>
 
         <section class="bp-main-grid bp-main-grid-wide">
-            <article class="card rounded-2xl border border-base-300 bg-base-100 shadow-sm">
-                <div class="card-body">
+            <article class="bp-panel">
+                <div class="bp-panel-pad">
                     <div class="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                         <h2 class="text-xl font-semibold tracking-tight text-base-content">
                             {{ __('Anstehende Besuche') }}
@@ -126,13 +126,13 @@
 
                         <a
                             href="{{ \Illuminate\Support\Facades\Route::has('portal.visits.create') ? route('portal.visits.create') : url('/portal/visits/create') }}"
-                            class="btn btn-outline btn-sm rounded-xl"
+                            class="btn btn-outline btn-sm"
                         >
                             {{ __('Neuen Besuch anlegen') }}
                         </a>
                     </div>
 
-                    <div class="space-y-4">
+                    <div class="bp-section-stack">
                         @foreach ($visits as $visit)
                             @php
                                 $visitStatus = $visit->status instanceof \App\Enums\VisitStatusEnum
@@ -148,7 +148,7 @@
                                 };
                             @endphp
 
-                            <article x-data="{ open: false }" class="rounded-2xl border border-base-300 bg-base-100">
+                            <article x-data="{ open: false }" class="bp-subpanel">
                                 <div
                                     class="bp-checkin-visit-row flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between cursor-pointer"
                                     @click="open = !open"
@@ -182,14 +182,14 @@
                                         <div class="flex flex-row gap-2">
                                             <a
                                                 href="{{ route('portal.check_in_out.check_in_out_all', ['visit' => $visit->id, 'action' => 'check_in']) }}"
-                                                class="btn btn-outline btn-sm rounded-xl"
+                                                class="btn btn-outline btn-sm"
                                             >
                                                 {{ __('Check-In ALL') }}
                                             </a>
 
                                             <a
                                                 href="{{ route('portal.check_in_out.check_in_out_all', ['visit' => $visit->id, 'action' => 'check_out']) }}"
-                                                class="btn btn-outline btn-sm rounded-xl"
+                                                class="btn btn-outline btn-sm"
                                             >
                                                 {{ __('Check-Out ALL') }}
                                             </a>
@@ -197,7 +197,7 @@
                                     </div>
                                 </div>
 
-                                <div x-show="open" x-transition class="border-t border-base-300 p-4 space-y-3">
+                                <div x-show="open" x-transition class="border-t border-base-300 bp-panel-pad-tight bp-section-stack">
                                     @foreach ($visit->visitors as $visitor)
                                         @php
                                             $visitorStatus = $visitor->status instanceof \App\Enums\VisitorStatusEnum
@@ -214,7 +214,7 @@
                                         @endphp
 
                                         <article
-                                            class="rounded-2xl border border-base-300 bg-base-100 px-4 py-3 cursor-pointer"
+                                            class="bp-subpanel bp-subpanel-pad cursor-pointer"
                                             @click.stop='
                                                 selectedVisitor = {
                                                     name: @json($visitor->first_name . " " . $visitor->name),
@@ -246,7 +246,7 @@
 
                                                     <a
                                                         href="{{ \Illuminate\Support\Facades\Route::has('portal.visits.show') ? route('portal.visits.show', $visit) : url('/portal/visits/' . $visit->id) }}"
-                                                        class="btn btn-outline btn-sm rounded-xl"
+                                                        class="btn btn-outline btn-sm"
                                                     >
                                                         {{ __('Details öffnen') }}
                                                     </a>

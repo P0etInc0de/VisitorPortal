@@ -5,7 +5,7 @@
         </h2>
     </header>
 
-    <form method="post" action="{{ route('password.update') }}" class="mt-6 space-y-6">
+    <form method="post" action="{{ route('password.update') }}" class="mt-5 bp-form-stack">
         @csrf
         @method('put')
 
@@ -27,7 +27,7 @@
             <x-input-error :messages="$errors->updatePassword->get('password_confirmation')" class="mt-2" />
         </div>
 
-        <div class="flex items-center gap-4">
+        <div class="bp-action-row">
             <x-primary-button>{{ __('Speichern') }}</x-primary-button>
 
             @if (session('status') === 'password-updated')
