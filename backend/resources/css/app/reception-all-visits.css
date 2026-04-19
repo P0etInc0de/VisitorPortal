@@ -17,7 +17,12 @@
     padding-bottom: 1.25rem;
 }
 
-.bp-screen-head.bp-av-screen-head {
+/*
+ * Selector simplified: .bp-screen-head was the layout class and has been
+ * migrated to Tailwind utilities in all-visits.blade.php. Only the
+ * surface override remains, now targeting .bp-av-screen-head alone.
+ */
+.bp-av-screen-head {
     background: var(--bp-surface-strong);
     box-shadow: none;
 }

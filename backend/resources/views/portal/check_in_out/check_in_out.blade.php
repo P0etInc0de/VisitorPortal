@@ -1,6 +1,6 @@
 <x-app-layout>
     <x-slot name="header">
-        <div class="bp-screen-head">
+        <div class="flex items-start justify-between gap-4">
             <div>
                 <h1 class="bp-screen-title">{{ __('Besucher Ein- oder Auschecken') }}</h1>
             </div>

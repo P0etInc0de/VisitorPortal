@@ -42,7 +42,7 @@
 
 <x-app-layout>
     <x-slot name="header">
-        <div class="bp-screen-head bp-screen-head-with-actions">
+        <div class="flex flex-wrap items-start justify-between gap-4">
             <div>
                 <h1 class="bp-screen-title">{{ $visit->display_title }}</h1>
             </div>

@@ -71,16 +71,11 @@
     min-width: 0;
 }
 
-.bp-screen-head {
-    display: flex;
-    align-items: flex-start;
-    justify-content: space-between;
-    gap: 1rem;
-}
-
-.bp-screen-head-with-actions {
-    flex-wrap: wrap;
-}
+/*
+ * .bp-screen-head and .bp-screen-head-with-actions have been removed.
+ * Their layout logic is now expressed directly in Blade templates via
+ * Tailwind utilities: flex items-start justify-between gap-4 (flex-wrap for with-actions).
+ */
 
 .bp-screen-title {
     font-size: clamp(2.2rem, 1.9rem + 1.2vw, 3.35rem);
