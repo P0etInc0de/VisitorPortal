@@ -6,6 +6,7 @@
     $noteText = trim((string) ($visit['note_text'] ?? ($visit['notes'] ?? '')));
     $visitStatusLabel = (string) ($visit['status_label'] ?? ($visit['status'] ?? ''));
     $visitStatusClass = trim((string) ($visit['status_class'] ?? ''));
+    $visitStatusTextClass = $visitStatusClass !== '' ? $visitStatusClass : 'text-base-content/75';
     $visitDateLabel = $visit['date_time_label'] ?? null;
 @endphp
 
@@ -61,9 +62,9 @@
 
         <div class="flex min-w-0 items-center">
             @if ($visitStatusLabel !== '')
-                <span class="inline-flex max-w-full min-w-0 items-center justify-start truncate text-[0.8rem] font-bold leading-[1.22] text-[rgba(31,42,68,0.78)] {{ $visitStatusClass }}">{{ $visitStatusLabel }}</span>
+                <span class="inline-flex max-w-full min-w-0 items-center justify-start truncate text-[0.8rem] font-bold leading-[1.22] {{ $visitStatusTextClass }}">{{ $visitStatusLabel }}</span>
             @else
-                <span class="inline-flex max-w-full min-w-0 items-center justify-start truncate text-[0.8rem] font-bold leading-[1.22] text-[rgba(31,42,68,0.78)]">—</span>
+                <span class="inline-flex max-w-full min-w-0 items-center justify-start truncate text-[0.8rem] font-bold leading-[1.22] text-base-content/75">—</span>
             @endif
         </div>
 

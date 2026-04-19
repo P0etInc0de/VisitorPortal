@@ -56,7 +56,7 @@
     <div class="grid min-w-0 gap-5" x-data="{ selectedVisitor: { name: '', email: '' } }">
         <section class="grid gap-5">
             <article class="bp-panel">
-                <div class="bp-panel-pad">
+                <div class="p-5 sm:p-6">
                     <div>
                         <form method="post" action="{{ route('portal.check_in_out.store') }}">
                             @csrf
@@ -118,7 +118,7 @@
 
         <section class="grid gap-5">
             <article class="bp-panel">
-                <div class="bp-panel-pad">
+                <div class="p-5 sm:p-6">
                     <div class="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                         <h2 class="text-xl font-semibold tracking-tight text-base-content">
                             {{ __('Anstehende Besuche') }}

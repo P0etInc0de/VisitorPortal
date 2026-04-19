@@ -8,7 +8,8 @@
     $badgeUrl = $participant['badge_url'] ?? null;
     $rawStatusLabel = $participant['status_label'] ?? ($participant['status']['label'] ?? ($participant['status'] ?? null));
     $statusLabel = $rawStatusLabel ? preg_replace('/^\s*[•·]\s*/u', '', (string) $rawStatusLabel) : '—';
-    $statusClass = trim(str_replace('bp-status-pill', '', (string) ($participant['status_class'] ?? ($participant['status']['class'] ?? ''))));
+    $statusClass = trim((string) ($participant['status_class'] ?? ($participant['status']['class'] ?? '')));
+    $statusTextClass = $statusClass !== '' ? $statusClass : 'text-base-content/75';
     $checkInLabel = $participant['check_in_label'] ?? __('Check-in');
     $canCheckIn = (bool) ($participant['can_check_in'] ?? false);
     $canCheckOut = (bool) ($participant['can_check_out'] ?? false);
@@ -24,7 +25,7 @@
     </div>
 
     <div class="flex min-w-0 items-center">
-        <span class="inline-flex max-w-full min-w-0 items-center truncate text-[0.8rem] font-bold leading-[1.22] text-[rgba(31,42,68,0.78)] {{ $statusClass }}">{{ $statusLabel }}</span>
+        <span class="inline-flex max-w-full min-w-0 items-center truncate text-[0.8rem] font-bold leading-[1.22] {{ $statusTextClass }}">{{ $statusLabel }}</span>
     </div>
 
     <div class="flex min-w-0 items-center">

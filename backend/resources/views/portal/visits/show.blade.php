@@ -63,7 +63,7 @@
         @endif
 
         <section class="bp-panel">
-            <div class="bp-panel-pad">
+            <div class="p-5 sm:p-6">
                 <div class="mb-4 flex flex-wrap gap-2">
                     <span class="badge {{ $statusBadge['class'] }} rounded-full text-sm font-semibold">
                         {{ $statusBadge['label'] }}
@@ -107,14 +107,14 @@
                         </div>
 
                         @if ($participantItems->isEmpty())
-                            <div class="bp-empty-state text-center">
+                            <div class="rounded-2xl border border-dashed border-base-300 bg-base-100/70 p-4 text-center text-base-content/65">
                                 {{ __('Diesem Besuch sind noch keine Teilnehmenden zugeordnet.') }}
                             </div>
                         @else
-                            <div class="bp-section-stack">
+                            <div class="grid gap-4">
                                 @foreach ($participantItems as $participant)
                                     <details class="bp-subpanel group" @if ($loop->first) open @endif>
-                                        <summary class="flex cursor-pointer list-none items-center justify-between gap-3 bp-subpanel-pad">
+                                        <summary class="flex cursor-pointer list-none items-center justify-between gap-3 px-4 py-3">
                                             <div class="min-w-0">
                                                 <div class="flex flex-wrap items-center gap-2">
                                                     <span class="font-medium text-base-content">{{ $participant['name'] }}</span>
@@ -132,7 +132,7 @@
                                             </svg>
                                         </summary>
 
-                                        <div class="border-t border-base-300 bp-panel-pad-tight">
+                                        <div class="border-t border-base-300 p-4 sm:p-5">
                                             <div class="{{ $detailGridClass }}">
                                                 <div class="{{ $detailCardClass }}">
                                                     <div class="{{ $detailLabelClass }}">{{ __('E-Mail') }}</div>
@@ -174,10 +174,10 @@
 
                     <div class="grid gap-4">
                         <details class="bp-subpanel" open>
-                            <summary class="cursor-pointer list-none bp-subpanel-pad text-base font-semibold text-base-content">
+                            <summary class="cursor-pointer list-none px-4 py-3 text-base font-semibold text-base-content">
                                 {{ __('Termin verschieben') }}
                             </summary>
-                            <div class="border-t border-base-300 bp-panel-pad-tight">
+                            <div class="border-t border-base-300 p-4 sm:p-5">
                                 <form method="POST" action="{{ route('portal.visits.reschedule', $visit) }}" class="grid gap-4">
                                     @csrf
                                     @method('PATCH')
@@ -203,7 +203,7 @@
                             </div>
                         </details>
 
-                        <div class="bp-subpanel bp-subpanel-pad">
+                        <div class="bp-subpanel p-4">
                             <div class="mb-3 text-base font-semibold text-base-content">{{ __('Terminstatus') }}</div>
 
                             @if ($visit->status === 'canceled' || filled($visit->canceled_at))

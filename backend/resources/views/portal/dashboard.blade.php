@@ -50,7 +50,7 @@
                                             </div>
                                         </div>
 
-                                        <span class="bp-status-pill {{ $visit['status_class'] }} shrink-0 px-3 py-1.5 text-[0.77rem]">
+                                        <span class="badge {{ $visit['status_class'] }} shrink-0 rounded-full px-3 py-1.5 text-[0.77rem] font-semibold">
                                             {{ $visit['status_label'] }}
                                         </span>
                                     </div>

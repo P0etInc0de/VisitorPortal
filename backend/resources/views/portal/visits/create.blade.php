@@ -226,7 +226,7 @@
             @endif
 
             <section class="bp-panel">
-                <div class="bp-panel-pad">
+                <div class="p-5 sm:p-6">
                     <div class="grid gap-6 xl:grid-cols-[1.55fr_0.95fr]">
                         <div class="space-y-5">
                             <div class="grid gap-5 xl:grid-cols-12">
@@ -370,7 +370,7 @@
             </section>
 
             <section class="bp-panel">
-                <div class="bp-panel-pad">
+                <div class="p-5 sm:p-6">
                     <div>
                         <h2 class="text-2xl font-semibold tracking-tight text-base-content">
                             {{ __('Besucher / Teilnehmende') }}
@@ -378,16 +378,16 @@
                     </div>
 
                     <div class="mt-4 bp-subpanel">
-                        <div class="bp-panel-pad-tight bp-section-stack">
+                        <div class="grid gap-4 p-4 sm:p-5">
                             <template x-if="participants.length === 0">
-                                <div class="bp-empty-state">
+                                <div class="rounded-2xl border border-dashed border-base-300 bg-base-100/70 p-4 text-base-content/65">
                                     {{ __('Noch keine Teilnehmenden hinzugefügt.') }}
                                 </div>
                             </template>
 
-                            <div class="bp-section-stack">
+                            <div class="grid gap-4">
                                 <template x-for="(participant, index) in participants" :key="`participant-${index}`">
-                                    <div class="bp-subpanel bp-subpanel-pad">
+                                    <div class="bp-subpanel p-4">
                                         <div class="flex flex-wrap items-center justify-between gap-3">
                                             <div class="min-w-0">
                                                 <div class="flex flex-wrap items-center gap-2">
@@ -450,7 +450,7 @@
                                 </template>
                             </div>
 
-                            <div x-show="addingParticipant" x-collapse class="bp-empty-state">
+                            <div x-show="addingParticipant" x-collapse class="rounded-2xl border border-dashed border-base-300 bg-base-100/70 p-4 text-base-content/65">
                                 <label class="form-control">
                                     <div class="label px-0 pb-2">
                                         <span class="label-text text-sm font-medium text-base-content">
