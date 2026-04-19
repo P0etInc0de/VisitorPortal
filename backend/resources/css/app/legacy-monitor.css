@@ -243,11 +243,6 @@
 }
 
 @media (max-width: 1023px) {
-    .bp-page-header {
-        flex-direction: column;
-        align-items: flex-start;
-    }
-
     .bp-monitor-side-panel {
         order: -1;
     }
@@ -276,11 +271,5 @@
 
     .bp-monitor-visit-company {
         font-size: 1rem;
-    }
-}
-
-@media (min-width: 1024px) {
-    .bp-page {
-        padding-block: 1.2rem 1.6rem;
     }
 }

@@ -1,8 +1,4 @@
 /* App shell */
-.bp-page {
-    padding-block: 1.5rem 2rem;
-}
-
 .bp-sidebar {
     background: var(--bp-surface-strong);
     display: flex;
@@ -84,13 +80,6 @@
         position: static;
         min-height: auto;
     }
-}
-
-.bp-page-header {
-    display: flex;
-    align-items: flex-start;
-    justify-content: space-between;
-    gap: 1rem;
 }
 
 .bp-page-title {

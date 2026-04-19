@@ -1,6 +1,6 @@
 <x-app-layout>
     <x-slot name="header">
-        <div class="bp-page-header">
+        <div class="flex flex-col items-start gap-4 lg:flex-row lg:justify-between">
             <div>
                 <h1 class="bp-page-title">{{ __('Meine Berechtigungen') }}</h1>
             </div>
