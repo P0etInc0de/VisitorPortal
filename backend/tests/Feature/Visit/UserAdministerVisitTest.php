@@ -70,7 +70,7 @@ class UserAdministerVisitTest extends TestCase
         // create necessary instances
         $visitTitle = 'Test Visit';
 
-        $participant = VisitorFactory::new()->create();
+        $participant = Visitor::Factory()->create();
 
         $user = User::factory()->create();
 
