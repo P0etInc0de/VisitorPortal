@@ -14,9 +14,9 @@ class VisitManagementTest extends TestCase
     public function test_visit_can_be_created_with_multiple_participants(): void
     {
         $user = User::factory()->create();
-		$user->assignRole('user');
+        $user->assignRole('user');
         $responsible = User::factory()->create();
-		$responsibleUser->assignRole('user');
+        $responsibleUser->assignRole('user');
 
         $response = $this
             ->actingAs($user)
