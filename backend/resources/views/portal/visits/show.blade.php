@@ -44,7 +44,7 @@
     <x-slot name="header">
         <div class="flex flex-wrap items-start justify-between gap-4">
             <div>
-                <h1 class="bp-screen-title">{{ $visit->display_title }}</h1>
+                <h1 class="text-4xl font-bold leading-none tracking-tight lg:text-5xl">{{ $visit->display_title }}</h1>
             </div>
 
             <div class="flex flex-wrap gap-3">

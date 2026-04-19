@@ -24,7 +24,7 @@
 
     <div class="min-w-0 xl:ml-72">
         @if (isset($header))
-            <header class="relative z-20 border-b border-base-300/70 bp-topbar-surface">
+            <header class="relative z-20 border-b border-base-300/70 bp-topbar-surface [&_.btn]:min-h-11">
                 <div class="mx-auto max-w-7xl px-4 py-5 sm:px-6 lg:px-8">
                     {{ $header }}
                 </div>

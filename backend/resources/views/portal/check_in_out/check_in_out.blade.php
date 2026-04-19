@@ -2,7 +2,7 @@
     <x-slot name="header">
         <div class="flex items-start justify-between gap-4">
             <div>
-                <h1 class="bp-screen-title">{{ __('Besucher Ein- oder Auschecken') }}</h1>
+                <h1 class="text-4xl font-bold leading-none tracking-tight lg:text-5xl">{{ __('Besucher Ein- oder Auschecken') }}</h1>
             </div>
         </div>
     </x-slot>

@@ -2,7 +2,7 @@
     <x-slot name="header">
         <div class="flex flex-col items-start gap-4 lg:flex-row lg:justify-between">
             <div>
-                <h1 class="bp-page-title">{{ __('Meine Berechtigungen') }}</h1>
+                <h1 class="text-3xl font-bold tracking-tight md:text-4xl">{{ __('Meine Berechtigungen') }}</h1>
             </div>
         </div>
     </x-slot>
