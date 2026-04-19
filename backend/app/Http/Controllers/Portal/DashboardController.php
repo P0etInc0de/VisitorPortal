@@ -13,7 +13,7 @@ class DashboardController extends Controller
     public function index(Request $request): View
     {
         $user = $request->user();
-		if(!($user->can('ViewAny:Visit') || $user->can('ViewDepartment:Visit') || $user->can('ViewOwn:Visit')))
+		if(!($user->can('ViewAny:Visit') || $user->can('ViewDepartment:Visit') || $user->can('ViewOwn:Visit') || $user->hasRole('welcome monitor')))
 		{
 			abort(403);
 		}

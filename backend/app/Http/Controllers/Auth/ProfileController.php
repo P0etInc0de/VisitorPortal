@@ -13,10 +13,12 @@ use Illuminate\View\View;
 class ProfileController extends Controller
 {
     /**
-     * Display the user's profile form.
+     * Display the user's profile form. !! Why is it called edit? !!
      */
     public function edit(Request $request): View
     {
+		$this->authorize('view', $request->user());
+
         return view('profile.edit', [
             'user' => $request->user(),
         ]);
@@ -27,6 +29,8 @@ class ProfileController extends Controller
      */
     public function update(ProfileUpdateRequest $request): RedirectResponse
     {
+		$this->authorize('update', $request->user());
+
         $request->user()->fill($request->validated());
 
         if ($request->user()->isDirty('email')) {
@@ -43,6 +47,8 @@ class ProfileController extends Controller
      */
     public function destroy(Request $request): RedirectResponse
     {
+		$this->authorize('delete', $request->user());
+
         $request->validateWithBag('userDeletion', [
             'password' => ['required', 'current_password'],
         ]);
