@@ -28,6 +28,11 @@
     }));
 
     $statusBadge = $visitStatus ?? ['label' => __('Geplant'), 'class' => 'badge-warning badge-outline'];
+    $metaChipClass = 'inline-flex min-h-[2.15rem] items-center rounded-full border border-[color:var(--bp-border)] bg-white/90 px-3 text-[0.92rem] text-base-content';
+    $detailGridClass = 'grid gap-3 sm:grid-cols-2 xl:grid-cols-3';
+    $detailCardClass = 'rounded-2xl border border-[color:var(--bp-border)] bg-white/90 px-4 py-3';
+    $detailLabelClass = 'text-[0.75rem] font-medium uppercase tracking-[0.04em] text-base-content/55';
+    $detailValueClass = 'mt-1 text-sm font-medium text-base-content';
     $formatParticipantDateTime = function ($value, $fallback = '-') {
         return filled($value)
             ? \Illuminate\Support\Carbon::parse($value)->format('d.m.Y H:i')
@@ -50,7 +55,7 @@
         </div>
     </x-slot>
 
-    <div class="bp-content bp-visit-show">
+    <div class="grid min-w-0 gap-5">
         @if (session('status'))
             <div class="alert alert-success mb-4 rounded-2xl">
                 <span>{{ session('status') }}</span>
@@ -59,43 +64,43 @@
 
         <section class="bp-panel">
             <div class="bp-panel-pad">
-                <div class="bp-visit-show-meta">
+                <div class="mb-4 flex flex-wrap gap-2">
                     <span class="badge {{ $statusBadge['class'] }} rounded-full text-sm font-semibold">
                         {{ $statusBadge['label'] }}
                     </span>
 
-                    <span class="bp-visit-show-chip">
+                    <span class="{{ $metaChipClass }}">
                         {{ optional($visit->scheduled_from)->format('d.m.Y H:i') ?: '-' }}
                         @if ($visit->scheduled_until)
                             · {{ $visit->scheduled_until->format('H:i') }}
                         @endif
                     </span>
 
-                    <span class="bp-visit-show-chip">
+                    <span class="{{ $metaChipClass }}">
                         {{ __('Host') }}: {{ $visit->host?->name ?: '-' }}
                     </span>
 
-                    <span class="bp-visit-show-chip">
+                    <span class="{{ $metaChipClass }}">
                         {{ __('Empfang') }}: {{ $visit->responsibleUser?->name ?: '-' }}
                     </span>
 
-                    <span class="bp-visit-show-chip">
+                    <span class="{{ $metaChipClass }}">
                         {{ __('Teilnehmende') }}: {{ $visit->participant_count }}
                     </span>
 
-                    <span class="bp-visit-show-chip">
+                    <span class="{{ $metaChipClass }}">
                         {{ __('Offene Badges') }}: {{ $visit->badge_pending_count }}
                     </span>
                 </div>
 
                 @if (!empty($visit->notes))
-                    <div class="bp-visit-show-note">
+                    <div class="mb-4 rounded-[1.1rem] border border-[color:var(--bp-border)] bg-white/75 px-4 py-3 text-base-content/80">
                         {{ $visit->notes }}
                     </div>
                 @endif
 
                 <div class="grid gap-4 xl:grid-cols-[minmax(0,1fr)_340px]">
-                    <div class="bp-visit-show-participant">
+                    <div class="min-w-0">
                         <div class="mb-3 flex items-center justify-between gap-3">
                             <h2 class="text-xl font-semibold tracking-tight text-base-content">{{ __('Teilnehmende') }}</h2>
                             <span class="text-sm text-base-content/60">{{ __('Kompakte Liste, Details bei Bedarf') }}</span>
@@ -128,34 +133,34 @@
                                         </summary>
 
                                         <div class="border-t border-base-300 bp-panel-pad-tight">
-                                            <div class="bp-detail-grid">
-                                                <div class="bp-detail-card">
-                                                    <div class="bp-detail-label">{{ __('E-Mail') }}</div>
-                                                    <div class="bp-detail-value">{{ $participant['email'] ?: '–' }}</div>
+                                            <div class="{{ $detailGridClass }}">
+                                                <div class="{{ $detailCardClass }}">
+                                                    <div class="{{ $detailLabelClass }}">{{ __('E-Mail') }}</div>
+                                                    <div class="{{ $detailValueClass }}">{{ $participant['email'] ?: '–' }}</div>
                                                 </div>
-                                                <div class="bp-detail-card">
-                                                    <div class="bp-detail-label">{{ __('Telefon') }}</div>
-                                                    <div class="bp-detail-value">{{ $participant['phone'] ?: '–' }}</div>
+                                                <div class="{{ $detailCardClass }}">
+                                                    <div class="{{ $detailLabelClass }}">{{ __('Telefon') }}</div>
+                                                    <div class="{{ $detailValueClass }}">{{ $participant['phone'] ?: '–' }}</div>
                                                 </div>
-                                                <div class="bp-detail-card">
-                                                    <div class="bp-detail-label">{{ __('Firma') }}</div>
-                                                    <div class="bp-detail-value">{{ $participant['company'] ?: '–' }}</div>
+                                                <div class="{{ $detailCardClass }}">
+                                                    <div class="{{ $detailLabelClass }}">{{ __('Firma') }}</div>
+                                                    <div class="{{ $detailValueClass }}">{{ $participant['company'] ?: '–' }}</div>
                                                 </div>
-                                                <div class="bp-detail-card">
-                                                    <div class="bp-detail-label">{{ __('Badge') }}</div>
-                                                    <div class="bp-detail-value">
+                                                <div class="{{ $detailCardClass }}">
+                                                    <div class="{{ $detailLabelClass }}">{{ __('Badge') }}</div>
+                                                    <div class="{{ $detailValueClass }}">
                                                         {{ $formatParticipantDateTime($participant['badge_printed_at'], __('offen')) }}
                                                     </div>
                                                 </div>
-                                                <div class="bp-detail-card">
-                                                    <div class="bp-detail-label">{{ __('Check-in') }}</div>
-                                                    <div class="bp-detail-value">
+                                                <div class="{{ $detailCardClass }}">
+                                                    <div class="{{ $detailLabelClass }}">{{ __('Check-in') }}</div>
+                                                    <div class="{{ $detailValueClass }}">
                                                         {{ $formatParticipantDateTime($participant['checked_in_at']) }}
                                                     </div>
                                                 </div>
-                                                <div class="bp-detail-card">
-                                                    <div class="bp-detail-label">{{ __('Check-out') }}</div>
-                                                    <div class="bp-detail-value">
+                                                <div class="{{ $detailCardClass }}">
+                                                    <div class="{{ $detailLabelClass }}">{{ __('Check-out') }}</div>
+                                                    <div class="{{ $detailValueClass }}">
                                                         {{ $formatParticipantDateTime($participant['checked_out_at']) }}
                                                     </div>
                                                 </div>
@@ -167,13 +172,13 @@
                         @endif
                     </div>
 
-                    <div class="bp-section-stack bp-visit-show-side">
+                    <div class="grid gap-4">
                         <details class="bp-subpanel" open>
                             <summary class="cursor-pointer list-none bp-subpanel-pad text-base font-semibold text-base-content">
                                 {{ __('Termin verschieben') }}
                             </summary>
                             <div class="border-t border-base-300 bp-panel-pad-tight">
-                                <form method="POST" action="{{ route('portal.visits.reschedule', $visit) }}" class="bp-form-fields">
+                                <form method="POST" action="{{ route('portal.visits.reschedule', $visit) }}" class="grid gap-4">
                                     @csrf
                                     @method('PATCH')
 

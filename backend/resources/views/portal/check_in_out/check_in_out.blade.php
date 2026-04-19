@@ -53,8 +53,8 @@
         </div>
     @endif
 
-    <div class="bp-content bp-checkin-page" x-data="{ selectedVisitor: { name: '', email: '' } }">
-        <section class="bp-main-grid bp-main-grid-wide">
+    <div class="grid min-w-0 gap-5" x-data="{ selectedVisitor: { name: '', email: '' } }">
+        <section class="grid gap-5">
             <article class="bp-panel">
                 <div class="bp-panel-pad">
                     <div>
@@ -95,7 +95,7 @@
                                 </label>
                             </div>
 
-                            <div class="mt-6 bp-action-row justify-end">
+                            <div class="mt-6 flex flex-wrap items-center justify-end gap-3">
                                 <button type="submit" name="action" value="check_out" class="btn btn-outline">
                                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
@@ -116,7 +116,7 @@
             </article>
         </section>
 
-        <section class="bp-main-grid bp-main-grid-wide">
+        <section class="grid gap-5">
             <article class="bp-panel">
                 <div class="bp-panel-pad">
                     <div class="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
@@ -132,7 +132,7 @@
                         </a>
                     </div>
 
-                    <div class="bp-section-stack">
+                    <div class="grid gap-4">
                         @foreach ($visits as $visit)
                             @php
                                 $visitStatus = $visit->status instanceof \App\Enums\VisitStatusEnum
@@ -150,7 +150,7 @@
 
                             <article x-data="{ open: false }" class="bp-subpanel">
                                 <div
-                                    class="bp-checkin-visit-row flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between cursor-pointer"
+                                    class="cursor-pointer rounded-[1.1rem] px-4 py-4 flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between"
                                     @click="open = !open"
                                 >
                                     <div class="flex gap-4">
@@ -197,7 +197,7 @@
                                     </div>
                                 </div>
 
-                                <div x-show="open" x-transition class="border-t border-base-300 bp-panel-pad-tight bp-section-stack">
+                                <div x-show="open" x-transition class="grid gap-4 border-t border-base-300 px-4 py-4 sm:px-5">
                                     @foreach ($visit->visitors as $visitor)
                                         @php
                                             $visitorStatus = $visitor->status instanceof \App\Enums\VisitorStatusEnum
@@ -214,7 +214,7 @@
                                         @endphp
 
                                         <article
-                                            class="bp-subpanel bp-subpanel-pad cursor-pointer"
+                                            class="bp-subpanel cursor-pointer px-4 py-4"
                                             @click.stop='
                                                 selectedVisitor = {
                                                     name: @json($visitor->first_name . " " . $visitor->name),

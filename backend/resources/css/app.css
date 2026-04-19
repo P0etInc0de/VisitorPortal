@@ -6,13 +6,13 @@
 @source '../**/*.blade.php';
 @source '../**/*.js';
 
-/* Tailwind theme tokens */
+/* Theme tokens */
 @theme {
     --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
         'Segoe UI Symbol', 'Noto Color Emoji';
 }
 
-/* App design tokens */
+/* App tokens */
 :root {
     color-scheme: light;
     --bp-bg: #f3f5f9;
@@ -40,7 +40,7 @@
     --bp-header-offset: 6.15rem;
 }
 
-/* Document base */
+/* Base */
 html,
 body {
     min-height: 100%;
@@ -75,12 +75,12 @@ html.bp-ready body {
     min-height: 100vh;
 }
 
-/* Global selection */
+/* Selection */
 ::selection {
     background: rgba(79, 70, 229, 0.18);
 }
 
-/* Control system */
+/* Controls */
 .btn,
 .input,
 .select,
@@ -196,7 +196,7 @@ html.bp-ready body {
         0 0 0 1px rgba(79, 70, 229, 0.18);
 }
 
-/* Shell layout */
+/* Shell */
 .bp-page {
     padding-block: 1.5rem 2rem;
 }
@@ -299,17 +299,7 @@ html.bp-ready body {
     grid-template-columns: repeat(3, minmax(0, 1fr));
 }
 
-.bp-main-grid {
-    display: grid;
-    gap: 1.5rem;
-    grid-template-columns: minmax(0, 1.45fr) minmax(20rem, 0.72fr);
-}
-
-.bp-main-grid-wide {
-    grid-template-columns: minmax(0, 1.5fr) minmax(18rem, 0.6fr);
-}
-
-/* Shared status styles */
+/* Status */
 .bp-status-pill {
     display: inline-flex;
     align-items: center;
@@ -357,7 +347,7 @@ html.bp-ready body {
     border-color: rgba(169, 121, 28, 0.18);
 }
 
-/* Shared layout blocks */
+/* Shared blocks */
 @media (max-width: 1279px) {
     .bp-sidebar {
         position: static;
@@ -366,9 +356,7 @@ html.bp-ready body {
 }
 
 @media (max-width: 1023px) {
-    .bp-stat-grid,
-    .bp-main-grid,
-    .bp-main-grid-wide {
+    .bp-stat-grid {
         grid-template-columns: 1fr;
     }
 }
@@ -393,12 +381,7 @@ html.bp-ready body {
     line-height: 1.75;
 }
 
-.bp-toolbar {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.75rem;
-}
-
+/* Surfaces */
 .bp-panel {
     border: 1px solid var(--bp-border);
     border-radius: 1.5rem;
@@ -412,10 +395,6 @@ html.bp-ready body {
 
 .bp-panel-pad-tight {
     padding: 1rem 1.1rem;
-}
-
-.bp-panel-pad-compact {
-    padding: 0.85rem 1rem;
 }
 
 .bp-subpanel {
@@ -436,53 +415,12 @@ html.bp-ready body {
     color: rgba(31, 42, 68, 0.66);
 }
 
-.bp-form-stack {
-    display: grid;
-    gap: 1.25rem;
-}
-
-.bp-form-fields {
-    display: grid;
-    gap: 1rem;
-}
-
 .bp-section-stack {
     display: grid;
     gap: 1rem;
 }
 
-.bp-action-row {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: 0.75rem;
-}
-
-.bp-detail-grid {
-    display: grid;
-    gap: 0.75rem;
-    grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr));
-}
-
-.bp-detail-card {
-    border: 1px solid var(--bp-border);
-    border-radius: 1rem;
-    background: rgba(255, 255, 255, 0.88);
-    padding: 0.8rem 0.95rem;
-}
-
-.bp-detail-label {
-    font-size: 0.75rem;
-    color: rgba(31, 42, 68, 0.58);
-}
-
-.bp-detail-value {
-    margin-top: 0.2rem;
-    font-size: 0.92rem;
-    color: var(--bp-text);
-}
-
-/* Legacy monitor pages */
+/* Legacy monitor */
 .bp-monitor-display {
     position: relative;
     overflow: hidden;
@@ -769,13 +707,12 @@ html.bp-ready body {
     }
 
     .bp-content,
-    .bp-main-grid,
     .bp-stat-grid {
         gap: 1.1rem;
     }
 }
 
-/* Status tone helpers */
+/* Status text */
 .bp-status-success {
     color: var(--bp-success);
 }
@@ -792,46 +729,8 @@ html.bp-ready body {
     color: var(--bp-text-soft);
 }
 
-/* Portal forms and profile pages */
-.bp-visit-form,
-.bp-checkin-page,
-.bp-visit-show {
-    gap: 1.2rem;
-}
-
-.bp-visit-show-meta {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.55rem;
-    margin-bottom: 1rem;
-}
-
-.bp-visit-show-chip {
-    display: inline-flex;
-    align-items: center;
-    min-height: 2.15rem;
-    border: 1px solid var(--bp-border);
-    border-radius: 999px;
-    background: rgba(255, 255, 255, 0.9);
-    padding-inline: 0.8rem;
-    font-size: 0.92rem;
-    color: var(--bp-text);
-}
-
-.bp-visit-show-note {
-    margin-bottom: 1rem;
-    border: 1px solid var(--bp-border);
-    border-radius: 1.1rem;
-    background: rgba(255, 255, 255, 0.76);
-    padding: 0.9rem 1rem;
-    color: rgba(31, 42, 68, 0.82);
-}
-
-.bp-checkin-visit-row {
-    padding: 0.95rem 1rem;
-}
-
 /* Reception: all visits */
+/* Page shell */
 .bp-av-page {
     --bp-av-grid-columns: 1.85rem minmax(11rem, 1.28fr) minmax(10.4rem, 1.02fr) minmax(6.75rem, 0.7fr) minmax(5.8rem, 0.62fr) 3rem minmax(10rem, 1.06fr);
     --bp-av-participant-grid-columns: minmax(14rem, 1.55fr) minmax(10rem, 1.1fr) minmax(7rem, 0.95fr) minmax(5.25rem, 0.8fr) minmax(9rem, 0.92fr);
@@ -854,6 +753,7 @@ html.bp-ready body {
     box-shadow: none;
 }
 
+/* Row helpers */
 .bp-av-entry {
     overflow: hidden;
     border-bottom: 1px solid var(--bp-border);

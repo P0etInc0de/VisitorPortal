@@ -41,7 +41,7 @@
     </x-slot>
 
     <div
-        class="bp-content bp-visit-form"
+        class="grid min-w-0 gap-5"
         x-data="{
             beginDate: {{ \Illuminate\Support\Js::from($beginDate) }},
             beginTime: {{ \Illuminate\Support\Js::from($beginTime) }},
@@ -204,7 +204,7 @@
             },
         }"
     >
-        <form method="POST" action="{{ $formAction }}" class="bp-form-stack">
+        <form method="POST" action="{{ $formAction }}" class="grid gap-5">
             @csrf
             @if ($formMethod !== 'POST')
                 @method($formMethod)
@@ -554,7 +554,7 @@
                                         </label>
                                     </div>
 
-                                    <div class="mt-5 bp-action-row justify-end">
+                                    <div class="mt-5 flex flex-wrap items-center justify-end gap-3">
                                         <button type="button" class="btn btn-outline" @click="cancelAddParticipant()">
                                             {{ __('Verwerfen') }}
                                         </button>
@@ -585,7 +585,7 @@
                 </div>
             </section>
 
-            <div class="bp-action-row justify-end">
+            <div class="flex flex-wrap items-center justify-end gap-3">
                 <a href="{{ $isEdit ? route('portal.visits.show', $visit) : route('dashboard') }}" class="btn btn-outline">
                     {{ __('Abbrechen') }}
                 </a>
