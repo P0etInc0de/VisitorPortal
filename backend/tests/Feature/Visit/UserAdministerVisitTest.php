@@ -6,7 +6,6 @@ use App\Enums\VisitStatusEnum;
 use App\Models\User;
 use App\Models\Visit;
 use App\Models\Visitor;
-use Database\Factories\VisitorFactory;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
