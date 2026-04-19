@@ -15,14 +15,10 @@
 
             <div class="bp-av-table-body" x-ref="tableBody">
                 <div id="bp-av-visit-stack">
-                    @php
-                        $previousYear = null;
-                    @endphp
+                    @php $previousYear = null; @endphp
 
                     @forelse ($visits as $index => $visit)
-                        @php
-                            $yearLabel = $visit['year_label'] ?? __('Ohne Jahr');
-                        @endphp
+                        @php $yearLabel = $visit['year_label'] ?? __('Ohne Jahr'); @endphp
 
                         @if ($yearLabel !== $previousYear)
                             <div class="bp-av-year-divider"><span>{{ $yearLabel }}</span></div>

@@ -1,4 +1,4 @@
-<x-app-layout>
+<x-app-layout pageClass="bp-av-page-shell">
     <x-slot name="header">
         <div class="bp-screen-head bp-av-screen-head">
             <div>
@@ -6,8 +6,6 @@
             </div>
         </div>
     </x-slot>
-
-
 
     @livewire('reception.all-visits-page')
 </x-app-layout>

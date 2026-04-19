@@ -53,10 +53,10 @@
         </div>
     @endif
 
-    <div class="bp-content bp-check-page" x-data="{ selectedVisitor: { name: '', email: '' } }">
+    <div class="bp-content bp-checkin-page" x-data="{ selectedVisitor: { name: '', email: '' } }">
         <section class="bp-main-grid bp-main-grid-wide">
             <article class="card rounded-3xl border border-base-300 bg-base-100 shadow-sm">
-                <div class="card-body p-6 sm:p-8">
+                <div class="card-body">
                     <div>
                         <form method="post" action="{{ route('portal.check_in_out.store') }}">
                             @csrf
@@ -117,8 +117,8 @@
         </section>
 
         <section class="bp-main-grid bp-main-grid-wide">
-            <article class="card rounded-[1.75rem] border border-base-300 bg-base-100 shadow-sm">
-                <div class="card-body p-6 sm:p-8">
+            <article class="card rounded-2xl border border-base-300 bg-base-100 shadow-sm">
+                <div class="card-body">
                     <div class="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                         <h2 class="text-xl font-semibold tracking-tight text-base-content">
                             {{ __('Anstehende Besuche') }}
@@ -148,9 +148,9 @@
                                 };
                             @endphp
 
-                            <article x-data="{ open: false }" class="rounded-[1.5rem] border border-base-300 bg-base-100">
+                            <article x-data="{ open: false }" class="rounded-2xl border border-base-300 bg-base-100">
                                 <div
-                                    class="px-5 py-4 flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between cursor-pointer rounded-[1.5rem] bp-soft-surface"
+                                    class="bp-checkin-visit-row flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between cursor-pointer"
                                     @click="open = !open"
                                 >
                                     <div class="flex gap-4">
@@ -175,7 +175,7 @@
                                     </div>
 
                                     <div class="flex shrink-0 flex-col items-start gap-3 lg:items-end">
-                                        <span class="badge {{ $statusClassVisit }} rounded-full px-3 py-3 text-sm font-semibold">
+                                        <span class="badge {{ $statusClassVisit }} rounded-full text-sm font-semibold">
                                             {{ $visitStatus }}
                                         </span>
 
@@ -214,7 +214,7 @@
                                         @endphp
 
                                         <article
-                                            class="rounded-[1.25rem] border border-base-300 bg-base-100 px-4 py-3 cursor-pointer"
+                                            class="rounded-2xl border border-base-300 bg-base-100 px-4 py-3 cursor-pointer"
                                             @click.stop='
                                                 selectedVisitor = {
                                                     name: @json($visitor->first_name . " " . $visitor->name),
@@ -240,7 +240,7 @@
                                                 </div>
 
                                                 <div class="flex shrink-0 flex-col items-start gap-3 lg:items-end">
-                                                    <span class="badge {{ $statusClassVisitor }} rounded-full px-3 py-3 text-sm font-semibold">
+                                                    <span class="badge {{ $statusClassVisitor }} rounded-full text-sm font-semibold">
                                                         {{ $visitorStatus }}
                                                     </span>
 

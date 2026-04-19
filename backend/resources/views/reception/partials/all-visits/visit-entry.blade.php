@@ -1,11 +1,12 @@
 @php
-    $visitId = $visit['id'] ?? $index ?? null;
+    $visitId = (int) ($visit['id'] ?? $index ?? 0);
     $detailId = $detailId ?? ('bp-av-details-visit-'.$visitId);
-    $isExpanded = in_array((int) $visitId, array_map('intval', $expandedVisitIds ?? []), true);
-    $visitStatusLabel = (string) ($visit['status_label'] ?? ($visit['status']['label'] ?? ($visit['status'] ?? '')));
-    $visitStatusClass = trim(str_replace('bp-status-pill', '', (string) ($visit['status_class'] ?? ($visit['status']['class'] ?? ''))));
-    $participants = $visit['participants'] ?? array_merge($visit['visible_participants'] ?? [], $visit['hidden_participants'] ?? []);
-    $noteText = (string) ($visit['note_text'] ?? trim((string) ($visit['notes'] ?? ($visit['note'] ?? ''))));
+    $isExpanded = in_array($visitId, array_map('intval', $expandedVisitIds ?? []), true);
+    $participants = $visit['participants'] ?? [];
+    $noteText = trim((string) ($visit['note_text'] ?? ($visit['notes'] ?? '')));
+    $visitStatusLabel = (string) ($visit['status_label'] ?? ($visit['status'] ?? ''));
+    $visitStatusClass = trim((string) ($visit['status_class'] ?? ''));
+    $visitDateLabel = $visit['date_time_label'] ?? null;
 @endphp
 
 <article
@@ -13,7 +14,7 @@
     wire:key="visit-entry-{{ $visitId }}"
     x-data="{
         open: @js($isExpanded),
-        openUrl: @js($visit['open_url'] ?? route('portal.visits.show', $visit['id'])),
+        openUrl: @js($visit['open_url'] ?? route('portal.visits.show', $visitId)),
         clickTimer: null,
         queueToggle() {
             if (this.clickTimer) {
@@ -23,7 +24,7 @@
             this.clickTimer = window.setTimeout(() => {
                 this.$dispatch('bp-av-capture-scroll');
                 this.open = !this.open;
-                this.$wire.toggleExpanded({{ (int) $visitId }});
+                this.$wire.toggleExpanded({{ $visitId }});
                 this.clickTimer = null;
             }, 180);
         },
@@ -46,7 +47,7 @@
         @dblclick.stop.prevent="openVisit()"
     >
         <div class="bp-av-cell bp-av-cell-check" @click.stop>
-            <input type="checkbox" class="checkbox checkbox-sm bp-av-checkbox" name="selected_visits[]" value="{{ $visit['id'] ?? $index }}" aria-label="{{ __('Besuch auswählen') }}">
+            <input type="checkbox" class="checkbox checkbox-sm bp-av-checkbox" name="selected_visits[]" value="{{ $visitId }}" aria-label="{{ __('Besuch auswählen') }}">
         </div>
 
         <div class="bp-av-cell">
@@ -56,7 +57,7 @@
         </div>
 
         <div class="bp-av-cell">
-            <span class="bp-av-date-label">{{ $visit['date_time_label'] ?? '—' }}</span>
+            <span class="bp-av-date-label">{{ $visitDateLabel ?: '—' }}</span>
         </div>
 
         <div class="bp-av-cell">
@@ -72,7 +73,7 @@
         </div>
 
         <div class="bp-av-cell">
-            <span class="bp-av-count">{{ $visit['participants_count'] ?? $visit['participant_count'] ?? count($participants) }}</span>
+            <span class="bp-av-count">{{ $visit['participants_count'] ?? count($participants) }}</span>
         </div>
 
         <div class="bp-av-cell">

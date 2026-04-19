@@ -221,25 +221,26 @@ class AllVisitsPage extends Component
                     ->values()
                     ->all();
 
-                $scheduledFrom = $visit->scheduled_from;
-                $visitStatus = $this->resolveVisitStatusMeta((string) $visit->status);
+                $scheduledFrom = $visit->scheduled_from instanceof Carbon ? $visit->scheduled_from : null;
+                $status = $this->resolveVisitStatusMeta($visit->status);
                 $hostDisplay = trim(($visit->host?->first_name ?? '').' '.($visit->host?->name ?? ''));
 
                 return [
                     'id' => $visit->id,
                     'title' => $visit->title ?: __('Besuch'),
-                    'time' => optional($scheduledFrom)->format('H:i'),
-                    'date' => optional($scheduledFrom)->format('d.m.'),
-                    'scheduled_from' => optional($scheduledFrom)->format('d.m.Y H:i'),
+                    'time' => $scheduledFrom?->format('H:i'),
+                    'date' => $scheduledFrom?->format('d.m.'),
+                    'scheduled_from' => $scheduledFrom?->format('d.m.Y H:i'),
                     'scheduled_until' => optional($visit->scheduled_until)->format('d.m.Y H:i'),
                     'date_time_label' => $this->formatVisitDateTimeLabel($scheduledFrom),
                     'year_label' => $scheduledFrom?->format('Y') ?? __('Ohne Jahr'),
                     'host' => $hostDisplay,
                     'host_display' => $hostDisplay,
-                    'status_label' => $visitStatus['label'],
-                    'status_class' => $visitStatus['class'],
+                    'status' => $status['label'],
+                    'status_label' => $status['label'],
+                    'status_class' => $status['class'],
                     'notes' => $visit->notes,
-                    'note_text' => trim((string) ($visit->notes ?? '')),
+                    'note_text' => trim((string) $visit->notes),
                     'participants' => $participants,
                     'participants_count' => count($participants),
                     'open_url' => route('portal.visits.show', $visit->id),
@@ -283,41 +284,41 @@ class AllVisitsPage extends Component
         if (filled($pivot->checked_out_at)) {
             return [
                 'label' => __('Ausgecheckt'),
-                'class' => 'badge-neutral badge-outline',
+                'class' => 'bp-status-muted',
             ];
         }
 
         if (filled($pivot->checked_in_at)) {
             return [
                 'label' => __('Eingecheckt'),
-                'class' => 'badge-success badge-outline',
+                'class' => 'bp-status-success',
             ];
         }
 
         if (filled($pivot->badge_printed_at)) {
             return [
                 'label' => __('Badge bereit'),
-                'class' => 'badge-info badge-outline',
+                'class' => 'bp-status-success',
             ];
         }
 
         if ($visitStatus === VisitStatusEnum::Draft->value) {
             return [
                 'label' => __('Entwurf'),
-                'class' => 'badge-error badge-outline',
+                'class' => 'bp-status-muted',
             ];
         }
 
         if ($visitStatus === VisitStatusEnum::Canceled->value) {
             return [
                 'label' => __('Abgesagt'),
-                'class' => 'badge-neutral',
+                'class' => 'bp-status-danger',
             ];
         }
 
         return [
             'label' => __('Geplant'),
-            'class' => 'badge-warning badge-outline',
+            'class' => 'bp-status-warning',
         ];
     }
 
@@ -327,26 +328,11 @@ class AllVisitsPage extends Component
     private function resolveVisitStatusMeta(string $status): array
     {
         return match ($status) {
-            VisitStatusEnum::Draft->value => [
-                'label' => VisitStatusEnum::Draft->label(),
-                'class' => 'badge-error badge-outline',
-            ],
-            VisitStatusEnum::Completed->value => [
-                'label' => VisitStatusEnum::Completed->label(),
-                'class' => 'badge-success badge-outline',
-            ],
-            VisitStatusEnum::Canceled->value => [
-                'label' => VisitStatusEnum::Canceled->label(),
-                'class' => 'badge-neutral',
-            ],
-            VisitStatusEnum::Planned->value => [
-                'label' => VisitStatusEnum::Planned->label(),
-                'class' => 'badge-warning badge-outline',
-            ],
-            default => [
-                'label' => __($status),
-                'class' => '',
-            ],
+            VisitStatusEnum::Draft->value => ['label' => VisitStatusEnum::Draft->label(), 'class' => 'bp-status-muted'],
+            VisitStatusEnum::Planned->value => ['label' => VisitStatusEnum::Planned->label(), 'class' => 'bp-status-warning'],
+            VisitStatusEnum::Completed->value => ['label' => VisitStatusEnum::Completed->label(), 'class' => 'bp-status-success'],
+            VisitStatusEnum::Canceled->value => ['label' => VisitStatusEnum::Canceled->label(), 'class' => 'bp-status-danger'],
+            default => ['label' => __($status), 'class' => ''],
         };
     }
 
@@ -356,21 +342,7 @@ class AllVisitsPage extends Component
             return null;
         }
 
-        return $this->weekdayLabel($scheduledFrom).', '.$scheduledFrom->format('d.m.').' | '.$scheduledFrom->format('H:i').' '.__('Uhr');
-    }
-
-    private function weekdayLabel(Carbon $date): string
-    {
-        return match ($date->dayOfWeekIso) {
-            1 => 'Mo',
-            2 => 'Di',
-            3 => 'Mi',
-            4 => 'Do',
-            5 => 'Fr',
-            6 => 'Sa',
-            7 => 'So',
-            default => $date->isoFormat('dd'),
-        };
+        return $scheduledFrom->locale(app()->getLocale())->translatedFormat('D, d.m.').' | '.$scheduledFrom->format('H:i').' '.__('Uhr');
     }
 
     /**
@@ -388,7 +360,6 @@ class AllVisitsPage extends Component
 
         return match ($range) {
             'today' => [now()->startOfDay(), now()->endOfDay(), now()->toDateString(), now()->toDateString()],
-            'week' => [now()->startOfWeek(), now()->endOfWeek(), now()->startOfWeek()->toDateString(), now()->endOfWeek()->toDateString()],
             'next-week' => [
                 now()->copy()->addWeek()->startOfWeek(),
                 now()->copy()->addWeek()->endOfWeek(),
@@ -396,19 +367,17 @@ class AllVisitsPage extends Component
                 now()->copy()->addWeek()->endOfWeek()->toDateString(),
             ],
             'all' => [null, null, '', ''],
-            default => [$fromDate, $untilDate, $dateFromInput, $dateToInput],
+            default => [
+                now()->startOfWeek(),
+                now()->endOfWeek(),
+                now()->startOfWeek()->toDateString(),
+                now()->endOfWeek()->toDateString(),
+            ],
         };
     }
 
-    private function normalizeRange(?string $range): string
+    private function parseDateInput(string $value, bool $endOfDay = false): ?Carbon
     {
-        return in_array($range, ['today', 'week', 'next-week', 'all', 'custom'], true) ? (string) $range : 'week';
-    }
-
-    private function parseDateInput(?string $value, bool $endOfDay): ?Carbon
-    {
-        $value = trim((string) $value);
-
         if ($value === '') {
             return null;
         }
@@ -422,11 +391,20 @@ class AllVisitsPage extends Component
         return $endOfDay ? $date->endOfDay() : $date->startOfDay();
     }
 
+    private function normalizeRange(string $range): string
+    {
+        return array_key_exists($range, $this->ranges()) || $range === 'custom'
+            ? $range
+            : 'week';
+    }
+
     private function loadVisitParticipantPair(int $visitId, int $visitorId): Visit
     {
         return Visit::query()
             ->with([
-                'visitors' => fn ($query) => $query->whereKey($visitorId),
+                'visitors' => function ($query) use ($visitorId) {
+                    $query->where('visitors.id', $visitorId);
+                },
             ])
             ->findOrFail($visitId);
     }

@@ -41,7 +41,7 @@
     </x-slot>
 
     <div
-        class="bp-content bp-visit-form-page"
+        class="bp-content bp-visit-form"
         x-data="{
             beginDate: {{ \Illuminate\Support\Js::from($beginDate) }},
             beginTime: {{ \Illuminate\Support\Js::from($beginTime) }},
@@ -225,8 +225,8 @@
                 </div>
             @endif
 
-            <section class="card rounded-3xl border border-base-300 bg-base-100 shadow-sm">
-                <div class="card-body p-6 sm:p-7">
+            <section class="card rounded-2xl border border-base-300 bg-base-100 shadow-sm">
+                <div class="card-body">
                     <div class="grid gap-6 xl:grid-cols-[1.55fr_0.95fr]">
                         <div class="space-y-5">
                             <div class="grid gap-5 xl:grid-cols-12">
@@ -361,7 +361,7 @@
                                 </div>
                                 <textarea
                                     name="notes"
-                                    class="textarea textarea-bordered min-h-[17rem] w-full rounded-2xl @error('notes') textarea-error @enderror"
+                                    class="textarea textarea-bordered min-h-[11rem] w-full rounded-2xl @error('notes') textarea-error @enderror"
                                 >{{ old('notes', $visit->notes) }}</textarea>
                             </label>
                         </div>
@@ -369,15 +369,15 @@
                 </div>
             </section>
 
-            <section class="card rounded-3xl border border-base-300 bg-base-100 shadow-sm">
-                <div class="card-body p-6 sm:p-7">
+            <section class="card rounded-2xl border border-base-300 bg-base-100 shadow-sm">
+                <div class="card-body">
                     <div>
                         <h2 class="text-2xl font-semibold tracking-tight text-base-content">
                             {{ __('Besucher / Teilnehmende') }}
                         </h2>
                     </div>
 
-                    <div class="mt-6 rounded-[2rem] border border-base-300 bg-base-100">
+                    <div class="mt-6 rounded-2xl border border-base-300 bg-base-100">
                         <div class="space-y-4 p-5 sm:p-6">
                             <template x-if="participants.length === 0">
                                 <div class="rounded-2xl border border-dashed border-base-300 px-5 py-6 text-base-content/65">

@@ -9,40 +9,32 @@
 
     <div class="bp-profile-stack">
         <section class="bp-panel p-6 sm:p-7">
-            <h2 class="text-2xl font-bold tracking-tight text-base-content">
-                {{ $data['name'] }}
-            </h2>
-
-            <div class="mt-3 flex flex-wrap gap-2">
-                @foreach ($data['roles'] as $role)
-                    <span class="bp-role-pill">{{ $role }}</span>
-                @endforeach
+            <div class="flex flex-col gap-3">
+                <h2 class="text-2xl font-bold tracking-tight text-base-content">{{ $data['name'] }}</h2>
+                <div class="flex flex-wrap gap-2">
+                    @foreach ($data['roles'] as $role)
+                        <span class="badge badge-outline px-3 py-3 text-sm font-semibold">{{ $role }}</span>
+                    @endforeach
+                </div>
             </div>
         </section>
 
-        <section>
-            <div class="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
-                @forelse ($data['permissions'] as $resource => $permissions)
-                    <div class="bp-permission-card">
-                        <h3 class="mb-3 text-sm font-semibold uppercase tracking-[0.18em] text-base-content/45">
-                            {{ $resource }}
-                        </h3>
-
-                        <ul class="space-y-2">
-                            @foreach ($permissions as $permission)
-                                <li class="flex items-center gap-2 text-sm text-base-content/80">
-                                    <span class="text-primary">✓</span>
-                                    <span>{{ $permission }}</span>
-                                </li>
-                            @endforeach
-                        </ul>
-                    </div>
-                @empty
-                    <div class="bp-permission-card md:col-span-2 xl:col-span-3">
-                        <p class="bp-text-muted">{{ __('No permissions assigned.') }}</p>
-                    </div>
-                @endforelse
-            </div>
+        <section class="grid grid-cols-1 gap-4 xl:grid-cols-3">
+            @forelse ($data['permissions'] as $resource => $permissions)
+                <div class="bp-panel p-5 sm:p-6">
+                    <h3 class="mb-4 text-sm font-semibold uppercase tracking-[0.18em] text-base-content/55">{{ $resource }}</h3>
+                    <ul class="space-y-2.5">
+                        @foreach ($permissions as $permission)
+                            <li class="flex items-center gap-2 text-sm text-base-content/80">
+                                <span class="text-primary">✓</span>
+                                <span>{{ $permission }}</span>
+                            </li>
+                        @endforeach
+                    </ul>
+                </div>
+            @empty
+                <div class="bp-panel p-5 text-sm text-base-content/65">{{ __('Keine Berechtigungen zugewiesen.') }}</div>
+            @endforelse
         </section>
     </div>
 </x-app-layout>
