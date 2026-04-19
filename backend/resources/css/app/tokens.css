@@ -1,37 +1,18 @@
 /* App tokens */
 :root {
-    color-scheme: light;
-    --bp-bg: #f3f5f9;
-    --bp-surface: rgba(255, 255, 255, 0.94);
-    --bp-surface-strong: #ffffff;
     --bp-border: rgba(15, 23, 42, 0.08);
-    --bp-border-strong: rgba(15, 23, 42, 0.14);
     --bp-text: #1f2a44;
     --bp-text-soft: #627086;
-    --bp-accent: #4f46e5;
-    --bp-accent-hover: #4338ca;
-    --bp-accent-soft: rgba(79, 70, 229, 0.12);
-    --bp-success: #2f7d62;
-    --bp-warning: #a9791c;
-    --bp-muted: #667085;
-    --bp-danger: #c24141;
-    --bp-brand-ink: #111827;
-    --bp-brand-accent: #ff7a1a;
     --bp-control-height: 3rem;
     --bp-control-height-compact: 2.5rem;
     --bp-control-radius: 1rem;
     --bp-control-radius-compact: 0.95rem;
-    --bp-shadow: 0 16px 36px rgba(15, 23, 42, 0.05);
-    --bp-shadow-soft: 0 8px 20px rgba(15, 23, 42, 0.04);
-    --bp-header-offset: 6.15rem;
 }
 
 /*
  * DaisyUI v5 theme mapping.
- * Maps bp-* design tokens to DaisyUI's semantic color variables.
- * DaisyUI reads these from the active [data-theme] selector and uses
- * them to generate all component classes (.btn-primary, .btn-error, etc.).
- * Explicit *-content values ensure legible text without oklch auto-calculation.
+ * Semantic theme colors live on the active [data-theme] selector so DaisyUI
+ * can generate component variants like .btn-primary and .btn-error.
  */
 [data-theme="light"] {
     --color-primary:         #4f46e5;

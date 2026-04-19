@@ -18,13 +18,13 @@
     @livewireStyles
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
-<body class="min-h-screen text-base-content antialiased">
-<div class="min-h-screen bp-page-shell" x-data="{ navOpen: false }">
+<body class="min-h-screen bg-base-200 text-base-content antialiased">
+<div class="min-h-screen" x-data="{ navOpen: false }">
     @include('layouts.navigation')
 
     <div class="min-w-0 xl:ml-72">
         @if (isset($header))
-            <header class="relative z-20 border-b border-base-300/70 bp-topbar-surface [&_.btn]:min-h-11">
+            <header class="relative z-20 border-b border-base-300/70 bg-base-100 [&_.btn]:min-h-11">
                 <div class="mx-auto max-w-7xl px-4 py-5 sm:px-6 lg:px-8">
                     {{ $header }}
                 </div>

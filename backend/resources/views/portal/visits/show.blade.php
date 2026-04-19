@@ -28,9 +28,9 @@
     }));
 
     $statusBadge = $visitStatus ?? ['label' => __('Geplant'), 'class' => 'badge-warning badge-outline'];
-    $metaChipClass = 'inline-flex min-h-[2.15rem] items-center rounded-full border border-[color:var(--bp-border)] bg-white/90 px-3 text-[0.92rem] text-base-content';
+    $metaChipClass = 'inline-flex min-h-[2.15rem] items-center rounded-full border border-base-300 bg-base-100/90 px-3 text-[0.92rem] text-base-content';
     $detailGridClass = 'grid gap-3 sm:grid-cols-2 xl:grid-cols-3';
-    $detailCardClass = 'rounded-2xl border border-[color:var(--bp-border)] bg-white/90 px-4 py-3';
+    $detailCardClass = 'rounded-2xl border border-base-300 bg-base-100/90 px-4 py-3';
     $detailLabelClass = 'text-[0.75rem] font-medium uppercase tracking-[0.04em] text-base-content/55';
     $detailValueClass = 'mt-1 text-sm font-medium text-base-content';
     $formatParticipantDateTime = function ($value, $fallback = '-') {
@@ -94,7 +94,7 @@
                 </div>
 
                 @if (!empty($visit->notes))
-                    <div class="mb-4 rounded-[1.1rem] border border-[color:var(--bp-border)] bg-white/75 px-4 py-3 text-base-content/80">
+                    <div class="mb-4 rounded-[1.1rem] border border-base-300 bg-base-100/75 px-4 py-3 text-base-content/80">
                         {{ $visit->notes }}
                     </div>
                 @endif

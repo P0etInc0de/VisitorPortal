@@ -8,7 +8,7 @@
     </x-slot>
 
     <div class="grid gap-4">
-        <section class="grid gap-4 md:grid-cols-2 xl:grid-cols-3 lg:sticky lg:top-[calc(var(--bp-header-offset)+0.35rem)] lg:z-10 lg:bg-[linear-gradient(180deg,var(--bp-bg)_0%,var(--bp-bg)_78%,rgba(243,245,249,0)_100%)] lg:pb-1">
+        <section class="grid gap-4 md:grid-cols-2 xl:grid-cols-3 lg:sticky lg:top-24 lg:z-10 lg:bg-gradient-to-b lg:from-base-200 lg:via-base-200 lg:to-transparent lg:pb-1">
             @foreach ($stats as $stat)
                 <article class="bp-panel rounded-[1.2rem]">
                     <div class="p-4 sm:p-[1.05rem]">

@@ -1,13 +1,5 @@
 /* Base document */
-html,
 body {
-    min-height: 100%;
-    background: var(--bp-bg);
-    color: var(--bp-text);
-}
-
-body {
-    font-family: var(--font-sans);
     transition: opacity 140ms ease;
 }
 
@@ -23,17 +15,7 @@ html.bp-ready body {
     opacity: 1;
 }
 
-.bp-topbar-surface {
-    background: var(--bp-surface-strong) !important;
-    backdrop-filter: none !important;
-    -webkit-backdrop-filter: none !important;
-}
-
-.bp-page-shell {
-    min-height: 100vh;
-}
-
 /* Selection */
 ::selection {
-    background: rgba(79, 70, 229, 0.18);
+    background: color-mix(in srgb, var(--color-primary) 20%, transparent);
 }

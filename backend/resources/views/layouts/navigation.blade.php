@@ -41,7 +41,7 @@
     $canSeeAdmin = $hasAnyRole(['admin']);
 @endphp
 
-<div class="sticky top-0 z-30 border-b border-base-300/70 bp-topbar-surface [&_.btn]:min-h-11 lg:hidden">
+<div class="sticky top-0 z-30 border-b border-base-300/70 bg-base-100 [&_.btn]:min-h-11 lg:hidden">
     <div class="flex items-center justify-between px-4 py-4">
         <div class="flex min-w-0 items-center gap-3">
             <button
@@ -79,7 +79,7 @@
     </div>
 </div>
 
-<aside class="hidden w-72 border-r border-base-300/70 bp-topbar-surface [&_.btn]:min-h-11 lg:flex lg:flex-col lg:px-4 lg:pt-4 lg:pb-4 xl:fixed xl:inset-y-0 xl:left-0 xl:z-30 xl:min-h-screen">
+<aside class="hidden w-72 border-r border-base-300/70 bg-base-100 [&_.btn]:min-h-11 lg:flex lg:flex-col lg:px-4 lg:pt-4 lg:pb-4 xl:fixed xl:inset-y-0 xl:left-0 xl:z-30 xl:min-h-screen">
     <div class="border-b border-base-300/70 px-4 py-4">
         <a href="{{ route('dashboard') }}" class="flex flex-col items-start gap-3">
             @if ($hasLogo)

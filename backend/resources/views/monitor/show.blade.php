@@ -24,7 +24,7 @@
 
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
-<body class="min-h-screen bg-[var(--bp-bg)] text-base-content antialiased">
+<body class="min-h-screen bg-base-200 text-base-content antialiased">
     <main class="bp-monitor-display {{ $hasCustomBackground ? 'bp-monitor-display-with-image' : 'bp-monitor-display-default' }}"
         @if ($backgroundAsset)
             style="background-image: linear-gradient(135deg, color-mix(in srgb, var(--color-base-200) 78%, transparent), color-mix(in srgb, var(--color-base-100) 62%, transparent)), url('{{ $backgroundAsset }}');"
