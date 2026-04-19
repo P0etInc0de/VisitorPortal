@@ -7,81 +7,87 @@
         </div>
     </x-slot>
 
-    <div class="bp-content bp-dashboard-layout">
-        <section class="bp-stat-grid bp-dashboard-stats">
+    <div class="grid gap-4">
+        <section class="grid gap-4 md:grid-cols-2 xl:grid-cols-3 lg:sticky lg:top-[calc(var(--bp-header-offset)+0.35rem)] lg:z-10 lg:bg-[linear-gradient(180deg,var(--bp-bg)_0%,var(--bp-bg)_78%,rgba(243,245,249,0)_100%)] lg:pb-1">
             @foreach ($stats as $stat)
-                <article class="card bp-dashboard-stat-card rounded-[1.2rem] border border-base-300 bg-base-100 shadow-sm">
-                    <div class="card-body bp-dashboard-stat-body">
-                        <div class="bp-dashboard-stat-label">{{ $stat['label'] }}</div>
-                        <div class="bp-dashboard-stat-value">{{ $stat['value'] }}</div>
-                        <div class="bp-dashboard-stat-meta">{{ $stat['meta'] }}</div>
+                <article class="bp-panel rounded-[1.2rem]">
+                    <div class="p-4 sm:p-[1.05rem]">
+                        <div class="text-sm text-base-content/65">{{ $stat['label'] }}</div>
+                        <div class="mt-1.5 text-[clamp(1.8rem,1.25rem+0.7vw,2.5rem)] font-bold leading-none tracking-tight text-base-content">
+                            {{ $stat['value'] }}
+                        </div>
+                        <div class="mt-2 text-sm text-base-content/70">{{ $stat['meta'] }}</div>
                     </div>
                 </article>
             @endforeach
         </section>
 
-        <section class="bp-main-grid bp-dashboard-main-grid">
-            <article class="card bp-dashboard-list-card rounded-[1.35rem] border border-base-300 bg-base-100 shadow-sm">
-                <div class="card-body bp-dashboard-list-body">
-                    <div class="bp-card-header bp-dashboard-list-header">
-                        <h2 class="bp-card-title">{{ __('Anstehende Besuche') }}</h2>
+        <section class="grid items-start gap-4 xl:grid-cols-[minmax(0,1.45fr)_minmax(18rem,0.72fr)]">
+            <article class="bp-panel rounded-[1.35rem]">
+                <div class="p-4 sm:p-[1.05rem]">
+                    <div class="mb-3 flex items-center justify-between gap-4">
+                        <h2 class="text-[1.35rem] font-bold leading-tight tracking-tight text-base-content">
+                            {{ __('Anstehende Besuche') }}
+                        </h2>
                     </div>
 
-                    <div class="bp-dashboard-visit-list">
+                    <div class="grid gap-3">
                         @forelse ($visits as $visit)
-                            <article class="bp-visit-item bp-dashboard-visit-card">
-                                <div class="bp-visit-timebox bp-dashboard-timebox">
-                                    <div class="bp-visit-time bp-dashboard-time">{{ $visit['time'] }}</div>
-                                    <div class="bp-visit-date bp-dashboard-date">{{ $visit['date'] }}</div>
+                            <article class="grid gap-3 rounded-[1.1rem] border border-base-300 bg-base-100/95 p-4 xl:grid-cols-[5rem_minmax(0,1fr)_auto] xl:items-start xl:gap-3.5">
+                                <div class="flex flex-col self-stretch">
+                                    <div class="text-[1.22rem] font-bold leading-none tracking-tight text-base-content">{{ $visit['time'] }}</div>
+                                    <div class="mt-0.5 text-sm text-base-content/65">{{ $visit['date'] }}</div>
                                 </div>
 
-                                <div class="bp-visit-main bp-dashboard-visit-main">
-                                    <div class="bp-dashboard-visit-head">
+                                <div class="grid min-w-0 gap-1">
+                                    <div class="flex flex-col gap-2 xl:flex-row xl:items-start xl:justify-between">
                                         <div class="min-w-0">
-                                            <div class="bp-visit-title bp-dashboard-visit-title">{{ $visit['title'] }}</div>
-                                            <div class="bp-visit-meta bp-dashboard-visit-meta">
+                                            <div class="truncate text-base font-bold leading-tight tracking-tight text-base-content">
+                                                {{ $visit['title'] }}
+                                            </div>
+                                            <div class="mt-0.5 text-sm text-base-content/70">
                                                 {{ __('Host: :name', ['name' => $visit['host']]) }}
                                             </div>
                                         </div>
 
-                                        <span class="bp-status-pill {{ $visit['status_class'] }} bp-dashboard-status-pill">
+                                        <span class="bp-status-pill {{ $visit['status_class'] }} shrink-0 px-3 py-1.5 text-[0.77rem]">
                                             {{ $visit['status_label'] }}
                                         </span>
                                     </div>
 
                                     @if ($visit['participant_preview']->isNotEmpty() || $visit['remaining_participants'] > 0)
-                                        <div class="bp-dashboard-preview-row">
-                                            <div class="bp-dashboard-preview-list">
-                                                @foreach ($visit['participant_preview'] as $participantName)
-                                                    <span class="bp-dashboard-preview-chip">{{ $participantName }}</span>
-                                                @endforeach
+                                        <div class="mt-1 flex flex-wrap gap-1.5">
+                                            @foreach ($visit['participant_preview'] as $participantName)
+                                                <span class="inline-flex items-center rounded-full border border-base-300 bg-base-200/60 px-2.5 py-1 text-xs leading-tight text-base-content/75">
+                                                    {{ $participantName }}
+                                                </span>
+                                            @endforeach
 
-                                                @if ($visit['remaining_participants'] > 0)
-                                                    <span class="bp-dashboard-preview-more">
-                                                        {{ __('+:count weitere', ['count' => $visit['remaining_participants']]) }}
-                                                    </span>
-                                                @endif
-                                            </div>
+                                            @if ($visit['remaining_participants'] > 0)
+                                                <span class="inline-flex items-center rounded-full border border-base-300 bg-base-200/60 px-2.5 py-1 text-xs leading-tight text-base-content/75">
+                                                    {{ __('+:count weitere', ['count' => $visit['remaining_participants']]) }}
+                                                </span>
+                                            @endif
                                         </div>
                                     @elseif ($visit['participant_count'] > 0)
-                                        <div class="bp-dashboard-preview-empty">
+                                        <div class="mt-1 text-xs text-base-content/65">
                                             {{ __(':count Teilnehmende', ['count' => $visit['participant_count']]) }}
                                         </div>
                                     @endif
 
                                     @if (filled($visit['note']))
-                                        <div class="bp-visit-note bp-dashboard-note-text">{{ $visit['note'] }}</div>
+                                        <div class="mt-1 text-sm leading-6 text-base-content/85">{{ $visit['note'] }}</div>
                                     @endif
                                 </div>
 
-                                <div class="bp-visit-actions bp-dashboard-actions">
+                                <div class="grid justify-items-start gap-2 xl:justify-items-end">
                                     <a href="{{ route('portal.visits.show', $visit['visit']) }}" class="btn btn-outline btn-sm rounded-xl">
                                         {{ __('Details öffnen') }}
                                     </a>
                                 </div>
                             </article>
                         @empty
-                            <div class="rounded-[1rem] border border-dashed border-base-300 bg-base-100 px-4 py-6 text-sm text-base-content/65">
+                            <div class="rounded-[1rem] border border-dashed border-base-300 bg-base-100/80 px-4 py-6 text-sm text-base-content/65">
                                 {{ __('Aktuell sind keine anstehenden Besuche vorhanden.') }}
                             </div>
                         @endforelse
@@ -89,15 +95,19 @@
                 </div>
             </article>
 
-            <aside class="card bp-dashboard-notes-card rounded-[1.35rem] border border-base-300 bg-base-100 shadow-sm">
-                <div class="card-body bp-dashboard-notes-body">
-                    <h2 class="bp-card-title bp-dashboard-notes-title">{{ __('Notizen') }}</h2>
+            <aside class="bp-panel rounded-[1.35rem]">
+                <div class="p-4 sm:p-[1.05rem]">
+                    <h2 class="mb-3 text-[1.35rem] font-bold leading-tight tracking-tight text-base-content">
+                        {{ __('Notizen') }}
+                    </h2>
 
-                    <div class="bp-dashboard-notes-list">
+                    <div class="grid gap-3">
                         @forelse ($notes as $note)
-                            <div class="bp-dashboard-note-item">{{ $note }}</div>
+                            <div class="rounded-2xl border border-base-300 bg-base-100/95 px-4 py-3 text-sm leading-6 text-base-content">
+                                {{ $note }}
+                            </div>
                         @empty
-                            <div class="bp-dashboard-note-empty">
+                            <div class="rounded-2xl border border-dashed border-base-300 bg-base-100/80 px-4 py-3 text-sm leading-6 text-base-content/65">
                                 {{ __('Aktuell gibt es keine offenen Notizen.') }}
                             </div>
                         @endforelse

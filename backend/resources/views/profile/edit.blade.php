@@ -7,20 +7,20 @@
         </div>
     </x-slot>
 
-    <div class="bp-profile-stack">
-        <section class="bp-panel bp-panel-pad">
+    <div class="grid gap-5">
+        <section class="bp-panel p-5 sm:p-6">
             <div class="max-w-3xl">
                 @include('profile.partials.update-profile-information-form')
             </div>
         </section>
 
-        <section class="bp-panel bp-panel-pad">
+        <section class="bp-panel p-5 sm:p-6">
             <div class="max-w-3xl">
                 @include('profile.partials.update-password-form')
             </div>
         </section>
 
-        <section class="bp-panel bp-panel-pad">
+        <section class="bp-panel p-5 sm:p-6">
             <div class="max-w-3xl">
                 @include('profile.partials.delete-user-form')
             </div>

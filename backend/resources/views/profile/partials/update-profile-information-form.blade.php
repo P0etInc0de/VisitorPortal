@@ -9,7 +9,7 @@
         @csrf
     </form>
 
-    <form method="post" action="{{ route('profile.update') }}" class="mt-5 bp-form-stack">
+    <form method="post" action="{{ route('profile.update') }}" class="mt-5 grid gap-5">
         @csrf
         @method('patch')
 
@@ -25,7 +25,7 @@
             <x-input-error class="mt-2" :messages="$errors->get('email')" />
 
             @if ($user instanceof \Illuminate\Contracts\Auth\MustVerifyEmail && ! $user->hasVerifiedEmail())
-                <div class="mt-3 bp-inline-note">
+                <div class="mt-3 rounded-2xl border border-base-300 bg-base-100/80 p-4">
                     <p class="text-sm text-base-content/80">
                         {{ __('Ihre E-Mail-Adresse ist noch nicht verifiziert.') }}
                     </p>
@@ -43,7 +43,7 @@
             @endif
         </div>
 
-        <div class="bp-action-row">
+        <div class="flex flex-wrap items-center gap-3">
             <x-primary-button>{{ __('Speichern') }}</x-primary-button>
 
             @if (session('status') === 'profile-updated')
