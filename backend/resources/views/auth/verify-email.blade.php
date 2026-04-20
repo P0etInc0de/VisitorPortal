@@ -1,11 +1,11 @@
 <x-guest-layout>
-    <div class="bp-panel p-6 sm:p-7">
-        <div class="mb-5 text-sm leading-7 bp-text-muted">
-            {{ __('Thanks for signing up! Before getting started, could you verify your email address by clicking on the link we just emailed to you? If you didn't receive the email, we will gladly send you another.') }}
+    <div class="rounded-3xl border border-base-300 bg-base-100 p-6 shadow-sm sm:p-7">
+        <div class="mb-5 text-sm leading-7 text-base-content/70">
+            {{ __("Thanks for signing up! Before getting started, could you verify your email address by clicking on the link we just emailed to you? If you didn't receive the email, we will gladly send you another.") }}
         </div>
 
         @if (session('status') == 'verification-link-sent')
-            <div class="bp-inline-status mb-4 text-sm font-medium">
+            <div class="mb-4 text-sm font-medium text-success">
                 {{ __('A new verification link has been sent to the email address you provided during registration.') }}
             </div>
         @endif
@@ -14,15 +14,15 @@
             <form method="POST" action="{{ route('verification.send') }}">
                 @csrf
 
-                <x-primary-button>
+                <button type="submit" class="btn btn-primary">
                     {{ __('Resend Verification Email') }}
-                </x-primary-button>
+                </button>
             </form>
 
             <form method="POST" action="{{ route('logout') }}">
                 @csrf
 
-                <button type="submit" class="bp-link-inline text-sm">
+                <button type="submit" class="btn btn-ghost btn-sm text-base-content/70 hover:text-base-content">
                     {{ __('Log Out') }}
                 </button>
             </form>
