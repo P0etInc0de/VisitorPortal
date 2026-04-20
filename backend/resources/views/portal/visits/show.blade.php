@@ -16,7 +16,8 @@
         }
 
         return [
-            'name' => trim(($visitor->first_name ?? '') . ' ' . ($visitor->last_name ?? '')),
+            'name' => trim(($visitor->first_name ?? '') . ' ' . ($visitor->name ?? '')),
+            'title' => $visitor->title,
             'company' => $visitor->company,
             'email' => $visitor->email,
             'phone' => $visitor->phone,
