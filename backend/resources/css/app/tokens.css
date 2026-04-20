@@ -1,20 +1,9 @@
-/* App tokens */
-:root {
-    --bp-border: rgba(15, 23, 42, 0.08);
-    --bp-text: #1f2a44;
-    --bp-text-soft: #627086;
-    --bp-control-height: 3rem;
-    --bp-control-height-compact: 2.5rem;
-    --bp-control-radius: 1rem;
-    --bp-control-radius-compact: 0.95rem;
-}
-
-/*
- * DaisyUI v5 theme mapping.
- * Semantic theme colors live on the active [data-theme] selector so DaisyUI
- * can generate component variants like .btn-primary and .btn-error.
- */
+/* DaisyUI theme tokens */
 [data-theme="light"] {
+    --radius-selector: 1rem;
+    --radius-field: 1rem;
+    --radius-box: 1rem;
+
     --color-primary:         #4f46e5;
     --color-primary-content: #ffffff;
 
