@@ -13,5 +13,7 @@
 }
 
 /* App entry */
-@import './app/tokens.css';
+@import './themes/light.css';
+@import './themes/dark.css';
+@import './themes/acd.css';
 @import './app/base.css';
