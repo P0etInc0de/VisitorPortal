@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Monitor\UpdateMonitorRequest;
 use App\Models\Monitor;
 use App\Models\MonitorSlide;
+use App\Tasks\WelcomeMonitorAutoGeneration;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Request;
 
@@ -33,10 +35,8 @@ class MonitorController extends Controller
      * Display the specified resource.
      * (Show the Welcome Monitor)
      */
-    public function show(string $id)
+    public function show(Monitor $monitor)
     {
-        $monitor = Monitor::query()->findOrFail($id);
-
         return view('monitor.show')
             ->with('monitor', $monitor);
     }
@@ -45,9 +45,8 @@ class MonitorController extends Controller
      * Show the form for editing the specified resource.
      * Edit Monitor and See Monitor_Slide resource
      */
-    public function edit(string $id)
+    public function edit(Monitor $monitor)
     {
-        $monitor = Monitor::query()->findOrFail($id);
         $monitor_slides = MonitorSlide::query()->where('monitor_id', $monitor->id)->orderBy('monitor_slides.slide_number')->get();
 
         $response = response()->view('monitor.edit', ['monitor' => $monitor, 'monitor_slides' => $monitor_slides]);
@@ -63,18 +62,17 @@ class MonitorController extends Controller
      * Update the specified resource in storage.
      * Not needed yet
      */
-    public function update(UpdateMonitorRequest $request, string $id)
+    public function update(UpdateMonitorRequest $request, Monitor $monitor)
     {
         $validated = $request->validated();
 
-        // get current monitor
-        $monitor = Monitor::query()->findOrFail($id);
         $current_image_path = $monitor->image_path;
 
         // Check if image shall be deleted
         if (! empty($validated['deleteImage'])) {
             Storage::disk('public')->delete($current_image_path);
             $monitor->image_path = null;
+            Log::info('User ID '.auth()->id()." deleted background image for Monitor ID: {$monitor->id}");
         } elseif (! empty($request->file('image'))) {
             // Store the image inside storage/app/private/images
             $path = $request->file('image')->store('images', 'public');
@@ -83,15 +81,22 @@ class MonitorController extends Controller
             $validated['image_path'] = $path;
 
             // Delete old image
-
             if ($current_image_path != null) {
                 Storage::disk('public')->delete($current_image_path);
             }
+            Log::info('User ID '.auth()->id()." updated background image for Monitor ID: {$monitor->id}");
         }
+
+        if ($validated['auto_generation'] == 1) {
+            dispatch(new WelcomeMonitorAutoGeneration);
+        }
+
         // Update monitor
         $monitor->update($validated);
 
-        return redirect()->route('monitors.edit', $id)
+        Log::info('User ID '.auth()->id()." updated settings for Monitor ID: {$monitor->id}");
+
+        return redirect()->route('monitors.edit', $monitor)
             ->with('success', __('Monitor Einstellungen gespeichert'))
             ->header('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0');
     }

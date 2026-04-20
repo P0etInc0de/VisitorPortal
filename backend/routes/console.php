@@ -1,6 +1,7 @@
 <?php
 
 use App\Tasks\DailyVisitorReminder;
+use App\Tasks\WelcomeMonitorAutoGeneration;
 use Illuminate\Foundation\Inspiring;
 use Illuminate\Support\Facades\Artisan;
 
@@ -14,3 +15,4 @@ Artisan::command('inspire', function () {
  * Connect to mailhog to check if the Scheduler works
  */
 Schedule::call(new DailyVisitorReminder)->dailyAt('07:00')->description('DailyVisitorReminder');
+Schedule::call(new WelcomeMonitorAutoGeneration)->everyFiveMinutes()->description('WelcomeMonitorAutoGeneration');

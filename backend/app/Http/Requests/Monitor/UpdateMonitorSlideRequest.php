@@ -26,6 +26,7 @@ class UpdateMonitorSlideRequest extends FormRequest
         $maxSlide = MonitorSlide::max('slide_number');
 
         return [
+            'visitors' => ['nullable', 'json'],
             'heading' => 'required',
             'slide_number' => [
                 'required',

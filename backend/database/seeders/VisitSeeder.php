@@ -17,6 +17,7 @@ class VisitSeeder extends Seeder
         $this->createOrUpdateVisit(1, 2, Carbon::create(2027, 4, 4, 14, 0, 0), Carbon::create(2027, 4, 4, 15, 0, 0), VisitStatusEnum::Planned, 'Forza Meeting2');
         $this->createOrUpdateVisit(1, 2, Carbon::now()->setHour(13)->setMinute(0), Carbon::now()->setHour(14)->setMinute(0), VisitStatusEnum::Planned, 'Forza Meeting1');
         $this->createOrUpdateVisit(2, 1, Carbon::yesterday()->setHour(10)->setMinute(0), Carbon::yesterday()->setHour(11)->setMinute(30), VisitStatusEnum::Canceled, 'Piratenpizza im Mountainbikepark');
+        $this->createOrUpdateVisit(2, 1, Carbon::now(), Carbon::tomorrow()->setHour(11)->setMinute(30), VisitStatusEnum::Planned, 'Piratenpizza im Mountainbikepark');
     }
 
     private function createOrUpdateVisit(int $userId, int $respUserId, Carbon $from, Carbon $until, VisitStatusEnum $status, ?string $notes): void
@@ -37,7 +38,7 @@ class VisitSeeder extends Seeder
                 'notes' => $notes,
             ]);
 
-            $visit->visitors()->attach([1, 2], [
+            $visit->visitors()->attach([1, 2, 1, 1, 1, 1, 1, 1], [
                 'checked_in_at' => $from,
                 'badge_printed_at' => Carbon::now(),
             ]);

@@ -9,6 +9,7 @@ use App\Http\Controllers\Reception\DashboardController as ReceptionDashboardCont
 use App\Http\Controllers\Reception\VisitController as ReceptionVisitController;
 use App\Http\Controllers\Reception\VisitParticipantActionController;
 use App\Http\Controllers\UserPermissionsController;
+use App\Http\Middleware\CheckMonitorAutoGeneration;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -70,7 +71,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     });
 
     Route::resource('monitors', MonitorController::class);
-    Route::resource('monitor_slides', MonitorSlidesController::class);
+    Route::resource('monitors.slides', MonitorSlidesController::class)
+        ->middleware(CheckMonitorAutoGeneration::class);
 
     Route::get('/user-permissions', [UserPermissionsController::class, 'index'])->name('user-permissions');
 });

@@ -9,16 +9,10 @@ use App\Models\Monitor;
 use App\Models\MonitorSlide;
 use App\Models\Visit;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Log;
 
 class MonitorSlidesController extends Controller
 {
-    private $monitor;
-
-    public function __construct()
-    {
-        $this->monitor = Monitor::first();
-    }
-
     /**
      * Display a listing of the resource.
      */
@@ -27,11 +21,13 @@ class MonitorSlidesController extends Controller
     /**
      * Show the form for creating a new resource.
      */
-    public function create()
+    public function create(Monitor $monitor)
     {
-        $defaultSlideNumber = MonitorSlide::query()
-            ->where('monitor_id', $this->monitor->id)
-            ->max('monitor_slides.slide_number') + 1;
+        $currentMax = MonitorSlide::query()
+            ->where('monitor_id', $monitor->id)
+            ->max('monitor_slides.slide_number') ?? 0; // Default to 0 if null
+
+        $defaultSlideNumber = $currentMax + 1;
         $todayVisits = Visit::query()
             ->whereDate('visits.scheduled_from', Carbon::today())->with('visitors')
             ->orderBy('visits.scheduled_from')
@@ -40,7 +36,7 @@ class MonitorSlidesController extends Controller
         $todayVisitors = $todayVisits->pluck('visitors')->collapse()->unique('id');
 
         return view('monitorSlides.create')
-            ->with('monitor', $this->monitor)
+            ->with('monitor', $monitor)
             ->with('defaultSlideNumber', $defaultSlideNumber)
             ->with('todayVisitors', $todayVisitors)
             ->with('todayVisits', $todayVisits);
@@ -49,14 +45,16 @@ class MonitorSlidesController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(StoreMonitorSlideRequest $request)
+    public function store(StoreMonitorSlideRequest $request, Monitor $monitor)
     {
         $validated = $request->validated();
         $validated['visitors'] = json_decode($request->visitors, true) ?? [];
 
-        $this->monitor->monitorSlides()->create($validated);
+        $monitor_slide = $monitor->monitorSlides()->create($validated);
 
-        return redirect()->route('monitors.edit', $this->monitor)
+        Log::info('User ID '.auth()->id()." created Monitor-Slide with ID: {$monitor_slide->id}");
+
+        return redirect()->route('monitors.edit', $monitor)
             ->with('success', __('Neue Seite erstellt'));
     }
 
@@ -68,11 +66,8 @@ class MonitorSlidesController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(string $id)
+    public function edit(Monitor $monitor, MonitorSlide $slide)
     {
-        $slide = MonitorSlide::query()->findOrFail($id);
-        $monitor = $this->monitor;
-
         $todayVisits = Visit::query()
             ->whereDate('visits.scheduled_from', '<=', Carbon::today())
             ->whereDate('visits.scheduled_until', '>=', Carbon::today())
@@ -92,14 +87,16 @@ class MonitorSlidesController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdateMonitorSlideRequest $request, string $id)
+    public function update(UpdateMonitorSlideRequest $request, Monitor $monitor, MonitorSlide $slide)
     {
         $validated = $request->validated();
-        $validated['visitors'] = json_decode($request->visitors, true) ?? [];
+        $validated['visitors'] = json_decode($validated['visitors'] ?? '[]', true);
 
-        MonitorSlide::query()->findOrFail($id)->update($validated);
+        $slide->update($validated);
 
-        return redirect()->route('monitors.edit', $this->monitor)
+        Log::info('User ID '.auth()->id()." updated Monitor-Slide with ID: {$slide->id}");
+
+        return redirect()->route('monitors.edit', $monitor)
             ->with('success', __('Seite aktualisiert'));
 
     }
@@ -107,10 +104,12 @@ class MonitorSlidesController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
+    public function destroy(Monitor $monitor, MonitorSlide $slide)
     {
-        MonitorSlide::query()->findOrFail($id)->delete();
+        $slide->delete();
 
-        return redirect()->route('monitors.edit', $this->monitor)->with('success', __('Seite gelöscht'));
+        Log::info('User ID '.auth()->id()." deleted Monitor-Slide with ID: {$slide->id}");
+
+        return redirect()->route('monitors.edit', $monitor)->with('success', __('Seite gelöscht'));
     }
 }

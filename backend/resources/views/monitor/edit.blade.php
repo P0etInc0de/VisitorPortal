@@ -14,10 +14,10 @@
 
             <x-bp.card title="{{ __('Monitor Seiten') }}">
                 <x-slot:actions>
-                    <a type="button" href="{{route('monitor_slides.create')}}" class="btn btn-primary btn-sm rounded-xl">{{__('Neue Seite')}}</a>
+                    <a type="button" href="{{route('monitors.slides.create', $monitor)}}" class="btn btn-primary btn-sm rounded-xl">{{__('Neue Seite')}}</a>
                 </x-slot:actions>
                 <div class="bp-visit-item">
-                @forelse ($monitor_slides as $monitor_slide)
+                    @forelse ($monitor_slides as $monitor_slide)
 
 
                         {{-- Slide Number --}}
@@ -43,19 +43,21 @@
                             </div>
                         </div>
 
-                        {{--- Delete Button ---}}
-                        <div>
-                            <form id="delete-button-{{$monitor_slide->id}}" method="POST" action="{{ route('monitor_slides.destroy', $monitor_slide) }}">
-                                @csrf
-                                @method('DELETE')
-                            </form>
-                            <form id="edit-button-{{$monitor_slide->id}}" method="GET" action="{{ route('monitor_slides.edit', $monitor_slide) }}">
-                                @csrf
-                            </form>
-                            <div class="form-group">
-                                <input form="edit-button-{{$monitor_slide->id}}" type="submit" class="btn-sm rounded-xl btn" value="{{ __('Bearbeiten') }}">
-                                <input form="delete-button-{{$monitor_slide->id}}" type="submit" class="btn-sm rounded-xl btn" value="{{ __('Löschen') }}" onclick="return confirm('{{ __('Sicher löschen?') }}')">
-                            </div>
+
+                        <div class="form-group flex gap-2">
+                            {{--- delete and edit button ---}}
+                            @if($monitor->auto_generation === 0)
+                                <a href="{{ route('monitors.slides.edit', [$monitor->id, $monitor_slide->id]) }}" class="btn-sm rounded-xl btn">
+                                    {{ __('Bearbeiten') }}
+                                </a>
+                                <form method="POST" action="{{ route('monitors.slides.destroy', [$monitor->id, $monitor_slide->id]) }}">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit" class="btn-sm rounded-xl btn" onclick="return confirm('{{ __('Sicher löschen?') }}')">
+                                        {{ __('Löschen') }}
+                                    </button>
+                                </form>
+                            @endif
                         </div>
 
 
@@ -64,8 +66,8 @@
                             <div class="py-12 text-center">
                                 <p class="text-slate-400">{{ __('Kein Seiten gefunden.') }}</p>
                             </div>
-                    </div>
-                @endforelse
+                   @endforelse
+                </div>
             </x-bp.card>
             <x-bp.card title="{{__('Monitor Einstellungen')}}">
                 <x-slot:actions>
@@ -74,9 +76,11 @@
                 <form id="monitorSettings" method="POST" action="{{route('monitors.update', $monitor)}}" enctype="multipart/form-data">
                     @csrf
                     @method('PUT')
-                    <x-bp.input label="{{__('Übergangszeit (ms)')}}" value="{{$monitor->transition_time_milliseconds}}" name="transition_time_milliseconds"/>
-                   <x-bp.picture-upload label="{{__('Hintergrundbild auswählen')}}" name="image" src="{{$monitor->image_path}}" form_id="monitorSettings" id="picture-upload"/>
-
+                    <div class="md:grid-cols-2 grid gap-5">
+                        <x-bp.input label="{{__('Übergangszeit (ms)')}}" value="{{$monitor->transition_time_milliseconds}}" name="transition_time_milliseconds"/>
+                        <x-bp.toggle label="{{__('Seiten automatisch generieren')}}" name="auto_generation" checked="{{$monitor->auto_generation}}"/>
+                    </div>
+                    <x-bp.picture-upload label="{{__('Hintergrundbild auswählen')}}" name="image" src="{{$monitor->image_path}}" form_id="monitorSettings" id="picture-upload"/>
                 </form>
             </x-bp.card>
 

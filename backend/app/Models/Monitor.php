@@ -16,6 +16,10 @@ class Monitor extends Model
         'name',
         'transition_time_milliseconds',
         'image_path',
+        'auto_generation',
+        'show_logo',
+        'heading',
+        'show_date',
     ];
 
     public function monitorSlides(): HasMany

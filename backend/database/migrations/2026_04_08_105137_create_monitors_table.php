@@ -17,6 +17,7 @@ return new class extends Migration
             $table->string('name')->default('Willkommensmonitor Eingang');
             $table->timestamps();
             $table->integer('transition_time_milliseconds');
+            $table->boolean('auto_generation')->default(false);
         });
     }
 

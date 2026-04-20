@@ -13,7 +13,7 @@
             </div>
         </x-slot:actions>
 
-        <form id="editMonitorSlide" method="POST" action="{{ route('monitor_slides.update',$slide) }}">
+        <form id="editMonitorSlide" method="POST" action="{{ route('monitors.slides.update',[$monitor, $slide]) }}">
             @csrf
             @method('PUT')
             <div class="grid gap-5 md:grid-cols-3">
@@ -38,7 +38,6 @@
 
                {{-- Hidden inputs for the POST request of the form to laravel --}}
                 <input type="hidden" id="visitorsInput" name="visitors" />
-                <input type="hidden" value="{{ $monitor->id }}" name="monitor_id"/>
             </div>
         </form>
 

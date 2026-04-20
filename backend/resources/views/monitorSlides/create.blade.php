@@ -12,7 +12,7 @@
                 </div>
             </x-slot:actions>
 
-            <form id="createMonitorSlide" method="POST" action="{{ route('monitor_slides.store') }}">
+            <form id="createMonitorSlide" method="POST" action="{{ route('monitors.slides.store', [$monitor]) }}">
                 @csrf
                 <div class="grid gap-5 md:grid-cols-3">
                     <x-bp.input label="{{ __('Überschrift') }}" name="heading" value="{{ __('Herzlich willkommen!') }}"/>

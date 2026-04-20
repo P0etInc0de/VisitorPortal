@@ -26,6 +26,7 @@ class UpdateMonitorRequest extends FormRequest
             'transition_time_milliseconds' => 'required|integer|between:1000,50000',
             'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:20000',
             'deleteImage' => 'boolean',
+            'auto_generation' => 'boolean',
         ];
     }
 }
