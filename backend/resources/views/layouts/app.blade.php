@@ -25,14 +25,14 @@
     <div class="min-w-0 xl:ml-72">
         @if (isset($header))
             <header class="relative z-20 border-b border-base-300/70 bg-base-100 [&_.btn]:min-h-11">
-                <div class="mx-auto max-w-7xl px-4 py-5 sm:px-6 lg:px-8">
+                <div class="w-full max-w-none px-4 py-5 sm:px-6 lg:px-8">
                     {{ $header }}
                 </div>
             </header>
         @endif
 
-        <main class="pt-6 pb-8 lg:pt-5 lg:pb-6 {{ $pageClass }}">
-            <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <main class="pt-6 pb-8 lg:pt-5 lg:pb-6 {{ $pageClass ?? '' }}">
+            <div class="w-full max-w-none px-4 sm:px-6 lg:px-8">
                 {{ $slot }}
             </div>
         </main>
