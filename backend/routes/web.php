@@ -3,6 +3,7 @@
 use App\Http\Controllers\Monitor\MonitorController;
 use App\Http\Controllers\Portal\DashboardController as PortalDashboardController;
 use App\Http\Controllers\Portal\VisitController as PortalVisitController;
+use App\Livewire\Portal\VisitShowPage;
 use App\Http\Controllers\Reception\DashboardController as ReceptionDashboardController;
 use App\Http\Controllers\Reception\VisitController as ReceptionVisitController;
 use App\Http\Controllers\Reception\VisitParticipantActionController;
@@ -23,7 +24,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::prefix('visits')->name('visits.')->group(function () {
             Route::get('/create', [PortalVisitController::class, 'create'])->name('create');
             Route::post('/', [PortalVisitController::class, 'store'])->name('store');
-            Route::get('/{visit}', [PortalVisitController::class, 'show'])
+            Route::get('/{visit}', VisitShowPage::class)
                 ->whereNumber('visit')
                 ->name('show');
             Route::get('/{visit}/edit', [PortalVisitController::class, 'edit'])
