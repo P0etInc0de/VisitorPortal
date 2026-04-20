@@ -16,6 +16,15 @@ Route::get('/', function () {
         : redirect()->route('login');
 })->name('home');
 
+Route::get('/lang/{locale}', function ($locale) {
+
+    if (in_array($locale, ['de', 'en'])) {
+        session(['locale' => $locale]);
+    }
+
+    return redirect()->back();
+});
+
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/dashboard', [PortalDashboardController::class, 'index'])->name('dashboard');
 
