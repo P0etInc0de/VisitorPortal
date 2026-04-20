@@ -6,14 +6,13 @@ use App\Enums\GenderEnum;
 use App\Enums\VisitorStatusEnum;
 use App\Models\Visitor;
 use Illuminate\Database\Eloquent\Factories\Factory;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 
 /**
  * @extends Factory<Visitor>
  */
 class VisitorFactory extends Factory
 {
-    use RefreshDatabase;
+    protected $model = Visitor::class;
 
     /**
      * Define the model's default state.
