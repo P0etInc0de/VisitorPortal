@@ -1,11 +1,24 @@
-<div>
+<div
+    x-data="{
+        printBadge(url) {
+            if (!url) {
+                return;
+            }
+
+            this.$refs.badgeActionForm.action = url;
+            this.$refs.badgeActionForm.submit();
+        },
+    }"
+    x-on:print-badge.window="printBadge($event.detail.url)"
+>
     <div class="mb-8">
         <h1 class="text-3xl font-extrabold tracking-tight text-base-content">{{ __('Check-In / Out') }}</h1>
         <p class="mt-1.5 text-sm text-base-content/70">{{ __('Suche anstehenden Besucher oder erfasse einen Walk-in direkt am Empfang.') }}</p>
     </div>
 
     <div class="grid grid-cols-1 gap-6 lg:grid-cols-4 lg:items-start">
-        <div class="flex flex-col gap-6 lg:col-span-3">            @if (session('status'))
+        <div class="flex flex-col gap-6 lg:col-span-3">
+            @if (session('status'))
                 <div class="alert alert-success rounded-2xl shadow-sm">
                     <span>{{ session('status') }}</span>
                 </div>
@@ -98,15 +111,12 @@
                                             </button>
                                         @endif
 
-                                        <button
-                                            type="button"
-                                            class="btn btn-outline btn-sm rounded-xl"
-                                            wire:click="printBadge({{ $result['visit_id'] }}, {{ $result['visitor_id'] }})"
-                                            wire:loading.attr="disabled"
-                                            wire:target="printBadge"
-                                        >
-                                            {{ __('Ausweis') }}
-                                        </button>
+                                        <form method="POST" action="{{ $result['badge_url'] }}" target="check-in-out-badge-download-frame">
+                                            @csrf
+                                            <button type="submit" class="btn btn-outline btn-sm rounded-xl">
+                                                {{ __('Ausweis') }}
+                                            </button>
+                                        </form>
                                     </div>
                                 </div>
                             </article>
@@ -182,4 +192,10 @@
             </article>
         </div>
     </div>
+
+    <form x-ref="badgeActionForm" method="POST" target="check-in-out-badge-download-frame" class="hidden">
+        @csrf
+    </form>
+
+    <iframe name="check-in-out-badge-download-frame" class="hidden" tabindex="-1" aria-hidden="true"></iframe>
 </div>

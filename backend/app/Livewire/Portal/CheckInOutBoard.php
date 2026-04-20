@@ -2,6 +2,7 @@
 
 namespace App\Livewire\Portal;
 
+use App\Enums\VisitorStatusEnum;
 use App\Enums\VisitStatusEnum;
 use App\Models\User;
 use App\Models\Visit;
@@ -12,7 +13,6 @@ use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Livewire\Component;
-use Spatie\LaravelPdf\Facades\Pdf;
 
 class CheckInOutBoard extends Component
 {
@@ -57,13 +57,9 @@ class CheckInOutBoard extends Component
         session()->flash('status', __('Teilnehmender wurde ausgecheckt.'));
     }
 
-    public function printBadge(int $visitId, int $visitorId)
+    public function printBadge(int $visitId, int $visitorId): void
     {
-        $visit = Visit::query()->with('responsibleUser')->findOrFail($visitId);
-        $visitor = Visitor::query()->findOrFail($visitorId);
-        $participant = $this->visitActionService->printBadge($visit, $visitor);
-
-        return $this->badgeDownloadResponse($visit, $participant);
+        $this->dispatch('print-badge', url: route('reception.participants.badge', [$visitId, $visitorId]));
     }
 
     public function registerWalkIn(bool $printBadge = false)
@@ -99,9 +95,7 @@ class CheckInOutBoard extends Component
         session()->flash('status', __('Walk-in wurde angelegt und eingecheckt.'));
 
         if ($printBadge) {
-            $participant = $this->visitActionService->printBadge($visit, $visitor);
-
-            return $this->badgeDownloadResponse($visit, $participant);
+            $this->dispatch('print-badge', url: route('reception.participants.badge', [$visit->id, $visitor->id]));
         }
     }
 
@@ -205,6 +199,7 @@ class CheckInOutBoard extends Component
         return [
             'visit_id' => $visit->id,
             'visitor_id' => $visitor->id,
+            'badge_url' => route('reception.participants.badge', [$visit->id, $visitor->id]),
             'visit_title' => $visit->display_title,
             'visit_time' => optional($visit->scheduled_from)->format('H:i'),
             'visit_date' => optional($visit->scheduled_from)->format('d.m.'),
@@ -293,6 +288,7 @@ class CheckInOutBoard extends Component
             'email' => $email ?: 'walkin-'.$token.'@local.invalid',
             'phone' => $phone ?: 'walkin-'.$token,
             'company' => $this->normalizeText($payload['company'] ?? null),
+            'status' => VisitorStatusEnum::Planned,
             'notes' => null,
         ]);
     }
@@ -362,16 +358,4 @@ class CheckInOutBoard extends Component
         return ['label' => __('Geplant'), 'class' => 'badge-warning badge-outline'];
     }
 
-    private function badgeDownloadResponse(Visit $visit, Visitor $visitor)
-    {
-        return Pdf::view('pdf.visitor_badge', [
-            'visit' => $visit,
-            'visitor' => $visitor,
-        ])
-            ->driver('gotenberg')
-            ->paperSize(85.6, 53.98, 'mm')
-            ->margins(0, 0, 0, 0)
-            ->name(__('Besucherausweis_').trim(($visitor->first_name ?? '').'_'.($visitor->name ?? 'Gast')).'.pdf')
-            ->download();
-    }
 }

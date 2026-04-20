@@ -5,11 +5,13 @@ namespace App\Models;
 use App\Enums\GenderEnum;
 use App\Enums\VisitorStatusEnum;
 use Database\Factories\VisitorFactory;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Str;
 
 class Visitor extends Model
 {
@@ -32,7 +34,6 @@ class Visitor extends Model
     ];
 
     protected $casts = [
-        'status' => VisitorStatusEnum::class,
         'gender' => GenderEnum::class,
     ];
 
@@ -49,6 +50,16 @@ class Visitor extends Model
                 'notes',
             ])
             ->withTimestamps();
+    }
+
+    protected function status(): Attribute
+    {
+        return Attribute::make(
+            get: fn (mixed $value) => VisitorStatusEnum::tryFrom(Str::lower((string) $value)) ?? VisitorStatusEnum::Planned,
+            set: fn (mixed $value) => $value instanceof VisitorStatusEnum
+                ? $value->value
+                : (VisitorStatusEnum::tryFrom(Str::lower((string) $value)) ?? VisitorStatusEnum::Planned)->value,
+        );
     }
 
     public function getFullNameAttribute(): string
