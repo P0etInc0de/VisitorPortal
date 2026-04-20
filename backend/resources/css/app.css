@@ -15,5 +15,5 @@
 /* App entry */
 @import './themes/light.css';
 @import './themes/dark.css';
-@import './themes/acd.css';
+@import './themes/tenant-example.css';
 @import './app/base.css';
