@@ -15,5 +15,3 @@
 /* App entry */
 @import './app/tokens.css';
 @import './app/base.css';
-@import './app/surfaces.css';
-@import './app/reception-all-visits.css';

@@ -1,6 +1,6 @@
 @php
     $visitId = (int) ($visit['id'] ?? $index ?? 0);
-    $detailId = $detailId ?? ('bp-av-details-visit-'.$visitId);
+    $detailId = $detailId ?? ('av-details-visit-'.$visitId);
     $isExpanded = in_array($visitId, array_map('intval', $expandedVisitIds ?? []), true);
     $participants = $visit['participants'] ?? [];
     $noteText = trim((string) ($visit['note_text'] ?? ($visit['notes'] ?? '')));
@@ -8,6 +8,8 @@
     $visitStatusClass = trim((string) ($visit['status_class'] ?? ''));
     $visitStatusTextClass = $visitStatusClass !== '' ? $visitStatusClass : 'text-base-content/75';
     $visitDateLabel = $visit['date_time_label'] ?? null;
+    $visitGridColumns = $visitGridColumns ?? 'grid-cols-[1.85rem_minmax(11rem,1.28fr)_minmax(10.4rem,1.02fr)_minmax(6.75rem,0.7fr)_minmax(5.8rem,0.62fr)_3rem_minmax(10rem,1.06fr)]';
+    $participantGridColumns = $participantGridColumns ?? 'grid-cols-[minmax(14rem,1.55fr)_minmax(10rem,1.1fr)_minmax(7rem,0.95fr)_minmax(5.25rem,0.8fr)_minmax(9rem,0.92fr)]';
 @endphp
 
 <article
@@ -23,7 +25,7 @@
             }
 
             this.clickTimer = window.setTimeout(() => {
-                this.$dispatch('bp-av-capture-scroll');
+                this.$dispatch('av-capture-scroll');
                 this.open = !this.open;
                 this.$wire.toggleExpanded({{ $visitId }});
                 this.clickTimer = null;
@@ -40,7 +42,7 @@
     }"
 >
     <div
-        class="grid min-h-[2.35rem] cursor-pointer grid-cols-[var(--bp-av-grid-columns)] items-center gap-[0.45rem] bg-base-100 px-3 py-[0.18rem] transition-colors duration-150 group-hover:bg-base-200/50"
+        class="grid min-h-[2.35rem] cursor-pointer {{ $visitGridColumns }} items-center gap-[0.45rem] bg-base-100 px-3 py-[0.18rem] transition-colors duration-150 group-hover:bg-base-200/50"
         x-bind:class="open ? 'bg-base-200/40' : ''"
         aria-expanded="{{ $isExpanded ? 'true' : 'false' }}"
         x-bind:aria-expanded="open ? 'true' : 'false'"
@@ -48,7 +50,7 @@
         @dblclick.stop.prevent="openVisit()"
     >
         <div class="flex min-w-0 items-center justify-center" @click.stop>
-            <input type="checkbox" class="checkbox checkbox-sm bp-av-checkbox" name="selected_visits[]" value="{{ $visitId }}" aria-label="{{ __('Besuch auswählen') }}">
+            <input type="checkbox" class="checkbox checkbox-sm h-4 w-4 rounded-[0.35rem]" name="selected_visits[]" value="{{ $visitId }}" aria-label="{{ __('Besuch auswählen') }}">
         </div>
 
         <div class="flex min-w-0 items-center">
@@ -82,7 +84,7 @@
 
     <div id="{{ $detailId }}" class="bg-base-200/30 px-3 pb-[0.55rem] pl-[3.05rem]" x-show="open" x-cloak>
         <div class="overflow-hidden rounded-[1rem] border border-base-300 bg-base-100">
-            <div class="grid grid-cols-[var(--bp-av-participant-grid-columns)] items-center gap-[0.55rem] border-b border-base-300 bg-base-200/60 px-[0.65rem] py-[0.34rem] text-[0.7rem] font-bold uppercase tracking-[0.04em] text-base-content/75">
+            <div class="grid {{ $participantGridColumns }} items-center gap-[0.55rem] border-b border-base-300 bg-base-200/60 px-[0.65rem] py-[0.34rem] text-[0.7rem] font-bold uppercase tracking-[0.04em] text-base-content/75">
                 <div>{{ __('Name') }}</div>
                 <div>{{ __('Unternehmen') }}</div>
                 <div>{{ __('Status') }}</div>
@@ -95,6 +97,7 @@
                     @include('reception.partials.all-visits.participant-row', [
                         'participant' => $participant,
                         'visitId' => $visitId,
+                        'participantGridColumns' => $participantGridColumns,
                     ])
                 @endforeach
             @else

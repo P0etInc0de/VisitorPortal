@@ -1,5 +1,5 @@
 <x-guest-layout>
-    <div class="bp-panel p-6 sm:p-7">
+    <div class="rounded-3xl border border-base-300 bg-base-100 p-6 shadow-sm sm:p-7">
         <form method="POST" action="{{ route('register') }}" class="space-y-5">
             @csrf
 
@@ -28,7 +28,7 @@
             </div>
 
             <div class="flex flex-col gap-3 pt-1 sm:flex-row sm:items-center sm:justify-between">
-                <a class="bp-link-inline text-sm" href="{{ route('login') }}">
+                <a class="text-sm font-medium text-primary hover:underline" href="{{ route('login') }}">
                     {{ __('Already registered?') }}
                 </a>
 

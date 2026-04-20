@@ -49,7 +49,7 @@ $maxWidth = [
 >
     <div
         x-show="show"
-        class="bp-modal-backdrop fixed inset-0 transform transition-all"
+        class="fixed inset-0 bg-base-content/30 transform transition-all"
         x-on:click="show = false"
         x-transition:enter="ease-out duration-300"
         x-transition:enter-start="opacity-0"
@@ -61,7 +61,7 @@ $maxWidth = [
 
     <div
         x-show="show"
-        class="bp-modal-panel mb-6 overflow-hidden transform transition-all sm:mx-auto sm:w-full {{ $maxWidth }}"
+        class="mb-6 overflow-hidden rounded-2xl border border-base-300 bg-base-100 shadow-xl transform transition-all sm:mx-auto sm:w-full {{ $maxWidth }}"
         x-transition:enter="ease-out duration-300"
         x-transition:enter-start="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
         x-transition:enter-end="opacity-100 translate-y-0 sm:scale-100"

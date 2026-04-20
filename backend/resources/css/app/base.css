@@ -7,11 +7,11 @@ body {
     display: none !important;
 }
 
-html.bp-preload body {
+html.is-preload body {
     opacity: 0;
 }
 
-html.bp-ready body {
+html.is-ready body {
     opacity: 1;
 }
 

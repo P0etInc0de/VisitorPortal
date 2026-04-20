@@ -16,13 +16,13 @@
 
     <form
         wire:submit.prevent="applyCustomRange"
-        x-on:submit="$dispatch('bp-av-capture-scroll')"
+        x-on:submit="$dispatch('av-capture-scroll')"
         class="flex min-w-max flex-nowrap items-center gap-2 whitespace-nowrap max-[1100px]:flex-wrap"
     >
         <input type="date" wire:model.defer="dateFrom" class="input input-bordered input-sm basis-30 w-30 min-w-30 max-w-30">
         <span>{{ __('bis') }}</span>
         <input type="date" wire:model.defer="dateTo" class="input input-bordered input-sm basis-30 w-30 min-w-30 max-w-30">
         <button type="submit" class="btn btn-outline btn-sm" wire:loading.attr="disabled" wire:target="applyCustomRange">{{ __('Anwenden') }}</button>
-        <button type="button" wire:click="resetFilters" x-on:click="$dispatch('bp-av-capture-scroll')" class="btn btn-outline btn-sm" wire:loading.attr="disabled" wire:target="resetFilters">{{ __('Zurücksetzen') }}</button>
+        <button type="button" wire:click="resetFilters" x-on:click="$dispatch('av-capture-scroll')" class="btn btn-outline btn-sm" wire:loading.attr="disabled" wire:target="resetFilters">{{ __('Zurücksetzen') }}</button>
     </form>
 </div>

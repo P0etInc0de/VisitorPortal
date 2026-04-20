@@ -62,7 +62,7 @@
             </div>
         @endif
 
-        <section class="bp-panel">
+        <section class="rounded-3xl border border-base-300 bg-base-100 shadow-sm">
             <div class="p-5 sm:p-6">
                 <div class="mb-4 flex flex-wrap gap-2">
                     <span class="badge {{ $statusBadge['class'] }} rounded-full text-sm font-semibold">
@@ -113,7 +113,7 @@
                         @else
                             <div class="grid gap-4">
                                 @foreach ($participantItems as $participant)
-                                    <details class="bp-subpanel group" @if ($loop->first) open @endif>
+                                    <details class="rounded-2xl border border-base-300 bg-base-100 group" @if ($loop->first) open @endif>
                                         <summary class="flex cursor-pointer list-none items-center justify-between gap-3 px-4 py-3">
                                             <div class="min-w-0">
                                                 <div class="flex flex-wrap items-center gap-2">
@@ -173,7 +173,7 @@
                     </div>
 
                     <div class="grid gap-4">
-                        <details class="bp-subpanel" open>
+                        <details class="rounded-2xl border border-base-300 bg-base-100" open>
                             <summary class="cursor-pointer list-none px-4 py-3 text-base font-semibold text-base-content">
                                 {{ __('Termin verschieben') }}
                             </summary>
@@ -203,7 +203,7 @@
                             </div>
                         </details>
 
-                        <div class="bp-subpanel p-4">
+                        <div class="rounded-2xl border border-base-300 bg-base-100 p-4">
                             <div class="mb-3 text-base font-semibold text-base-content">{{ __('Terminstatus') }}</div>
 
                             @if ($visit->status === 'canceled' || filled($visit->canceled_at))

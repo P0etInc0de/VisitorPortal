@@ -55,7 +55,7 @@
 
     <div class="grid min-w-0 gap-5" x-data="{ selectedVisitor: { name: '', email: '' } }">
         <section class="grid gap-5">
-            <article class="bp-panel">
+            <article class="rounded-3xl border border-base-300 bg-base-100 shadow-sm">
                 <div class="p-5 sm:p-6">
                     <div>
                         <form method="post" action="{{ route('portal.check_in_out.store') }}">
@@ -117,7 +117,7 @@
         </section>
 
         <section class="grid gap-5">
-            <article class="bp-panel">
+            <article class="rounded-3xl border border-base-300 bg-base-100 shadow-sm">
                 <div class="p-5 sm:p-6">
                     <div class="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                         <h2 class="text-xl font-semibold tracking-tight text-base-content">
@@ -148,7 +148,7 @@
                                 };
                             @endphp
 
-                            <article x-data="{ open: false }" class="bp-subpanel">
+                            <article x-data="{ open: false }" class="rounded-2xl border border-base-300 bg-base-100">
                                 <div
                                     class="cursor-pointer rounded-[1.1rem] px-4 py-4 flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between"
                                     @click="open = !open"
@@ -214,7 +214,7 @@
                                         @endphp
 
                                         <article
-                                            class="bp-subpanel cursor-pointer px-4 py-4"
+                                            class="rounded-2xl border border-base-300 bg-base-100 cursor-pointer px-4 py-4"
                                             @click.stop='
                                                 selectedVisitor = {
                                                     name: @json($visitor->first_name . " " . $visitor->name),

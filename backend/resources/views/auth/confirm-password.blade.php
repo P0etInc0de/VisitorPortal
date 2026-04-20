@@ -1,6 +1,6 @@
 <x-guest-layout>
-    <div class="bp-panel p-6 sm:p-7">
-        <div class="mb-5 text-sm leading-7 bp-text-muted">
+    <div class="rounded-3xl border border-base-300 bg-base-100 p-6 shadow-sm sm:p-7">
+        <div class="mb-5 text-sm leading-7 text-base-content/70">
             {{ __('This is a secure area of the application. Please confirm your password before continuing.') }}
         </div>
 

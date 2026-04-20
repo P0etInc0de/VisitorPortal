@@ -1,6 +1,6 @@
 <x-guest-layout>
-    <div class="bp-panel p-6 sm:p-7">
-        <div class="mb-5 text-sm leading-7 bp-text-muted">
+    <div class="rounded-3xl border border-base-300 bg-base-100 p-6 shadow-sm sm:p-7">
+        <div class="mb-5 text-sm leading-7 text-base-content/70">
             {{ __('Forgot your password? No problem. Just let us know your email address and we will email you a password reset link that will allow you to choose a new one.') }}
         </div>
 

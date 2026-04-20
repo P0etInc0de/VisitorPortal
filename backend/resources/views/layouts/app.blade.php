@@ -7,11 +7,11 @@
 
 
     <script>
-        document.documentElement.classList.add('bp-preload');
+        document.documentElement.classList.add('is-preload');
 
         window.addEventListener('load', function () {
-            document.documentElement.classList.remove('bp-preload');
-            document.documentElement.classList.add('bp-ready');
+            document.documentElement.classList.remove('is-preload');
+            document.documentElement.classList.add('is-ready');
         });
     </script>
 

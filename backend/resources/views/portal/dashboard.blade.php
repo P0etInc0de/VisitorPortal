@@ -10,7 +10,7 @@
     <div class="grid gap-4">
         <section class="grid gap-4 md:grid-cols-2 xl:grid-cols-3 lg:sticky lg:top-24 lg:z-10 lg:bg-gradient-to-b lg:from-base-200 lg:via-base-200 lg:to-transparent lg:pb-1">
             @foreach ($stats as $stat)
-                <article class="bp-panel rounded-[1.2rem]">
+                <article class="rounded-3xl border border-base-300 bg-base-100 shadow-sm rounded-[1.2rem]">
                     <div class="p-4 sm:p-[1.05rem]">
                         <div class="text-sm text-base-content/65">{{ $stat['label'] }}</div>
                         <div class="mt-1.5 text-[clamp(1.8rem,1.25rem+0.7vw,2.5rem)] font-bold leading-none tracking-tight text-base-content">
@@ -23,7 +23,7 @@
         </section>
 
         <section class="grid items-start gap-4 xl:grid-cols-[minmax(0,1.45fr)_minmax(18rem,0.72fr)]">
-            <article class="bp-panel rounded-[1.35rem]">
+            <article class="rounded-3xl border border-base-300 bg-base-100 shadow-sm rounded-[1.35rem]">
                 <div class="p-4 sm:p-[1.05rem]">
                     <div class="mb-3 flex items-center justify-between gap-4">
                         <h2 class="text-[1.35rem] font-bold leading-tight tracking-tight text-base-content">
@@ -95,7 +95,7 @@
                 </div>
             </article>
 
-            <aside class="bp-panel rounded-[1.35rem]">
+            <aside class="rounded-3xl border border-base-300 bg-base-100 shadow-sm rounded-[1.35rem]">
                 <div class="p-4 sm:p-[1.05rem]">
                     <h2 class="mb-3 text-[1.35rem] font-bold leading-tight tracking-tight text-base-content">
                         {{ __('Notizen') }}

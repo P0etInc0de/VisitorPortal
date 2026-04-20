@@ -13,9 +13,10 @@
     $checkInLabel = $participant['check_in_label'] ?? __('Check-in');
     $canCheckIn = (bool) ($participant['can_check_in'] ?? false);
     $canCheckOut = (bool) ($participant['can_check_out'] ?? false);
+    $participantGridColumns = $participantGridColumns ?? 'grid-cols-[minmax(14rem,1.55fr)_minmax(10rem,1.1fr)_minmax(7rem,0.95fr)_minmax(5.25rem,0.8fr)_minmax(9rem,0.92fr)]';
 @endphp
 
-<div class="grid grid-cols-[var(--bp-av-participant-grid-columns)] items-center gap-[0.55rem] border-t border-base-200 px-[0.65rem] py-[0.34rem] first:border-t-0" wire:key="{{ $participant['row_key'] ?? ('participant-row-'.$visitId.'-'.($participant['visitor_id'] ?? uniqid())) }}">
+<div class="grid {{ $participantGridColumns }} items-center gap-[0.55rem] border-t border-base-200 px-[0.65rem] py-[0.34rem] first:border-t-0" wire:key="{{ $participant['row_key'] ?? ('participant-row-'.$visitId.'-'.($participant['visitor_id'] ?? uniqid())) }}">
     <div class="flex min-w-0 items-center">
         <span class="truncate text-[0.82rem] text-base-content">{{ $displayName }}</span>
     </div>
@@ -33,11 +34,11 @@
             <form
                 method="POST"
                 action="{{ $badgeUrl }}"
-                target="bp-av-badge-download-frame"
-                x-on:submit="$dispatch('bp-av-capture-scroll')"
+                target="av-badge-download-frame"
+                x-on:submit="$dispatch('av-capture-scroll')"
             >
                 @csrf
-                <button type="submit" class="btn btn-outline btn-sm bp-av-row-btn px-2">{{ __('Ausweis') }}</button>
+                <button type="submit" class="btn btn-outline btn-sm w-auto justify-center px-2 text-center">{{ __('Ausweis') }}</button>
             </form>
         @else
             <span class="text-[0.82rem] leading-[1.24] text-base-content/70">—</span>
@@ -49,8 +50,8 @@
             <button
                 type="button"
                 wire:click="checkIn({{ (int) ($participant['visit_id'] ?? $visitId) }}, {{ (int) $participant['visitor_id'] }})"
-                x-on:click="$dispatch('bp-av-capture-scroll')"
-                class="btn btn-primary btn-sm bp-av-row-btn bp-av-action-btn"
+                x-on:click="$dispatch('av-capture-scroll')"
+                class="btn btn-primary btn-sm min-w-[8.5rem] w-[8.5rem] max-w-[8.5rem] justify-center text-center"
                 wire:loading.attr="disabled"
                 wire:target="checkIn"
             >
@@ -60,8 +61,8 @@
             <button
                 type="button"
                 wire:click="checkOut({{ (int) ($participant['visit_id'] ?? $visitId) }}, {{ (int) $participant['visitor_id'] }})"
-                x-on:click="$dispatch('bp-av-capture-scroll')"
-                class="btn btn-primary btn-sm bp-av-row-btn bp-av-action-btn"
+                x-on:click="$dispatch('av-capture-scroll')"
+                class="btn btn-primary btn-sm min-w-[8.5rem] w-[8.5rem] max-w-[8.5rem] justify-center text-center"
                 wire:loading.attr="disabled"
                 wire:target="checkOut"
             >

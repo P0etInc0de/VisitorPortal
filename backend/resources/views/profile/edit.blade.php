@@ -8,19 +8,19 @@
     </x-slot>
 
     <div class="grid gap-5">
-        <section class="bp-panel p-5 sm:p-6">
+        <section class="rounded-3xl border border-base-300 bg-base-100 p-5 shadow-sm sm:p-6">
             <div class="max-w-3xl">
                 @include('profile.partials.update-profile-information-form')
             </div>
         </section>
 
-        <section class="bp-panel p-5 sm:p-6">
+        <section class="rounded-3xl border border-base-300 bg-base-100 p-5 shadow-sm sm:p-6">
             <div class="max-w-3xl">
                 @include('profile.partials.update-password-form')
             </div>
         </section>
 
-        <section class="bp-panel p-5 sm:p-6">
+        <section class="rounded-3xl border border-base-300 bg-base-100 p-5 shadow-sm sm:p-6">
             <div class="max-w-3xl">
                 @include('profile.partials.delete-user-form')
             </div>

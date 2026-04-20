@@ -225,7 +225,7 @@
                 </div>
             @endif
 
-            <section class="bp-panel">
+            <section class="rounded-3xl border border-base-300 bg-base-100 shadow-sm">
                 <div class="p-5 sm:p-6">
                     <div class="grid gap-6 xl:grid-cols-[1.55fr_0.95fr]">
                         <div class="space-y-5">
@@ -369,7 +369,7 @@
                 </div>
             </section>
 
-            <section class="bp-panel">
+            <section class="rounded-3xl border border-base-300 bg-base-100 shadow-sm">
                 <div class="p-5 sm:p-6">
                     <div>
                         <h2 class="text-2xl font-semibold tracking-tight text-base-content">
@@ -377,7 +377,7 @@
                         </h2>
                     </div>
 
-                    <div class="mt-4 bp-subpanel">
+                    <div class="mt-4 rounded-2xl border border-base-300 bg-base-100">
                         <div class="grid gap-4 p-4 sm:p-5">
                             <template x-if="participants.length === 0">
                                 <div class="rounded-2xl border border-dashed border-base-300 bg-base-100/70 p-4 text-base-content/65">
@@ -387,7 +387,7 @@
 
                             <div class="grid gap-4">
                                 <template x-for="(participant, index) in participants" :key="`participant-${index}`">
-                                    <div class="bp-subpanel p-4">
+                                    <div class="rounded-2xl border border-base-300 bg-base-100 p-4">
                                         <div class="flex flex-wrap items-center justify-between gap-3">
                                             <div class="min-w-0">
                                                 <div class="flex flex-wrap items-center gap-2">
@@ -468,7 +468,7 @@
 
                                 <div x-show="search.trim().length > 0" x-collapse class="mt-3 space-y-2">
                                     <template x-if="searchResults().length > 0">
-                                        <div class="bp-subpanel">
+                                        <div class="rounded-2xl border border-base-300 bg-base-100">
                                             <template x-for="visitor in searchResults()" :key="visitor.id">
                                                 <button
                                                     type="button"

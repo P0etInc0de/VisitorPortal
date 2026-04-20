@@ -1,5 +1,5 @@
 <x-guest-layout>
-    <div class="bp-panel p-6 sm:p-7">
+    <div class="rounded-3xl border border-base-300 bg-base-100 p-6 shadow-sm sm:p-7">
         <form method="POST" action="{{ route('password.store') }}" class="space-y-5">
             @csrf
 
