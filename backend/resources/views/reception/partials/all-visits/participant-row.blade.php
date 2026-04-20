@@ -2,7 +2,10 @@
     $salutation = trim((string) ($participant['salutation'] ?? ''));
     $title = trim((string) ($participant['title'] ?? ''));
     $baseName = trim((string) ($participant['name'] ?? '—'));
-    $displayName = trim(collect([$salutation, $title, $baseName])->filter()->implode(' '));
+    $displayName = trim(collect([
+        $salutation,
+        $baseName !== '—' ? $baseName : null,
+    ])->filter()->implode(' '));
     $displayName = $displayName !== '' ? $displayName : '—';
 
     $badgeUrl = $participant['badge_url'] ?? null;
@@ -18,7 +21,13 @@
 
 <div class="grid {{ $participantGridColumns }} items-center gap-[0.55rem] border-t border-base-200 px-[0.65rem] py-[0.34rem] first:border-t-0" wire:key="{{ $participant['row_key'] ?? ('participant-row-'.$visitId.'-'.($participant['visitor_id'] ?? uniqid())) }}">
     <div class="flex min-w-0 items-center">
-        <span class="truncate text-[0.82rem] text-base-content">{{ $displayName }}</span>
+        <div class="flex min-w-0 items-center gap-1.5">
+            @if ($title !== '')
+                <span class="shrink-0 rounded-full bg-base-200 px-2 py-0.5 text-[0.72rem] font-medium text-base-content/70">{{ $title }}</span>
+            @endif
+
+            <span class="truncate text-[0.82rem] text-base-content">{{ $displayName }}</span>
+        </div>
     </div>
 
     <div class="flex min-w-0 items-center">
