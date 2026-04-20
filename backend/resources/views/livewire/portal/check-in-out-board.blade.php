@@ -13,7 +13,6 @@
 >
     <div class="mb-8">
         <h1 class="text-3xl font-extrabold tracking-tight text-base-content">{{ __('Check-In / Out') }}</h1>
-        <p class="mt-1.5 text-sm text-base-content/70">{{ __('Suche anstehenden Besucher oder erfasse einen Walk-in direkt am Empfang.') }}</p>
     </div>
 
     <div class="grid grid-cols-1 gap-6 lg:grid-cols-4 lg:items-start">
