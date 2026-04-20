@@ -25,7 +25,7 @@
     $monitorSideLabelClass = 'text-[0.82rem] font-bold uppercase tracking-[0.2em] text-base-content/45';
 @endphp
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" data-theme="{{ $theme ?? 'light' }}">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
