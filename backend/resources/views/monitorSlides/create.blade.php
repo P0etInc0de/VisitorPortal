@@ -54,8 +54,7 @@
 
                                 <div class="min-w-0">
                                     <div class="text-xl font-semibold tracking-tight text-base-content">
-                                        {{-- //$visit->title --}}
-                                        Titel
+                                        {{$visit->title}}
                                     </div>
                                 </div>
 

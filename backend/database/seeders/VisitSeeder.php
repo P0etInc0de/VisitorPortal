@@ -63,7 +63,7 @@ class VisitSeeder extends Seeder
             2,
             Carbon::now(),
             Carbon::now(),
-            'FROG',
+            'Kaffee Testing',
             VisitStatusEnum::Planned,
             'Kaffee Maschiene testen',
             [2, 4]
