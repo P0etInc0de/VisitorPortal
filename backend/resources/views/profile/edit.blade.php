@@ -1,30 +1,30 @@
 <x-app-layout>
     <x-slot name="header">
-        <div class="bp-page-header">
+        <div class="flex flex-col items-start gap-4 lg:flex-row lg:justify-between">
             <div>
-                <h1 class="bp-page-title">{{ __('Profil') }}</h1>
+                <h1 class="text-3xl font-bold tracking-tight md:text-4xl">{{ __('Profil') }}</h1>
             </div>
         </div>
     </x-slot>
 
-    <div class="bp-profile-stack">
-        <section class="bp-panel p-6 sm:p-7">
+    <div class="grid gap-5">
+        <section class="rounded-3xl border border-base-300 bg-base-100 p-5 shadow-sm sm:p-6">
             <div class="max-w-3xl">
                 @include('profile.partials.update-profile-information-form')
             </div>
         </section>
 
-        <section class="bp-panel p-6 sm:p-7">
+        <section class="rounded-3xl border border-base-300 bg-base-100 p-5 shadow-sm sm:p-6">
             <div class="max-w-3xl">
                 @include('profile.partials.update-password-form')
             </div>
         </section>
 
-        <section class="bp-panel p-6 sm:p-7">
-                <x-lang.language_switcher/>
+        <section class="rounded-3xl border border-base-300 bg-base-100 p-5 shadow-sm sm:p-6">
+            <x-lang.language_switcher/>
         </section>
 
-        <section class="bp-panel p-6 sm:p-7">
+        <section class="rounded-3xl border border-base-300 bg-base-100 p-5 shadow-sm sm:p-6">
             <div class="max-w-3xl">
                 @include('profile.partials.delete-user-form')
             </div>

@@ -1,8 +1,8 @@
 <x-app-layout>
     <x-slot name="header">
-        <div class="bp-screen-head">
+        <div class="flex items-start justify-between gap-4">
             <div>
-                <h1 class="bp-screen-title">{{ __('Besucher Ein- oder Auschecken') }}</h1>
+                <h1 class="text-4xl font-bold leading-none tracking-tight lg:text-5xl">{{ __('Besucher Ein- oder Auschecken') }}</h1>
             </div>
         </div>
     </x-slot>
@@ -53,10 +53,10 @@
         </div>
     @endif
 
-    <div class="bp-content" x-data="{ selectedVisitor: { name: '', email: '' } }">
-        <section class="bp-main-grid bp-main-grid-wide">
-            <article class="card rounded-3xl border border-base-300 bg-base-100 shadow-sm">
-                <div class="card-body p-6 sm:p-8">
+    <div class="grid min-w-0 gap-5" x-data="{ selectedVisitor: { name: '', email: '' } }">
+        <section class="grid gap-5">
+            <article class="rounded-3xl border border-base-300 bg-base-100 shadow-sm">
+                <div class="p-5 sm:p-6">
                     <div>
                         <form method="post" action="{{ route('portal.check_in_out.store') }}">
                             @csrf
@@ -72,7 +72,7 @@
                                         type="text"
                                         name="name"
                                         placeholder="Name"
-                                        class="input input-bordered w-full rounded-2xl"
+                                        class="input input-bordered w-full"
                                         x-model="selectedVisitor.name"
                                         required
                                     >
@@ -88,22 +88,22 @@
                                         type="text"
                                         name="email"
                                         placeholder="Beispiel@gmail.com"
-                                        class="input input-bordered w-full rounded-2xl"
+                                        class="input input-bordered w-full"
                                         x-model="selectedVisitor.email"
                                         required
                                     >
                                 </label>
                             </div>
 
-                            <div class="mt-6 flex justify-end gap-3">
-                                <button type="submit" name="action" value="check_out" class="btn btn-outline rounded-2xl">
+                            <div class="mt-6 flex flex-wrap items-center justify-end gap-3">
+                                <button type="submit" name="action" value="check_out" class="btn btn-outline">
                                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
                                     </svg>
                                     {{ __('Check-Out') }}
                                 </button>
 
-                                <button type="submit" name="action" value="check_in" class="btn btn-primary rounded-2xl">
+                                <button type="submit" name="action" value="check_in" class="btn btn-primary">
                                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1" />
                                     </svg>
@@ -116,9 +116,9 @@
             </article>
         </section>
 
-        <section class="bp-main-grid bp-main-grid-wide">
-            <article class="card rounded-[1.75rem] border border-base-300 bg-base-100 shadow-sm">
-                <div class="card-body p-6 sm:p-8">
+        <section class="grid gap-5">
+            <article class="rounded-3xl border border-base-300 bg-base-100 shadow-sm">
+                <div class="p-5 sm:p-6">
                     <div class="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                         <h2 class="text-xl font-semibold tracking-tight text-base-content">
                             {{ __('Anstehende Besuche') }}
@@ -126,13 +126,13 @@
 
                         <a
                             href="{{ \Illuminate\Support\Facades\Route::has('portal.visits.create') ? route('portal.visits.create') : url('/portal/visits/create') }}"
-                            class="btn btn-outline btn-sm rounded-xl"
+                            class="btn btn-outline btn-sm"
                         >
                             {{ __('Neuen Besuch anlegen') }}
                         </a>
                     </div>
 
-                    <div class="space-y-4">
+                    <div class="grid gap-4">
                         @foreach ($visits as $visit)
                             @php
                                 $visitStatus = $visit->status instanceof \App\Enums\VisitStatusEnum
@@ -148,9 +148,9 @@
                                 };
                             @endphp
 
-                            <article x-data="{ open: false }" class="rounded-[1.5rem] border border-base-300 bg-base-100">
+                            <article x-data="{ open: false }" class="rounded-2xl border border-base-300 bg-base-100">
                                 <div
-                                    class="px-5 py-4 flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between cursor-pointer bg-gray-100 rounded-[1.5rem]"
+                                    class="cursor-pointer rounded-[1.1rem] px-4 py-4 flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between"
                                     @click="open = !open"
                                 >
                                     <div class="flex gap-4">
@@ -175,21 +175,21 @@
                                     </div>
 
                                     <div class="flex shrink-0 flex-col items-start gap-3 lg:items-end">
-                                        <span class="badge {{ $statusClassVisit }} rounded-full px-3 py-3 text-sm font-semibold">
+                                        <span class="badge {{ $statusClassVisit }} rounded-full text-sm font-semibold">
                                             {{ $visitStatus }}
                                         </span>
 
                                         <div class="flex flex-row gap-2">
                                             <a
                                                 href="{{ route('portal.check_in_out.check_in_out_all', ['visit' => $visit->id, 'action' => 'check_in']) }}"
-                                                class="btn btn-outline btn-sm rounded-xl"
+                                                class="btn btn-outline btn-sm"
                                             >
                                                 {{ __('Check-In ALL') }}
                                             </a>
 
                                             <a
                                                 href="{{ route('portal.check_in_out.check_in_out_all', ['visit' => $visit->id, 'action' => 'check_out']) }}"
-                                                class="btn btn-outline btn-sm rounded-xl"
+                                                class="btn btn-outline btn-sm"
                                             >
                                                 {{ __('Check-Out ALL') }}
                                             </a>
@@ -197,7 +197,7 @@
                                     </div>
                                 </div>
 
-                                <div x-show="open" x-transition class="border-t border-base-300 p-4 space-y-3">
+                                <div x-show="open" x-transition class="grid gap-4 border-t border-base-300 px-4 py-4 sm:px-5">
                                     @foreach ($visit->visitors as $visitor)
                                         @php
                                             $visitorStatus = $visitor->status instanceof \App\Enums\VisitorStatusEnum
@@ -214,7 +214,7 @@
                                         @endphp
 
                                         <article
-                                            class="rounded-[1.25rem] border border-base-300 bg-base-100 px-4 py-3 cursor-pointer"
+                                            class="rounded-2xl border border-base-300 bg-base-100 cursor-pointer px-4 py-4"
                                             @click.stop='
                                                 selectedVisitor = {
                                                     name: @json($visitor->first_name . " " . $visitor->name),
@@ -240,13 +240,13 @@
                                                 </div>
 
                                                 <div class="flex shrink-0 flex-col items-start gap-3 lg:items-end">
-                                                    <span class="badge {{ $statusClassVisitor }} rounded-full px-3 py-3 text-sm font-semibold">
+                                                    <span class="badge {{ $statusClassVisitor }} rounded-full text-sm font-semibold">
                                                         {{ $visitorStatus }}
                                                     </span>
 
                                                     <a
                                                         href="{{ \Illuminate\Support\Facades\Route::has('portal.visits.show') ? route('portal.visits.show', $visit) : url('/portal/visits/' . $visit->id) }}"
-                                                        class="btn btn-outline btn-sm rounded-xl"
+                                                        class="btn btn-outline btn-sm"
                                                     >
                                                         {{ __('Details öffnen') }}
                                                     </a>

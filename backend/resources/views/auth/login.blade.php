@@ -3,7 +3,7 @@
 @endphp
 
 <x-guest-layout>
-    <div class="bp-panel overflow-hidden">
+    <div class="overflow-hidden rounded-3xl border border-base-300 bg-base-100 shadow-sm">
         <div class="grid lg:grid-cols-[1fr_0.88fr]">
             <div class="border-b border-base-300/70 bg-base-100 p-7 sm:p-9 lg:border-b-0 lg:border-r">
                 @if ($hasLogo)
