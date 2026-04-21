@@ -8,38 +8,50 @@
     $badgeUrl = $participant['badge_url'] ?? null;
     $rawStatusLabel = $participant['status_label'] ?? ($participant['status']['label'] ?? ($participant['status'] ?? null));
     $statusLabel = $rawStatusLabel ? preg_replace('/^\s*[•·]\s*/u', '', (string) $rawStatusLabel) : '—';
-    $statusClass = trim(str_replace('bp-status-pill', '', (string) ($participant['status_class'] ?? ($participant['status']['class'] ?? ''))));
+    $statusClass = trim((string) ($participant['status_class'] ?? ($participant['status']['class'] ?? '')));
+    $statusTextClass = $statusClass !== '' ? $statusClass : 'text-base-content/75';
     $checkInLabel = $participant['check_in_label'] ?? __('Check-in');
     $canCheckIn = (bool) ($participant['can_check_in'] ?? false);
     $canCheckOut = (bool) ($participant['can_check_out'] ?? false);
+    $participantGridColumns = $participantGridColumns ?? 'grid-cols-[minmax(14rem,1.55fr)_minmax(10rem,1.1fr)_minmax(7rem,0.95fr)_minmax(5.25rem,0.8fr)_minmax(9rem,0.92fr)]';
 @endphp
 
-<div class="bp-av-participant-row" wire:key="{{ $participant['row_key'] ?? ('participant-row-'.$visitId.'-'.($participant['visitor_id'] ?? uniqid())) }}">
-    <div class="bp-av-cell"><span class="bp-av-participant-name">{{ $displayName }}</span></div>
-    <div class="bp-av-cell"><span class="bp-av-participant-company">{{ $participant['company'] ?? '—' }}</span></div>
-    <div class="bp-av-cell"><span class="bp-av-status-text {{ $statusClass }}">{{ $statusLabel }}</span></div>
-    <div class="bp-av-cell bp-av-badge-cell">
+<div class="grid {{ $participantGridColumns }} items-center gap-[0.55rem] border-t border-base-200 px-[0.65rem] py-[0.34rem] first:border-t-0" wire:key="{{ $participant['row_key'] ?? ('participant-row-'.$visitId.'-'.($participant['visitor_id'] ?? uniqid())) }}">
+    <div class="flex min-w-0 items-center">
+        <span class="truncate text-[0.82rem] text-base-content">{{ $displayName }}</span>
+    </div>
+
+    <div class="flex min-w-0 items-center">
+        <span class="truncate text-[0.82rem] leading-[1.24] text-base-content/70">{{ $participant['company'] ?? '—' }}</span>
+    </div>
+
+    <div class="flex min-w-0 items-center">
+        <span class="inline-flex max-w-full min-w-0 items-center truncate text-[0.8rem] font-bold leading-[1.22] {{ $statusTextClass }}">{{ $statusLabel }}</span>
+    </div>
+
+    <div class="flex min-w-0 items-center">
         @if ($badgeUrl)
             <form
                 method="POST"
                 action="{{ $badgeUrl }}"
-                target="bp-av-badge-download-frame"
-                x-on:submit="$dispatch('bp-av-capture-scroll')"
+                target="av-badge-download-frame"
+                x-on:submit="$dispatch('av-capture-scroll')"
             >
                 @csrf
-                <button type="submit" class="btn btn-outline btn-sm bp-av-row-btn">{{ __('Ausweis') }}</button>
+                <button type="submit" class="btn btn-outline btn-sm w-auto justify-center px-2 text-center">{{ __('Ausweis') }}</button>
             </form>
         @else
-            <span class="bp-av-participant-status">—</span>
+            <span class="text-[0.82rem] leading-[1.24] text-base-content/70">—</span>
         @endif
     </div>
-    <div class="bp-av-cell bp-av-action-cell">
+
+    <div class="flex min-w-0 items-center">
         @if ($canCheckIn)
             <button
                 type="button"
                 wire:click="checkIn({{ (int) ($participant['visit_id'] ?? $visitId) }}, {{ (int) $participant['visitor_id'] }})"
-                x-on:click="$dispatch('bp-av-capture-scroll')"
-                class="btn btn-primary btn-sm bp-av-row-btn"
+                x-on:click="$dispatch('av-capture-scroll')"
+                class="btn btn-primary btn-sm min-w-[8.5rem] w-[8.5rem] max-w-[8.5rem] justify-center text-center"
                 wire:loading.attr="disabled"
                 wire:target="checkIn"
             >
@@ -49,15 +61,15 @@
             <button
                 type="button"
                 wire:click="checkOut({{ (int) ($participant['visit_id'] ?? $visitId) }}, {{ (int) $participant['visitor_id'] }})"
-                x-on:click="$dispatch('bp-av-capture-scroll')"
-                class="btn btn-primary btn-sm bp-av-row-btn"
+                x-on:click="$dispatch('av-capture-scroll')"
+                class="btn btn-primary btn-sm min-w-[8.5rem] w-[8.5rem] max-w-[8.5rem] justify-center text-center"
                 wire:loading.attr="disabled"
                 wire:target="checkOut"
             >
                 {{ __('Check-out') }}
             </button>
         @else
-            <span class="bp-av-participant-status">—</span>
+            <span class="text-[0.82rem] leading-[1.24] text-base-content/70">—</span>
         @endif
     </div>
 </div>

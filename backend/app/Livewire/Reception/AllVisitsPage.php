@@ -221,17 +221,26 @@ class AllVisitsPage extends Component
                     ->values()
                     ->all();
 
+                $scheduledFrom = $visit->scheduled_from instanceof Carbon ? $visit->scheduled_from : null;
+                $status = $this->resolveVisitStatusMeta($visit->status);
+                $hostDisplay = trim(($visit->host?->first_name ?? '').' '.($visit->host?->name ?? ''));
+
                 return [
                     'id' => $visit->id,
                     'title' => $visit->title ?: __('Besuch'),
-                    'time' => optional($visit->scheduled_from)->format('H:i'),
-                    'date' => optional($visit->scheduled_from)->format('d.m.'),
-                    'scheduled_from' => optional($visit->scheduled_from)->format('d.m.Y H:i'),
+                    'time' => $scheduledFrom?->format('H:i'),
+                    'date' => $scheduledFrom?->format('d.m.'),
+                    'scheduled_from' => $scheduledFrom?->format('d.m.Y H:i'),
                     'scheduled_until' => optional($visit->scheduled_until)->format('d.m.Y H:i'),
-                    'host' => trim(($visit->host?->first_name ?? '').' '.($visit->host?->name ?? '')),
-                    'host_display' => trim(($visit->host?->first_name ?? '').' '.($visit->host?->name ?? '')),
-                    'status' => $this->resolveVisitStatusLabel($visit->status),
+                    'date_time_label' => $this->formatVisitDateTimeLabel($scheduledFrom),
+                    'year_label' => $scheduledFrom?->format('Y') ?? __('Ohne Jahr'),
+                    'host' => $hostDisplay,
+                    'host_display' => $hostDisplay,
+                    'status' => $status['label'],
+                    'status_label' => $status['label'],
+                    'status_class' => $status['class'],
                     'notes' => $visit->notes,
+                    'note_text' => trim((string) $visit->notes),
                     'participants' => $participants,
                     'participants_count' => count($participants),
                     'open_url' => route('portal.visits.show', $visit->id),
@@ -275,53 +284,65 @@ class AllVisitsPage extends Component
         if (filled($pivot->checked_out_at)) {
             return [
                 'label' => __('Ausgecheckt'),
-                'class' => 'badge-neutral badge-outline',
+                'class' => 'text-base-content/60',
             ];
         }
 
         if (filled($pivot->checked_in_at)) {
             return [
                 'label' => __('Eingecheckt'),
-                'class' => 'badge-success badge-outline',
+                'class' => 'text-success',
             ];
         }
 
         if (filled($pivot->badge_printed_at)) {
             return [
                 'label' => __('Badge bereit'),
-                'class' => 'badge-info badge-outline',
+                'class' => 'text-success',
             ];
         }
 
         if ($visitStatus === VisitStatusEnum::Draft->value) {
             return [
                 'label' => __('Entwurf'),
-                'class' => 'badge-error badge-outline',
+                'class' => 'text-base-content/60',
             ];
         }
 
         if ($visitStatus === VisitStatusEnum::Canceled->value) {
             return [
                 'label' => __('Abgesagt'),
-                'class' => 'badge-neutral',
+                'class' => 'text-error',
             ];
         }
 
         return [
             'label' => __('Geplant'),
-            'class' => 'badge-warning badge-outline',
+            'class' => 'text-warning',
         ];
     }
 
-    private function resolveVisitStatusLabel(string $status): string
+    /**
+     * @return array{label: string, class: string}
+     */
+    private function resolveVisitStatusMeta(string $status): array
     {
         return match ($status) {
-            VisitStatusEnum::Draft->value => VisitStatusEnum::Draft->label(),
-            VisitStatusEnum::Planned->value => VisitStatusEnum::Planned->label(),
-            VisitStatusEnum::Completed->value => VisitStatusEnum::Completed->label(),
-            VisitStatusEnum::Canceled->value => VisitStatusEnum::Canceled->label(),
-            default => __($status),
+            VisitStatusEnum::Draft->value => ['label' => VisitStatusEnum::Draft->label(), 'class' => 'text-base-content/60'],
+            VisitStatusEnum::Planned->value => ['label' => VisitStatusEnum::Planned->label(), 'class' => 'text-warning'],
+            VisitStatusEnum::Completed->value => ['label' => VisitStatusEnum::Completed->label(), 'class' => 'text-success'],
+            VisitStatusEnum::Canceled->value => ['label' => VisitStatusEnum::Canceled->label(), 'class' => 'text-error'],
+            default => ['label' => __($status), 'class' => ''],
         };
+    }
+
+    private function formatVisitDateTimeLabel(?Carbon $scheduledFrom): ?string
+    {
+        if (! $scheduledFrom) {
+            return null;
+        }
+
+        return $scheduledFrom->locale(app()->getLocale())->translatedFormat('D, d.m.').' | '.$scheduledFrom->format('H:i').' '.__('Uhr');
     }
 
     /**
