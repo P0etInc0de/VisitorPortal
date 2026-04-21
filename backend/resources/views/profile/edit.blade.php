@@ -21,6 +21,10 @@
         </section>
 
         <section class="bp-panel p-6 sm:p-7">
+                <x-lang.language_switcher/>
+        </section>
+
+        <section class="bp-panel p-6 sm:p-7">
             <div class="max-w-3xl">
                 @include('profile.partials.delete-user-form')
             </div>
