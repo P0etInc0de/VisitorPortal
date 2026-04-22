@@ -31,7 +31,7 @@
                     </div>
 
                     <div>
-                        <div class="text-xs font-semibold uppercase tracking-[0.18em] text-base-content/50">{{ __('Empfang') }}</div>
+                        <div class="text-xs font-semibold uppercase tracking-[0.18em] text-base-content/50">{{ __('Vertretung') }}</div>
                         <div class="mt-2 text-base font-medium text-base-content">{{ $visitMeta['reception'] }}</div>
                     </div>
                 </div>
