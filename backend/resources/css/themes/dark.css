@@ -1,0 +1,25 @@
+[data-theme="dark"] {
+    --radius-selector: 1rem;
+    --radius-field: 1rem;
+    --radius-box: 1rem;
+
+    --color-base-100: #111827;
+    --color-base-200: #0f172a;
+    --color-base-300: #1f2937;
+    --color-base-content: #e5eefc;
+
+    --color-neutral: #334155;
+    --color-neutral-content: #f8fafc;
+
+    --color-primary: #818cf8;
+    --color-primary-content: #111827;
+
+    --color-success: #22c55e;
+    --color-success-content: #052e16;
+
+    --color-warning: #f59e0b;
+    --color-warning-content: #1f2937;
+
+    --color-error: #f87171;
+    --color-error-content: #2a0f0f;
+}

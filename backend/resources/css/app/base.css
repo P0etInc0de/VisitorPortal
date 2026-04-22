@@ -1,0 +1,21 @@
+/* Base document */
+body {
+    transition: opacity 140ms ease;
+}
+
+[x-cloak] {
+    display: none !important;
+}
+
+html.is-preload body {
+    opacity: 0;
+}
+
+html.is-ready body {
+    opacity: 1;
+}
+
+/* Selection */
+::selection {
+    background: color-mix(in srgb, var(--color-primary) 20%, transparent);
+}

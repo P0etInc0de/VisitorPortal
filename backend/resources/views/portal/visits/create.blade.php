@@ -18,9 +18,13 @@
         ->map(function ($visitor) {
             return [
                 'id' => $visitor->id,
+                'title' => $visitor->title,
                 'first_name' => $visitor->first_name,
-                'last_name' => $visitor->last_name,
-                'full_name' => trim(($visitor->first_name ?? '') . ' ' . ($visitor->last_name ?? '')),
+                'name' => $visitor->name,
+                'full_name' => trim(implode(' ', array_filter([
+                    $visitor->first_name,
+                    $visitor->name,
+                ]))) . (filled($visitor->title) ? ', '.$visitor->title : ''),
                 'company' => $visitor->company,
                 'email' => $visitor->email,
                 'phone' => $visitor->phone,
@@ -31,9 +35,9 @@
 
 <x-app-layout>
     <x-slot name="header">
-        <div class="bp-screen-head">
+        <div class="flex items-start justify-between gap-4">
             <div>
-                <h1 class="bp-screen-title">
+                <h1 class="text-4xl font-bold leading-none tracking-tight lg:text-5xl">
                     {{ $isEdit ? __('Besuch bearbeiten') : __('Besuch anlegen') }}
                 </h1>
             </div>
@@ -41,7 +45,7 @@
     </x-slot>
 
     <div
-        class="bp-content"
+        class="grid min-w-0 gap-5"
         x-data="{
             beginDate: {{ \Illuminate\Support\Js::from($beginDate) }},
             beginTime: {{ \Illuminate\Support\Js::from($beginTime) }},
@@ -55,8 +59,9 @@
             search: '',
             draftParticipant: {
                 visitor_id: null,
+                title: '',
                 first_name: '',
-                last_name: '',
+                name: '',
                 email: '',
                 phone: '',
                 company: '',
@@ -86,8 +91,9 @@
             resetDraftParticipant() {
                 this.draftParticipant = {
                     visitor_id: null,
+                    title: '',
                     first_name: '',
-                    last_name: '',
+                    name: '',
                     email: '',
                     phone: '',
                     company: '',
@@ -106,6 +112,7 @@
                     .filter((visitor) => {
                         const haystack = [
                             visitor.full_name,
+                            visitor.title,
                             visitor.company,
                             visitor.email,
                             visitor.phone,
@@ -128,8 +135,9 @@
 
                 this.participants.push({
                     visitor_id: visitor.id,
+                    title: visitor.title ?? '',
                     first_name: visitor.first_name ?? '',
-                    last_name: visitor.last_name ?? '',
+                    name: visitor.name ?? '',
                     email: visitor.email ?? '',
                     phone: visitor.phone ?? '',
                     company: visitor.company ?? '',
@@ -146,8 +154,9 @@
                 this.addingNewParticipant = true;
                 this.draftParticipant = {
                     visitor_id: null,
+                    title: '',
                     first_name: parts[0] ?? '',
-                    last_name: parts.length > 1 ? parts.slice(1).join(' ') : '',
+                    name: parts.length > 1 ? parts.slice(1).join(' ') : '',
                     email: '',
                     phone: '',
                     company: '',
@@ -159,7 +168,7 @@
             },
             addDraftParticipant() {
                 const firstName = (this.draftParticipant.first_name ?? '').trim();
-                const lastName = (this.draftParticipant.last_name ?? '').trim();
+                const lastName = (this.draftParticipant.name ?? '').trim();
 
                 if (!firstName || !lastName) {
                     return;
@@ -167,8 +176,9 @@
 
                 this.participants.push({
                     visitor_id: null,
+                    title: (this.draftParticipant.title ?? '').trim(),
                     first_name: firstName,
-                    last_name: lastName,
+                    name: lastName,
                     email: (this.draftParticipant.email ?? '').trim(),
                     phone: (this.draftParticipant.phone ?? '').trim(),
                     company: (this.draftParticipant.company ?? '').trim(),
@@ -182,11 +192,16 @@
                 this.participants.splice(index, 1);
             },
             participantName(participant) {
+                const title = (participant.title ?? '').trim();
                 const firstName = (participant.first_name ?? '').trim();
-                const lastName = (participant.last_name ?? '').trim();
+                const lastName = (participant.name ?? '').trim();
                 const fullName = `${firstName} ${lastName}`.trim();
 
-                return fullName || '{{ __('Ohne Namen') }}';
+                if (fullName !== '' && title !== '') {
+                    return `${fullName}, ${title}`;
+                }
+
+                return fullName || title || '{{ __('Ohne Namen') }}';
             },
             participantHasDetails(participant) {
                 return Boolean(participant.company || participant.email || participant.phone);
@@ -204,7 +219,7 @@
             },
         }"
     >
-        <form method="POST" action="{{ $formAction }}" class="space-y-7">
+        <form method="POST" action="{{ $formAction }}" class="grid gap-5">
             @csrf
             @if ($formMethod !== 'POST')
                 @method($formMethod)
@@ -225,8 +240,8 @@
                 </div>
             @endif
 
-            <section class="card rounded-3xl border border-base-300 bg-base-100 shadow-sm">
-                <div class="card-body p-6 sm:p-7">
+            <section class="rounded-3xl border border-base-300 bg-base-100 shadow-sm">
+                <div class="p-5 sm:p-6">
                     <div class="grid gap-6 xl:grid-cols-[1.55fr_0.95fr]">
                         <div class="space-y-5">
                             <div class="grid gap-5 xl:grid-cols-12">
@@ -239,7 +254,7 @@
                                     <input
                                         type="text"
                                         name="title"
-                                        class="input input-bordered w-full rounded-2xl @error('title') input-error @enderror"
+                                        class="input input-bordered w-full @error('title') input-error @enderror"
                                         value="{{ old('title', $visit->title) }}"
                                         placeholder="{{ __('z. B. Technik-Rundgang') }}"
                                     >
@@ -251,7 +266,7 @@
                                     </div>
                                     <select
                                         name="user_id"
-                                        class="select select-bordered w-full rounded-2xl @error('user_id') select-error @enderror"
+                                        class="select select-bordered w-full @error('user_id') select-error @enderror"
                                     >
                                         @foreach ($users as $user)
                                             <option
@@ -272,7 +287,7 @@
                                     </div>
                                     <select
                                         name="responsible_user_id"
-                                        class="select select-bordered w-full rounded-2xl @error('responsible_user_id') select-error @enderror"
+                                        class="select select-bordered w-full @error('responsible_user_id') select-error @enderror"
                                     >
                                         <option value="">{{ __('Optional auswählen') }}</option>
                                         @foreach ($users as $user)
@@ -292,7 +307,7 @@
                                     </div>
                                     <select
                                         name="status"
-                                        class="select select-bordered w-full rounded-2xl @error('status') select-error @enderror"
+                                        class="select select-bordered w-full @error('status') select-error @enderror"
                                     >
                                         @foreach (\App\Enums\VisitStatusEnum::options() as $value => $label)
                                             <option value="{{ $value }}" @selected(old('status', $visit->status ?: 'draft') === $value)>
@@ -309,13 +324,13 @@
                                     <div class="grid gap-3 sm:grid-cols-[1fr_9rem]">
                                         <input
                                             type="date"
-                                            class="input input-bordered w-full rounded-2xl @error('scheduled_from') input-error @enderror"
+                                            class="input input-bordered w-full @error('scheduled_from') input-error @enderror"
                                             x-model="beginDate"
                                             @change="syncEndDateFromBegin()"
                                         >
                                         <input
                                             type="text"
-                                            class="input input-bordered w-full rounded-2xl @error('scheduled_from') input-error @enderror"
+                                            class="input input-bordered w-full @error('scheduled_from') input-error @enderror"
                                             list="visit-time-options"
                                             placeholder="HH:MM"
                                             x-model="beginTime"
@@ -333,13 +348,13 @@
                                     <div class="grid gap-3 sm:grid-cols-[1fr_9rem]">
                                         <input
                                             type="date"
-                                            class="input input-bordered w-full rounded-2xl @error('scheduled_until') input-error @enderror"
+                                            class="input input-bordered w-full @error('scheduled_until') input-error @enderror"
                                             x-model="endDate"
                                             @change="endDateTouched = true"
                                         >
                                         <input
                                             type="text"
-                                            class="input input-bordered w-full rounded-2xl @error('scheduled_until') input-error @enderror"
+                                            class="input input-bordered w-full @error('scheduled_until') input-error @enderror"
                                             list="visit-time-options"
                                             placeholder="HH:MM"
                                             x-model="endTime"
@@ -361,7 +376,7 @@
                                 </div>
                                 <textarea
                                     name="notes"
-                                    class="textarea textarea-bordered min-h-[17rem] w-full rounded-2xl @error('notes') textarea-error @enderror"
+                                    class="textarea textarea-bordered min-h-[9rem] w-full @error('notes') textarea-error @enderror"
                                 >{{ old('notes', $visit->notes) }}</textarea>
                             </label>
                         </div>
@@ -369,25 +384,25 @@
                 </div>
             </section>
 
-            <section class="card rounded-3xl border border-base-300 bg-base-100 shadow-sm">
-                <div class="card-body p-6 sm:p-7">
+            <section class="rounded-3xl border border-base-300 bg-base-100 shadow-sm">
+                <div class="p-5 sm:p-6">
                     <div>
                         <h2 class="text-2xl font-semibold tracking-tight text-base-content">
                             {{ __('Besucher / Teilnehmende') }}
                         </h2>
                     </div>
 
-                    <div class="mt-6 rounded-[2rem] border border-base-300 bg-base-100">
-                        <div class="space-y-4 p-5 sm:p-6">
+                    <div class="mt-4 rounded-2xl border border-base-300 bg-base-100">
+                        <div class="grid gap-4 p-4 sm:p-5">
                             <template x-if="participants.length === 0">
-                                <div class="rounded-2xl border border-dashed border-base-300 px-5 py-6 text-base-content/65">
+                                <div class="rounded-2xl border border-dashed border-base-300 bg-base-100/70 p-4 text-base-content/65">
                                     {{ __('Noch keine Teilnehmenden hinzugefügt.') }}
                                 </div>
                             </template>
 
-                            <div class="space-y-3">
+                            <div class="grid gap-4">
                                 <template x-for="(participant, index) in participants" :key="`participant-${index}`">
-                                    <div class="rounded-2xl border border-base-300 bg-base-100 px-4 py-3">
+                                    <div class="rounded-2xl border border-base-300 bg-base-100 p-4">
                                         <div class="flex flex-wrap items-center justify-between gap-3">
                                             <div class="min-w-0">
                                                 <div class="flex flex-wrap items-center gap-2">
@@ -401,7 +416,7 @@
                                             <div class="flex items-center gap-2">
                                                 <button
                                                     type="button"
-                                                    class="btn btn-ghost btn-sm rounded-xl"
+                                                    class="btn btn-ghost btn-sm"
                                                     x-show="participantHasDetails(participant)"
                                                     @click="toggleParticipant(index)"
                                                 >
@@ -409,7 +424,7 @@
                                                 </button>
                                                 <button
                                                     type="button"
-                                                    class="btn btn-ghost btn-sm rounded-xl text-error hover:bg-error/10"
+                                                    class="btn btn-ghost btn-sm text-error hover:bg-error/10"
                                                     @click="removeParticipant(index)"
                                                 >
                                                     {{ __('Entfernen') }}
@@ -441,8 +456,9 @@
                                         </div>
 
                                         <input type="hidden" :name="`participants[${index}][visitor_id]`" :value="participantHiddenValue(participant.visitor_id)">
+                                        <input type="hidden" :name="`participants[${index}][title]`" :value="participantHiddenValue(participant.title)">
                                         <input type="hidden" :name="`participants[${index}][first_name]`" :value="participantHiddenValue(participant.first_name)">
-                                        <input type="hidden" :name="`participants[${index}][last_name]`" :value="participantHiddenValue(participant.last_name)">
+                                        <input type="hidden" :name="`participants[${index}][name]`" :value="participantHiddenValue(participant.name)">
                                         <input type="hidden" :name="`participants[${index}][email]`" :value="participantHiddenValue(participant.email)">
                                         <input type="hidden" :name="`participants[${index}][phone]`" :value="participantHiddenValue(participant.phone)">
                                         <input type="hidden" :name="`participants[${index}][company]`" :value="participantHiddenValue(participant.company)">
@@ -450,7 +466,7 @@
                                 </template>
                             </div>
 
-                            <div x-show="addingParticipant" x-collapse class="rounded-2xl border border-dashed border-base-300 bg-base-100/80 p-5">
+                            <div x-show="addingParticipant" x-collapse class="rounded-2xl border border-dashed border-base-300 bg-base-100/70 p-4 text-base-content/65">
                                 <label class="form-control">
                                     <div class="label px-0 pb-2">
                                         <span class="label-text text-sm font-medium text-base-content">
@@ -460,7 +476,7 @@
                                     <input
                                         x-ref="participantSearch"
                                         type="text"
-                                        class="input input-bordered w-full rounded-2xl"
+                                        class="input input-bordered w-full"
                                         x-model="search"
                                         placeholder="{{ __('Name, Firma oder E-Mail eingeben') }}"
                                     >
@@ -488,7 +504,7 @@
 
                                     <button
                                         type="button"
-                                        class="btn btn-outline rounded-xl"
+                                        class="btn btn-outline"
                                         @click="startNewParticipantFromSearch()"
                                     >
                                         {{ __('Neue Person anlegen') }}
@@ -499,12 +515,24 @@
                                     <div class="grid gap-4 md:grid-cols-2 xl:grid-cols-12">
                                         <label class="form-control xl:col-span-4">
                                             <div class="label px-0 pb-2">
+                                                <span class="label-text text-sm font-medium text-base-content">{{ __('Titel') }}</span>
+                                            </div>
+                                            <input
+                                                type="text"
+                                                class="input input-bordered w-full"
+                                                x-model="draftParticipant.title"
+                                                placeholder="{{ __('z. B. Dr.') }}"
+                                            >
+                                        </label>
+
+                                        <label class="form-control xl:col-span-4">
+                                            <div class="label px-0 pb-2">
                                                 <span class="label-text text-sm font-medium text-base-content">{{ __('Vorname') }}</span>
                                             </div>
                                             <input
                                                 x-ref="firstNameInput"
                                                 type="text"
-                                                class="input input-bordered w-full rounded-2xl"
+                                                class="input input-bordered w-full"
                                                 x-model="draftParticipant.first_name"
                                             >
                                         </label>
@@ -515,8 +543,8 @@
                                             </div>
                                             <input
                                                 type="text"
-                                                class="input input-bordered w-full rounded-2xl"
-                                                x-model="draftParticipant.last_name"
+                                                class="input input-bordered w-full"
+                                                x-model="draftParticipant.name"
                                             >
                                         </label>
 
@@ -526,7 +554,7 @@
                                             </div>
                                             <input
                                                 type="text"
-                                                class="input input-bordered w-full rounded-2xl"
+                                                class="input input-bordered w-full"
                                                 x-model="draftParticipant.company"
                                             >
                                         </label>
@@ -537,7 +565,7 @@
                                             </div>
                                             <input
                                                 type="email"
-                                                class="input input-bordered w-full rounded-2xl"
+                                                class="input input-bordered w-full"
                                                 x-model="draftParticipant.email"
                                             >
                                         </label>
@@ -548,20 +576,20 @@
                                             </div>
                                             <input
                                                 type="text"
-                                                class="input input-bordered w-full rounded-2xl"
+                                                class="input input-bordered w-full"
                                                 x-model="draftParticipant.phone"
                                             >
                                         </label>
                                     </div>
 
                                     <div class="mt-5 flex flex-wrap items-center justify-end gap-3">
-                                        <button type="button" class="btn btn-outline rounded-2xl" @click="cancelAddParticipant()">
+                                        <button type="button" class="btn btn-outline" @click="cancelAddParticipant()">
                                             {{ __('Verwerfen') }}
                                         </button>
                                         <button
                                             type="button"
-                                            class="btn btn-primary rounded-2xl"
-                                            :disabled="!(draftParticipant.first_name || '').trim() || !(draftParticipant.last_name || '').trim()"
+                                            class="btn btn-primary"
+                                            :disabled="!(draftParticipant.first_name || '').trim() || !(draftParticipant.name || '').trim()"
                                             @click="addDraftParticipant()"
                                         >
                                             {{ __('Zur Liste hinzufügen') }}
@@ -573,7 +601,7 @@
                             <div class="pt-2">
                                 <button
                                     type="button"
-                                    class="btn btn-outline rounded-2xl"
+                                    class="btn btn-outline"
                                     x-show="!addingParticipant"
                                     @click="openAddParticipant()"
                                 >
@@ -585,11 +613,11 @@
                 </div>
             </section>
 
-            <div class="flex justify-end gap-3">
-                <a href="{{ $isEdit ? route('portal.visits.show', $visit) : route('dashboard') }}" class="btn btn-outline rounded-2xl">
+            <div class="flex flex-wrap items-center justify-end gap-3">
+                <a href="{{ $isEdit ? route('portal.visits.show', $visit) : route('dashboard') }}" class="btn btn-outline">
                     {{ __('Abbrechen') }}
                 </a>
-                <button type="submit" class="btn btn-primary rounded-2xl">
+                <button type="submit" class="btn btn-primary">
                     {{ $isEdit ? __('Besuch aktualisieren') : __('Besuch speichern') }}
                 </button>
             </div>
