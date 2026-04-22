@@ -357,5 +357,4 @@ class CheckInOutBoard extends Component
 
         return ['label' => __('Geplant'), 'class' => 'badge-warning badge-outline'];
     }
-
 }
