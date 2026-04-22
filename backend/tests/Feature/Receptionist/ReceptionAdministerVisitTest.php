@@ -36,6 +36,16 @@ class ReceptionAdministerVisitTest extends TestCase
         }
     }
 
+    public function test_receptionist_can_view_dashboard(): void
+    {
+        $receptionist = (new PermissionHelper)->getReceptionistUser();
+
+        $response = $this->actingAs($receptionist)
+            ->get(route('reception.dashboard'));
+
+        $response->assertStatus(200);
+    }
+
     /**
      * @throws \JsonException
      */
