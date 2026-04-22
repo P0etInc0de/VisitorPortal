@@ -248,7 +248,7 @@
                                 <label class="form-control xl:col-span-12">
                                     <div class="label px-0 pb-2">
                                         <span class="label-text text-sm font-medium text-base-content">
-                                            {{ __('Titel / Anlass') }}
+                                            {{ __('Titel_Anlass') }}
                                         </span>
                                     </div>
                                     <input
@@ -282,7 +282,7 @@
                                 <label class="form-control xl:col-span-4">
                                     <div class="label px-0 pb-2">
                                         <span class="label-text text-sm font-medium text-base-content">
-                                            {{ __('Verantwortlich / Empfang') }}
+                                            {{ __('Verantwortlich_Empfang') }}
                                         </span>
                                     </div>
                                     <select
@@ -388,7 +388,7 @@
                 <div class="p-5 sm:p-6">
                     <div>
                         <h2 class="text-2xl font-semibold tracking-tight text-base-content">
-                            {{ __('Besucher / Teilnehmende') }}
+                            {{ __('Besucher_Teilnehmende') }}
                         </h2>
                     </div>
 
