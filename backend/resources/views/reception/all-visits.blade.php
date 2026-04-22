@@ -7,6 +7,5 @@
         </div>
     </x-slot>
 
-
     @livewire('reception.all-visits-page')
 </x-app-layout>
