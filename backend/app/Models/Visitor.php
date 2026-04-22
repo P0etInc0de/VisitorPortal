@@ -9,7 +9,6 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Notifications\Notifiable;
-use Illuminate\Support\Carbon;
 
 class Visitor extends Model
 {
@@ -49,41 +48,5 @@ class Visitor extends Model
                 'notes',
             ])
             ->withTimestamps();
-    }
-
-    public function getFullNameAttribute(): string
-    {
-        return trim(implode(' ', array_filter([
-            (string) ($this->first_name ?? ''),
-            (string) ($this->name ?? ''),
-        ])));
-    }
-
-    public function getDisplayNameAttribute(): string
-    {
-        if ($this->full_name !== '') {
-            return $this->full_name;
-        }
-
-        foreach ([$this->company, $this->email] as $fallback) {
-            $fallback = trim((string) $fallback);
-
-            if ($fallback !== '') {
-                return $fallback;
-            }
-        }
-
-        return '–';
-    }
-
-    /**
-     * Get next scheduled visit
-     */
-    public function nextVisit()
-    {
-        return $this->visits()
-            ->where('scheduled_from', '>', Carbon::now())
-            ->orderBy('scheduled_from', 'asc')
-            ->first();
     }
 }

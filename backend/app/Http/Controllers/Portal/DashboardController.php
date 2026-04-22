@@ -42,7 +42,7 @@ class DashboardController extends Controller
                 return $visit->visitors
                     ->filter(fn (Visitor $visitor) => blank($visitor->pivot?->badge_printed_at))
                     ->map(fn (Visitor $visitor) => __('Badge noch offen für :name bei :title', [
-                        'name' => $visitor->display_name,
+                        'name' => $this->visitorDisplayName($visitor),
                         'title' => $visit->display_title,
                     ]));
             })
@@ -52,7 +52,7 @@ class DashboardController extends Controller
         $visitCards = $upcomingVisits
             ->map(function (Visit $visit) {
                 $previewNames = $visit->visitors
-                    ->map(fn (Visitor $visitor) => $visitor->display_name)
+                    ->map(fn (Visitor $visitor) => $this->visitorDisplayName($visitor))
                     ->filter(fn (?string $name) => filled($name) && $name !== '–')
                     ->take(3)
                     ->values();
@@ -129,5 +129,27 @@ class DashboardController extends Controller
             'canceled' => 'badge-neutral badge-outline',
             default => 'badge-warning badge-outline',
         };
+    }
+
+    private function visitorDisplayName(Visitor $visitor): string
+    {
+        $fullName = trim(implode(' ', array_filter([
+            $visitor->first_name,
+            $visitor->name,
+        ])));
+
+        if ($fullName !== '') {
+            return $fullName;
+        }
+
+        foreach ([$visitor->company, $visitor->email] as $fallback) {
+            $fallback = trim((string) $fallback);
+
+            if ($fallback !== '') {
+                return $fallback;
+            }
+        }
+
+        return '–';
     }
 }
