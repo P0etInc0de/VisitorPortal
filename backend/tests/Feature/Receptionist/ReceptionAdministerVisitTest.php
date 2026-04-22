@@ -126,5 +126,31 @@ class ReceptionAdministerVisitTest extends TestCase
     public function test_receptionist_can_cancel_visit(): void
     {
         $receptionist = (new PermissionHelper)->getReceptionistUser();
+
+        $employee = User::factory()->create();
+        $responsibleUser = User::factory()->create();
+
+        $visitTitle = 'Test Visit';
+
+        // create visit with status 'Planned'
+        $visit = (new VisitHelper)->makeVisit(
+            $employee->id,
+            $visitTitle,
+            VisitStatusEnum::Planned,
+            $responsibleUser->id
+        );
+
+        // cancel the visit
+        $response = $this->actingAs($receptionist)
+            ->post(route('portal.visits.cancel', $visit));
+
+
+
+
+        // check if the status is now set to 'Canceled'
+        $this->assertDatabaseHas('visits', [
+            'id' => $visit->id,
+            'status' => VisitStatusEnum::Canceled,
+        ]);
     }
 }
