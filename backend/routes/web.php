@@ -3,12 +3,12 @@
 use App\Http\Controllers\Monitor\MonitorController;
 use App\Http\Controllers\Portal\DashboardController as PortalDashboardController;
 use App\Http\Controllers\Portal\VisitController as PortalVisitController;
-use App\Livewire\Portal\VisitShowPage;
 use App\Http\Controllers\Reception\DashboardController as ReceptionDashboardController;
 use App\Http\Controllers\Reception\VisitController as ReceptionVisitController;
 use App\Http\Controllers\Reception\VisitParticipantActionController;
 use App\Http\Controllers\UserPermissionsController;
 use App\Livewire\Portal\CheckInOutBoard;
+use App\Livewire\Portal\VisitShowPage;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
