@@ -25,7 +25,7 @@ class EditVisit extends EditRecord
                 ->modalHeading('Cancel Visit')
                 ->modalDescription('Are you sure you want to cancel this visit?')
                 ->modalSubmitActionLabel('Yes, cancel it')
-                ->hidden(fn ($record) => $record->status === VisitStatusEnum::Canceled->value) // Hides the button if already cancelled
+                ->hidden(fn ($record) => $record->status === VisitStatusEnum::Canceled->value || $record->status === VisitStatusEnum::Completed->value) // Hides the button if already cancelled or finished
                 ->action(function ($record) {
                     // Set the properties directly
                     $record->canceled_at = now();

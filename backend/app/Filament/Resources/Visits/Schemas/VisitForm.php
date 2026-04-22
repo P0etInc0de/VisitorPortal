@@ -34,10 +34,7 @@ class VisitForm
                 Textarea::make('notes')
                     ->columnSpanFull(),
                 DateTimePicker::make('canceled_at'),
-                Select::make('canceledBy')
-                    ->relationship(name: 'canceledBy', titleAttribute: 'first_name')
-                    ->getOptionLabelFromRecordUsing(fn (User $record) => $record->fullName)
-                    ->searchable(['first_name', 'name']),
+
                 Select::make('visitors')
                     ->multiple()
                     ->relationship(name: 'visitors')
