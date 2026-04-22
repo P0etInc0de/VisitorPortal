@@ -56,30 +56,30 @@
                 @else
                     <div class="grid gap-4">
                         @foreach ($participants as $participant)
-                            <article class="rounded-2xl border border-base-300 bg-base-100 p-5 shadow-sm">
-                                <div class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                            <article class="rounded-2xl border border-base-300 bg-base-100 p-4 shadow-sm sm:p-5">
+                                <div class="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
                                     <div class="min-w-0">
                                         <div class="flex flex-wrap items-center gap-2">
-                                            <h3 class="text-xl font-semibold tracking-tight text-base-content">{{ $participant['display_name'] }}</h3>
+                                            <h3 class="text-lg font-semibold tracking-tight text-base-content sm:text-xl">{{ $participant['display_name'] }}</h3>
                                             <span class="badge {{ $participant['status']['class'] }} rounded-full text-xs font-semibold">{{ $participant['status']['label'] }}</span>
                                         </div>
                                     </div>
                                 </div>
 
-                                <div class="mt-5 space-y-4">
+                                <div class="mt-4 grid gap-3 md:grid-cols-[minmax(0,1.45fr)_minmax(0,0.85fr)_minmax(0,0.85fr)]">
                                     <div>
                                         <div class="text-xs font-semibold uppercase tracking-[0.18em] text-base-content/50">{{ __('E-Mail') }}</div>
-                                        <div class="mt-2 text-base text-base-content">{{ $participant['email'] ?: '–' }}</div>
+                                        <div class="mt-1.5 break-words text-base text-base-content">{{ $participant['email'] ?: '–' }}</div>
                                     </div>
 
                                     <div>
                                         <div class="text-xs font-semibold uppercase tracking-[0.18em] text-base-content/50">{{ __('Telefon') }}</div>
-                                        <div class="mt-2 text-base text-base-content">{{ $participant['phone'] ?: '–' }}</div>
+                                        <div class="mt-1.5 text-base text-base-content">{{ $participant['phone'] ?: '–' }}</div>
                                     </div>
 
                                     <div>
-                                        <div class="text-xs font-semibold uppercase tracking-[0.18em] text-base-content/50">{{ __('Firma') }}</div>
-                                        <div class="mt-2 text-base text-base-content">{{ $participant['company'] ?: '–' }}</div>
+                                        <div class="text-xs font-semibold uppercase tracking-[0.18em] text-base-content/50">{{ __('Unternehmen') }}</div>
+                                        <div class="mt-1.5 text-base text-base-content">{{ $participant['company'] ?: '–' }}</div>
                                     </div>
                                 </div>
                             </article>
