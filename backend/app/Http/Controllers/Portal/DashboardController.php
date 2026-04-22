@@ -13,8 +13,11 @@ class DashboardController extends Controller
     public function index(Request $request): View
     {
         $user = $request->user();
-        if (! ($user->can('ViewAny:Visit') || $user->can('ViewDepartment:Visit') || $user->can('ViewOwn:Visit') || $user->hasRole('welcome monitor'))) {
-            abort(403);
+
+        try {
+            $this->authorize('viewGeneral', Visit::class);
+        } catch (Exception $e) {
+            $this->authorize('view', Monitor::class);
         }
 
         $baseQuery = Visit::query()
@@ -82,7 +85,7 @@ class DashboardController extends Controller
         return view('portal.dashboard', [
             'stats' => [
                 [
-                    'label' => __('Meine Besuche heute'),
+                    'label' => __('Meine Besucha heute'),
                     'value' => (string) $todayVisits->count(),
                     'meta' => $todayVisits->contains(
                         fn (Visit $visit) => $visit->scheduled_from && $visit->scheduled_from->between(now(), now()->copy()->addHour())
