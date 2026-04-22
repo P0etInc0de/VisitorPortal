@@ -32,7 +32,6 @@ class AdminPanelProvider extends PanelProvider
             ->globalSearch(position: GlobalSearchPosition::Sidebar)
             ->brandLogo(asset('images/logo.png'))
             ->brandLogoHeight('4rem')
-            ->login()
             ->colors([
                 // 'primary' => Color::Amber,
             ])
