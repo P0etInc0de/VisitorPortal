@@ -20,8 +20,8 @@ class MonitorController extends Controller
             ->flatMap(fn (Visit $visit) => $visit->visitors->map(function ($visitor) use ($visit) {
                 return [
                     'time' => $visit->scheduled_from->format('H:i'),
-                    'name' => $visitor->full_name,
-                    'company' => $visitor->display_company,
+                    'name' => $this->visitorFullName($visitor),
+                    'company' => $this->visitorCompany($visitor),
                     'title' => $visit->display_title,
                 ];
             }))
@@ -36,5 +36,28 @@ class MonitorController extends Controller
     public function edit(): View
     {
         return view('monitor.editor');
+    }
+
+    private function visitorFullName(object $visitor): string
+    {
+        $fullName = trim(implode(' ', array_filter([
+            $visitor->first_name ?? null,
+            $visitor->name ?? null,
+        ])));
+
+        return $fullName !== '' ? $fullName : '–';
+    }
+
+    private function visitorCompany(object $visitor): string
+    {
+        $company = trim((string) ($visitor->company ?? ''));
+
+        if ($company !== '') {
+            return $company;
+        }
+
+        $email = trim((string) ($visitor->email ?? ''));
+
+        return $email !== '' ? $email : '–';
     }
 }
