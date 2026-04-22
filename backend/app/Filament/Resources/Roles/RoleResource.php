@@ -40,6 +40,11 @@ class RoleResource extends Resource
 
     protected static ?string $recordTitleAttribute = 'name';
 
+    public static function getNavigationGroup(): ?string
+    {
+        return null;
+    }
+
     public static function form(Schema $schema): Schema
     {
         return $schema

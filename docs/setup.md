@@ -43,6 +43,9 @@ MAIL_PASSWORD=null
 MAIL_ENCRYPTION=null
 MAIL_FROM_ADDRESS=visitorportal@example.test
 MAIL_FROM_NAME="Besucherportal"
+
+#GitHub Link
+GITHUB_REPO_URL="https://github.com/P0etInc0de/Besucherportal"
 ```
 
 ## 3. Installiere alle PHP-Abhängigkeiten, die in composer.json definiert sind

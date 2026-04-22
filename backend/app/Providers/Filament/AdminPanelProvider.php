@@ -66,7 +66,7 @@ class AdminPanelProvider extends PanelProvider
                 PanelsRenderHook::GLOBAL_SEARCH_AFTER,
                 fn (): string => Blade::render('
                     <x-filament::button tag="a" href="/dashboard" size="sm">
-                        Dashboard
+                        {{__("User-Bereich")}}
                     </x-filament::button>
                 ')
             );
