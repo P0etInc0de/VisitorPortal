@@ -1,14 +1,14 @@
 <x-app-layout>
     <x-slot name="header">
-        <div class="bp-screen-head">
+        <div class="flex items-start justify-between gap-4">
             <div>
-                <h1 class="bp-screen-title">{{ __('Dashboard') }}</h1>
+                <h1 class="text-4xl font-bold leading-none tracking-tight lg:text-5xl">{{ __('Dashboard') }}</h1>
             </div>
         </div>
     </x-slot>
 
-    <div class="bp-content">
-        <section class="bp-stat-grid">
+    <div class="grid min-w-0 gap-5">
+        <section class="grid grid-cols-1 gap-5 lg:grid-cols-3">
             @foreach ($stats as $stat)
                 <article class="card rounded-[1.4rem] border border-base-300 bg-base-100 shadow-sm">
                     <div class="card-body p-4 sm:p-5">
@@ -103,55 +103,55 @@
         </section>
     </div>
 
-@once
-    <script>
-        document.addEventListener('alpine:init', () => {
-            window.visitParticipantRow = function (participant) {
-                return {
-                    participant: participant,
-                    busy: false,
-                    async submitAction(url) {
-                        if (this.busy || !url) {
-                            return;
-                        }
-
-                        this.busy = true;
-
-                        try {
-                            const response = await fetch(url, {
-                                method: 'POST',
-                                headers: {
-                                    'Accept': 'application/json',
-                                    'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8',
-                                    'X-Requested-With': 'XMLHttpRequest',
-                                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                                },
-                                body: new URLSearchParams({ _token: '{{ csrf_token() }}' }).toString(),
-                                credentials: 'same-origin',
-                            });
-
-                            if (!response.ok) {
-                                throw new Error('Request failed');
+    @once
+        <script>
+            document.addEventListener('alpine:init', () => {
+                window.visitParticipantRow = function (participant) {
+                    return {
+                        participant: participant,
+                        busy: false,
+                        async submitAction(url) {
+                            if (this.busy || !url) {
+                                return;
                             }
 
-                            const data = await response.json();
+                            this.busy = true;
 
-                            if (data.participant) {
-                                this.participant = {
-                                    ...this.participant,
-                                    ...data.participant,
-                                };
+                            try {
+                                const response = await fetch(url, {
+                                    method: 'POST',
+                                    headers: {
+                                        'Accept': 'application/json',
+                                        'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8',
+                                        'X-Requested-With': 'XMLHttpRequest',
+                                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                                    },
+                                    body: new URLSearchParams({ _token: '{{ csrf_token() }}' }).toString(),
+                                    credentials: 'same-origin',
+                                });
+
+                                if (!response.ok) {
+                                    throw new Error('Request failed');
+                                }
+
+                                const data = await response.json();
+
+                                if (data.participant) {
+                                    this.participant = {
+                                        ...this.participant,
+                                        ...data.participant,
+                                    };
+                                }
+                            } catch (error) {
+                                window.location.reload();
+                            } finally {
+                                this.busy = false;
                             }
-                        } catch (error) {
-                            window.location.reload();
-                        } finally {
-                            this.busy = false;
-                        }
-                    },
+                        },
+                    };
                 };
-            };
-        });
-    </script>
-@endonce
+            });
+        </script>
+    @endonce
 
 </x-app-layout>

@@ -127,10 +127,10 @@ class DashboardController extends Controller
     private function visitStatusClass(string $status): string
     {
         return match ($status) {
-            'draft' => 'bp-status-draft',
-            'completed' => 'bp-status-active',
-            'canceled' => 'bp-status-neutral',
-            default => 'bp-status-planned',
+            'draft' => 'badge-neutral badge-outline',
+            'completed' => 'badge-success badge-outline',
+            'canceled' => 'badge-neutral badge-outline',
+            default => 'badge-warning badge-outline',
         };
     }
 }
