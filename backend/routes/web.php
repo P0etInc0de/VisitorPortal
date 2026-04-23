@@ -8,6 +8,7 @@ use App\Http\Controllers\Reception\VisitController as ReceptionVisitController;
 use App\Http\Controllers\Reception\VisitParticipantActionController;
 use App\Http\Controllers\UserPermissionsController;
 use App\Livewire\Portal\CheckInOutBoard;
+use App\Livewire\Portal\VisitShowPage;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -23,7 +24,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::prefix('visits')->name('visits.')->group(function () {
             Route::get('/create', [PortalVisitController::class, 'create'])->name('create');
             Route::post('/', [PortalVisitController::class, 'store'])->name('store');
-            Route::get('/{visit}', [PortalVisitController::class, 'show'])
+            Route::get('/{visit}', VisitShowPage::class)
                 ->whereNumber('visit')
                 ->name('show');
             Route::get('/{visit}/edit', [PortalVisitController::class, 'edit'])
