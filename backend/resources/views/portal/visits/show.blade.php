@@ -82,7 +82,7 @@
                     </span>
 
                     <span class="{{ $metaChipClass }}">
-                        {{ __('Empfang') }}: {{ $visit->responsibleUser?->name ?: '-' }}
+                        {{ __('Vertretung') }}: {{ $visit->responsibleUser?->name ?: '-' }}
                     </span>
 
                     <span class="{{ $metaChipClass }}">

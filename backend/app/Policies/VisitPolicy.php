@@ -4,91 +4,97 @@ declare(strict_types=1);
 
 namespace App\Policies;
 
+use App\Models\User;
 use App\Models\Visit;
+// use Illuminate\Foundation\Auth\User as AuthUser;
 use Illuminate\Auth\Access\HandlesAuthorization;
-use Illuminate\Foundation\Auth\User as AuthUser;
 
 class VisitPolicy
 {
     use HandlesAuthorization;
 
-    public function viewAny(AuthUser $authUser): bool
+    public function viewAny(User $user): bool
     {
-        return $authUser->can('ViewAny:Visit');
+        return $user->can('ViewAny:Visit');
     }
 
-    public function view(AuthUser $authUser, Visit $visit): bool
+    public function view(User $user, Visit $visit): bool
     {
-        return $authUser->can('View:Visit');
+        return $this->viewAny($user) || $this->viewOwn($user, $visit) || $this->viewDepartment($user, $visit);
     }
 
-    public function create(AuthUser $authUser): bool
+    public function viewGeneral(User $user): bool
     {
-        return $authUser->can('Create:Visit');
+        return $user->can('ViewAny:Visit') || $user->can('ViewDepartment:Visit') || $user->can('ViewOwn:Visit');
     }
 
-    public function update(AuthUser $authUser, Visit $visit): bool
+    public function create(User $user): bool
     {
-        return $authUser->can('Update:Visit');
+        return $user->can('Create:Visit');
     }
 
-    public function delete(AuthUser $authUser, Visit $visit): bool
+    public function update(User $user, Visit $visit): bool
     {
-        return $authUser->can('Delete:Visit');
+        return $this->editAny($user, $visit) || $this->editDepartment($user, $visit) || $this->editOwn($user, $visit);
     }
 
-    public function deleteAny(AuthUser $authUser): bool
+    public function delete(User $user, Visit $visit): bool
     {
-        return $authUser->can('DeleteAny:Visit');
+        return $this->deleteAny($user, $visit) || $this->deleteDepartment($user, $visit) || $this->deleteOwn($user, $visit);
     }
 
-    public function editAny(AuthUser $authUser): bool
+    public function deleteAny(User $user): bool
     {
-        return $authUser->can('EditAny:Visit');
+        return $user->can('DeleteAny:Visit');
     }
 
-    public function viewDepartment(AuthUser $authUser, Visit $visit): bool
+    public function editAny(User $user): bool
     {
-        return $authUser->can('ViewDepartment:Visit');
+        return $user->can('EditAny:Visit');
     }
 
-    public function viewOwn(AuthUser $authUser, Visit $visit): bool
+    public function viewDepartment(User $user, Visit $visit): bool
     {
-        return $authUser->can('ViewOwn:Visit');
+        return $user->can('ViewDepartment:Visit') && ($user->department_id === $visit->host->department_id || $user->department_id === $visit->responsibleUser->department_id);
     }
 
-    public function editDepartment(AuthUser $authUser, Visit $visit): bool
+    public function viewOwn(User $user, Visit $visit): bool
     {
-        return $authUser->can('EditDepartment:Visit');
+        return $user->can('ViewOwn:Visit') && ($user->id === $visit->user_id || $user->id === $visit->responsible_user_id);
     }
 
-    public function editOwn(AuthUser $authUser, Visit $visit): bool
+    public function editDepartment(User $user, Visit $visit): bool
     {
-        return $authUser->can('EditOwn:Visit');
+        return $user->can('EditDepartment:Visit') && ($user->department_id === $visit->host->department_id || $user->department_id === $visit->responsibleUser->department_id);
     }
 
-    public function deleteDepartment(AuthUser $authUser, Visit $visit): bool
+    public function editOwn(User $user, Visit $visit): bool
     {
-        return $authUser->can('DeleteDepartment:Visit');
+        return $user->can('EditOwn:Visit') && ($user->id === $visit->user_id || $user->id === $visit->responsible_user_id);
     }
 
-    public function deleteOwn(AuthUser $authUser, Visit $visit): bool
+    public function deleteDepartment(User $user, Visit $visit): bool
     {
-        return $authUser->can('DeleteOwn:Visit');
+        return $user->can('DeleteDepartment:Visit') && ($user->department_id === $visit->host->department_id || $user->department_id === $visit->responsibleUser->department_id);
     }
 
-    public function checkIn(AuthUser $authUser, Visit $visit): bool
+    public function deleteOwn(User $user, Visit $visit): bool
     {
-        return $authUser->can('CheckIn:Visit');
+        return $user->can('DeleteOwn:Visit') && ($user->id === $visit->user_id || $user->id === $visit->responsible_user_id);
     }
 
-    public function checkOut(AuthUser $authUser, Visit $visit): bool
+    public function checkIn(User $user): bool
     {
-        return $authUser->can('CheckOut:Visit');
+        return $user->can('CheckIn:Visit');
     }
 
-    public function print(AuthUser $authUser, Visit $visit): bool
+    public function checkOut(User $user): bool
     {
-        return $authUser->can('Print:Visit');
+        return $user->can('CheckOut:Visit');
+    }
+
+    public function print(User $user, Visit $visit): bool
+    {
+        return $user->can('Print:Visit');
     }
 }

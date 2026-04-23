@@ -128,9 +128,11 @@ return [
     'policies' => [
         'path' => app_path('Policies'),
         'merge' => true,
-        'generate' => true,
+        'generate' => false,
         'methods' => [
             'viewAny', 'view', 'create', 'update', 'delete',
+            'forceDelete', 'forceDeleteAny', 'reorder', 'replicate',
+            'restore', 'restoreAny',
         ],
         'single_parameter_methods' => [
             'viewAny',
