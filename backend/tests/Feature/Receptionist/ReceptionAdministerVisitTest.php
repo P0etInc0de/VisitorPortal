@@ -166,7 +166,7 @@ class ReceptionAdministerVisitTest extends TestCase
 
     public function test_receptionist_can_check_in_visitors(): void
     {
-        $receptionist = (new PermissionHelper)->getSuperAdminUser();
+        $receptionist = (new PermissionHelper)->getReceptionistUser();
 
         $employee = User::factory()->create();
 
@@ -199,8 +199,6 @@ class ReceptionAdministerVisitTest extends TestCase
             ]);
 
         $response->dumpSession();
-
-
 
 
 
