@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers\Portal;
 
-use App\Enums\VisitorStatusEnum;
 use App\Enums\VisitStatusEnum;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\RescheduleVisitRequest;
@@ -78,6 +77,7 @@ class VisitController extends Controller
                 return [
                     'id' => $visitor->id,
                     'name' => trim(($visitor->first_name ?? '').' '.($visitor->name ?? '')),
+                    'title' => $visitor->title,
                     'company' => $visitor->company,
                     'email' => $visitor->email,
                     'phone' => $visitor->phone,
@@ -189,7 +189,7 @@ class VisitController extends Controller
 
         $users = User::query()->select('id', 'name')->orderBy('name')->get();
         $existingVisitors = Visitor::query()
-            ->select('id', 'first_name', 'name', 'company', 'email', 'phone')
+            ->select('id', 'title', 'first_name', 'name', 'company', 'email', 'phone')
             ->orderBy('first_name')
             ->orderBy('name')
             ->get();
@@ -200,6 +200,7 @@ class VisitController extends Controller
             $initialParticipants = $visit->visitors->map(function (Visitor $visitor) {
                 return [
                     'visitor_id' => $visitor->id,
+                    'title' => $visitor->title,
                     'first_name' => $visitor->first_name,
                     'name' => $visitor->name,
                     'email' => $visitor->email,
@@ -212,6 +213,7 @@ class VisitController extends Controller
         } else {
             $initialParticipants = collect($initialParticipants)
                 ->map(function (array $participant) {
+                    $participant['title'] = $participant['title'] ?? null;
                     $participant['is_existing'] = filled($participant['visitor_id'] ?? null);
                     $participant['is_open'] = blank($participant['visitor_id'] ?? null);
 
@@ -256,6 +258,7 @@ class VisitController extends Controller
             ->map(function ($row) {
                 return [
                     'visitor_id' => Arr::get($row, 'visitor_id') ?: null,
+                    'title' => $this->normalizeText(Arr::get($row, 'title')),
                     'first_name' => $this->normalizeText(Arr::get($row, 'first_name')),
                     'name' => $this->normalizeText(Arr::get($row, 'name')),
                     'email' => $this->normalizeText(Arr::get($row, 'email')),
@@ -266,6 +269,7 @@ class VisitController extends Controller
             })
             ->filter(function (array $row) {
                 return filled($row['visitor_id'])
+                    || filled($row['title'])
                     || filled($row['first_name'])
                     || filled($row['name'])
                     || filled($row['email'])
@@ -293,6 +297,7 @@ class VisitController extends Controller
 
             if ($existingByEmail) {
                 $existingByEmail->update([
+                    'title' => $row['title'] ?: $existingByEmail->title,
                     'first_name' => $row['first_name'] ?: $existingByEmail->first_name,
                     'name' => $row['name'] ?: $existingByEmail->name,
                     'phone' => $row['phone'] ?: $existingByEmail->phone,
@@ -304,12 +309,12 @@ class VisitController extends Controller
         }
 
         return Visitor::query()->create([
+            'title' => $row['title'],
             'first_name' => $row['first_name'],
             'name' => $row['name'],
             'email' => $row['email'],
             'phone' => $row['phone'],
             'company' => $row['company'],
-            'status' => VisitorStatusEnum::Planned,
             'notes' => null,
         ]);
     }
