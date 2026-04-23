@@ -14,11 +14,7 @@ class DashboardController extends Controller
     {
         $user = $request->user();
 
-        try {
-            $this->authorize('viewGeneral', Visit::class);
-        } catch (Exception $e) {
-            $this->authorize('view', Monitor::class);
-        }
+        $this->authorizeAny(['viewGeneral', 'view'], Monitor::class);
 
         $baseQuery = Visit::query()
             ->with([
@@ -85,7 +81,7 @@ class DashboardController extends Controller
         return view('portal.dashboard', [
             'stats' => [
                 [
-                    'label' => __('Meine Besucha heute'),
+                    'label' => __('Meine Besuche heute'),
                     'value' => (string) $todayVisits->count(),
                     'meta' => $todayVisits->contains(
                         fn (Visit $visit) => $visit->scheduled_from && $visit->scheduled_from->between(now(), now()->copy()->addHour())

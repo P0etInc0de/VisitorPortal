@@ -36,8 +36,6 @@
         return false;
     };
 
-    //$canSeeReception = $hasAnyRole(['receptionist', 'admin']);
-    //$canSeeMonitor = $hasAnyRole(['receptionist', 'admin', 'welcome monitor']);
     $canSeeAdmin = $hasAnyRole(['admin']);
 	$canSeeReception = auth()->user()->hasAnyPermission(['ViewAny:Visit', 'ViewDepartment:Visit', 'ViewOwn:Visit']);
 	$canSeeMonitor = auth()->user()->hasAnyPermission(['View:Monitor', 'Edit:Monitor']);
