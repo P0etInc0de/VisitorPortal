@@ -13,9 +13,11 @@
             <x-bp.alert/>
 
             <x-bp.card title="{{ __('Monitor Seiten') }}">
-                <x-slot:actions>
-                    <a type="button" href="{{route('monitors.slides.create', $monitor)}}" class="btn btn-primary btn-sm rounded-xl">{{__('Neue Seite')}}</a>
-                </x-slot:actions>
+                @if($monitor->auto_generation === 0)
+                    <x-slot:actions>
+                        <a type="button" href="{{route('monitors.slides.create', $monitor)}}" class="btn btn-primary btn-sm rounded-xl">{{__('Neue Seite')}}</a>
+                    </x-slot:actions>
+                @endif
                 <livewire:monitor.index-monitor-slides :monitor="$monitor" />
             </x-bp.card>
             <x-bp.card title="{{__('Monitor Einstellungen')}}">
