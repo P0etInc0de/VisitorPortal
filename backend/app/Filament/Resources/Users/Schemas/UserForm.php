@@ -16,24 +16,20 @@ class UserForm
                 Select::make('department_id')
                     ->relationship('department', 'name'),
                 TextInput::make('first_name')
-                    ->label('Vorname')
                     ->required(),
                 TextInput::make('name')
-                    ->label('Nachname')
                     ->required(),
                 Select::make('roles')
                     ->relationship('roles', 'name')
                     ->multiple()
                     ->preload()
                     ->searchable(),
-                TextInput::make('title')
-                    ->label('Titel'),
+                TextInput::make('title'),
                 Select::make('gender')
                     ->options(GenderEnum::class)
                     ->required()
                     ->default(GenderEnum::Not_Specified),
                 TextInput::make('email')
-                    ->label('Email address')
                     ->email()
                     ->required(),
                 TextInput::make('password')

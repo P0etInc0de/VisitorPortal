@@ -40,8 +40,7 @@ class VisitForm
                     ->relationship(name: 'visitors')
                     ->getOptionLabelFromRecordUsing(fn ($record) => "{$record->first_name} {$record->name} ({$record->email})")
                     ->searchable(['first_name', 'name'])
-                    ->preload()
-                    ->label('Select Visitors'),
+                    ->preload(),
 
             ]);
     }

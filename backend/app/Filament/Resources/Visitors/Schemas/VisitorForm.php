@@ -16,19 +16,15 @@ class VisitorForm
         return $schema
             ->components([
                 TextInput::make('first_name')
-                    ->label('Vorname')
                     ->required(),
                 TextInput::make('name')
-                    ->label('Nachname')
                     ->required(),
-                TextInput::make('title')
-                    ->label('Titel'),
+                TextInput::make('title'),
                 Select::make('gender')
                     ->options(GenderEnum::class)
                     ->required()
                     ->default(GenderEnum::Not_Specified),
                 TextInput::make('email')
-                    ->label('Email address')
                     ->email()
                     ->required(),
                 TextInput::make('phone')
