@@ -104,7 +104,7 @@
                                                 class="btn btn-primary btn-sm rounded-xl"
                                                 wire:click="checkIn({{ $result['visit_id'] }}, {{ $result['visitor_id'] }})"
                                                 wire:loading.attr="disabled"
-                                                wire:target="checkIn"
+                                                wire:target="checkIn({{ $result['visit_id'] }}, {{ $result['visitor_id'] }})"
                                             >
                                                 {{ $result['check_in_label'] }}
                                             </button>
@@ -116,7 +116,7 @@
                                                 class="btn btn-outline btn-sm rounded-xl"
                                                 wire:click="checkOut({{ $result['visit_id'] }}, {{ $result['visitor_id'] }})"
                                                 wire:loading.attr="disabled"
-                                                wire:target="checkOut"
+                                                wire:target="checkOut({{ $result['visit_id'] }}, {{ $result['visitor_id'] }})"
                                             >
                                                 {{ __('Check-out') }}
                                             </button>
