@@ -8,7 +8,7 @@ class RescheduleVisitRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return true;
+        return $this->user()->can('editAny', Visit::class) || $this->user()->can('editDepartment', Visit::class) || $this->user()->can('editOwn', Visit::class);
     }
 
     public function rules(): array

@@ -2,80 +2,86 @@
 
 namespace App\Policies;
 
+use App\Models\User;
+// use Illuminate\Foundation\Auth\User as AuthUser;
 use Illuminate\Auth\Access\HandlesAuthorization;
-use Illuminate\Foundation\Auth\User as AuthUser;
 
 class UserPolicy
 {
     use HandlesAuthorization;
 
-    public function viewAny(AuthUser $authUser): bool
+    public function viewAny(User $user): bool
     {
-        return $authUser->can('ViewAny:User');
+        return $user->can('ViewAny:User');
     }
 
-    public function view(AuthUser $authUser): bool
+    public function view(User $user, User $requested_user): bool
     {
-        return $authUser->can('View:User');
+        return $this->viewAny($user) || $this->viewDepartment($user, $requested_user) || $this->viewOwn($user, $requested_user);
     }
 
-    public function create(AuthUser $authUser): bool
+    public function create(User $user): bool
     {
-        return $authUser->can('Create:User');
+        return $user->can('Create:User');
     }
 
-    public function update(AuthUser $authUser): bool
+    public function update(User $user, User $requested_user): bool
     {
-        return $authUser->can('Update:User');
+        return $this->editAny($user) || $this->editDepartment($user, $requested_user) || $this->editOwn($user, $requested_user);
     }
 
-    public function delete(AuthUser $authUser): bool
+    public function delete(User $user, User $requested_user): bool
     {
-        return $authUser->can('Delete:User');
+        return $this->deleteAny($user) || $this->deleteDepartment($user, $requested_user);
     }
 
-    public function deleteAny(AuthUser $authUser): bool
+    public function deactivate(User $user, User $requested_user): bool
     {
-        return $authUser->can('DeleteAny:User');
+        return $this->deactivateAny($user) || $this->deactivateDepartment($user, $requested_user);
     }
 
-    public function viewOwn(AuthUser $authUser): bool
+    public function deleteAny(User $user): bool
     {
-        return $authUser->can('ViewOwn:User');
+        return $user->can('DeleteAny:User');
     }
 
-    public function editOwn(AuthUser $authUser): bool
+    public function viewOwn(User $user, User $requested_user): bool
     {
-        return $authUser->can('EditOwn:User');
+        return $user->can('ViewOwn:User') && $user->id === $requested_user->id;
     }
 
-    public function viewDepartment(AuthUser $authUser): bool
+    public function editOwn(User $user, User $requested_user): bool
     {
-        return $authUser->can('ViewDepartment:User');
+        return $user->can('EditOwn:User') && $user->id === $requested_user->id;
     }
 
-    public function editDepartment(AuthUser $authUser): bool
+    public function viewDepartment(User $user, User $requested_user): bool
     {
-        return $authUser->can('EditDepartment:User');
+        return $user->can('ViewDepartment:User') && $user->department_id === $requested_user->department_id;
     }
 
-    public function deleteDepartment(AuthUser $authUser): bool
+    public function editDepartment(User $user, User $requested_user): bool
     {
-        return $authUser->can('DeleteDepartment:User');
+        return $user->can('EditDepartment:User') && $user->department_id === $requested_user->department_id;
     }
 
-    public function deactivateAny(AuthUser $authUser): bool
+    public function deleteDepartment(User $user, User $requested_user): bool
     {
-        return $authUser->can('DeactivateAny:User');
+        return $user->can('DeleteDepartment:User') && $user->department_id === $requested_user->department_id;
     }
 
-    public function deactivateDepartment(AuthUser $authUser): bool
+    public function deactivateAny(User $user): bool
     {
-        return $authUser->can('DeactivateDepartment:User');
+        return $user->can('DeactivateAny:User');
     }
 
-    public function editAny(AuthUser $authUser): bool
+    public function deactivateDepartment(User $user, User $requested_user): bool
     {
-        return $authUser->can('EditAny:User');
+        return $user->can('DeactivateDepartment:User') && $user->department_id === $requested_user->department_id;
+    }
+
+    public function editAny(User $user): bool
+    {
+        return $user->can('EditAny:User');
     }
 }

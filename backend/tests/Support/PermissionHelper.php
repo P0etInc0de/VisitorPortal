@@ -14,11 +14,18 @@ class PermissionHelper
     {
         $this->permissions = [
             // User
-            'ViewAny:User',
             'View:User',
+            'ViewAny:User',
+            'ViewDepartment:User',
+            'ViewOwn:User',
             'Create:User',
             'Update:User',
+            'EditAny:User',
+            'EditDepartment:User',
+            'EditOwn:User',
             'Delete:User',
+            'DeleteAny:User',
+            'DeleteDepartment:User',
             'Restore:User',
             'ForceDelete:User',
             'ForceDeleteAny:User',
@@ -57,7 +64,9 @@ class PermissionHelper
             'View:Visitor',
             'Create:Visitor',
             'Update:Visitor',
+            'EditAny:Visitor',
             'Delete:Visitor',
+            'DeleteAny:Visitor',
             'Restore:Visitor',
             'ForceDelete:Visitor',
             'ForceDeleteAny:Visitor',
@@ -66,11 +75,19 @@ class PermissionHelper
             'Reorder:Visitor',
 
             // Visit
-            'ViewAny:Visit',
             'View:Visit',
+            'ViewAny:Visit',
+            'ViewDepartment:Visit',
+            'ViewOwn:Visit',
             'Create:Visit',
             'Update:Visit',
+            'EditAny:Visit',
+            'EditDepartment:Visit',
+            'EditOwn:Visit',
             'Delete:Visit',
+            'DeleteAny:Visit',
+            'DeleteDepartment:Visit',
+            'DeleteOwn:Visit',
             'Restore:Visit',
             'ForceDelete:Visit',
             'ForceDeleteAny:Visit',
@@ -106,5 +123,15 @@ class PermissionHelper
         $user->assignRole($role);
 
         return $user;
+    }
+
+    public function getUser(): User
+    {
+        $userPermissions = [
+            'ViewOwn:User', 'EditOwn:User', 'Create:Visit', 'Create:Visitor',
+            'ViewOwn:Visit', 'EditOwn:Visit', 'DeleteOwn:Visit',
+            'ViewAny:Visitor', 'View:Role', 'DeleteAny:User'];
+
+        return $this->getIndividualUser($userPermissions, 'user');
     }
 }

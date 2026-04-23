@@ -2,9 +2,9 @@
 
 namespace Tests\Feature;
 
-use App\Models\User;
 use App\Models\Visit;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\Support\PermissionHelper;
 use Tests\TestCase;
 
 class VisitManagementTest extends TestCase
@@ -13,8 +13,9 @@ class VisitManagementTest extends TestCase
 
     public function test_visit_can_be_created_with_multiple_participants(): void
     {
-        $user = User::factory()->create();
-        $responsible = User::factory()->create();
+        $user = (new PermissionHelper)->getUser();
+
+        $responsible = (new PermissionHelper)->getUser();
 
         $response = $this
             ->actingAs($user)

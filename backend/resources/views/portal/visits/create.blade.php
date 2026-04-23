@@ -282,7 +282,7 @@
                                 <label class="form-control xl:col-span-4">
                                     <div class="label px-0 pb-2">
                                         <span class="label-text text-sm font-medium text-base-content">
-                                            {{ __('Verantwortlich_Empfang') }}
+                                            {{ __('Vertretung') }}
                                         </span>
                                     </div>
                                     <select
