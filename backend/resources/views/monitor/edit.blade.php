@@ -50,11 +50,13 @@
                      updateScale();
                      new ResizeObserver(() => updateScale()).observe($el);
                  "
-                         class="relative w-full aspect-video overflow-hidden rounded-[1.75rem] border border-slate-200 bg-slate-100">
+                         {{-- Fix hinzugefügt: isolate und transform-gpu erzwingen sauberes Clipping der Ecken --}}
+                         class="relative w-full aspect-video overflow-hidden border border-slate-200 isolate transform-gpu">
 
                         <div id="preview-content"
                              x-ref="content"
                              :style="`transform: scale(${scale});`"
+                             {{-- Nutze w-[1920px] h-[1080px] falls w-480/h-270 nicht explizit in deiner Config stehen! --}}
                              class="absolute left-0 top-0 w-480 h-270 origin-top-left transition-transform duration-75">
 
                             <livewire:monitor.monitor-slides :monitor="$monitor"/>
