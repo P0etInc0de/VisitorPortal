@@ -2,6 +2,7 @@
 
 namespace Tests\Feature\Receptionist;
 
+use App\Enums\VisitorStatusEnum;
 use App\Enums\VisitStatusEnum;
 use App\Models\User;
 use App\Models\Visit;
@@ -155,12 +156,45 @@ class ReceptionAdministerVisitTest extends TestCase
             ->post(route('portal.visits.cancel', $visit));
 
 
-
-
         // check if the status is now set to 'Canceled'
         $this->assertDatabaseHas('visits', [
             'id' => $visit->id,
             'status' => VisitStatusEnum::Canceled,
         ]);
+    }
+
+    public function test_receptionist_can_check_in_visitors(): void
+    {
+        $receptionist = (new PermissionHelper)->getReceptionistUser();
+
+        $employee = User::factory()->create();
+
+        $visitors = User::factory()->count(3)->create(['status' => VisitorStatusEnum::Planned]);
+
+        $responsibleUser = User::factory()->create();
+        $visitTitle = 'Test Visit';
+
+        // create visit with status 'Planned'
+        $visit = (new VisitHelper)->makeVisit(
+            $employee->id,
+            $visitTitle,
+            VisitStatusEnum::Planned,
+            $responsibleUser->id,
+            $visitors
+        );
+
+
+        $response = $this->actingAs($receptionist)
+            ->patch(route('portal.check_in_out.store'), [
+                'user_id' => $user->id,
+                'responsible_user_id' => $responsibleUser->id,
+                'title' => $updatedVisitTitle,
+                'scheduled_from' => $updatedScheduledFrom,
+                'scheduled_until' => $updatedScheduledUntil,
+                'status' => VisitStatusEnum::Planned->value,
+                'notes' => $updatedVisitNotes,
+                'participants' => [$participant],
+            ]);
+
     }
 }
