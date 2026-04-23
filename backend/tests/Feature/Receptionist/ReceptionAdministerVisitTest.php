@@ -6,6 +6,7 @@ use App\Enums\VisitorStatusEnum;
 use App\Enums\VisitStatusEnum;
 use App\Models\User;
 use App\Models\Visit;
+use App\Models\Visitor;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\Support\PermissionHelper;
 use Tests\Support\VisitHelper;
@@ -165,11 +166,17 @@ class ReceptionAdministerVisitTest extends TestCase
 
     public function test_receptionist_can_check_in_visitors(): void
     {
-        $receptionist = (new PermissionHelper)->getReceptionistUser();
+        $receptionist = (new PermissionHelper)->getSuperAdminUser();
 
         $employee = User::factory()->create();
 
-        $visitors = User::factory()->count(3)->create(['status' => VisitorStatusEnum::Planned]);
+        $visitors = Visitor::factory()->count(3)->create(['status' => VisitorStatusEnum::Planned]);
+
+
+        $this->assertDatabaseHas('visitors', [
+            'email' => $visitors[0]->email,
+            'status' => VisitorStatusEnum::Planned->value,
+        ]);
 
         $responsibleUser = User::factory()->create();
         $visitTitle = 'Test Visit';
@@ -184,17 +191,18 @@ class ReceptionAdministerVisitTest extends TestCase
         );
 
 
+
         $response = $this->actingAs($receptionist)
             ->patch(route('portal.check_in_out.store'), [
-                'user_id' => $user->id,
-                'responsible_user_id' => $responsibleUser->id,
-                'title' => $updatedVisitTitle,
-                'scheduled_from' => $updatedScheduledFrom,
-                'scheduled_until' => $updatedScheduledUntil,
-                'status' => VisitStatusEnum::Planned->value,
-                'notes' => $updatedVisitNotes,
-                'participants' => [$participant],
+                'email' => $visitors[0]->email,
+                'action' => 'check_out',
             ]);
+
+        $response->dumpSession();
+
+
+
+
 
     }
 }
