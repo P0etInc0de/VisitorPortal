@@ -1,6 +1,5 @@
 <?php
 
-use App\Http\Controllers\CheckInOutController;
 use App\Http\Controllers\Monitor\MonitorController;
 use App\Http\Controllers\Monitor\MonitorSlidesController;
 use App\Http\Controllers\Portal\DashboardController as PortalDashboardController;
@@ -10,6 +9,7 @@ use App\Http\Controllers\Reception\VisitController as ReceptionVisitController;
 use App\Http\Controllers\Reception\VisitParticipantActionController;
 use App\Http\Controllers\UserPermissionsController;
 use App\Http\Middleware\CheckMonitorAutoGeneration;
+use App\Livewire\Portal\CheckInOutBoard;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -45,9 +45,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
                 ->name('reschedule');
         });
 
-        Route::get('/check_in_out', [CheckInOutController::class, 'index'])->name('check_in_out');
-        Route::get('/badge/check_in_out_all', [CheckInOutController::class, 'check_in_out_all'])->name('check_in_out.check_in_out_all');
-        Route::post('/check_in_out', [CheckInOutController::class, 'store'])->name('check_in_out.store');
+        Route::redirect('/check_in_out', '/portal/check-in-out');
+        Route::get('/check-in-out', CheckInOutBoard::class)->name('check_in_out');
     });
 
     Route::prefix('reception')->name('reception.')->group(function () {

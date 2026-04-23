@@ -27,7 +27,7 @@
                 </h3>
                 <ul class="space-y-2">
                     @foreach ($permissions as $permission)
-						<li class="flex items-center gap-2 text-sm text-gray-700">
+						<li class="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-200">
                                 ✓ {{ $permission }}
                     	</li>
                     @endforeach
