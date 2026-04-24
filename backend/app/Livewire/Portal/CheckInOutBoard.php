@@ -9,6 +9,7 @@ use App\Models\Visit;
 use App\Models\Visitor;
 use App\Services\VisitActionService;
 use Illuminate\Contracts\View\View;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
@@ -19,8 +20,6 @@ class CheckInOutBoard extends Component
     public string $search = '';
 
     public ?string $walkInHostId = null;
-
-    protected VisitActionService $visitActionService;
 
     /**
      * @var array<string, string>
@@ -34,16 +33,11 @@ class CheckInOutBoard extends Component
         'company' => '',
     ];
 
-    public function boot(VisitActionService $visitActionService): void
-    {
-        $this->visitActionService = $visitActionService;
-    }
-
     public function checkIn(int $visitId, int $visitorId): void
     {
         [$visit, $visitor, $user] = $this->resolveActionContext($visitId, $visitorId);
 
-        $this->visitActionService->checkInParticipant($visit, $visitor, $user);
+        $this->visitActionService()->checkInParticipant($visit, $visitor, $user);
 
         session()->flash('status', __('Teilnehmender wurde eingecheckt.'));
     }
@@ -52,7 +46,7 @@ class CheckInOutBoard extends Component
     {
         [$visit, $visitor, $user] = $this->resolveActionContext($visitId, $visitorId);
 
-        $this->visitActionService->checkOutParticipant($visit, $visitor, $user);
+        $this->visitActionService()->checkOutParticipant($visit, $visitor, $user);
 
         session()->flash('status', __('Teilnehmender wurde ausgecheckt.'));
     }
@@ -86,7 +80,7 @@ class CheckInOutBoard extends Component
                 ],
             ]);
 
-            $this->visitActionService->checkInParticipant($visit, $visitor, $user);
+            $this->visitActionService()->checkInParticipant($visit, $visitor, $user);
 
             return [$visit->loadMissing('responsibleUser'), $visitor];
         });
@@ -197,6 +191,7 @@ class CheckInOutBoard extends Component
         ])));
 
         return [
+            'row_key' => "visit-{$visit->id}-visitor-{$visitor->id}",
             'visit_id' => $visit->id,
             'visitor_id' => $visitor->id,
             'badge_url' => route('reception.participants.badge', [$visit->id, $visitor->id]),
@@ -212,6 +207,8 @@ class CheckInOutBoard extends Component
             'phone' => $visitor->phone,
             'status_label' => $status['label'],
             'status_class' => $status['class'],
+            'checked_in_label' => $this->formatActionTimestamp($pivot?->checked_in_at),
+            'checked_out_label' => $this->formatActionTimestamp($pivot?->checked_out_at),
             'badge_ready' => filled($pivot?->badge_printed_at),
             'can_check_in' => blank($pivot?->checked_in_at) || filled($pivot?->checked_out_at),
             'check_in_label' => filled($pivot?->checked_out_at) ? __('Erneut einchecken') : __('Check-in'),
@@ -332,6 +329,24 @@ class CheckInOutBoard extends Component
         $value = trim((string) $value);
 
         return $value === '' ? null : $value;
+    }
+
+    private function visitActionService(): VisitActionService
+    {
+        return app(VisitActionService::class);
+    }
+
+    private function formatActionTimestamp(mixed $value): ?string
+    {
+        if (! $value) {
+            return null;
+        }
+
+        if ($value instanceof Carbon) {
+            return $value->format('d.m.Y H:i');
+        }
+
+        return Carbon::parse($value)->format('d.m.Y H:i');
     }
 
     /**
