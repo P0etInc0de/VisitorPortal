@@ -36,8 +36,8 @@ class CheckInOutBoardTest extends TestCase
         Livewire::actingAs($user)
             ->test(CheckInOutBoard::class)
             ->call('checkIn', $visit->id, $visitor->id)
-            ->assertSee('Eingecheckt')
-            ->assertSee('Check-in:');
+            ->assertSee(__('Eingecheckt'))
+            ->assertSee(__('Check-in').':');
 
         $pivot = DB::table('visit_visitor')
             ->where('visit_id', $visit->id)
@@ -72,8 +72,8 @@ class CheckInOutBoardTest extends TestCase
         Livewire::actingAs($user)
             ->test(CheckInOutBoard::class)
             ->call('checkOut', $visit->id, $visitor->id)
-            ->assertSee('Ausgecheckt')
-            ->assertSee('Check-out:');
+            ->assertSee(__('Ausgecheckt'))
+            ->assertSee(__('Check-out').':');
 
         $pivot = DB::table('visit_visitor')
             ->where('visit_id', $visit->id)
