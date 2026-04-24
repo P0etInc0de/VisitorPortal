@@ -13,7 +13,9 @@ class StoreMonitorSlideRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return true;
+        $monitor = $this->route('monitor');
+
+        return $this->user()->can('create', MonitorSlide::class) && $this->user()->can('update', $monitor);
     }
 
     /**

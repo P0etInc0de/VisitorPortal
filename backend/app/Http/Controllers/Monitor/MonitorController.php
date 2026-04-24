@@ -37,6 +37,8 @@ class MonitorController extends Controller
      */
     public function show(Monitor $monitor)
     {
+        $this->authorize('view', $monitor);
+
         return view('monitor.show')
             ->with('monitor', $monitor);
     }
@@ -47,6 +49,8 @@ class MonitorController extends Controller
      */
     public function edit(Monitor $monitor)
     {
+        $this->authorize('update', $monitor);
+
         $monitor_slides = MonitorSlide::query()->where('monitor_id', $monitor->id)->orderBy('monitor_slides.slide_number')->get();
 
         $response = response()->view('monitor.edit', ['monitor' => $monitor, 'monitor_slides' => $monitor_slides]);

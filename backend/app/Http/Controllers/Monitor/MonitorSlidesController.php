@@ -23,6 +23,9 @@ class MonitorSlidesController extends Controller
      */
     public function create(Monitor $monitor)
     {
+        $this->authorize('create', MonitorSlide::class);
+        $this->authorize('update', $monitor);
+
         $currentMax = MonitorSlide::query()
             ->where('monitor_id', $monitor->id)
             ->max('monitor_slides.slide_number') ?? 0; // Default to 0 if null
@@ -68,6 +71,9 @@ class MonitorSlidesController extends Controller
      */
     public function edit(Monitor $monitor, MonitorSlide $slide)
     {
+        $this->authorize('update', $slide);
+        $this->authorize('update', $monitor);
+
         $todayVisits = Visit::query()
             ->whereDate('visits.scheduled_from', '<=', Carbon::today())
             ->whereDate('visits.scheduled_until', '>=', Carbon::today())
@@ -106,6 +112,8 @@ class MonitorSlidesController extends Controller
      */
     public function destroy(Monitor $monitor, MonitorSlide $slide)
     {
+        $this->authorize('delete', $slide);
+
         $slide->delete();
 
         Log::info('User ID '.auth()->id()." deleted Monitor-Slide with ID: {$slide->id}");

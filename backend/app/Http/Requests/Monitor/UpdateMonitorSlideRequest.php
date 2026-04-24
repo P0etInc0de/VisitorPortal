@@ -13,7 +13,10 @@ class UpdateMonitorSlideRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return true;
+        $monitorSlide = $this->route('slide');
+        $monitor = $this->route('monitor');
+
+        return $this->user()->can('update', $monitorSlide) && $this->user()->can('update', $monitor);
     }
 
     /**

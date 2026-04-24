@@ -12,7 +12,9 @@ class UpdateMonitorRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return true;
+        $monitor = $this->route('monitor');
+
+        return $this->user()->can('update', $monitor);
     }
 
     /**
