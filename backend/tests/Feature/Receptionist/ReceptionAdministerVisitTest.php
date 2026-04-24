@@ -8,6 +8,7 @@ use App\Livewire\Portal\CheckInOutBoard;
 use App\Models\User;
 use App\Models\Visit;
 use App\Models\Visitor;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Livewire\Livewire;
 use Tests\Support\PermissionHelper;
@@ -204,5 +205,58 @@ class ReceptionAdministerVisitTest extends TestCase
             'checked_in_at' => now()
         ]);
 
+    }
+
+    public function test_receptionist_can_check_out_visitors(): void
+    {
+        $receptionist = (new PermissionHelper)->getReceptionistUser();
+
+        $employee = User::factory()->create();
+
+        $visitors = Visitor::factory()->count(3)->create(['status' => VisitorStatusEnum::Checked_In]);
+
+        // all visitors present in database
+        foreach ($visitors as $visitor) {
+            $this->assertDatabaseHas('visitors', [
+                'email' => $visitor->email,
+            ]);
+        }
+
+        $responsibleUser = User::factory()->create();
+        $visitTitle = 'Test Visit';
+
+        // create visit with status 'Planned'
+        $visit = (new VisitHelper)->makeVisit(
+            $employee->id,
+            $visitTitle,
+            VisitStatusEnum::Completed,
+            $responsibleUser->id,
+            $visitors
+        );
+
+        // visitors have to be checked in to be able the check them out
+        $this->checkInVisitors($visit, $visitors);
+
+        // perform the checkout
+        Livewire::actingAs($receptionist)
+            ->test(CheckInOutBoard::class)
+            ->call('checkOut', $visit->id, $visitors[0]->id)
+            ->assertStatus(200);
+
+        // check if status is updated in pivot table
+        $this->assertDatabaseHas('visit_visitor', [
+            'visit_id' => $visit->id,
+            'visitor_id' => $visitors[0]->id,
+            'checked_out_at' => now()
+        ]);
+
+    }
+    public function checkInVisitors(Visit $visit, Collection $visitors): void
+    {
+        foreach ($visitors as $visitor) {
+            $visit->visitors()->updateExistingPivot($visitor->id, [
+                'checked_in_at' => now(),
+            ]);
+        }
     }
 }
