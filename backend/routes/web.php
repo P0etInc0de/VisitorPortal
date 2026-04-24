@@ -11,6 +11,7 @@ use App\Http\Controllers\UserPermissionsController;
 use App\Http\Middleware\CheckMonitorAutoGeneration;
 use App\Livewire\Portal\CheckInOutBoard;
 use App\Livewire\Portal\VisitShowPage;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -19,6 +20,16 @@ Route::get('/', function () {
         : redirect()->route('login');
 })->name('home');
 
+Route::get('/lang', function (Request $request) {
+    $locale = $request->input('locale');
+
+    if (in_array($locale, ['de', 'en'])) {
+        session(['locale' => $locale]);
+    }
+
+    return redirect()->to(url()->previous());
+});
+
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/dashboard', [PortalDashboardController::class, 'index'])->name('dashboard');
 
@@ -26,9 +37,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::prefix('visits')->name('visits.')->group(function () {
             Route::get('/create', [PortalVisitController::class, 'create'])->name('create');
             Route::post('/', [PortalVisitController::class, 'store'])->name('store');
+
             Route::get('/{visit}', VisitShowPage::class)
                 ->whereNumber('visit')
                 ->name('show');
+
             Route::get('/{visit}/edit', [PortalVisitController::class, 'edit'])
                 ->whereNumber('visit')
                 ->name('edit');
