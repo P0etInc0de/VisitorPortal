@@ -13,7 +13,11 @@ return new class extends Migration
     {
         Schema::create('monitors', function (Blueprint $table) {
             $table->id();
+            $table->string('image_path')->default(null)->nullable();
+            $table->string('name')->default('Willkommensmonitor Eingang');
             $table->timestamps();
+            $table->integer('transition_time_milliseconds');
+            $table->boolean('auto_generation')->default(false);
         });
     }
 

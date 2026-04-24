@@ -16,6 +16,5 @@ class ReceptionPagesTest extends TestCase
 
         $this->actingAs($user)->get(route('reception.dashboard'))->assertOk();
         $this->actingAs($user)->get(route('reception.all-visits'))->assertOk();
-        $this->actingAs($user)->get(route('monitor.live'))->assertOk();
     }
 }

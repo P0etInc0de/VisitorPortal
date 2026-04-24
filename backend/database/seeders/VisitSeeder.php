@@ -60,6 +60,17 @@ class VisitSeeder extends Seeder
 
         $this->createOrUpdateVisit(
             1,
+            2,
+            Carbon::now(),
+            Carbon::now(),
+            'Kaffee Testing',
+            VisitStatusEnum::Planned,
+            'Kaffee Maschiene testen',
+            [2, 4]
+        );
+
+        $this->createOrUpdateVisit(
+            1,
             1,
             Carbon::now()->addDays(7)->setHour(13)->setMinute(0),
             Carbon::now()->addDays(7)->setHour(14)->setMinute(0),
