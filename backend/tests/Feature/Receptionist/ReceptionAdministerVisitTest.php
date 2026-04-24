@@ -348,8 +348,7 @@ class ReceptionAdministerVisitTest extends TestCase
 
         $response->assertStatus(200);
     }
-    public function test_reception_can_view_overview(): void
-    {}
+
     public function checkInVisitors(Visit $visit, Collection $visitors): void
     {
         foreach ($visitors as $visitor) {
