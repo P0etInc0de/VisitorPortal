@@ -4,6 +4,7 @@ namespace Tests\Feature\Receptionist;
 
 use App\Enums\VisitorStatusEnum;
 use App\Enums\VisitStatusEnum;
+use App\Http\Controllers\Portal\VisitController;
 use App\Livewire\Portal\CheckInOutBoard;
 use App\Models\User;
 use App\Models\Visit;
@@ -251,6 +252,104 @@ class ReceptionAdministerVisitTest extends TestCase
         ]);
 
     }
+
+    public function test_receptionist_can_create_walkIns(): void
+    {
+        $receptionist = (new PermissionHelper)->getReceptionistUser();
+
+        $host = (new PermissionHelper)->getUserUser();
+
+        $walkInTitle = "Dr";
+        $walkInFirstName = "Max";
+        $walkInLastName = "Mustermann";
+        $walkInEmail = "max@test.de";
+        $walkInPhoneNumber = "0123456789";
+        $walkInCompany = "TestCompany";
+
+        // create a walk-in
+        Livewire::actingAs($receptionist)
+            ->test(CheckInOutBoard::class)
+            ->set('walkInHostId', $host->id)
+            ->set('walkIn.title', $walkInTitle)
+            ->set('walkIn.first_name', $walkInFirstName)
+            ->set('walkIn.name', $walkInLastName)
+            ->set('walkIn.email', $walkInEmail)
+            ->set('walkIn.phone', $walkInPhoneNumber)
+            ->set('walkIn.company', $walkInCompany)
+            ->call('registerWalkIn', false)
+            ->assertHasNoErrors();
+
+        // check if walk-in is present in visit table
+        $this->assertDatabaseHas('visits', [
+            'title' => "Walk-in: " . $walkInTitle . " " . $walkInFirstName . " " . $walkInLastName,
+        ]);
+    }
+    public function test_reception_can_reschedule_appointments(): void
+    {
+        $receptionist = (new PermissionHelper)->getReceptionistUser();
+
+        $scheduledFromTimeStamp = now()->subDay();
+        $scheduledToTimeStamp = now()->subDay()->addMinutes(60);
+
+        // create a visit with timestamps
+        $visit = Visit::factory()->create([
+            'scheduled_from' => $scheduledFromTimeStamp,
+            'scheduled_until' => $scheduledToTimeStamp,
+        ]);
+
+        // check if visit created in database
+        $this->assertDatabaseHas('visits', [
+            'id' => $visit->id,
+            'scheduled_from' => $scheduledFromTimeStamp,
+            'scheduled_until' => $scheduledToTimeStamp,
+        ]);
+
+        // create new timestamps
+        $scheduledFromTimeStampUpdated = now();
+        $scheduledToTimeStampUpdated = now()->addMinutes(60);
+
+        // reschedule visit with new timestamps
+        $this->actingAs($receptionist)
+            ->patch(route('portal.visits.reschedule', $visit), [
+                'scheduled_from' => $scheduledFromTimeStampUpdated,
+                'scheduled_until' => $scheduledToTimeStampUpdated,
+            ]);
+
+        // check if visit has been rescheduled
+        $this->assertDatabaseHas('visits', [
+            'id' => $visit->id,
+            'scheduled_from' => $scheduledFromTimeStampUpdated,
+            'scheduled_until' => $scheduledToTimeStampUpdated,
+        ]);
+
+    }
+
+    public function test_reception_can_create_badges(): void
+    {
+
+    }
+
+    public function test_reception_can_view_own_user_permissions(): void
+    {
+        $receptionist = (new PermissionHelper)->getReceptionistUser();
+
+        $response = $this->actingAs($receptionist)
+            ->get(route('user-permissions'));
+
+        $response->assertStatus(200);
+    }
+
+    public function test_reception_can_view_dashboard(): void
+    {
+        $receptionist = (new PermissionHelper)->getReceptionistUser();
+
+        $response = $this->actingAs($receptionist)
+            ->get(route('reception.dashboard'));
+
+        $response->assertStatus(200);
+    }
+    public function test_reception_can_view_overview(): void
+    {}
     public function checkInVisitors(Visit $visit, Collection $visitors): void
     {
         foreach ($visitors as $visitor) {
