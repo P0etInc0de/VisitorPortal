@@ -4,10 +4,12 @@ namespace Tests\Feature\Receptionist;
 
 use App\Enums\VisitorStatusEnum;
 use App\Enums\VisitStatusEnum;
+use App\Livewire\Portal\CheckInOutBoard;
 use App\Models\User;
 use App\Models\Visit;
 use App\Models\Visitor;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Livewire\Livewire;
 use Tests\Support\PermissionHelper;
 use Tests\Support\VisitHelper;
 use Tests\TestCase;
@@ -190,17 +192,15 @@ class ReceptionAdministerVisitTest extends TestCase
             $visitors
         );
 
+        Livewire::actingAs($receptionist)
+            ->test(CheckInOutBoard::class)
+            ->call('checkIn', $visit->id, $visitors[0]->id)
+            ->assertStatus(200);
 
-
-        $response = $this->actingAs($receptionist)
-            ->patch(route('portal.check_in_out.store'), [
-                'email' => $visitors[0]->email,
-                'action' => 'check_out',
-            ]);
-
-        $response->dumpSession();
-
-
+        $this->assertDatabaseHas('visitors', [
+            'email' => $visitors[0]->email,
+            'status' => VisitorStatusEnum::Checked_In->value,
+        ]);
 
     }
 }
