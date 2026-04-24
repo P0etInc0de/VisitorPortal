@@ -197,9 +197,11 @@ class ReceptionAdministerVisitTest extends TestCase
             ->call('checkIn', $visit->id, $visitors[0]->id)
             ->assertStatus(200);
 
-        $this->assertDatabaseHas('visitors', [
-            'email' => $visitors[0]->email,
-            'status' => VisitorStatusEnum::Checked_In->value,
+        // check if status is updated in pivot table
+        $this->assertDatabaseHas('visit_visitor', [
+            'visit_id' => $visit->id,
+            'visitor_id' => $visitors[0]->id,
+            'checked_in_at' => now()
         ]);
 
     }
