@@ -91,12 +91,12 @@ class MonitorController extends Controller
             Log::info('User ID '.auth()->id()." updated background image for Monitor ID: {$monitor->id}");
         }
 
-        if ($validated['auto_generation'] == 1) {
-            dispatch(new WelcomeMonitorAutoGeneration);
-        }
-
         // Update monitor
         $monitor->update($validated);
+
+        if ($monitor->auto_generation) {
+            dispatch(new WelcomeMonitorAutoGeneration);
+        }
 
         Log::info('User ID '.auth()->id()." updated settings for Monitor ID: {$monitor->id}");
 

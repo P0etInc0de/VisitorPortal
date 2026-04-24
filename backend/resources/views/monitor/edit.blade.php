@@ -13,26 +13,10 @@
             <x-bp.alert/>
 
             <x-bp.card title="{{ __('Monitor Seiten') }}">
-                @if($monitor->auto_generation === 0)
-                    <x-slot:actions>
-                        <a type="button" href="{{route('monitors.slides.create', $monitor)}}" class="btn btn-primary btn-sm rounded-xl">{{__('Neue Seite')}}</a>
-                    </x-slot:actions>
-                @endif
                 <livewire:monitor.index-monitor-slides :monitor="$monitor" />
             </x-bp.card>
             <x-bp.card title="{{__('Monitor Einstellungen')}}">
-                <x-slot:actions>
-                    <input type="submit" form="monitorSettings"  class="btn btn-primary btn-sm rounded-xl" value="{{__('Speichern')}}"/>
-                </x-slot:actions>
-                <form id="monitorSettings" method="POST" action="{{route('monitors.update', $monitor)}}" enctype="multipart/form-data">
-                    @csrf
-                    @method('PUT')
-                    <div class="md:grid-cols-2 grid gap-5">
-                        <x-bp.input label="{{__('Übergangszeit (ms)')}}" value="{{$monitor->transition_time_milliseconds}}" name="transition_time_milliseconds"/>
-                        <x-bp.toggle label="{{__('Seiten automatisch generieren')}}" name="auto_generation" checked="{{$monitor->auto_generation}}"/>
-                    </div>
-                    <x-bp.picture-upload label="{{__('Hintergrundbild auswählen')}}" name="image" src="{{$monitor->image_path}}" form_id="monitorSettings" id="picture-upload"/>
-                </form>
+                <livewire:monitor.settings-form :monitor="$monitor" />
             </x-bp.card>
 
         </div>

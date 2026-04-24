@@ -13,8 +13,7 @@ class MonitorSeeder extends Seeder
     public function run(): void
     {
         Monitor::query()->updateOrCreate([
-            'monitors.name' => 'WillkommensMonitor',
-            'monitors.transition_time_milliseconds' => 5000,
-        ]);
+            'name' => 'WillkommensMonitor',
+        ], Monitor::defaultSettings());
     }
 }
