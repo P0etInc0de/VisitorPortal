@@ -8,7 +8,7 @@
             <div class="border-b border-base-300/70 bg-base-100 p-7 sm:p-9 lg:border-b-0 lg:border-r">
                 @if ($hasLogo)
                     <div class="mb-6 flex items-center gap-3">
-                        <img src="{{ asset('images/logo.png') }}" alt="{{ __('Besucherportal Logo') }}" class="max-h-12 w-auto object-contain">
+                        <img src="{{ asset('images/logo.png') }}" alt="{{ __('Besucherportal_Logo') }}" class="max-h-12 w-auto object-contain">
                     </div>
                 @endif
 
@@ -16,7 +16,7 @@
                     {{ __('Besucherportal') }}
                 </h1>
                 <p class="mt-4 max-w-md text-sm leading-7 text-base-content/70 sm:text-base">
-                    {{ __('Ein gemeinsamer Login für Mitarbeitende, Empfang und weitere berechtigte Rollen. Die Oberfläche passt sich anschließend an die vorhandenen Bereiche und Rechte an.') }}
+                    {{ __('Login_Textbeschreibung') }}
                 </p>
 
 

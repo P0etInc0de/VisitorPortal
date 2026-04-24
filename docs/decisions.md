@@ -127,3 +127,29 @@ Kurze Architekturentscheidungen und Begründungen für das Projekt **Besucherpor
 - **Quellen:**
   - Filament offizielle Website und Dokumentation (filamentphp.com)
   - Filament GitHub-Repository
+
+## ADR-006 PDF-Generierung mit Laravel PDF und Gotenberg
+- **Datum:** 2026-04-15
+- **Status:** Accepted
+- **Entscheidung:**
+  - Einsatz von **Spatie Laravel PDF** (`spatie/laravel-pdf`) zur PDF-Erzeugung innerhalb der Laravel-Anwendung
+  - Einsatz von **Gotenberg** als externer Rendering-Service
+  - PDF-Dokumente werden auf Basis von **Blade-Templates (HTML/CSS)** generiert
+  - Einsatzbereich: Erstellung der druckfähigen Besucherausweise
+- **Begründung:**
+  - **Gotenberg** bietet zuverlässiges Chromium-basiertes PDF-Rendering mit modernem CSS-Support
+  - Serverseitige Generierung sorgt für reproduzierbare Ergebnisse unabhängig vom Endgerät oder Browser des Nutzers
+  - **Spatie Laravel PDF** ist speziell für Laravel entwickelt und integriert sich nahtlos in die bestehende Entwicklung.
+  - Es sind keine zusätzlichen Kenntnisse in separaten PDF-Technologien erforderlich
+  - Layouts lassen sich mit HTML/CSS einfach pflegen, erweitern und gestalten
+  - **Gotenberg** ist Open Source und unter der **MIT License** veröffentlicht
+  - **Spatie Laravel PDF** ist ebenfalls unter der **MIT License** veröffentlicht
+  
+- **Verworfene Alternativen:**
+  - **dompdf:** Nur eingeschränkter CSS-Support für komplexere Layouts, für gewünschte Zwecke nicht ausreichend
+  - **Direkter Einsatz von Puppeteer:** Ursprünglich in Betracht gezogen. Verworfen, da zusätzlicher Node.js-Stack, eigener Wartungsaufwand und direktere Prozessverwaltung erforderlich gewesen wären und allgemein zu schwergewichtig wäre.
+- **Quellen:**
+  - Spatie Laravel PDF: https://spatie.be/docs/laravel-pdf/v2/introduction
+  - GitHub Repository Spatie Laravel PDF: https://github.com/spatie/laravel-pdf
+  - Gotenberg: https://gotenberg.dev/
+  - GitHub Repository Gotenberg: https://github.com/gotenberg/gotenberg
