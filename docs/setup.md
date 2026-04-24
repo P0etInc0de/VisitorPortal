@@ -68,6 +68,12 @@ docker compose exec web php artisan key:generate
 docker compose exec web bash -lc "php artisan migrate"
 ```
 
+## 5.1 Test-Datenbank erstellen
+
+```bash
+docker-compose exec db mysql -u root -proot_pw -e "CREATE DATABASE IF NOT EXISTS besucherportal_test;"
+```
+
 ## 6. Datenbank mit Test-Daten befüllen (Seeding)
 
 ```bash

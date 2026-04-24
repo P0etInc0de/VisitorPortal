@@ -59,6 +59,7 @@ class Visit extends Model
     public function visitors(): BelongsToMany
     {
         return $this->belongsToMany(Visitor::class)
+            ->using(VisitVisitor::class)
             ->withPivot([
                 'badge_printed_at',
                 'checked_in_at',
@@ -99,7 +100,7 @@ class Visit extends Model
     {
         $visitors = $this->relationLoaded('visitors')
             ? $this->visitors
-            : $this->visitors()->orderBy('first_name')->orderBy('last_name')->get();
+            : $this->visitors()->orderBy('first_name')->orderBy('name')->get();
 
         return $visitors->take($limit)->values();
     }

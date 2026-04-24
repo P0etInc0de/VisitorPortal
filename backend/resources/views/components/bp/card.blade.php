@@ -1,0 +1,17 @@
+@props(['title' => null, 'subtitle' => null])
+<section {{ $attributes->merge(['class' => 'mt-3 rounded-3xl border border-slate-200 bg-white p-6 shadow-sm']) }}>
+    @if($title || $slot->hasActualContent())
+        <div class="mb-5 flex items-center justify-between gap-4">
+            <div>
+                @if($title)
+                    <h2 class="text-xl font-semibold text-slate-900">{{ $title }}</h2>
+                @endif
+                @if($subtitle)
+                        <p class="mt-1 text-sm text-slate-500">{{ $subtitle }}</p>
+                @endif
+            </div>
+            {{ $actions ?? '' }}
+        </div>
+    @endif
+    {{ $slot }}
+</section>

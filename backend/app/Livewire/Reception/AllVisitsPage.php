@@ -3,8 +3,10 @@
 namespace App\Livewire\Reception;
 
 use App\Enums\VisitStatusEnum;
+use App\Models\User;
 use App\Models\Visit;
 use App\Models\Visitor;
+use App\Services\VisitActionService;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Log;
 use Livewire\Component;
@@ -95,33 +97,23 @@ class AllVisitsPage extends Component
     {
         $visit = $this->loadVisitParticipantPair($visitId, $visitorId);
         $participant = $visit->visitors->firstWhere('id', $visitorId);
+        $user = auth()->user();
 
-        if (! $participant) {
+        if (! $participant || ! $user instanceof User) {
             return;
         }
 
         $pivot = $participant->pivot;
 
         if (blank($pivot->checked_in_at) || filled($pivot->checked_out_at)) {
-            $payload = [
-                'checked_in_at' => now(),
-                'checked_in_by_user_id' => auth()->id(),
-                'updated_at' => now(),
-            ];
-
-            if (filled($pivot->checked_out_at)) {
-                $payload['checked_out_at'] = null;
-                $payload['checked_out_by_user_id'] = null;
-            }
-
-            $visit->visitors()->updateExistingPivot($visitorId, $payload);
+            app(VisitActionService::class)->checkInParticipant($visit, $participant, $user);
 
             Log::channel('web')->info(
                 filled($pivot->checked_out_at) ? 'Visit participant checked in again' : 'Visit participant checked in',
                 [
                     'visit_id' => $visitId,
                     'visitor_id' => $visitorId,
-                    'user_id' => auth()->id(),
+                    'user_id' => $user->id,
                 ]
             );
 
@@ -133,22 +125,19 @@ class AllVisitsPage extends Component
     {
         $visit = $this->loadVisitParticipantPair($visitId, $visitorId);
         $participant = $visit->visitors->firstWhere('id', $visitorId);
+        $user = auth()->user();
 
-        if (! $participant) {
+        if (! $participant || ! $user instanceof User) {
             return;
         }
 
         if (filled($participant->pivot->checked_in_at) && blank($participant->pivot->checked_out_at)) {
-            $visit->visitors()->updateExistingPivot($visitorId, [
-                'checked_out_at' => now(),
-                'checked_out_by_user_id' => auth()->id(),
-                'updated_at' => now(),
-            ]);
+            app(VisitActionService::class)->checkOutParticipant($visit, $participant, $user);
 
             Log::channel('web')->info('Visit participant checked out', [
                 'visit_id' => $visitId,
                 'visitor_id' => $visitorId,
-                'user_id' => auth()->id(),
+                'user_id' => $user->id,
             ]);
 
             $this->interactionToken++;
@@ -206,6 +195,7 @@ class AllVisitsPage extends Component
                         ->orWhereHas('visitors', function ($query) use ($search) {
                             $query->where('first_name', 'like', '%'.$search.'%')
                                 ->orWhere('name', 'like', '%'.$search.'%')
+                                ->orWhere('title', 'like', '%'.$search.'%')
                                 ->orWhere('company', 'like', '%'.$search.'%')
                                 ->orWhereRaw("concat(first_name, ' ', name) like ?", ['%'.$search.'%']);
                         });
@@ -263,6 +253,7 @@ class AllVisitsPage extends Component
             'row_key' => 'visit-'.$visit->id.'-visitor-'.$visitor->id,
             'visit_id' => $visit->id,
             'visitor_id' => $visitor->id,
+            'title' => $visitor->title,
             'name' => trim($visitor->first_name.' '.$visitor->name),
             'company' => $visitor->company,
             'status_label' => $status['label'],

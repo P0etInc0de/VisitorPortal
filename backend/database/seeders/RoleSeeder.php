@@ -17,7 +17,7 @@ class RoleSeeder extends Seeder
         $userPermissions = [
             'ViewOwn:User', 'EditOwn:User', 'Create:Visit', 'Create:Visitor',
             'ViewOwn:Visit', 'EditOwn:Visit', 'DeleteOwn:Visit',
-            'ViewAny:Visitor'];
+            'ViewAny:Visitor', 'View:Role'];
 
         $managerPermissions = array_merge($userPermissions, [
             'ViewDepartment:User', 'EditDepartment:User',
@@ -28,14 +28,14 @@ class RoleSeeder extends Seeder
             'ViewAny:Visit', 'EditAny:Visit', 'DeleteAny:Visit',
             'EditAny:Visitor',
             'CheckIn:Visit', 'CheckOut:Visit', 'Print:Visit',
-            'View:Monitor', 'Edit:Monitor']);
+            'View:Monitor', 'ViewAny:Monitor', 'Edit:Monitor']);
 
         $roles = [
             'user' => $userPermissions,
             'manager' => $managerPermissions,
             'receptionist' => $receptionistPermissions,
             'welcome monitor' => [
-                'View:Monitor',
+                'View:Monitor', 'ViewAny:Monitor',
             ],
             'admin' => Permission::all()->pluck('name')->toArray(),
         ];

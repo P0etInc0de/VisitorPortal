@@ -18,9 +18,13 @@
         ->map(function ($visitor) {
             return [
                 'id' => $visitor->id,
+                'title' => $visitor->title,
                 'first_name' => $visitor->first_name,
-                'last_name' => $visitor->last_name,
-                'full_name' => trim(($visitor->first_name ?? '') . ' ' . ($visitor->last_name ?? '')),
+                'name' => $visitor->name,
+                'full_name' => trim(implode(' ', array_filter([
+                    $visitor->first_name,
+                    $visitor->name,
+                ]))) . (filled($visitor->title) ? ', '.$visitor->title : ''),
                 'company' => $visitor->company,
                 'email' => $visitor->email,
                 'phone' => $visitor->phone,
@@ -55,8 +59,9 @@
             search: '',
             draftParticipant: {
                 visitor_id: null,
+                title: '',
                 first_name: '',
-                last_name: '',
+                name: '',
                 email: '',
                 phone: '',
                 company: '',
@@ -86,8 +91,9 @@
             resetDraftParticipant() {
                 this.draftParticipant = {
                     visitor_id: null,
+                    title: '',
                     first_name: '',
-                    last_name: '',
+                    name: '',
                     email: '',
                     phone: '',
                     company: '',
@@ -106,6 +112,7 @@
                     .filter((visitor) => {
                         const haystack = [
                             visitor.full_name,
+                            visitor.title,
                             visitor.company,
                             visitor.email,
                             visitor.phone,
@@ -128,8 +135,9 @@
 
                 this.participants.push({
                     visitor_id: visitor.id,
+                    title: visitor.title ?? '',
                     first_name: visitor.first_name ?? '',
-                    last_name: visitor.last_name ?? '',
+                    name: visitor.name ?? '',
                     email: visitor.email ?? '',
                     phone: visitor.phone ?? '',
                     company: visitor.company ?? '',
@@ -146,8 +154,9 @@
                 this.addingNewParticipant = true;
                 this.draftParticipant = {
                     visitor_id: null,
+                    title: '',
                     first_name: parts[0] ?? '',
-                    last_name: parts.length > 1 ? parts.slice(1).join(' ') : '',
+                    name: parts.length > 1 ? parts.slice(1).join(' ') : '',
                     email: '',
                     phone: '',
                     company: '',
@@ -159,7 +168,7 @@
             },
             addDraftParticipant() {
                 const firstName = (this.draftParticipant.first_name ?? '').trim();
-                const lastName = (this.draftParticipant.last_name ?? '').trim();
+                const lastName = (this.draftParticipant.name ?? '').trim();
 
                 if (!firstName || !lastName) {
                     return;
@@ -167,8 +176,9 @@
 
                 this.participants.push({
                     visitor_id: null,
+                    title: (this.draftParticipant.title ?? '').trim(),
                     first_name: firstName,
-                    last_name: lastName,
+                    name: lastName,
                     email: (this.draftParticipant.email ?? '').trim(),
                     phone: (this.draftParticipant.phone ?? '').trim(),
                     company: (this.draftParticipant.company ?? '').trim(),
@@ -182,11 +192,16 @@
                 this.participants.splice(index, 1);
             },
             participantName(participant) {
+                const title = (participant.title ?? '').trim();
                 const firstName = (participant.first_name ?? '').trim();
-                const lastName = (participant.last_name ?? '').trim();
+                const lastName = (participant.name ?? '').trim();
                 const fullName = `${firstName} ${lastName}`.trim();
 
-                return fullName || '{{ __('Ohne Namen') }}';
+                if (fullName !== '' && title !== '') {
+                    return `${fullName}, ${title}`;
+                }
+
+                return fullName || title || '{{ __('Ohne Namen') }}';
             },
             participantHasDetails(participant) {
                 return Boolean(participant.company || participant.email || participant.phone);
@@ -233,7 +248,7 @@
                                 <label class="form-control xl:col-span-12">
                                     <div class="label px-0 pb-2">
                                         <span class="label-text text-sm font-medium text-base-content">
-                                            {{ __('Titel / Anlass') }}
+                                            {{ __('Titel_Anlass') }}
                                         </span>
                                     </div>
                                     <input
@@ -267,7 +282,7 @@
                                 <label class="form-control xl:col-span-4">
                                     <div class="label px-0 pb-2">
                                         <span class="label-text text-sm font-medium text-base-content">
-                                            {{ __('Verantwortlich / Empfang') }}
+                                            {{ __('Vertretung') }}
                                         </span>
                                     </div>
                                     <select
@@ -373,7 +388,7 @@
                 <div class="p-5 sm:p-6">
                     <div>
                         <h2 class="text-2xl font-semibold tracking-tight text-base-content">
-                            {{ __('Besucher / Teilnehmende') }}
+                            {{ __('Besucher_Teilnehmende') }}
                         </h2>
                     </div>
 
@@ -441,8 +456,9 @@
                                         </div>
 
                                         <input type="hidden" :name="`participants[${index}][visitor_id]`" :value="participantHiddenValue(participant.visitor_id)">
+                                        <input type="hidden" :name="`participants[${index}][title]`" :value="participantHiddenValue(participant.title)">
                                         <input type="hidden" :name="`participants[${index}][first_name]`" :value="participantHiddenValue(participant.first_name)">
-                                        <input type="hidden" :name="`participants[${index}][last_name]`" :value="participantHiddenValue(participant.last_name)">
+                                        <input type="hidden" :name="`participants[${index}][name]`" :value="participantHiddenValue(participant.name)">
                                         <input type="hidden" :name="`participants[${index}][email]`" :value="participantHiddenValue(participant.email)">
                                         <input type="hidden" :name="`participants[${index}][phone]`" :value="participantHiddenValue(participant.phone)">
                                         <input type="hidden" :name="`participants[${index}][company]`" :value="participantHiddenValue(participant.company)">
@@ -499,6 +515,18 @@
                                     <div class="grid gap-4 md:grid-cols-2 xl:grid-cols-12">
                                         <label class="form-control xl:col-span-4">
                                             <div class="label px-0 pb-2">
+                                                <span class="label-text text-sm font-medium text-base-content">{{ __('Titel') }}</span>
+                                            </div>
+                                            <input
+                                                type="text"
+                                                class="input input-bordered w-full"
+                                                x-model="draftParticipant.title"
+                                                placeholder="{{ __('z. B. Dr.') }}"
+                                            >
+                                        </label>
+
+                                        <label class="form-control xl:col-span-4">
+                                            <div class="label px-0 pb-2">
                                                 <span class="label-text text-sm font-medium text-base-content">{{ __('Vorname') }}</span>
                                             </div>
                                             <input
@@ -516,7 +544,7 @@
                                             <input
                                                 type="text"
                                                 class="input input-bordered w-full"
-                                                x-model="draftParticipant.last_name"
+                                                x-model="draftParticipant.name"
                                             >
                                         </label>
 
@@ -561,7 +589,7 @@
                                         <button
                                             type="button"
                                             class="btn btn-primary"
-                                            :disabled="!(draftParticipant.first_name || '').trim() || !(draftParticipant.last_name || '').trim()"
+                                            :disabled="!(draftParticipant.first_name || '').trim() || !(draftParticipant.name || '').trim()"
                                             @click="addDraftParticipant()"
                                         >
                                             {{ __('Zur Liste hinzufügen') }}

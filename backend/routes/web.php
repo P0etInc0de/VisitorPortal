@@ -1,13 +1,17 @@
 <?php
 
-use App\Http\Controllers\CheckInOutController;
 use App\Http\Controllers\Monitor\MonitorController;
+use App\Http\Controllers\Monitor\MonitorSlidesController;
 use App\Http\Controllers\Portal\DashboardController as PortalDashboardController;
 use App\Http\Controllers\Portal\VisitController as PortalVisitController;
 use App\Http\Controllers\Reception\DashboardController as ReceptionDashboardController;
 use App\Http\Controllers\Reception\VisitController as ReceptionVisitController;
 use App\Http\Controllers\Reception\VisitParticipantActionController;
 use App\Http\Controllers\UserPermissionsController;
+use App\Http\Middleware\CheckMonitorAutoGeneration;
+use App\Livewire\Portal\CheckInOutBoard;
+use App\Livewire\Portal\VisitShowPage;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -16,6 +20,16 @@ Route::get('/', function () {
         : redirect()->route('login');
 })->name('home');
 
+Route::get('/lang', function (Request $request) {
+    $locale = $request->input('locale');
+
+    if (in_array($locale, ['de', 'en'])) {
+        session(['locale' => $locale]);
+    }
+
+    return redirect()->to(url()->previous());
+});
+
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/dashboard', [PortalDashboardController::class, 'index'])->name('dashboard');
 
@@ -23,9 +37,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::prefix('visits')->name('visits.')->group(function () {
             Route::get('/create', [PortalVisitController::class, 'create'])->name('create');
             Route::post('/', [PortalVisitController::class, 'store'])->name('store');
-            Route::get('/{visit}', [PortalVisitController::class, 'show'])
+
+            Route::get('/{visit}', VisitShowPage::class)
                 ->whereNumber('visit')
                 ->name('show');
+
             Route::get('/{visit}/edit', [PortalVisitController::class, 'edit'])
                 ->whereNumber('visit')
                 ->name('edit');
@@ -43,9 +59,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
                 ->name('reschedule');
         });
 
-        Route::get('/check_in_out', [CheckInOutController::class, 'index'])->name('check_in_out');
-        Route::get('/badge/check_in_out_all', [CheckInOutController::class, 'check_in_out_all'])->name('check_in_out.check_in_out_all');
-        Route::post('/check_in_out', [CheckInOutController::class, 'store'])->name('check_in_out.store');
+        Route::redirect('/check_in_out', '/portal/check-in-out');
+        Route::get('/check-in-out', CheckInOutBoard::class)->name('check_in_out');
     });
 
     Route::prefix('reception')->name('reception.')->group(function () {
@@ -68,11 +83,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
             ->name('participants.check-out');
     });
 
-    Route::prefix('monitor')->name('monitor.')->group(function () {
-        Route::redirect('/', '/monitor/live');
-        Route::get('/live', [MonitorController::class, 'show'])->name('live');
-        Route::get('/editor', [MonitorController::class, 'edit'])->name('editor');
-    });
+    Route::resource('monitors', MonitorController::class);
+    Route::resource('monitors.slides', MonitorSlidesController::class)
+        ->middleware(CheckMonitorAutoGeneration::class);
 
     Route::get('/user-permissions', [UserPermissionsController::class, 'index'])->name('user-permissions');
 });

@@ -3,11 +3,11 @@
 namespace Tests\Feature\Visit;
 
 use App\Enums\VisitStatusEnum;
-use App\Models\User;
 use App\Models\Visit;
 use App\Models\Visitor;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\Support\PermissionHelper;
 use Tests\TestCase;
 
 class UserAdministerVisitTest extends TestCase
@@ -19,10 +19,9 @@ class UserAdministerVisitTest extends TestCase
      */
     public function test_user_can_create_visit(): void
     {
-        // create necessary instances
-        $user = User::factory()->create();
+        $user = (new PermissionHelper)->getUser();
 
-        $responsibleUser = User::factory()->create();
+        $responsibleUser = (new PermissionHelper)->getUser();
 
         $visitors = Visitor::factory(3)->create();
 
@@ -45,9 +44,9 @@ class UserAdministerVisitTest extends TestCase
         // create necessary instances
         $visitTitle = 'Test Visit';
 
-        $user = User::factory()->create();
+        $user = (new PermissionHelper)->getUser();
 
-        $responsibleUser = User::factory()->create();
+        $responsibleUser = (new PermissionHelper)->getUser();
 
         // create visit
         $visit = $this->makeVisit($user->id, $visitTitle, VisitStatusEnum::Planned, $responsibleUser->id);
@@ -71,9 +70,9 @@ class UserAdministerVisitTest extends TestCase
 
         $participant = Visitor::Factory()->create();
 
-        $user = User::factory()->create();
+        $user = (new PermissionHelper)->getUser();
 
-        $responsibleUser = User::factory()->create();
+        $responsibleUser = (new PermissionHelper)->getUser();
 
         // create updated fields
         $updatedVisitTitle = 'Updated Visit Title';

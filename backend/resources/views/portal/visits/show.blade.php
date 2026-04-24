@@ -16,7 +16,8 @@
         }
 
         return [
-            'name' => trim(($visitor->first_name ?? '') . ' ' . ($visitor->last_name ?? '')),
+            'name' => trim(($visitor->first_name ?? '') . ' ' . ($visitor->name ?? '')),
+            'title' => $visitor->title,
             'company' => $visitor->company,
             'email' => $visitor->email,
             'phone' => $visitor->phone,
@@ -81,7 +82,7 @@
                     </span>
 
                     <span class="{{ $metaChipClass }}">
-                        {{ __('Empfang') }}: {{ $visit->responsibleUser?->name ?: '-' }}
+                        {{ __('Vertretung') }}: {{ $visit->responsibleUser?->name ?: '-' }}
                     </span>
 
                     <span class="{{ $metaChipClass }}">

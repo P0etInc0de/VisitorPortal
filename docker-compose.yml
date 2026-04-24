@@ -4,6 +4,7 @@ services:
       context: .
       dockerfile: docker/apache/Dockerfile
     container_name: besucherportal-web
+    command: sh -c "php artisan storage:link && apache2-foreground"
     ports:
       - "8080:80"
     volumes:

@@ -111,7 +111,7 @@
 
         <div class="label label-name">{{ __('Name:') }}</div>
         <div class="value value-name">
-            {{ trim($visitor->titel ?? '').$visitor->first_name . ' ' . $visitor->name }}
+            {{ trim(implode(' ', array_filter([$visitor->title ?? null, $visitor->first_name ?? null, $visitor->name ?? null]))) }}
         </div>
         <div class="divider divider-1"></div>
 
