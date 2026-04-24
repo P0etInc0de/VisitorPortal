@@ -1,12 +1,14 @@
 <?php
 
 use App\Http\Controllers\Monitor\MonitorController;
+use App\Http\Controllers\Monitor\MonitorSlidesController;
 use App\Http\Controllers\Portal\DashboardController as PortalDashboardController;
 use App\Http\Controllers\Portal\VisitController as PortalVisitController;
 use App\Http\Controllers\Reception\DashboardController as ReceptionDashboardController;
 use App\Http\Controllers\Reception\VisitController as ReceptionVisitController;
 use App\Http\Controllers\Reception\VisitParticipantActionController;
 use App\Http\Controllers\UserPermissionsController;
+use App\Http\Middleware\CheckMonitorAutoGeneration;
 use App\Livewire\Portal\CheckInOutBoard;
 use App\Livewire\Portal\VisitShowPage;
 use Illuminate\Http\Request;
@@ -81,11 +83,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
             ->name('participants.check-out');
     });
 
-    Route::prefix('monitor')->name('monitor.')->group(function () {
-        Route::redirect('/', '/monitor/live');
-        Route::get('/live', [MonitorController::class, 'show'])->name('live');
-        Route::get('/editor', [MonitorController::class, 'edit'])->name('editor');
-    });
+    Route::resource('monitors', MonitorController::class);
+    Route::resource('monitors.slides', MonitorSlidesController::class)
+        ->middleware(CheckMonitorAutoGeneration::class);
 
     Route::get('/user-permissions', [UserPermissionsController::class, 'index'])->name('user-permissions');
 });
