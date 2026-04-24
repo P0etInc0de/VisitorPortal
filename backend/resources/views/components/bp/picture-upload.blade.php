@@ -23,11 +23,9 @@
         id="{{$id}}"
         style="display:none"
         type="{{ $type }}"
-        {{-- Nur wenn $name ein String ist, setzen wir das HTML-Attribut name --}}
+
         @if(is_string($name)) name="{{ $name }}" @endif
 
-        {{-- WICHTIG: Nur old() aufrufen, wenn $name existiert.
-             Sonst nehmen wir $value (falls es kein Array ist) oder einen leeren String. --}}
         value="{{ is_string($name) ? old($name, $value) : (!is_array($value) ? $value : '') }}"
 
         {{ $attributes->merge([
