@@ -7,9 +7,9 @@ use App\Http\Requests\Monitor\UpdateMonitorRequest;
 use App\Models\Monitor;
 use App\Models\MonitorSlide;
 use App\Tasks\WelcomeMonitorAutoGeneration;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
-use Request;
 
 class MonitorController extends Controller
 {
@@ -70,29 +70,39 @@ class MonitorController extends Controller
     {
         $validated = $request->validated();
 
-        $current_image_path = $monitor->image_path;
+        $imagePath = $monitor->image_path;
 
-        // Check if image shall be deleted
         if (! empty($validated['deleteImage'])) {
-            Storage::disk('public')->delete($current_image_path);
-            $monitor->image_path = null;
+            Storage::disk('public')->delete($imagePath);
+            $imagePath = null;
+
+            if (($validated['background_source'] ?? null) === 'upload') {
+                $validated['background_source'] = Monitor::DEFAULT_BACKGROUND_SOURCE;
+            }
+
             Log::info('User ID '.auth()->id()." deleted background image for Monitor ID: {$monitor->id}");
         } elseif (! empty($request->file('image'))) {
-            // Store the image inside storage/app/private/images
             $path = $request->file('image')->store('images', 'public');
 
-            // Add the image path
-            $validated['image_path'] = $path;
-
-            // Delete old image
-            if ($current_image_path != null) {
-                Storage::disk('public')->delete($current_image_path);
+            if ($imagePath != null) {
+                Storage::disk('public')->delete($imagePath);
             }
+
+            $imagePath = $path;
+            $validated['background_source'] = 'upload';
+
             Log::info('User ID '.auth()->id()." updated background image for Monitor ID: {$monitor->id}");
         }
 
-        // Update monitor
-        $monitor->update($validated);
+        unset($validated['deleteImage'], $validated['image']);
+
+        if (($validated['background_source'] ?? null) === 'upload' && blank($imagePath)) {
+            $validated['background_source'] = Monitor::DEFAULT_BACKGROUND_SOURCE;
+        }
+
+        $monitor->update(array_merge($validated, [
+            'image_path' => $imagePath,
+        ]));
 
         if ($monitor->auto_generation) {
             dispatch(new WelcomeMonitorAutoGeneration);

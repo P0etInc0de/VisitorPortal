@@ -26,7 +26,11 @@ class UpdateMonitorRequest extends FormRequest
     {
         return [
             'transition_time_milliseconds' => 'required|integer|between:1000,50000',
-            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:20000',
+            'auto_generation_window_minutes' => 'required|integer|between:1,180',
+            'background_source' => 'required|in:preset-1,preset-2,upload',
+            'background_overlay_enabled' => 'boolean',
+            'content_card_style' => 'required|in:solid,transparent,none',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:20000',
             'deleteImage' => 'boolean',
             'auto_generation' => 'boolean',
         ];
