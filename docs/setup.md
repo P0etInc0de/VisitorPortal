@@ -71,7 +71,7 @@ docker compose exec web bash -lc "php artisan migrate"
 ## 6. Datenbank mit Test-Daten befüllen (Seeding)
 
 ```bash
-docker compose exec web php bash -lc "artisan migrate:fresh --seed"
+docker compose exec web bash -lc "php artisan migrate:fresh --seed"
 ```
 
 ## 7. Browser öffnen
