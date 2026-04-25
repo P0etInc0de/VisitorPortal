@@ -2,6 +2,7 @@
 
 namespace AdminPanel;
 
+use App\Filament\Resources\Departments\Pages\CreateDepartment;
 use App\Filament\Resources\Users\Pages\CreateUser;
 use App\Filament\Resources\Users\Pages\EditUser;
 use App\Models\User;
@@ -136,6 +137,43 @@ class AdminAdministerUserTest extends TestCase
         ]);
 
     }
+
+    public function test_admin_can_create_new_departments(): void {
+
+        $admin = (new PermissionHelper)->getSuperAdminUser();
+
+        // send form to create a new department
+        Livewire::actingAs($admin)
+            ->test(CreateDepartment::class)
+            ->fillForm([
+                'name' => 'IT Department',
+                'location' => 'Berlin',
+                'is_active' => true
+            ])
+            ->call('create')
+            ->assertHasNoFormErrors();
+
+        // check if new department is created in database
+        $this->assertDatabaseHas('departments', [
+            'name' => 'IT Department',
+            'location' => 'Berlin',
+            'is_active' => true,
+        ]);
+    }
+
+    public function test_admin_can_edit_existing_departments(): void {}
+
+    public function test_admin_can_delete_existing_departments(): void {}
+
+    public function test_admin_can_create_monitors(): void {}
+
+    public function test_admin_can_create_new_visitors(): void {}
+
+    public function test_admin_can_edit_existing_visitors(): void {}
+    public function test_admin_can_delete_visitors(): void {}
+    public function test_admin_can_create_new_visits(): void {}
+    public function test_admin_can_edit_existing_visits(): void {}
+    public function test_admin_can_delete_visits(): void {}
 
     public function createUser(User $admin, string $first_name, string $name, string $email, string $password, Role $userRole): void
     {
