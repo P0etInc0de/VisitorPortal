@@ -206,7 +206,43 @@ class AdminAdministerUserTest extends TestCase
         ]);
     }
 
-    public function test_admin_can_delete_existing_departments(): void {}
+    public function test_admin_can_delete_existing_departments(): void {
+        $admin = (new PermissionHelper)->getSuperAdminUser();
+
+        // send form to create a new department
+        Livewire::actingAs($admin)
+            ->test(CreateDepartment::class)
+            ->fillForm([
+                'name' => 'IT Department',
+                'location' => 'Berlin',
+                'is_active' => true
+            ])
+            ->call('create')
+            ->assertHasNoFormErrors();
+
+        // check if department has been created
+        $this->assertDatabaseHas('departments', [
+            'name' => 'IT Department',
+            'location' => 'Berlin',
+            'is_active' => true,
+        ]);
+
+        // get department for route key
+        $department = Department::where('name', 'IT Department')->first();
+
+        // send form to update database
+        Livewire::actingAs($admin)
+            ->test(EditDepartment::class, ['record' => $department->getRouteKey()])
+            ->callAction('delete')
+            ->assertHasNoFormErrors();
+
+        // check if the department is updated in database
+        $this->assertDatabaseMissing('departments', [
+            'name' => 'IT Department',
+            'location' => 'Berlin',
+            'is_active' => true,
+        ]);
+    }
 
     public function test_admin_can_create_monitors(): void {}
 
