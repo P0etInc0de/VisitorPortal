@@ -74,16 +74,16 @@
         }
 
         .label-name { top: 17.8mm; left: 4.8mm; }
-        .value-name { top: 17.4mm; left: 20mm; }
+        .value-name { top: 17.8mm; left: 22mm; }
 
         .label-company { top: 24.6mm; left: 4.8mm; }
-        .value-company { top: 24.2mm; left: 20mm; }
+        .value-company { top: 24.6mm; left: 22mm; }
 
         .label-contact { top: 31.4mm; left: 4.8mm; }
-        .value-contact { top: 31.0mm; left: 20mm; }
+        .value-contact { top: 31.4mm; left: 22mm; }
 
         .label-date { top: 38.2mm; left: 4.8mm; }
-        .value-date { top: 37.8mm; left: 20mm; }
+        .value-date { top: 38.2mm; left: 22mm; }
 
         .divider {
             position: absolute;
