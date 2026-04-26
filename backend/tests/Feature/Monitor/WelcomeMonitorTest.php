@@ -35,7 +35,7 @@ class WelcomeMonitorTest extends TestCase
             ->set('transitionTimeSeconds', 8)
             ->set('autoGeneration', true)
             ->set('autoGenerationWindowMinutes', 45)
-            ->set('backgroundSource', 'preset-2')
+            ->set('backgroundSource', 'preset-3')
             ->set('backgroundOverlayEnabled', true)
             ->set('contentCardStyle', 'none')
             ->set('fallbackHeading', 'Willkommen bei ACD')
@@ -50,7 +50,7 @@ class WelcomeMonitorTest extends TestCase
         $this->assertSame(8000, $monitor->transition_time_milliseconds);
         $this->assertTrue($monitor->auto_generation);
         $this->assertSame(45, $monitor->auto_generation_window_minutes);
-        $this->assertSame('preset-2', $monitor->background_source);
+        $this->assertSame('preset-3', $monitor->background_source);
         $this->assertTrue($monitor->background_overlay_enabled);
         $this->assertSame('none', $monitor->content_card_style);
         $this->assertSame('Willkommen bei ACD', $monitor->fallback_heading);
@@ -154,7 +154,7 @@ class WelcomeMonitorTest extends TestCase
             'show_logo' => true,
             'show_date' => true,
             'visitors' => [],
-            'background_source' => 'preset-2',
+            'background_source' => 'preset-3',
         ]);
 
         $response = $this
@@ -164,7 +164,7 @@ class WelcomeMonitorTest extends TestCase
         $response
             ->assertOk()
             ->assertSee('Sonderseite')
-            ->assertSee('monitor-default-2.svg');
+            ->assertSee('monitor-default-3.jpg');
     }
 
     private function monitorUser()

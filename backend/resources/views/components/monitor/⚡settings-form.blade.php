@@ -108,7 +108,7 @@ new class extends Component {
             'transitionTimeSeconds' => ['required', 'integer', 'between:1,50'],
             'autoGeneration' => ['boolean'],
             'autoGenerationWindowMinutes' => ['required', 'integer', 'between:1,180'],
-            'backgroundSource' => ['required', 'in:preset-1,preset-2,upload'],
+            'backgroundSource' => ['required', 'in:preset-1,preset-2,preset-3,upload'],
             'backgroundOverlayEnabled' => ['boolean'],
             'contentCardStyle' => ['required', 'in:solid,transparent,none'],
             'fallbackHeading' => ['required', 'string', 'max:255'],

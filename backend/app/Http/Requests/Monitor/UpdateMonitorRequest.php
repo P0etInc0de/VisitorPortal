@@ -27,7 +27,7 @@ class UpdateMonitorRequest extends FormRequest
         return [
             'transition_time_milliseconds' => 'required|integer|between:1000,50000',
             'auto_generation_window_minutes' => 'required|integer|between:1,180',
-            'background_source' => 'required|in:preset-1,preset-2,upload',
+            'background_source' => 'required|in:preset-1,preset-2,preset-3,upload',
             'background_overlay_enabled' => 'boolean',
             'content_card_style' => 'required|in:solid,transparent,none',
             'fallback_heading' => 'required|string|max:255',

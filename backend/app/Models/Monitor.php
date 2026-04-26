@@ -106,14 +106,19 @@ class Monitor extends Model
     {
         return [
             'preset-1' => [
-                'label' => __('Standard 1'),
-                'path' => 'images/monitor-default-1.svg',
-                'description' => __('Helle Farbverläufe für einen ruhigen Empfangsbildschirm.'),
+                'label' => __('Standardbild 1'),
+                'path' => 'images/monitor/monitor-default-1.jpg',
+                'description' => __('Lager- und Logistikmotiv als vordefinierter Hintergrund.'),
             ],
             'preset-2' => [
-                'label' => __('Standard 2'),
-                'path' => 'images/monitor-default-2.svg',
-                'description' => __('Warme neutrale Flächen mit klaren Kontrasten für Textinhalte.'),
+                'label' => __('Standardbild 2'),
+                'path' => 'images/monitor/monitor-default-2.jpg',
+                'description' => __('Heller Raum mit ruhiger Fläche für kontrastarme Begrüßungsseiten.'),
+            ],
+            'preset-3' => [
+                'label' => __('Standardbild 3'),
+                'path' => 'images/monitor/monitor-default-3.jpg',
+                'description' => __('Architekturmotiv mit viel Himmel für freundliche Empfangsseiten.'),
             ],
             'upload' => [
                 'label' => __('Eigenes Bild'),

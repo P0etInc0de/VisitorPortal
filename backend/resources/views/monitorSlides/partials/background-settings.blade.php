@@ -12,7 +12,7 @@
         : $defaultPreview;
 
     $selectedPreview = match ($currentSource) {
-        'preset-1', 'preset-2' => asset($backgroundPresets[$currentSource]['path']),
+        'preset-1', 'preset-2', 'preset-3' => asset($backgroundPresets[$currentSource]['path']),
         'upload' => $uploadPreview,
         default => $defaultPreview,
     };
@@ -29,6 +29,7 @@
             'inherit' => ['label' => __('Monitor-Standard'), 'description' => __('Verwendet den Standard-Hintergrund aus den Monitor-Einstellungen.'), 'preview' => $defaultPreview],
             'preset-1' => ['label' => $backgroundPresets['preset-1']['label'], 'description' => $backgroundPresets['preset-1']['description'], 'preview' => asset($backgroundPresets['preset-1']['path'])],
             'preset-2' => ['label' => $backgroundPresets['preset-2']['label'], 'description' => $backgroundPresets['preset-2']['description'], 'preview' => asset($backgroundPresets['preset-2']['path'])],
+            'preset-3' => ['label' => $backgroundPresets['preset-3']['label'], 'description' => $backgroundPresets['preset-3']['description'], 'preview' => asset($backgroundPresets['preset-3']['path'])],
             'upload' => ['label' => __('Eigenes Bild'), 'description' => __('Lädt ein individuelles Bild für genau diese Seite hoch.'), 'preview' => $uploadPreview],
         ] as $source => $option)
             <label @class([

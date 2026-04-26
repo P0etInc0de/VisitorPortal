@@ -39,7 +39,7 @@ class StoreMonitorSlideRequest extends FormRequest
             'show_date' => 'boolean',
             'show_time' => 'boolean',
             'subheading' => 'string|nullable',
-            'background_source' => 'required|in:inherit,preset-1,preset-2,upload',
+            'background_source' => 'required|in:inherit,preset-1,preset-2,preset-3,upload',
             'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:20000',
             'deleteImage' => 'boolean',
         ];
