@@ -237,7 +237,7 @@ new class extends Component {
     @endif
 
     <div class="space-y-3.5">
-        <div class="grid gap-3 md:grid-cols-[minmax(0,2fr)_minmax(250px,19rem)] md:items-center">
+        <div class="grid gap-3 md:grid-cols-[minmax(0,1fr)_14rem] lg:grid-cols-[minmax(0,1fr)_15rem] md:items-center">
             <label class="text-sm font-medium text-base-content md:text-base">{{ __('Seiten automatisch generieren') }}</label>
             <div class="flex md:justify-end">
                 <input type="checkbox" wire:model.live="autoGeneration" class="toggle toggle-primary shrink-0">
@@ -247,7 +247,7 @@ new class extends Component {
             <span class="block text-sm font-medium text-red-500">{{ $message }}</span>
         @enderror
 
-        <div class="grid gap-3 md:grid-cols-[minmax(0,2fr)_minmax(250px,19rem)] md:items-center">
+        <div class="grid gap-3 md:grid-cols-[minmax(0,1fr)_14rem] lg:grid-cols-[minmax(0,1fr)_15rem] md:items-center">
             <label for="auto-window-minutes" class="text-sm font-medium text-base-content md:text-base">{{ __('Besuche im Zeitraum (+/- Minuten)') }}</label>
             <div>
                 <input
@@ -264,7 +264,7 @@ new class extends Component {
             </div>
         </div>
 
-        <div class="grid gap-3 md:grid-cols-[minmax(0,2fr)_minmax(250px,19rem)] md:items-center">
+        <div class="grid gap-3 md:grid-cols-[minmax(0,1fr)_14rem] lg:grid-cols-[minmax(0,1fr)_15rem] md:items-center">
             <label for="transition-time-seconds" class="text-sm font-medium text-base-content md:text-base">{{ __('Seitenwechsel nach (Sekunden)') }}</label>
             <div>
                 <input
@@ -281,7 +281,7 @@ new class extends Component {
             </div>
         </div>
 
-        <div class="grid gap-3 md:grid-cols-[minmax(0,2fr)_minmax(250px,19rem)] md:items-center">
+        <div class="grid gap-3 md:grid-cols-[minmax(0,1fr)_14rem] lg:grid-cols-[minmax(0,1fr)_15rem] md:items-center">
             <label for="content-card-style" class="text-sm font-medium text-base-content md:text-base">{{ __('Kartenstil für Datum und Besucher') }}</label>
             <div>
                 <select

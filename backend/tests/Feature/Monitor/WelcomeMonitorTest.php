@@ -4,8 +4,8 @@ namespace Tests\Feature\Monitor;
 
 use App\Enums\VisitStatusEnum;
 use App\Models\Monitor;
-use App\Models\Visitor;
 use App\Models\Visit;
+use App\Models\Visitor;
 use App\Tasks\WelcomeMonitorAutoGeneration;
 use Carbon\Carbon;
 use Illuminate\Foundation\Testing\RefreshDatabase;
