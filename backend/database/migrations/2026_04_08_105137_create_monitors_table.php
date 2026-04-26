@@ -26,6 +26,8 @@ return new class extends Migration
             $table->string('fallback_subheading')->default('Wir wünschen Ihnen einen angenehmen Aufenthalt.');
             $table->boolean('fallback_show_logo')->default(true);
             $table->boolean('fallback_show_date')->default(true);
+            $table->string('fallback_image_path')->default(null)->nullable();
+            $table->string('fallback_background_source')->default(null)->nullable();
         });
     }
 

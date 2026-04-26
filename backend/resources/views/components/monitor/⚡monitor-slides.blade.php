@@ -31,7 +31,7 @@ new class extends Component {
         if ($slides->isEmpty()) {
             $slides = collect([
                 array_merge($this->monitor->fallbackSlideData(), [
-                    'background_asset' => $this->monitor->backgroundAssetUrl(),
+                    'background_asset' => $this->monitor->fallbackBackgroundAssetUrl(),
                 ]),
             ]);
         }

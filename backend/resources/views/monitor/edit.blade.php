@@ -5,28 +5,34 @@
                 </h1>
     </x-slot>
 
+    <x-bp.alert/>
+
     {{-- Main Grid --}}
-    <div class="grid gap-6 xl:grid-cols-[minmax(0,1.15fr)_minmax(420px,0.85fr)]">
+    <div class="grid gap-6 xl:grid-cols-[minmax(0,1.1fr)_minmax(360px,0.9fr)]">
 
         {{-- LEFT AREA --}}
-        <div>
-            <x-bp.alert/>
+        <div class="space-y-6">
 
             <x-bp.card title="{{ __('Monitor Seiten') }}">
                 <livewire:monitor.index-monitor-slides :monitor="$monitor" />
             </x-bp.card>
-            <x-bp.card title="{{__('Monitor Einstellungen')}}">
-                <livewire:monitor.settings-form :monitor="$monitor" />
-            </x-bp.card>
 
         </div>
-            {{-- RIGHT AREA --}}
-        <aside class="xl:sticky xl:top-6 xl:self-start">
-            <x-bp.card title="{{ __('Vorschau') }}">
-                <div class="p-5">
+        {{-- RIGHT AREA --}}
+        <aside class="space-y-6">
+            <x-bp.card title="{{ __('Vorschau') }}" class="p-4">
+                <x-slot:actions>
+                    <a
+                        href="{{ route('monitors.show', $monitor) }}"
+                        class="btn btn-outline btn-sm rounded-xl">
+                        {{ __('Live-Anzeige öffnen') }}
+                    </a>
+                </x-slot:actions>
+
+                <div class="px-1 pb-1">
                     <div id="preview-container"
                          x-data="{
-                     scale: 1,
+                      scale: 1,
                      updateScale() {
                          // Scale = Container Width / Native Content Width
                          this.scale = this.$el.clientWidth / this.$refs.content.offsetWidth;
@@ -52,13 +58,9 @@
                 </div>
             </x-bp.card>
 
-            <div class="mt-3 flex justify-end w-full">
-                <a
-                    href="{{ route('monitors.show', $monitor) }}"
-                    class=" btn btn-outline rounded-xl">
-                    {{ __('Live-Anzeige öffnen') }}
-                </a>
-            </div>
+            <x-bp.card title="{{__('Monitor Einstellungen')}}">
+                <livewire:monitor.settings-form :monitor="$monitor" />
+            </x-bp.card>
         </aside>
     </div>
 </x-app-layout>

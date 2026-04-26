@@ -38,6 +38,8 @@ class Monitor extends Model
         'fallback_subheading',
         'fallback_show_logo',
         'fallback_show_date',
+        'fallback_image_path',
+        'fallback_background_source',
     ];
 
     protected $casts = [
@@ -97,6 +99,38 @@ class Monitor extends Model
             'show_date' => (bool) $this->fallback_show_date,
             'visitors' => [],
         ];
+    }
+
+    public function fallbackResolvedBackgroundSource(): ?string
+    {
+        $presets = self::backgroundPresets();
+
+        if ($this->fallback_background_source === 'upload' && filled($this->fallback_image_path) && Storage::disk('public')->exists($this->fallback_image_path)) {
+            return 'upload';
+        }
+
+        if (array_key_exists((string) $this->fallback_background_source, $presets) && $this->fallback_background_source !== 'upload') {
+            return (string) $this->fallback_background_source;
+        }
+
+        return null;
+    }
+
+    public function fallbackBackgroundAssetUrl(): ?string
+    {
+        $source = $this->fallbackResolvedBackgroundSource();
+
+        if ($source === null) {
+            return $this->backgroundAssetUrl();
+        }
+
+        if ($source === 'upload') {
+            return asset('storage/'.$this->fallback_image_path);
+        }
+
+        $preset = self::backgroundPresets()[$source] ?? null;
+
+        return $preset ? asset($preset['path']) : $this->backgroundAssetUrl();
     }
 
     /**

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Monitor;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Monitor\UpdateMonitorFallbackPageRequest;
 use App\Http\Requests\Monitor\UpdateMonitorRequest;
 use App\Models\Monitor;
 use App\Models\MonitorSlide;
@@ -10,6 +11,7 @@ use App\Tasks\WelcomeMonitorAutoGeneration;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Validation\ValidationException;
 
 class MonitorController extends Controller
 {
@@ -113,6 +115,60 @@ class MonitorController extends Controller
         return redirect()->route('monitors.edit', $monitor)
             ->with('success', __('Monitor Einstellungen gespeichert'))
             ->header('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0');
+    }
+
+    public function editFallbackPage(Monitor $monitor)
+    {
+        $this->authorize('update', $monitor);
+
+        return view('monitor.fallback-edit')
+            ->with('monitor', $monitor);
+    }
+
+    public function updateFallbackPage(UpdateMonitorFallbackPageRequest $request, Monitor $monitor)
+    {
+        $validated = $request->validated();
+        $imagePath = $monitor->fallback_image_path;
+
+        if (! empty($validated['deleteImage']) || ($validated['background_source'] ?? 'inherit') !== 'upload') {
+            if (filled($imagePath)) {
+                Storage::disk('public')->delete($imagePath);
+            }
+
+            $imagePath = null;
+        }
+
+        if (($validated['background_source'] ?? null) === 'upload') {
+            if ($request->hasFile('image')) {
+                if (filled($monitor->fallback_image_path)) {
+                    Storage::disk('public')->delete($monitor->fallback_image_path);
+                }
+
+                $imagePath = $request->file('image')->store('images', 'public');
+            }
+
+            if (blank($imagePath)) {
+                throw ValidationException::withMessages([
+                    'image' => __('Bitte wählen Sie zuerst ein eigenes Hintergrundbild aus.'),
+                ]);
+            }
+        }
+
+        unset($validated['deleteImage'], $validated['image']);
+
+        $monitor->update([
+            'fallback_heading' => $validated['heading'],
+            'fallback_subheading' => $validated['subheading'],
+            'fallback_show_logo' => $validated['show_logo'],
+            'fallback_show_date' => $validated['show_date'],
+            'fallback_background_source' => ($validated['background_source'] ?? 'inherit') === 'inherit' ? null : $validated['background_source'],
+            'fallback_image_path' => $imagePath,
+        ]);
+
+        Log::info('User ID '.auth()->id()." updated fallback page for Monitor ID: {$monitor->id}");
+
+        return redirect()->route('monitors.edit', $monitor)
+            ->with('success', __('Allgemeine Begrüßungsseite gespeichert'));
     }
 
     /**

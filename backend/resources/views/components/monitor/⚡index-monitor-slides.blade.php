@@ -32,11 +32,6 @@ new class extends Component {
                 <div class="font-medium text-slate-900">
                     {{ $monitor->auto_generation ? __('Automatische Erstellung ist aktiv') : __('Manuelle Seitenbearbeitung ist aktiv') }}
                 </div>
-                <p class="mt-1 text-sm text-slate-500">
-                    {{ $monitor->auto_generation
-                        ? __('Neue Seiten werden automatisch für passende Besuche erzeugt und alle 5 Minuten aktualisiert.')
-                        : __('Sie können eigene Seiten anlegen, bearbeiten und in der Reihenfolge anpassen.') }}
-                </p>
             </div>
 
             @if($monitor->auto_generation === false)
@@ -44,31 +39,21 @@ new class extends Component {
             @endif
         </div>
 
-        <div class="rounded-3xl border border-indigo-100 bg-indigo-50/70 p-5">
+        <div class="rounded-3xl border border-indigo-100 bg-indigo-50/70 px-5 py-5">
             <div class="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
-                <div>
-                    <div class="inline-flex items-center rounded-full bg-white px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em] text-indigo-700">{{ __('Immer verfügbar') }}</div>
-                    <h3 class="mt-3 text-lg font-semibold text-slate-900">{{ __('Allgemeine Begrüßungsseite') }}</h3>
-                    <p class="mt-1 text-sm text-slate-600">{{ __('Diese Seite erscheint automatisch, wenn keine anderen Seiten verfügbar sind.') }}</p>
+                <div class="min-w-0">
+                    <div class="text-sm font-medium text-indigo-800">{{ __('Allgemeine Begrüßungsseite') }}</div>
+                    <div class="mt-3 text-2xl font-semibold leading-tight tracking-tight text-slate-900">{{ $monitor->fallback_heading }}</div>
+                    @if (filled($monitor->fallback_subheading))
+                        <p class="mt-2 text-sm text-slate-600">{{ $monitor->fallback_subheading }}</p>
+                    @endif
 
                     <div class="mt-4">
-                        <div class="text-xl font-semibold leading-tight tracking-tight text-slate-900">{{ $monitor->fallback_heading }}</div>
-                        @if (filled($monitor->fallback_subheading))
-                            <p class="mt-1 text-sm text-slate-600">{{ $monitor->fallback_subheading }}</p>
-                        @endif
-                    </div>
-
-                    <div class="mt-3 flex flex-wrap gap-2 text-xs font-medium text-slate-600">
-                        @if ($monitor->fallback_show_logo)
-                            <span class="rounded-full border border-white bg-white px-2.5 py-1">{{ __('Mit Logo') }}</span>
-                        @endif
-                        @if ($monitor->fallback_show_date)
-                            <span class="rounded-full border border-white bg-white px-2.5 py-1">{{ __('Mit Datum') }}</span>
-                        @endif
+                        <span class="inline-flex items-center rounded-full bg-white px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em] text-indigo-700">{{ __('Immer verfügbar') }}</span>
                     </div>
                 </div>
 
-                <a href="#fallback-slide-settings" class="btn btn-sm rounded-xl">{{ __('Bearbeiten') }}</a>
+                <a href="{{ route('monitors.fallback.edit', $monitor) }}" class="btn btn-sm rounded-xl">{{ __('Bearbeiten') }}</a>
             </div>
         </div>
 

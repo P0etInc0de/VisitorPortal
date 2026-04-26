@@ -38,10 +38,6 @@ class WelcomeMonitorTest extends TestCase
             ->set('backgroundSource', 'preset-3')
             ->set('backgroundOverlayEnabled', true)
             ->set('contentCardStyle', 'none')
-            ->set('fallbackHeading', 'Willkommen bei ACD')
-            ->set('fallbackSubheading', 'Bitte melden Sie sich am Empfang.')
-            ->set('fallbackShowLogo', false)
-            ->set('fallbackShowDate', false)
             ->call('save')
             ->assertHasNoErrors();
 
@@ -53,12 +49,38 @@ class WelcomeMonitorTest extends TestCase
         $this->assertSame('preset-3', $monitor->background_source);
         $this->assertTrue($monitor->background_overlay_enabled);
         $this->assertSame('none', $monitor->content_card_style);
+
+        Queue::assertPushed(WelcomeMonitorAutoGeneration::class);
+    }
+
+    public function test_fallback_page_can_be_updated_from_its_dedicated_edit_flow(): void
+    {
+        $user = $this->monitorUser();
+        $monitor = Monitor::query()->create([
+            'name' => 'Empfang',
+            'transition_time_milliseconds' => 5000,
+            'auto_generation' => false,
+        ]);
+
+        $response = $this
+            ->actingAs($user)
+            ->put(route('monitors.fallback.update', $monitor), [
+                'heading' => 'Willkommen bei ACD',
+                'subheading' => 'Bitte melden Sie sich am Empfang.',
+                'show_logo' => '0',
+                'show_date' => '1',
+                'background_source' => 'preset-2',
+            ]);
+
+        $response->assertRedirect(route('monitors.edit', $monitor));
+
+        $monitor->refresh();
+
         $this->assertSame('Willkommen bei ACD', $monitor->fallback_heading);
         $this->assertSame('Bitte melden Sie sich am Empfang.', $monitor->fallback_subheading);
         $this->assertFalse($monitor->fallback_show_logo);
-        $this->assertFalse($monitor->fallback_show_date);
-
-        Queue::assertPushed(WelcomeMonitorAutoGeneration::class);
+        $this->assertTrue($monitor->fallback_show_date);
+        $this->assertSame('preset-2', $monitor->fallback_background_source);
     }
 
     public function test_auto_generation_uses_the_configured_monitor_window(): void
