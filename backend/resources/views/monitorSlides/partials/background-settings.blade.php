@@ -31,7 +31,7 @@
         <h3 class="text-sm font-semibold text-slate-900">{{ __('Seitenhintergrund') }}</h3>
     </div>
 
-    <div class="grid gap-4 lg:grid-cols-4">
+    <div class="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
         @foreach ([
             'inherit' => ['label' => __('Monitor-Standard'), 'preview' => $defaultPreview],
             'preset-1' => ['label' => $backgroundPresets['preset-1']['label'], 'preview' => asset($backgroundPresets['preset-1']['path'])],
@@ -41,7 +41,7 @@
         ] as $source => $option)
             @php $isSelected = $currentSource === $source; @endphp
             <label @class([
-                'cursor-pointer overflow-hidden rounded-3xl border bg-white transition-all',
+                'cursor-pointer overflow-hidden rounded-[1.75rem] border bg-white transition-all',
                 'border-indigo-500 ring-2 ring-indigo-100 shadow-sm' => $isSelected,
                 'border-slate-200 hover:border-slate-300' => ! $isSelected,
             ]) x-bind:class="source === '{{ $source }}' ? 'border-indigo-500 ring-2 ring-indigo-100 shadow-sm' : 'border-slate-200 hover:border-slate-300'">
@@ -55,9 +55,9 @@
                         <img src="{{ $option['preview'] }}" alt="{{ $option['label'] }}" class="h-full w-full object-cover">
                     @endif
                 </div>
-                <div class="px-4 py-4">
+                <div class="px-3 py-3">
                     <div class="flex items-start justify-between gap-3">
-                        <div class="text-xl font-semibold text-slate-900">{{ $option['label'] }}</div>
+                        <div class="text-base font-semibold text-slate-900">{{ $option['label'] }}</div>
                         @if ($isSelected)
                             <span class="shrink-0 rounded-full bg-indigo-50 px-2.5 py-1 text-xs font-semibold text-indigo-700">{{ __('Aktiv') }}</span>
                         @endif

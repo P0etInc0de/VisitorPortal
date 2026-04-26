@@ -236,62 +236,67 @@ new class extends Component {
         </div>
     @endif
 
-    <div class="grid gap-5 md:grid-cols-2">
-        <div>
-            <label for="transition-time-seconds" class="mb-2 block text-sm font-medium text-base-content">{{ __('Seitenwechsel nach (Sekunden)') }}</label>
-            <input
-                id="transition-time-seconds"
-                type="number"
-                min="1"
-                max="50"
-                wire:model.live="transitionTimeSeconds"
-                class="input input-bordered h-12 w-full rounded-xl border-slate-300 bg-white focus:border-indigo-500 transition-all"
-            >
-            @error('transitionTimeSeconds')
-                <span class="mt-1 block text-sm font-medium text-red-500">{{ $message }}</span>
-            @enderror
-        </div>
-
-        <div>
-            <label class="mb-2 block text-sm font-medium text-base-content">{{ __('Seiten automatisch generieren') }}</label>
-            <label class="flex min-h-12 items-center justify-between rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3">
-                <span class="pr-4 text-sm text-slate-600">{{ __('Erstellt automatisch Seiten für Besuche im Zeitraum von +/- :minutes Minuten.', ['minutes' => $autoGenerationWindowMinutes]) }}</span>
+    <div class="space-y-4">
+        <div class="grid gap-3 md:grid-cols-[minmax(0,1fr)_minmax(200px,300px)] md:items-center">
+            <label class="text-sm font-medium text-base-content md:text-base">{{ __('Seiten automatisch generieren') }}</label>
+            <div class="flex md:justify-end">
                 <input type="checkbox" wire:model.live="autoGeneration" class="toggle toggle-primary shrink-0">
-            </label>
-            @error('autoGeneration')
-                <span class="mt-1 block text-sm font-medium text-red-500">{{ $message }}</span>
-            @enderror
+            </div>
+        </div>
+        @error('autoGeneration')
+            <span class="block text-sm font-medium text-red-500">{{ $message }}</span>
+        @enderror
+
+        <div class="grid gap-3 md:grid-cols-[minmax(0,1fr)_minmax(200px,300px)] md:items-center">
+            <label for="auto-window-minutes" class="text-sm font-medium text-base-content md:text-base">{{ __('Besuche im Zeitraum (+/- Minuten)') }}</label>
+            <div>
+                <input
+                    id="auto-window-minutes"
+                    type="number"
+                    min="1"
+                    max="180"
+                    wire:model.live="autoGenerationWindowMinutes"
+                    class="input input-bordered h-12 w-full rounded-xl border-slate-300 bg-white focus:border-indigo-500 transition-all"
+                >
+                @error('autoGenerationWindowMinutes')
+                    <span class="mt-1 block text-sm font-medium text-red-500">{{ $message }}</span>
+                @enderror
+            </div>
         </div>
 
-        <div>
-            <label for="auto-window-minutes" class="mb-2 block text-sm font-medium text-base-content">{{ __('Besuche im Zeitraum (+/- Minuten)') }}</label>
-            <input
-                id="auto-window-minutes"
-                type="number"
-                min="1"
-                max="180"
-                wire:model.live="autoGenerationWindowMinutes"
-                class="input input-bordered h-12 w-full rounded-xl border-slate-300 bg-white focus:border-indigo-500 transition-all"
-            >
-            @error('autoGenerationWindowMinutes')
-                <span class="mt-1 block text-sm font-medium text-red-500">{{ $message }}</span>
-            @enderror
+        <div class="grid gap-3 md:grid-cols-[minmax(0,1fr)_minmax(200px,300px)] md:items-center">
+            <label for="transition-time-seconds" class="text-sm font-medium text-base-content md:text-base">{{ __('Seitenwechsel nach (Sekunden)') }}</label>
+            <div>
+                <input
+                    id="transition-time-seconds"
+                    type="number"
+                    min="1"
+                    max="50"
+                    wire:model.live="transitionTimeSeconds"
+                    class="input input-bordered h-12 w-full rounded-xl border-slate-300 bg-white focus:border-indigo-500 transition-all"
+                >
+                @error('transitionTimeSeconds')
+                    <span class="mt-1 block text-sm font-medium text-red-500">{{ $message }}</span>
+                @enderror
+            </div>
         </div>
 
-        <div>
-            <label for="content-card-style" class="mb-2 block text-sm font-medium text-base-content">{{ __('Kartenstil für Datum und Besucher') }}</label>
-            <select
-                id="content-card-style"
-                wire:model.live="contentCardStyle"
-                class="select select-bordered h-12 w-full rounded-xl border-slate-300 bg-white focus:border-indigo-500 transition-all"
-            >
-                @foreach ($contentCardStyles as $styleValue => $styleLabel)
-                    <option value="{{ $styleValue }}">{{ $styleLabel }}</option>
-                @endforeach
-            </select>
-            @error('contentCardStyle')
-                <span class="mt-1 block text-sm font-medium text-red-500">{{ $message }}</span>
-            @enderror
+        <div class="grid gap-3 md:grid-cols-[minmax(0,1fr)_minmax(200px,300px)] md:items-center">
+            <label for="content-card-style" class="text-sm font-medium text-base-content md:text-base">{{ __('Kartenstil für Datum und Besucher') }}</label>
+            <div>
+                <select
+                    id="content-card-style"
+                    wire:model.live="contentCardStyle"
+                    class="select select-bordered h-12 w-full rounded-xl border-slate-300 bg-white focus:border-indigo-500 transition-all"
+                >
+                    @foreach ($contentCardStyles as $styleValue => $styleLabel)
+                        <option value="{{ $styleValue }}">{{ $styleLabel }}</option>
+                    @endforeach
+                </select>
+                @error('contentCardStyle')
+                    <span class="mt-1 block text-sm font-medium text-red-500">{{ $message }}</span>
+                @enderror
+            </div>
         </div>
     </div>
 
@@ -300,7 +305,7 @@ new class extends Component {
             <h3 class="text-sm font-semibold text-slate-900">{{ __('Standard-Hintergrund') }}</h3>
         </div>
 
-        <div class="grid gap-4 lg:grid-cols-3">
+        <div class="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
             @foreach ($backgroundPresets as $source => $preset)
                 @php
                     $cardPreview = $source === 'upload'
@@ -309,7 +314,7 @@ new class extends Component {
                     $isSelected = $backgroundSource === $source;
                 @endphp
                 <label @class([
-                    'cursor-pointer overflow-hidden rounded-3xl border bg-white transition-all',
+                    'cursor-pointer overflow-hidden rounded-[1.75rem] border bg-white transition-all',
                     'border-indigo-500 ring-2 ring-indigo-100 shadow-sm' => $isSelected,
                     'border-slate-200 hover:border-slate-300' => ! $isSelected,
                 ])>
@@ -323,9 +328,9 @@ new class extends Component {
                             <img src="{{ $cardPreview }}" alt="{{ $preset['label'] }}" class="h-full w-full object-cover">
                         @endif
                     </div>
-                    <div class="px-4 py-4">
+                    <div class="px-3 py-3">
                         <div class="flex items-start justify-between gap-3">
-                            <span class="text-xl font-semibold text-slate-900">{{ $preset['label'] }}</span>
+                            <span class="text-base font-semibold text-slate-900">{{ $preset['label'] }}</span>
                             @if ($isSelected)
                                 <span class="shrink-0 rounded-full bg-indigo-50 px-2.5 py-1 text-xs font-semibold text-indigo-700">{{ __('Aktiv') }}</span>
                             @endif
