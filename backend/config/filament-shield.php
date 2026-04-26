@@ -5,6 +5,7 @@ use App\Filament\Resources\Monitors\MonitorResource;
 use App\Filament\Resources\Users\UserResource;
 use App\Filament\Resources\Visitors\VisitorResource;
 use App\Filament\Resources\Visits\VisitResource;
+use App\Filament\Widgets\GithubLinkWidget;
 use BezhanSalleh\FilamentShield\Resources\Roles\RoleResource;
 use Filament\Pages\Dashboard;
 use Filament\Widgets\AccountWidget;
@@ -152,7 +153,7 @@ return [
     */
 
     'localization' => [
-        'enabled' => false,
+        'enabled' => true,
         'key' => 'filament-shield::filament-shield.resource_permission_prefixes_labels',
     ],
 
@@ -232,6 +233,7 @@ return [
         'exclude' => [
             AccountWidget::class,
             FilamentInfoWidget::class,
+            GithubLinkWidget::class,
         ],
     ],
 
