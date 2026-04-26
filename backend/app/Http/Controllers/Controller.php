@@ -20,4 +20,13 @@ abstract class Controller extends BaseController
 
         abort(403);
     }
+	
+	protected function authorizeDashboard(): void
+	{
+		if (Gate::any(['ViewAny:Visit', 'ViewDepartment:Visit', 'ViewOwn:Visit'])) {
+			return;
+		}
+		
+		abort(403);
+	}
 }
