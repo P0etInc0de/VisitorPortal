@@ -27,7 +27,7 @@ class VisitInfolist
                     ->dateTime()
                     ->placeholder('-'),
                 TextEntry::make('canceledBy.fullName')
-                    ->label('Canceled by')
+                    ->label(__('Canceled by'))
                     ->placeholder('-'),
                 TextEntry::make('created_at')
                     ->dateTime()
