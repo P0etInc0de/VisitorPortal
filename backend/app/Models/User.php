@@ -14,6 +14,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Spatie\Permission\Traits\HasRoles;
+use Illuminate\Support\Facades\Log;
 
 class User extends Authenticatable implements FilamentUser
 {
@@ -101,8 +102,20 @@ class User extends Authenticatable implements FilamentUser
 
     public function canAccessPanel(Panel $panel): bool
     {
-        // Check if the user has the Superuser role (Shield's default is 'super_admin')
-        return $this->hasRole('admin') || $this->hasRole('super_admin');
+        // Check if the user has the Superuser or admin role (Shield's default is 'super_admin')
+
+		if($this->hasRole('admin') || $this->hasRole('super_admin')){
+			return true;
+		} else {
+			Log::channel('web')->info('Authorization failed.', [
+                'user_id'   => auth()->id(),
+                'roles'		 => ['admin', 'super_admin'],
+                'url'        => request()->fullUrl(),
+                'ip'         => request()->ip(),
+            ]);
+
+			return false;
+		}
     }
 
     protected function fullName(): Attribute
