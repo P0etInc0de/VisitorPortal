@@ -32,6 +32,8 @@ class PermissionHelper
             'RestoreAny:User',
             'Replicate:User',
             'Reorder:User',
+            'DeactivateAny:User',
+            'DeactivateDepartment:User',
 
             // Role
             'ViewAny:Role',
@@ -94,9 +96,23 @@ class PermissionHelper
             'RestoreAny:Visit',
             'Replicate:Visit',
             'Reorder:Visit',
+            'CheckIn:Visit',
+            'CheckOut:Visit',
+            'Print:Visit',
 
             // Dashboard
             'View:Dashboard',
+
+            // Monitor
+            'ViewAny:Monitor',
+            'View:Monitor',
+            'Create:Monitor',
+            'Update:Monitor',
+            'Edit:Monitor',
+            'Delete:Monitor',
+            'Test:Monitor',
+
+            'View:UserPermissions',
         ];
     }
 
