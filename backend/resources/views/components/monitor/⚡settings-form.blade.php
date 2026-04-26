@@ -236,8 +236,8 @@ new class extends Component {
         </div>
     @endif
 
-    <div class="space-y-4">
-        <div class="grid gap-3 md:grid-cols-[minmax(0,1fr)_minmax(200px,300px)] md:items-center">
+    <div class="space-y-3.5">
+        <div class="grid gap-3 md:grid-cols-[minmax(0,2fr)_minmax(250px,19rem)] md:items-center">
             <label class="text-sm font-medium text-base-content md:text-base">{{ __('Seiten automatisch generieren') }}</label>
             <div class="flex md:justify-end">
                 <input type="checkbox" wire:model.live="autoGeneration" class="toggle toggle-primary shrink-0">
@@ -247,7 +247,7 @@ new class extends Component {
             <span class="block text-sm font-medium text-red-500">{{ $message }}</span>
         @enderror
 
-        <div class="grid gap-3 md:grid-cols-[minmax(0,1fr)_minmax(200px,300px)] md:items-center">
+        <div class="grid gap-3 md:grid-cols-[minmax(0,2fr)_minmax(250px,19rem)] md:items-center">
             <label for="auto-window-minutes" class="text-sm font-medium text-base-content md:text-base">{{ __('Besuche im Zeitraum (+/- Minuten)') }}</label>
             <div>
                 <input
@@ -256,7 +256,7 @@ new class extends Component {
                     min="1"
                     max="180"
                     wire:model.live="autoGenerationWindowMinutes"
-                    class="input input-bordered h-12 w-full rounded-xl border-slate-300 bg-white focus:border-indigo-500 transition-all"
+                    class="input input-bordered h-10 w-full rounded-xl border-slate-300 bg-white text-sm focus:border-indigo-500 transition-all"
                 >
                 @error('autoGenerationWindowMinutes')
                     <span class="mt-1 block text-sm font-medium text-red-500">{{ $message }}</span>
@@ -264,7 +264,7 @@ new class extends Component {
             </div>
         </div>
 
-        <div class="grid gap-3 md:grid-cols-[minmax(0,1fr)_minmax(200px,300px)] md:items-center">
+        <div class="grid gap-3 md:grid-cols-[minmax(0,2fr)_minmax(250px,19rem)] md:items-center">
             <label for="transition-time-seconds" class="text-sm font-medium text-base-content md:text-base">{{ __('Seitenwechsel nach (Sekunden)') }}</label>
             <div>
                 <input
@@ -273,7 +273,7 @@ new class extends Component {
                     min="1"
                     max="50"
                     wire:model.live="transitionTimeSeconds"
-                    class="input input-bordered h-12 w-full rounded-xl border-slate-300 bg-white focus:border-indigo-500 transition-all"
+                    class="input input-bordered h-10 w-full rounded-xl border-slate-300 bg-white text-sm focus:border-indigo-500 transition-all"
                 >
                 @error('transitionTimeSeconds')
                     <span class="mt-1 block text-sm font-medium text-red-500">{{ $message }}</span>
@@ -281,13 +281,13 @@ new class extends Component {
             </div>
         </div>
 
-        <div class="grid gap-3 md:grid-cols-[minmax(0,1fr)_minmax(200px,300px)] md:items-center">
+        <div class="grid gap-3 md:grid-cols-[minmax(0,2fr)_minmax(250px,19rem)] md:items-center">
             <label for="content-card-style" class="text-sm font-medium text-base-content md:text-base">{{ __('Kartenstil für Datum und Besucher') }}</label>
             <div>
                 <select
                     id="content-card-style"
                     wire:model.live="contentCardStyle"
-                    class="select select-bordered h-12 w-full rounded-xl border-slate-300 bg-white focus:border-indigo-500 transition-all"
+                    class="select select-bordered h-10 w-full rounded-xl border-slate-300 bg-white text-sm focus:border-indigo-500 transition-all"
                 >
                     @foreach ($contentCardStyles as $styleValue => $styleLabel)
                         <option value="{{ $styleValue }}">{{ $styleLabel }}</option>
@@ -314,7 +314,7 @@ new class extends Component {
                     $isSelected = $backgroundSource === $source;
                 @endphp
                 <label @class([
-                    'cursor-pointer overflow-hidden rounded-[1.75rem] border bg-white transition-all',
+                    'cursor-pointer overflow-hidden rounded-[1.5rem] border bg-white transition-all',
                     'border-indigo-500 ring-2 ring-indigo-100 shadow-sm' => $isSelected,
                     'border-slate-200 hover:border-slate-300' => ! $isSelected,
                 ])>
@@ -328,11 +328,11 @@ new class extends Component {
                             <img src="{{ $cardPreview }}" alt="{{ $preset['label'] }}" class="h-full w-full object-cover">
                         @endif
                     </div>
-                    <div class="px-3 py-3">
+                    <div class="px-3 pt-2 pb-2.5">
                         <div class="flex items-start justify-between gap-3">
-                            <span class="text-base font-semibold text-slate-900">{{ $preset['label'] }}</span>
+                            <span class="text-sm font-semibold text-slate-900">{{ $preset['label'] }}</span>
                             @if ($isSelected)
-                                <span class="shrink-0 rounded-full bg-indigo-50 px-2.5 py-1 text-xs font-semibold text-indigo-700">{{ __('Aktiv') }}</span>
+                                <span class="shrink-0 rounded-full bg-indigo-50 px-2 py-0.5 text-[11px] font-semibold text-indigo-700">{{ __('Aktiv') }}</span>
                             @endif
                         </div>
                     </div>

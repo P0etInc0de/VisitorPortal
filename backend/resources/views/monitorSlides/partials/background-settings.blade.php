@@ -41,7 +41,7 @@
         ] as $source => $option)
             @php $isSelected = $currentSource === $source; @endphp
             <label @class([
-                'cursor-pointer overflow-hidden rounded-[1.75rem] border bg-white transition-all',
+                'cursor-pointer overflow-hidden rounded-[1.5rem] border bg-white transition-all',
                 'border-indigo-500 ring-2 ring-indigo-100 shadow-sm' => $isSelected,
                 'border-slate-200 hover:border-slate-300' => ! $isSelected,
             ]) x-bind:class="source === '{{ $source }}' ? 'border-indigo-500 ring-2 ring-indigo-100 shadow-sm' : 'border-slate-200 hover:border-slate-300'">
@@ -55,11 +55,11 @@
                         <img src="{{ $option['preview'] }}" alt="{{ $option['label'] }}" class="h-full w-full object-cover">
                     @endif
                 </div>
-                <div class="px-3 py-3">
+                <div class="px-3 pt-2 pb-2.5">
                     <div class="flex items-start justify-between gap-3">
-                        <div class="text-base font-semibold text-slate-900">{{ $option['label'] }}</div>
+                        <div class="text-sm font-semibold text-slate-900">{{ $option['label'] }}</div>
                         @if ($isSelected)
-                            <span class="shrink-0 rounded-full bg-indigo-50 px-2.5 py-1 text-xs font-semibold text-indigo-700">{{ __('Aktiv') }}</span>
+                            <span class="shrink-0 rounded-full bg-indigo-50 px-2 py-0.5 text-[11px] font-semibold text-indigo-700">{{ __('Aktiv') }}</span>
                         @endif
                     </div>
                 </div>
