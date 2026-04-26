@@ -23,11 +23,6 @@ class VisitPolicy
         return $this->viewAny($user) || $this->viewOwn($user, $visit) || $this->viewDepartment($user, $visit);
     }
 
-    public function viewGeneral(User $user): bool
-    {
-        return $user->can('ViewAny:Visit') || $user->can('ViewDepartment:Visit') || $user->can('ViewOwn:Visit');
-    }
-
     public function create(User $user): bool
     {
         return $user->can('Create:Visit');

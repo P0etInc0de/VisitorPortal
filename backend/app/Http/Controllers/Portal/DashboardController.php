@@ -14,7 +14,7 @@ class DashboardController extends Controller
     {
         $user = $request->user();
 
-        $this->authorizeAny(['viewGeneral', 'view'], Monitor::class);
+        $this->authorize('view', Visit::class);
 
         $baseQuery = Visit::query()
             ->with([
