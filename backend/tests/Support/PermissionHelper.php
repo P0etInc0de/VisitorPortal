@@ -121,6 +121,53 @@ class PermissionHelper
         return $this->getIndividualUser($this->permissions, 'super_admin');
     }
 
+    public function getUserUser(): User
+    {
+        $userPermissions = [
+            'ViewOwn:User', 'EditOwn:User', 'Create:Visit', 'Create:Visitor',
+            'ViewOwn:Visit', 'EditOwn:Visit', 'DeleteOwn:Visit',
+            'ViewAny:Visitor'];
+
+        return $this->getIndividualUser($userPermissions, 'user');
+
+    }
+
+    public function getManagerUser(): User
+    {
+        $managerPermissions = [
+            'ViewDepartment:User', 'EditDepartment:User',
+            'ViewDepartment:Visit', 'EditDepartment:Visit',
+            'DeleteDepartment:Visit', 'ViewOwn:User',
+            'EditOwn:User', 'Create:Visit', 'Create:Visitor',
+            'ViewOwn:Visit', 'EditOwn:Visit', 'DeleteOwn:Visit',
+            'ViewAny:Visitor'];
+
+        return $this->getIndividualUser($managerPermissions, 'manager');
+    }
+
+    public function getReceptionistUser(): User
+    {
+        $receptionistPermissions = [
+            'ViewAny:Visit', 'EditAny:Visit', 'DeleteAny:Visit',
+            'EditAny:Visitor',
+            'CheckIn:Visit', 'CheckOut:Visit', 'Print:Visit',
+            'View:Monitor', 'Edit:Monitor', 'ViewOwn:User',
+            'EditOwn:User', 'Create:Visit', 'Create:Visitor',
+            'ViewOwn:Visit', 'EditOwn:Visit', 'DeleteOwn:Visit',
+            'ViewAny:Visitor'];
+
+        return $this->getIndividualUser($receptionistPermissions, 'receptionist');
+    }
+
+    public function getWelcomeMonitorUser(): User
+    {
+        $welcomeMonitorPermissions = [
+            'View:Monitor',
+        ];
+
+        return $this->getIndividualUser($welcomeMonitorPermissions, 'welcome_monitor');
+    }
+
     public function getIndividualUser(array $individualPermissions, string $name): User
     {
         $role = Role::firstOrCreate(['name' => $name, 'guard_name' => 'web']);
