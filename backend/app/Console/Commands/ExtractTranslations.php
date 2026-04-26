@@ -53,7 +53,8 @@ class ExtractTranslations extends Command
 
             $content = @file_get_contents($path);
 
-            preg_match_all("/__\\(['\"]([^'\"]+)['\"]\\)/", $content, $matches);
+            // Rexex such nach: __( und beliebigem Text in Anführungszeichen
+            preg_match_all("/__\\(\s*['\"](.*?)['\"]/", $content, $matches);
 
             foreach ($matches[1] as $key) {
                 if (str_contains($key, '::')) {
@@ -89,11 +90,11 @@ class ExtractTranslations extends Command
 
         file_put_contents(
             $path,
-            json_encode($merged, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE)
+            json_encode($merged, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES)
         );
         file_put_contents(
             $path_en,
-            json_encode($merged_en, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE)
+            json_encode($merged_en, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES)
         );
 
         $this->info('Translations extracted!');
