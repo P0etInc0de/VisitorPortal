@@ -5,12 +5,14 @@ namespace AdminPanel;
 use App\Filament\Resources\Departments\Pages\CreateDepartment;
 use App\Filament\Resources\Departments\Pages\EditDepartment;
 use App\Models\Department;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 use Livewire\Livewire;
 use Tests\Support\PermissionHelper;
 use Tests\TestCase;
 
 class AdminAdministerDepartmentTest extends TestCase
 {
+    use RefreshDatabase;
     /**
      * Feature test for admin administering departments (CRUD))
      */

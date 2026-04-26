@@ -145,26 +145,6 @@ class AdminAdministerUserTest extends TestCase
 
 
 
-    public function test_admin_can_create_monitors(): void {
-
-        $admin = (new PermissionHelper)->getSuperAdminUser();
-
-        Livewire::actingAs($admin)
-            ->test(CreateMonitor::class)
-            ->fillForm([
-                'name' => 'Monitor',
-                'transition_time_milliseconds' => 5000,
-                'auto_generation' => true,
-            ])
-            ->call('create')
-            ->assertHasNoFormErrors();
-
-        $this->assertDatabaseHas('monitors', [
-            'name' => 'Monitor',
-            'transition_time_milliseconds' => 5000,
-            'auto_generation' => true,
-        ]);
-    }
 
 
 

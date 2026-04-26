@@ -2,10 +2,12 @@
 
 namespace AdminPanel;
 
+use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
 class AdminAdministerVisitorTest extends TestCase
 {
+    use RefreshDatabase;
     /**
      * A basic feature test example.
      */
