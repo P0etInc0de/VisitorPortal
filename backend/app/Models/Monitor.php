@@ -16,6 +16,10 @@ class Monitor extends Model
 
     public const DEFAULT_CONTENT_CARD_STYLE = 'transparent';
 
+    public const DEFAULT_FALLBACK_HEADING = 'Herzlich willkommen bei ACD';
+
+    public const DEFAULT_FALLBACK_SUBHEADING = 'Wir wünschen Ihnen einen angenehmen Aufenthalt.';
+
     /**
      * The attributes that are mass assignable.
      *
@@ -30,6 +34,10 @@ class Monitor extends Model
         'content_card_style',
         'auto_generation',
         'auto_generation_window_minutes',
+        'fallback_heading',
+        'fallback_subheading',
+        'fallback_show_logo',
+        'fallback_show_date',
     ];
 
     protected $casts = [
@@ -37,6 +45,8 @@ class Monitor extends Model
         'background_overlay_enabled' => 'boolean',
         'transition_time_milliseconds' => 'integer',
         'auto_generation_window_minutes' => 'integer',
+        'fallback_show_logo' => 'boolean',
+        'fallback_show_date' => 'boolean',
     ];
 
     protected static function booted(): void
@@ -67,6 +77,25 @@ class Monitor extends Model
             'background_source' => self::DEFAULT_BACKGROUND_SOURCE,
             'background_overlay_enabled' => false,
             'content_card_style' => self::DEFAULT_CONTENT_CARD_STYLE,
+            'fallback_heading' => self::DEFAULT_FALLBACK_HEADING,
+            'fallback_subheading' => self::DEFAULT_FALLBACK_SUBHEADING,
+            'fallback_show_logo' => true,
+            'fallback_show_date' => true,
+        ];
+    }
+
+    /**
+     * @return array{id: string, heading: string, subheading: ?string, show_logo: bool, show_date: bool, visitors: array<int, array<string, mixed>>}
+     */
+    public function fallbackSlideData(): array
+    {
+        return [
+            'id' => 'fallback',
+            'heading' => $this->fallback_heading ?: self::DEFAULT_FALLBACK_HEADING,
+            'subheading' => $this->fallback_subheading ?: self::DEFAULT_FALLBACK_SUBHEADING,
+            'show_logo' => (bool) $this->fallback_show_logo,
+            'show_date' => (bool) $this->fallback_show_date,
+            'visitors' => [],
         ];
     }
 

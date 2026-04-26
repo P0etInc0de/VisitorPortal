@@ -44,6 +44,34 @@ new class extends Component {
             @endif
         </div>
 
+        <div class="rounded-3xl border border-indigo-100 bg-indigo-50/70 p-5">
+            <div class="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+                <div>
+                    <div class="inline-flex items-center rounded-full bg-white px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em] text-indigo-700">{{ __('Immer verfügbar') }}</div>
+                    <h3 class="mt-3 text-lg font-semibold text-slate-900">{{ __('Allgemeine Begrüßungsseite') }}</h3>
+                    <p class="mt-1 text-sm text-slate-600">{{ __('Diese Seite erscheint automatisch, wenn keine anderen Seiten verfügbar sind.') }}</p>
+
+                    <div class="mt-4">
+                        <div class="text-xl font-semibold leading-tight tracking-tight text-slate-900">{{ $monitor->fallback_heading }}</div>
+                        @if (filled($monitor->fallback_subheading))
+                            <p class="mt-1 text-sm text-slate-600">{{ $monitor->fallback_subheading }}</p>
+                        @endif
+                    </div>
+
+                    <div class="mt-3 flex flex-wrap gap-2 text-xs font-medium text-slate-600">
+                        @if ($monitor->fallback_show_logo)
+                            <span class="rounded-full border border-white bg-white px-2.5 py-1">{{ __('Mit Logo') }}</span>
+                        @endif
+                        @if ($monitor->fallback_show_date)
+                            <span class="rounded-full border border-white bg-white px-2.5 py-1">{{ __('Mit Datum') }}</span>
+                        @endif
+                    </div>
+                </div>
+
+                <a href="#fallback-slide-settings" class="btn btn-sm rounded-xl">{{ __('Bearbeiten') }}</a>
+            </div>
+        </div>
+
         @forelse ($monitor_slides as $monitor_slide)
             <x-bp.list-item :title="$monitor_slide->heading" :subtitle="$monitor_slide->subheading" :index="$monitor_slide->slide_number">
                 <x-slot:items>

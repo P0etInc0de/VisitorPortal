@@ -22,6 +22,10 @@ return new class extends Migration
             $table->integer('transition_time_milliseconds')->default(5000);
             $table->boolean('auto_generation')->default(true);
             $table->integer('auto_generation_window_minutes')->default(30);
+            $table->string('fallback_heading')->default('Herzlich willkommen bei ACD');
+            $table->string('fallback_subheading')->default('Wir wünschen Ihnen einen angenehmen Aufenthalt.');
+            $table->boolean('fallback_show_logo')->default(true);
+            $table->boolean('fallback_show_date')->default(true);
         });
     }
 

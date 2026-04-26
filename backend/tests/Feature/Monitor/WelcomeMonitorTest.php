@@ -38,6 +38,10 @@ class WelcomeMonitorTest extends TestCase
             ->set('backgroundSource', 'preset-2')
             ->set('backgroundOverlayEnabled', true)
             ->set('contentCardStyle', 'none')
+            ->set('fallbackHeading', 'Willkommen bei ACD')
+            ->set('fallbackSubheading', 'Bitte melden Sie sich am Empfang.')
+            ->set('fallbackShowLogo', false)
+            ->set('fallbackShowDate', false)
             ->call('save')
             ->assertHasNoErrors();
 
@@ -49,6 +53,10 @@ class WelcomeMonitorTest extends TestCase
         $this->assertSame('preset-2', $monitor->background_source);
         $this->assertTrue($monitor->background_overlay_enabled);
         $this->assertSame('none', $monitor->content_card_style);
+        $this->assertSame('Willkommen bei ACD', $monitor->fallback_heading);
+        $this->assertSame('Bitte melden Sie sich am Empfang.', $monitor->fallback_subheading);
+        $this->assertFalse($monitor->fallback_show_logo);
+        $this->assertFalse($monitor->fallback_show_date);
 
         Queue::assertPushed(WelcomeMonitorAutoGeneration::class);
     }
@@ -115,6 +123,8 @@ class WelcomeMonitorTest extends TestCase
             'name' => 'Empfang',
             'transition_time_milliseconds' => 5000,
             'auto_generation' => true,
+            'fallback_heading' => 'Willkommen im Besucherportal',
+            'fallback_subheading' => 'Bitte wenden Sie sich an den Empfang.',
         ]);
 
         $response = $this
@@ -123,8 +133,8 @@ class WelcomeMonitorTest extends TestCase
 
         $response
             ->assertOk()
-            ->assertSee('Herzlich willkommen bei ACD')
-            ->assertSee('Wir wünschen Ihnen einen angenehmen Aufenthalt.');
+            ->assertSee('Willkommen im Besucherportal')
+            ->assertSee('Bitte wenden Sie sich an den Empfang.');
     }
 
     private function monitorUser()

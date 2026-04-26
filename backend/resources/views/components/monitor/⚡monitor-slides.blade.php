@@ -28,14 +28,7 @@ new class extends Component {
             ]);
 
         if ($slides->isEmpty()) {
-            $slides = collect([[
-                'id' => 'fallback',
-                'heading' => __('Herzlich willkommen bei ACD'),
-                'subheading' => __('Wir wünschen Ihnen einen angenehmen Aufenthalt.'),
-                'show_logo' => true,
-                'show_date' => true,
-                'visitors' => [],
-            ]]);
+            $slides = collect([$this->monitor->fallbackSlideData()]);
         }
 
         return [

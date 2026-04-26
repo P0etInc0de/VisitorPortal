@@ -24,6 +24,14 @@ new class extends Component {
 
     public string $contentCardStyle = Monitor::DEFAULT_CONTENT_CARD_STYLE;
 
+    public string $fallbackHeading = Monitor::DEFAULT_FALLBACK_HEADING;
+
+    public ?string $fallbackSubheading = Monitor::DEFAULT_FALLBACK_SUBHEADING;
+
+    public bool $fallbackShowLogo = true;
+
+    public bool $fallbackShowDate = true;
+
     public $image = null;
 
     public ?string $existingImagePath = null;
@@ -83,6 +91,10 @@ new class extends Component {
         $this->backgroundSource = (string) $defaults['background_source'];
         $this->backgroundOverlayEnabled = (bool) $defaults['background_overlay_enabled'];
         $this->contentCardStyle = (string) $defaults['content_card_style'];
+        $this->fallbackHeading = (string) $defaults['fallback_heading'];
+        $this->fallbackSubheading = (string) $defaults['fallback_subheading'];
+        $this->fallbackShowLogo = (bool) $defaults['fallback_show_logo'];
+        $this->fallbackShowDate = (bool) $defaults['fallback_show_date'];
         $this->image = null;
         $this->removeExistingImage = filled($this->existingImagePath);
         $this->resetErrorBag();
@@ -99,6 +111,10 @@ new class extends Component {
             'backgroundSource' => ['required', 'in:preset-1,preset-2,upload'],
             'backgroundOverlayEnabled' => ['boolean'],
             'contentCardStyle' => ['required', 'in:solid,transparent,none'],
+            'fallbackHeading' => ['required', 'string', 'max:255'],
+            'fallbackSubheading' => ['nullable', 'string', 'max:255'],
+            'fallbackShowLogo' => ['boolean'],
+            'fallbackShowDate' => ['boolean'],
             'image' => ['nullable', 'image', 'mimes:jpeg,jpg,png,webp', 'max:20000'],
         ]);
 
@@ -136,6 +152,10 @@ new class extends Component {
             'background_source' => $validated['backgroundSource'],
             'background_overlay_enabled' => $validated['backgroundOverlayEnabled'],
             'content_card_style' => $validated['contentCardStyle'],
+            'fallback_heading' => $validated['fallbackHeading'],
+            'fallback_subheading' => $validated['fallbackSubheading'],
+            'fallback_show_logo' => $validated['fallbackShowLogo'],
+            'fallback_show_date' => $validated['fallbackShowDate'],
             'image_path' => $imagePath,
         ]);
 
@@ -161,6 +181,10 @@ new class extends Component {
         $this->backgroundSource = $this->monitor->resolvedBackgroundSource();
         $this->backgroundOverlayEnabled = (bool) $this->monitor->background_overlay_enabled;
         $this->contentCardStyle = $this->monitor->content_card_style ?: Monitor::DEFAULT_CONTENT_CARD_STYLE;
+        $this->fallbackHeading = $this->monitor->fallback_heading ?: Monitor::DEFAULT_FALLBACK_HEADING;
+        $this->fallbackSubheading = $this->monitor->fallback_subheading ?: Monitor::DEFAULT_FALLBACK_SUBHEADING;
+        $this->fallbackShowLogo = (bool) $this->monitor->fallback_show_logo;
+        $this->fallbackShowDate = (bool) $this->monitor->fallback_show_date;
         $this->existingImagePath = $this->monitor->image_path;
         $this->image = null;
         $this->removeExistingImage = false;
@@ -190,6 +214,10 @@ new class extends Component {
             'backgroundSource' => $this->backgroundSource,
             'backgroundOverlayEnabled' => $this->backgroundOverlayEnabled,
             'contentCardStyle' => $this->contentCardStyle,
+            'fallbackHeading' => $this->fallbackHeading,
+            'fallbackSubheading' => $this->fallbackSubheading,
+            'fallbackShowLogo' => $this->fallbackShowLogo,
+            'fallbackShowDate' => $this->fallbackShowDate,
             'hasPendingUpload' => $this->image !== null,
             'removeExistingImage' => $this->removeExistingImage,
         ];
@@ -290,6 +318,41 @@ new class extends Component {
         </div>
     </div>
 
+    <section id="fallback-slide-settings" class="rounded-3xl border border-slate-200 bg-slate-50 p-5">
+        <div>
+            <h3 class="text-sm font-semibold text-slate-900">{{ __('Allgemeine Begrüßungsseite') }}</h3>
+            <p class="mt-1 text-sm text-slate-500">{{ __('Diese Seite bleibt immer erhalten und wird angezeigt, wenn keine manuell angelegten oder automatisch erzeugten Seiten verfügbar sind.') }}</p>
+        </div>
+
+        <div class="mt-4 grid gap-5 md:grid-cols-2">
+            <div>
+                <label for="fallback-heading" class="mb-2 block text-sm font-medium text-base-content">{{ __('Überschrift') }}</label>
+                <input id="fallback-heading" type="text" wire:model.live="fallbackHeading" class="input input-bordered h-12 w-full rounded-xl border-slate-300 bg-white focus:border-indigo-500 transition-all">
+                @error('fallbackHeading')
+                    <span class="mt-1 block text-sm font-medium text-red-500">{{ $message }}</span>
+                @enderror
+            </div>
+
+            <div>
+                <label for="fallback-subheading" class="mb-2 block text-sm font-medium text-base-content">{{ __('Unterüberschrift') }}</label>
+                <input id="fallback-subheading" type="text" wire:model.live="fallbackSubheading" class="input input-bordered h-12 w-full rounded-xl border-slate-300 bg-white focus:border-indigo-500 transition-all">
+                @error('fallbackSubheading')
+                    <span class="mt-1 block text-sm font-medium text-red-500">{{ $message }}</span>
+                @enderror
+            </div>
+
+            <label class="flex min-h-12 items-center justify-between rounded-2xl border border-slate-200 bg-white px-4 py-3">
+                <span class="text-sm font-medium text-slate-700">{{ __('Logo auf der Begrüßungsseite anzeigen') }}</span>
+                <input type="checkbox" wire:model.live="fallbackShowLogo" class="toggle toggle-primary shrink-0">
+            </label>
+
+            <label class="flex min-h-12 items-center justify-between rounded-2xl border border-slate-200 bg-white px-4 py-3">
+                <span class="text-sm font-medium text-slate-700">{{ __('Datum auf der Begrüßungsseite anzeigen') }}</span>
+                <input type="checkbox" wire:model.live="fallbackShowDate" class="toggle toggle-primary shrink-0">
+            </label>
+        </div>
+    </section>
+
     <div class="space-y-4">
         <div>
             <h3 class="text-sm font-semibold text-slate-900">{{ __('Hintergrund') }}</h3>
@@ -363,14 +426,12 @@ new class extends Component {
         @endif
     </div>
 
-    <div class="rounded-3xl border border-slate-200 bg-slate-50 p-5">
-        <div class="flex min-h-12 items-center justify-between gap-4 rounded-2xl border border-slate-200 bg-white px-4 py-3">
-            <div>
-                <div class="text-sm font-medium text-slate-900">{{ __('Bildfilter') }}</div>
-                <p class="mt-1 text-sm text-slate-500">{{ __('Optionaler Aufheller für Texte auf kontrastreichen Bildern. Deaktiviert zeigt das Bild unverändert an.') }}</p>
-            </div>
-            <input type="checkbox" wire:model.live="backgroundOverlayEnabled" class="toggle toggle-primary shrink-0">
+    <div class="flex min-h-12 items-center justify-between gap-4 rounded-2xl border border-slate-200 bg-white px-4 py-3">
+        <div>
+            <div class="text-sm font-medium text-slate-900">{{ __('Bildfilter') }}</div>
+            <p class="mt-1 text-sm text-slate-500">{{ __('Optionaler Aufheller für Texte auf kontrastreichen Bildern. Deaktiviert zeigt das Bild unverändert an.') }}</p>
         </div>
+        <input type="checkbox" wire:model.live="backgroundOverlayEnabled" class="toggle toggle-primary shrink-0">
     </div>
 
     <div class="flex flex-wrap items-center justify-between gap-3">
