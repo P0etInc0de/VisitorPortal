@@ -9,7 +9,10 @@ use App\Models\Monitor;
 use App\Models\MonitorSlide;
 use App\Models\Visit;
 use Carbon\Carbon;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Validation\ValidationException;
 
 class MonitorSlidesController extends Controller
 {
@@ -52,6 +55,7 @@ class MonitorSlidesController extends Controller
     {
         $validated = $request->validated();
         $validated['visitors'] = json_decode($request->visitors, true) ?? [];
+        $validated = $this->prepareBackgroundData($request, $validated);
 
         $monitor_slide = $monitor->monitorSlides()->create($validated);
 
@@ -97,6 +101,7 @@ class MonitorSlidesController extends Controller
     {
         $validated = $request->validated();
         $validated['visitors'] = json_decode($validated['visitors'] ?? '[]', true);
+        $validated = $this->prepareBackgroundData($request, $validated, $slide);
 
         $slide->update($validated);
 
@@ -114,10 +119,56 @@ class MonitorSlidesController extends Controller
     {
         $this->authorize('delete', $slide);
 
+        if (filled($slide->image_path)) {
+            Storage::disk('public')->delete($slide->image_path);
+        }
+
         $slide->delete();
 
         Log::info('User ID '.auth()->id()." deleted Monitor-Slide with ID: {$slide->id}");
 
         return redirect()->route('monitors.edit', $monitor)->with('success', __('Seite gelöscht'));
+    }
+
+    /**
+     * @param  array<string, mixed>  $validated
+     * @return array<string, mixed>
+     */
+    private function prepareBackgroundData(Request $request, array $validated, ?MonitorSlide $slide = null): array
+    {
+        $backgroundSource = $validated['background_source'] ?? 'inherit';
+        $originalImagePath = $slide?->image_path;
+        $imagePath = $originalImagePath;
+
+        if ($backgroundSource !== 'upload' || ! empty($validated['deleteImage'])) {
+            if (filled($imagePath)) {
+                Storage::disk('public')->delete($imagePath);
+            }
+
+            $imagePath = null;
+        }
+
+        if ($backgroundSource === 'upload') {
+            if ($request->hasFile('image')) {
+                if (filled($originalImagePath)) {
+                    Storage::disk('public')->delete($originalImagePath);
+                }
+
+                $imagePath = $request->file('image')->store('images', 'public');
+            }
+
+            if (blank($imagePath)) {
+                throw ValidationException::withMessages([
+                    'image' => __('Bitte wählen Sie zuerst ein eigenes Hintergrundbild aus.'),
+                ]);
+            }
+        }
+
+        unset($validated['deleteImage'], $validated['image']);
+
+        $validated['image_path'] = $imagePath;
+        $validated['background_source'] = $backgroundSource === 'inherit' ? null : $backgroundSource;
+
+        return $validated;
     }
 }

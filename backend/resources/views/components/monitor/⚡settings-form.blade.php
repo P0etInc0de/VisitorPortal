@@ -355,8 +355,8 @@ new class extends Component {
 
     <div class="space-y-4">
         <div>
-            <h3 class="text-sm font-semibold text-slate-900">{{ __('Hintergrund') }}</h3>
-            <p class="mt-1 text-sm text-slate-500">{{ __('Empfohlen sind Bilder im Format 16:9 als JPG, PNG oder WebP. Die Standardbilder können bei Bedarf direkt in public/images ausgetauscht werden.') }}</p>
+            <h3 class="text-sm font-semibold text-slate-900">{{ __('Standard-Hintergrund') }}</h3>
+            <p class="mt-1 text-sm text-slate-500">{{ __('Dieser Hintergrund wird für die allgemeine Begrüßungsseite und automatisch erzeugte Seiten verwendet. Manuelle Seiten können im Seiten-Editor einen eigenen Hintergrund erhalten.') }}</p>
         </div>
 
         <div class="grid gap-4 lg:grid-cols-3">
@@ -407,7 +407,7 @@ new class extends Component {
                     @endif
                 </div>
 
-                <div class="mt-4 grid gap-4 lg:grid-cols-[minmax(0,1fr)_18rem]">
+                <div class="mt-4 space-y-4">
                     <div>
                         <input id="monitor-background-upload" type="file" wire:model="image" accept="image/png,image/jpeg,image/webp" class="file-input file-input-bordered w-full rounded-xl border-slate-300 bg-white">
                         <div wire:loading wire:target="image" class="mt-2 text-sm text-slate-500">{{ __('Bild wird geladen...') }}</div>
@@ -416,7 +416,7 @@ new class extends Component {
                         @enderror
                     </div>
 
-                    <div class="overflow-hidden rounded-2xl border border-slate-200 bg-white">
+                    <div class="max-w-2xl overflow-hidden rounded-2xl border border-slate-200 bg-white">
                         <div class="aspect-video w-full overflow-hidden bg-slate-100">
                             <img src="{{ $previewBackground }}" alt="{{ __('Monitor Hintergrund Vorschau') }}" class="h-full w-full object-cover">
                         </div>

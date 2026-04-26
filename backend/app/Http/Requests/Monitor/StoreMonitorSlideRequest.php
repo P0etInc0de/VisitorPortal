@@ -28,6 +28,7 @@ class StoreMonitorSlideRequest extends FormRequest
         $maxSlide = MonitorSlide::max('slide_number') + 1;
 
         return [
+            'visitors' => ['nullable', 'json'],
             'heading' => 'required',
             'slide_number' => [
                 'required',
@@ -38,6 +39,9 @@ class StoreMonitorSlideRequest extends FormRequest
             'show_date' => 'boolean',
             'show_time' => 'boolean',
             'subheading' => 'string|nullable',
+            'background_source' => 'required|in:inherit,preset-1,preset-2,upload',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:20000',
+            'deleteImage' => 'boolean',
         ];
     }
 }

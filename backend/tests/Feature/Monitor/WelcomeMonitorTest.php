@@ -137,6 +137,36 @@ class WelcomeMonitorTest extends TestCase
             ->assertSee('Bitte wenden Sie sich an den Empfang.');
     }
 
+    public function test_live_display_uses_slide_specific_background_when_configured(): void
+    {
+        $user = $this->monitorUser();
+        $monitor = Monitor::query()->create([
+            'name' => 'Empfang',
+            'transition_time_milliseconds' => 5000,
+            'auto_generation' => false,
+            'background_source' => 'preset-1',
+        ]);
+
+        $monitor->monitorSlides()->create([
+            'heading' => 'Sonderseite',
+            'subheading' => 'Mit eigenem Hintergrund',
+            'slide_number' => 1,
+            'show_logo' => true,
+            'show_date' => true,
+            'visitors' => [],
+            'background_source' => 'preset-2',
+        ]);
+
+        $response = $this
+            ->actingAs($user)
+            ->get(route('monitors.show', $monitor));
+
+        $response
+            ->assertOk()
+            ->assertSee('Sonderseite')
+            ->assertSee('monitor-default-2.svg');
+    }
+
     private function monitorUser()
     {
         return (new PermissionHelper)->getIndividualUser([

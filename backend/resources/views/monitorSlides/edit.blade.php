@@ -13,7 +13,7 @@
             </div>
         </x-slot:actions>
 
-        <form id="editMonitorSlide" method="POST" action="{{ route('monitors.slides.update',[$monitor, $slide]) }}">
+        <form id="editMonitorSlide" method="POST" action="{{ route('monitors.slides.update',[$monitor, $slide]) }}" enctype="multipart/form-data">
             @csrf
             @method('PUT')
             <div class="grid gap-5 md:grid-cols-3">
@@ -24,6 +24,8 @@
                 <x-bp.toggle label="{{ __('Logo Anzeigen') }}" name="show_logo" checked="{{$slide->show_logo}}"/>
                 <x-bp.toggle label="{{ __('Datum Anzeigen') }}" name="show_date" checked="{{$slide->show_date}}"/>
                 {{--<x-bp.toggle label="{{ __('Zeit Anzeigen') }}" name="show_time" checked="{{$slide->show_time}}"/>--}}
+
+                @include('monitorSlides.partials.background-settings', ['monitor' => $monitor, 'slide' => $slide])
 
                <div class="md:col-span-3">
                    <label class="form-control w-full">

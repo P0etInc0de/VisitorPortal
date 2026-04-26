@@ -25,10 +25,15 @@ new class extends Component {
                 'show_logo' => (bool) $slide->show_logo,
                 'show_date' => (bool) $slide->show_date,
                 'visitors' => $slide->visitors ?? [],
+                'background_asset' => $slide->backgroundAssetUrl($this->monitor),
             ]);
 
         if ($slides->isEmpty()) {
-            $slides = collect([$this->monitor->fallbackSlideData()]);
+            $slides = collect([
+                array_merge($this->monitor->fallbackSlideData(), [
+                    'background_asset' => $this->monitor->backgroundAssetUrl(),
+                ]),
+            ]);
         }
 
         return [
@@ -68,7 +73,6 @@ new class extends Component {
          }">
         @php
             $hasLogo = file_exists(public_path('images/logo.png'));
-            $backgroundAsset = $monitor->backgroundAssetUrl();
             $cardStyle = $monitor->content_card_style ?: \App\Models\Monitor::DEFAULT_CONTENT_CARD_STYLE;
             $contentCardClasses = match ($cardStyle) {
                 'solid' => 'rounded-[2rem] border border-slate-200 bg-white/95 shadow-[0_18px_44px_rgba(15,23,42,0.08)]',
@@ -86,8 +90,8 @@ new class extends Component {
             <div wire:key="slide-{{ $slide['id'] }}" class="slide h-full w-full" x-show="current === {{ $loop->index }}">
                 <main
                     class="relative h-full overflow-hidden bg-[#eef2f8] bg-cover bg-center bg-no-repeat"
-                    @if ($backgroundAsset)
-                        style="background-image: url('{{ $backgroundAsset }}');"
+                    @if ($slide['background_asset'])
+                        style="background-image: url('{{ $slide['background_asset'] }}');"
                     @endif
                 >
                     @if ($monitor->background_overlay_enabled)
