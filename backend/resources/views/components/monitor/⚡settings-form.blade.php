@@ -200,16 +200,21 @@ new class extends Component {
 @php
     $backgroundPresets = Monitor::backgroundPresets();
     $contentCardStyles = Monitor::contentCardStyles();
-    $resolvedSource = $backgroundSource === 'upload' && ($image !== null || filled($existingImagePath))
+    $hasStoredUpload = filled($existingImagePath) && Storage::disk('public')->exists($existingImagePath);
+    $resolvedSource = $backgroundSource === 'upload' && ($image !== null || $hasStoredUpload)
         ? 'upload'
         : ($backgroundSource !== 'upload' ? $backgroundSource : Monitor::DEFAULT_BACKGROUND_SOURCE);
 
-    $previewBackground = null;
+    $uploadPreview = null;
 
     if ($image !== null) {
-        $previewBackground = $image->temporaryUrl();
-    } elseif ($resolvedSource === 'upload' && filled($existingImagePath) && Storage::disk('public')->exists($existingImagePath)) {
-        $previewBackground = asset('storage/'.$existingImagePath);
+        $uploadPreview = $image->temporaryUrl();
+    } elseif ($hasStoredUpload) {
+        $uploadPreview = asset('storage/'.$existingImagePath);
+    }
+
+    if ($resolvedSource === 'upload') {
+        $previewBackground = $uploadPreview;
     } else {
         $previewBackground = asset($backgroundPresets[$resolvedSource]['path'] ?? $backgroundPresets[Monitor::DEFAULT_BACKGROUND_SOURCE]['path']);
     }
@@ -299,7 +304,7 @@ new class extends Component {
             @foreach ($backgroundPresets as $source => $preset)
                 @php
                     $cardPreview = $source === 'upload'
-                        ? $previewBackground
+                        ? $uploadPreview
                         : asset($preset['path']);
                     $isSelected = $backgroundSource === $source;
                 @endphp
@@ -310,7 +315,7 @@ new class extends Component {
                 ])>
                     <input type="radio" wire:model.live="backgroundSource" value="{{ $source }}" class="sr-only">
                     <div class="aspect-video w-full overflow-hidden bg-slate-100">
-                        @if ($source === 'upload' && blank($existingImagePath) && $image === null)
+                        @if ($source === 'upload' && blank($uploadPreview))
                             <div class="flex h-full items-center justify-center px-4 text-center text-sm text-slate-500">
                                 {{ __('Eigenes Bild hochladen') }}
                             </div>
@@ -337,7 +342,7 @@ new class extends Component {
                         <h4 class="text-sm font-semibold text-slate-900">{{ __('Eigenes Hintergrundbild') }}</h4>
                         <p class="mt-1 text-sm text-slate-500">{{ __('Empfohlen: 1920x1080 oder größer im Format 16:9.') }}</p>
                     </div>
-                    @if ($image !== null || filled($existingImagePath))
+                    @if ($image !== null || $hasStoredUpload)
                         <button type="button" wire:click="removeUploadedImage" class="btn btn-outline btn-sm rounded-xl">{{ __('Bild entfernen') }}</button>
                     @endif
                 </div>
@@ -353,7 +358,13 @@ new class extends Component {
 
                     <div class="max-w-2xl overflow-hidden rounded-2xl border border-slate-200 bg-white">
                         <div class="aspect-video w-full overflow-hidden bg-slate-100">
-                            <img src="{{ $previewBackground }}" alt="{{ __('Monitor Hintergrund Vorschau') }}" class="h-full w-full object-cover">
+                            @if (filled($previewBackground))
+                                <img src="{{ $previewBackground }}" alt="{{ __('Monitor Hintergrund Vorschau') }}" class="h-full w-full object-cover">
+                            @else
+                                <div class="flex h-full items-center justify-center px-6 text-center text-sm text-slate-500">
+                                    {{ __('Die Vorschau erscheint nach dem Hochladen eines eigenen Bildes.') }}
+                                </div>
+                            @endif
                         </div>
                     </div>
                 </div>
