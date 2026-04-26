@@ -2,7 +2,16 @@
 
 namespace AdminPanel;
 
+use App\Enums\GenderEnum;
+use App\Enums\VisitorStatusEnum;
+use App\Filament\Resources\Departments\Pages\EditDepartment;
+use App\Filament\Resources\Visitors\Pages\CreateVisitor;
+use App\Filament\Resources\Visitors\Pages\EditVisitor;
+use App\Models\Department;
+use App\Models\Visitor;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Livewire\Livewire;
+use Tests\Support\PermissionHelper;
 use Tests\TestCase;
 
 class AdminAdministerVisitorTest extends TestCase
@@ -11,8 +20,154 @@ class AdminAdministerVisitorTest extends TestCase
     /**
      * A basic feature test example.
      */
-    public function test_admin_can_create_new_visitors(): void {}
+    public function test_admin_can_create_new_visitors(): void {
 
-    public function test_admin_can_edit_existing_visitors(): void {}
-    public function test_admin_can_delete_visitors(): void {}
+        $admin = (new PermissionHelper)->getSuperAdminUser();
+
+        Livewire::actingAs($admin)
+            ->test(CreateVisitor::class)
+            ->assertOk()
+            ->fillForm([
+                'first_name' => 'Max',
+                'name' => 'Mustermann',
+                'title' => 'Dr.',
+                'gender' => GenderEnum::Male,
+                'email' => 'max@example.com',
+                'phone' => '+49123456789',
+                'company' => 'Test GmbH',
+                'status' => VisitorStatusEnum::Planned,
+                'notes' => 'Test Notiz',
+            ])
+            ->call('create')
+            ->assertHasNoFormErrors();
+
+        $this->assertDatabaseHas('visitors', [
+            'first_name' => 'Max',
+            'name' => 'Mustermann',
+            'title' => 'Dr.',
+            'gender' => GenderEnum::Male,
+            'email' => 'max@example.com',
+            'phone' => '+49123456789',
+            'company' => 'Test GmbH',
+            'status' => VisitorStatusEnum::Planned,
+            'notes' => 'Test Notiz',
+        ]);
+    }
+
+    public function test_admin_can_edit_existing_visitors(): void {
+
+        $admin = (new PermissionHelper)->getSuperAdminUser();
+
+        Livewire::actingAs($admin)
+            ->test(CreateVisitor::class)
+            ->assertOk()
+            ->fillForm([
+                'first_name' => 'Max',
+                'name' => 'Mustermann',
+                'title' => 'Dr.',
+                'gender' => GenderEnum::Male,
+                'email' => 'max@example.com',
+                'phone' => '+49123456789',
+                'company' => 'Test GmbH',
+                'status' => VisitorStatusEnum::Planned,
+                'notes' => 'Test Notiz',
+            ])
+            ->call('create')
+            ->assertHasNoFormErrors();
+
+        $this->assertDatabaseHas('visitors', [
+            'first_name' => 'Max',
+            'name' => 'Mustermann',
+            'title' => 'Dr.',
+            'gender' => GenderEnum::Male,
+            'email' => 'max@example.com',
+            'phone' => '+49123456789',
+            'company' => 'Test GmbH',
+            'status' => VisitorStatusEnum::Planned,
+            'notes' => 'Test Notiz',
+        ]);
+
+        $visitor = Visitor::where('phone', '+49123456789')->first();
+
+        Livewire::actingAs($admin)
+            ->test(EditVisitor::class, ['record' => $visitor->getRouteKey()])
+            ->assertOk()
+            ->fillForm([
+                'first_name' => 'Erika',
+                'name' => 'Mustermann',
+                'title' => 'Prof.',
+                'gender' => GenderEnum::Female,
+                'email' => 'erika@example.com',
+                'phone' => '+49987654321',
+                'company' => 'Neue Firma GmbH',
+                'status' => VisitorStatusEnum::Checked_In,
+                'notes' => 'Aktualisierte Notiz',
+            ])
+            ->call('save')
+            ->assertHasNoFormErrors();
+
+        $this->assertDatabaseHas('visitors', [
+            'first_name' => 'Erika',
+            'name' => 'Mustermann',
+            'title' => 'Prof.',
+            'gender' => GenderEnum::Female,
+            'email' => 'erika@example.com',
+            'phone' => '+49987654321',
+            'company' => 'Neue Firma GmbH',
+            'status' => VisitorStatusEnum::Checked_In,
+            'notes' => 'Aktualisierte Notiz',
+        ]);
+
+    }
+    public function test_admin_can_delete_visitors(): void {
+        $admin = (new PermissionHelper)->getSuperAdminUser();
+
+        Livewire::actingAs($admin)
+            ->test(CreateVisitor::class)
+            ->assertOk()
+            ->fillForm([
+                'first_name' => 'Max',
+                'name' => 'Mustermann',
+                'title' => 'Dr.',
+                'gender' => GenderEnum::Male,
+                'email' => 'max@example.com',
+                'phone' => '+49123456789',
+                'company' => 'Test GmbH',
+                'status' => VisitorStatusEnum::Planned,
+                'notes' => 'Test Notiz',
+            ])
+            ->call('create')
+            ->assertHasNoFormErrors();
+
+        $this->assertDatabaseHas('visitors', [
+            'first_name' => 'Max',
+            'name' => 'Mustermann',
+            'title' => 'Dr.',
+            'gender' => GenderEnum::Male,
+            'email' => 'max@example.com',
+            'phone' => '+49123456789',
+            'company' => 'Test GmbH',
+            'status' => VisitorStatusEnum::Planned,
+            'notes' => 'Test Notiz',
+        ]);
+
+        $visitor = Visitor::where('phone', '+49123456789')->first();
+
+        Livewire::actingAs($admin)
+            ->test(EditVisitor::class, ['record' => $visitor->getRouteKey()])
+            ->callAction('delete')
+            ->assertHasNoErrors();
+
+        $this->assertDatabaseMissing('visitors', [
+            'first_name' => 'Erika',
+            'name' => 'Mustermann',
+            'title' => 'Prof.',
+            'gender' => GenderEnum::Female,
+            'email' => 'erika@example.com',
+            'phone' => '+49987654321',
+            'company' => 'Neue Firma GmbH',
+            'status' => VisitorStatusEnum::Checked_In,
+            'notes' => 'Aktualisierte Notiz',
+        ]);
+    }
 }
