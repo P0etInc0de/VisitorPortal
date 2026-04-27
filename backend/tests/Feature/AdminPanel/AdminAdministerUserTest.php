@@ -143,12 +143,6 @@ class AdminAdministerUserTest extends TestCase
 
     }
 
-
-
-
-
-
-
     public function createUser(User $admin, string $first_name, string $name, string $email, string $password, Role $userRole): void
     {
         // create a test user with role of an employee
