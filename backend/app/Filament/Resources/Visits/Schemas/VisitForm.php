@@ -38,7 +38,9 @@ class VisitForm
                     ->required(),
                 Select::make('status')
                     ->options(VisitStatusEnum::options())
-                    ->disableOptionWhen(fn ($value) => $value === VisitStatusEnum::Canceled->value)
+                    ->disableOptionWhen(fn ($value, $record) => $value === VisitStatusEnum::Canceled->value &&
+                        $record?->status !== VisitStatusEnum::Canceled->value
+                    )
                     ->required()
                     ->preload()
                     ->default(VisitStatusEnum::Planned->value)
