@@ -19,25 +19,30 @@ class VisitForm
                 Select::make('user_id')
                     ->relationship(name: 'creator', titleAttribute: 'first_name')
                     ->getOptionLabelFromRecordUsing(fn (User $record) => $record->fullName)
-                    ->searchable(['first_name', 'name']),
+                    ->default(auth()->id())
+                    ->disabled()
+                    ->dehydrated(), // ensure it's still saved
                 Select::make('responsible_user_id')
                     ->relationship(name: 'responsibleUser', titleAttribute: 'first_name')
                     ->getOptionLabelFromRecordUsing(fn (User $record) => $record->fullName)
-                    ->searchable(['first_name', 'name']),
+                    ->searchable(['first_name', 'name'])
+                    ->preload()
+                    ->required(),
                 TextInput::make('title')
                     ->required(),
                 DateTimePicker::make('scheduled_from')
+                    ->seconds(false)
                     ->required(),
                 DateTimePicker::make('scheduled_until')
+                    ->seconds(false)
                     ->required(),
                 Select::make('status')
                     ->options(VisitStatusEnum::options())
                     ->required()
+                    ->preload()
                     ->default(VisitStatusEnum::Planned->value),
                 Textarea::make('notes')
                     ->columnSpanFull(),
-                DateTimePicker::make('canceled_at'),
-
                 Select::make('visitors')
                     ->multiple()
                     ->relationship(name: 'visitors')

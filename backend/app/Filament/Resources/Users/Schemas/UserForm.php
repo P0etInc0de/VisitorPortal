@@ -14,7 +14,8 @@ class UserForm
         return $schema
             ->components([
                 Select::make('department_id')
-                    ->relationship('department', 'name'),
+                    ->relationship('department', 'name')
+                    ->preload(),
                 TextInput::make('first_name')
                     ->required(),
                 TextInput::make('name')
@@ -28,6 +29,7 @@ class UserForm
                 Select::make('gender')
                     ->options(GenderEnum::class)
                     ->required()
+                    ->preload()
                     ->default(GenderEnum::Not_Specified),
                 TextInput::make('email')
                     ->email()

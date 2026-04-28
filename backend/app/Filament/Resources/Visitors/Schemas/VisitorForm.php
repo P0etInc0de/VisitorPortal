@@ -21,6 +21,7 @@ class VisitorForm
                     ->required(),
                 TextInput::make('title'),
                 Select::make('gender')
+                    ->preload()
                     ->options(GenderEnum::class)
                     ->required()
                     ->default(GenderEnum::Not_Specified),
@@ -33,7 +34,8 @@ class VisitorForm
                 TextInput::make('company'),
                 Select::make('status')
                     ->options(VisitorStatusEnum::class)
-                    ->default(VisitorStatusEnum::Planned),
+                    ->default(VisitorStatusEnum::Planned)
+                    ->preload(),
                 Textarea::make('notes')
                     ->columnSpanFull(),
             ]);
