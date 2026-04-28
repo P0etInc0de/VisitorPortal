@@ -24,6 +24,8 @@ class CreateRole extends CreateRecord
             ->flatten()
             ->unique();
 
+        $data['guard_name'] = Utils::getFilamentAuthGuard();
+
         if (Utils::isTenancyEnabled() && Arr::has($data, Utils::getTenantModelForeignKey()) && filled($data[Utils::getTenantModelForeignKey()])) {
             return Arr::only($data, ['name', 'guard_name', Utils::getTenantModelForeignKey()]);
         }
@@ -37,7 +39,7 @@ class CreateRole extends CreateRecord
         $this->permissions->each(function (string $permission) use ($permissionModels): void {
             $permissionModels->push(Utils::getPermissionModel()::firstOrCreate([
                 'name' => $permission,
-                'guard_name' => $this->data['guard_name'],
+                'guard_name' => $this->record->guard_name,
             ]));
         });
 

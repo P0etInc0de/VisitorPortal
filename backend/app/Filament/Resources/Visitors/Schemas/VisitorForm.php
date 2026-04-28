@@ -16,19 +16,16 @@ class VisitorForm
         return $schema
             ->components([
                 TextInput::make('first_name')
-                    ->label('Vorname')
                     ->required(),
                 TextInput::make('name')
-                    ->label('Nachname')
                     ->required(),
-                TextInput::make('title')
-                    ->label('Titel'),
+                TextInput::make('title'),
                 Select::make('gender')
+                    ->preload()
                     ->options(GenderEnum::class)
                     ->required()
                     ->default(GenderEnum::Not_Specified),
                 TextInput::make('email')
-                    ->label('Email address')
                     ->email()
                     ->required(),
                 TextInput::make('phone')
@@ -37,7 +34,8 @@ class VisitorForm
                 TextInput::make('company'),
                 Select::make('status')
                     ->options(VisitorStatusEnum::class)
-                    ->default(VisitorStatusEnum::Planned),
+                    ->default(VisitorStatusEnum::Planned)
+                    ->preload(),
                 Textarea::make('notes')
                     ->columnSpanFull(),
             ]);

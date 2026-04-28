@@ -12,17 +12,14 @@ class UserInfolist
         return $schema
             ->components([
                 TextEntry::make('department.name')
-                    ->label('Department')
                     ->placeholder('-'),
-                TextEntry::make('first_name')
-                    ->label('Vorname'),
-                TextEntry::make('name')
-                    ->label('Nachname'),
-                TextEntry::make('title')
-                    ->label('Titel'),
+                TextEntry::make('first_name'),
+                TextEntry::make('name'),
+                TextEntry::make('title'),
                 TextEntry::make('gender'),
-                TextEntry::make('email')
-                    ->label('Email address'),
+                TextEntry::make('roles.name')
+                    ->label(__('Roles')),
+                TextEntry::make('email'),
                 TextEntry::make('email_verified_at')
                     ->dateTime()
                     ->placeholder('-'),

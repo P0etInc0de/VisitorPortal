@@ -7,6 +7,7 @@ use App\Models\User;
 use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
+use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Schema;
 
 class VisitForm
@@ -18,33 +19,40 @@ class VisitForm
                 Select::make('user_id')
                     ->relationship(name: 'creator', titleAttribute: 'first_name')
                     ->getOptionLabelFromRecordUsing(fn (User $record) => $record->fullName)
-                    ->searchable(['first_name', 'name']),
+                    ->default(auth()->id())
+                    ->disabled()
+                    ->dehydrated(), // ensure it's still saved
                 Select::make('responsible_user_id')
                     ->relationship(name: 'responsibleUser', titleAttribute: 'first_name')
                     ->getOptionLabelFromRecordUsing(fn (User $record) => $record->fullName)
-                    ->searchable(['first_name', 'name']),
+                    ->searchable(['first_name', 'name'])
+                    ->preload()
+                    ->required(),
+                TextInput::make('title')
+                    ->required(),
                 DateTimePicker::make('scheduled_from')
+                    ->seconds(false)
                     ->required(),
                 DateTimePicker::make('scheduled_until')
+                    ->seconds(false)
                     ->required(),
                 Select::make('status')
                     ->options(VisitStatusEnum::options())
+                    ->disableOptionWhen(fn ($value, $record) => $value === VisitStatusEnum::Canceled->value &&
+                        $record?->status !== VisitStatusEnum::Canceled->value
+                    )
                     ->required()
-                    ->default(VisitStatusEnum::Planned->value),
+                    ->preload()
+                    ->default(VisitStatusEnum::Planned->value)
+                    ->disabled(fn ($record) => $record?->status === VisitStatusEnum::Canceled->value),
                 Textarea::make('notes')
                     ->columnSpanFull(),
-                DateTimePicker::make('canceled_at'),
-                Select::make('canceledBy')
-                    ->relationship(name: 'canceledBy', titleAttribute: 'first_name')
-                    ->getOptionLabelFromRecordUsing(fn (User $record) => $record->fullName)
-                    ->searchable(['first_name', 'name']),
                 Select::make('visitors')
                     ->multiple()
                     ->relationship(name: 'visitors')
                     ->getOptionLabelFromRecordUsing(fn ($record) => "{$record->first_name} {$record->name} ({$record->email})")
                     ->searchable(['first_name', 'name'])
-                    ->preload()
-                    ->label('Select Visitors'),
+                    ->preload(),
 
             ]);
     }

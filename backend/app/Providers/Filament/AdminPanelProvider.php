@@ -32,7 +32,6 @@ class AdminPanelProvider extends PanelProvider
             ->globalSearch(position: GlobalSearchPosition::Sidebar)
             ->brandLogo(asset('images/logo.png'))
             ->brandLogoHeight('4rem')
-            ->login()
             ->colors([
                 // 'primary' => Color::Amber,
             ])
@@ -66,7 +65,7 @@ class AdminPanelProvider extends PanelProvider
                 PanelsRenderHook::GLOBAL_SEARCH_AFTER,
                 fn (): string => Blade::render('
                     <x-filament::button tag="a" href="/dashboard" size="sm">
-                        Dashboard
+                        {{__("User-Bereich")}}
                     </x-filament::button>
                 ')
             );

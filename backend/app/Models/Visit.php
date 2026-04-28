@@ -46,6 +46,16 @@ class Visit extends Model
         return $this->belongsTo(User::class, 'responsible_user_id');
     }
 
+    public function canceledBy(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'canceled_by_user_id');
+    }
+
+    public function creator(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'user_id');
+    }
+
     public function visitors(): BelongsToMany
     {
         return $this->belongsToMany(Visitor::class)
