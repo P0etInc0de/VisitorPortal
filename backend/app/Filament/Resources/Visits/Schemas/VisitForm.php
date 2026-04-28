@@ -38,9 +38,11 @@ class VisitForm
                     ->required(),
                 Select::make('status')
                     ->options(VisitStatusEnum::options())
+                    ->disableOptionWhen(fn ($value) => $value === VisitStatusEnum::Canceled->value)
                     ->required()
                     ->preload()
-                    ->default(VisitStatusEnum::Planned->value),
+                    ->default(VisitStatusEnum::Planned->value)
+                    ->disabled(fn ($record) => $record?->status === VisitStatusEnum::Canceled->value),
                 Textarea::make('notes')
                     ->columnSpanFull(),
                 Select::make('visitors')

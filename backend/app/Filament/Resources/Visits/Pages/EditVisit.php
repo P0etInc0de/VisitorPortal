@@ -36,6 +36,25 @@ class EditVisit extends EditRecord
                     $record->save();
                     $this->redirect('/admin/visits');
                 }),
+            Action::make('Restore')
+                ->label(__('Restore Visit'))
+                ->color('danger') // Makes the button red
+                ->icon('heroicon-o-x-circle')
+                ->requiresConfirmation() // Pops up a warning modal first!
+                ->modalHeading(__('Restore Visit'))
+                ->modalDescription(__('Are you sure you want to restore this visit?'))
+                ->modalSubmitActionLabel(__('Yes, restore it'))
+                ->hidden(fn ($record) => $record->status !== VisitStatusEnum::Canceled->value) // Hides the button if not cancelled
+                ->action(function ($record) {
+                    // Set the properties directly
+                    $record->canceled_at = null;
+                    $record->canceled_by_user_id = null;
+                    $record->status = VisitStatusEnum::Planned->value;
+
+                    // Save the record to the database
+                    $record->save();
+                    $this->redirect('/admin/visits');
+                }),
             DeleteAction::make(),
         ];
     }
