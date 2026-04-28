@@ -93,7 +93,6 @@ class RoleResource extends Resource
                     ->label(__('filament-shield::filament-shield.column.name'))
                     ->formatStateUsing(fn (string $state): string => Str::headline($state))
                     ->searchable(),
-
                 TextColumn::make('team.name')
                     ->default('Global')
                     ->badge()
