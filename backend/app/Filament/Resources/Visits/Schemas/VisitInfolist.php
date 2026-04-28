@@ -15,6 +15,7 @@ class VisitInfolist
                     ->label(__('Creator')),
                 TextEntry::make('responsibleUser.fullName')
                     ->label(__('Responsible user')),
+                TextEntry::make('title'),
                 TextEntry::make('scheduled_from')
                     ->dateTime(),
                 TextEntry::make('scheduled_until')

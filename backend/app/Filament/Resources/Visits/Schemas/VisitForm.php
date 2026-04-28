@@ -7,6 +7,7 @@ use App\Models\User;
 use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
+use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Schema;
 
 class VisitForm
@@ -23,6 +24,8 @@ class VisitForm
                     ->relationship(name: 'responsibleUser', titleAttribute: 'first_name')
                     ->getOptionLabelFromRecordUsing(fn (User $record) => $record->fullName)
                     ->searchable(['first_name', 'name']),
+                TextInput::make('title')
+                    ->required(),
                 DateTimePicker::make('scheduled_from')
                     ->required(),
                 DateTimePicker::make('scheduled_until')
