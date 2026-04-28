@@ -62,12 +62,6 @@ class RoleResource extends Resource
                                     ->required()
                                     ->maxLength(255),
 
-                                TextInput::make('guard_name')
-                                    ->label(__('filament-shield::filament-shield.field.guard_name'))
-                                    ->default(Utils::getFilamentAuthGuard())
-                                    ->nullable()
-                                    ->maxLength(255),
-
                                 Select::make(config('permission.column_names.team_foreign_key'))
                                     ->label(__('filament-shield::filament-shield.field.team'))
                                     ->placeholder(__('filament-shield::filament-shield.field.team.placeholder'))
@@ -99,10 +93,7 @@ class RoleResource extends Resource
                     ->label(__('filament-shield::filament-shield.column.name'))
                     ->formatStateUsing(fn (string $state): string => Str::headline($state))
                     ->searchable(),
-                TextColumn::make('guard_name')
-                    ->badge()
-                    ->color('warning')
-                    ->label(__('filament-shield::filament-shield.column.guard_name')),
+
                 TextColumn::make('team.name')
                     ->default('Global')
                     ->badge()
