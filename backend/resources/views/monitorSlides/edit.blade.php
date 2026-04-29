@@ -5,18 +5,10 @@
         </h1>
     </x-slot>
     <x-bp.card title="{{ __('Seite bearbeiten') }}">
-
-        <x-slot:actions>
-            <div>
-                <input form="editMonitorSlide" type="submit" class="btn btn-primary btn-sm rounded-xl" value="{{__('Speichern')}}"/>
-                <a type="button" class="btn-sm rounded-xl btn" href="{{route('monitors.edit', $monitor)}}">{{__('Abbrechen')}}</a>
-            </div>
-        </x-slot:actions>
-
-        <form id="editMonitorSlide" method="POST" action="{{ route('monitors.slides.update',[$monitor, $slide]) }}">
+        <form id="editMonitorSlide" method="POST" action="{{ route('monitors.slides.update',[$monitor, $slide]) }}" enctype="multipart/form-data">
             @csrf
             @method('PUT')
-            <div class="grid gap-5 md:grid-cols-3">
+            <div class="grid gap-5">
                 <x-bp.input label="{{ __('Überschrift') }}" name="heading" value="{{$slide->heading}}"/>
                 <x-bp.input label="{{ __('Unterüberschrift') }}" name="subheading" value="{{$slide->subheading}}"/>
                 <x-bp.input label="{{ __('Seitennummer') }}" name="slide_number" value="{{ $slide->slide_number }}"/>
@@ -25,7 +17,9 @@
                 <x-bp.toggle label="{{ __('Datum Anzeigen') }}" name="show_date" checked="{{$slide->show_date}}"/>
                 {{--<x-bp.toggle label="{{ __('Zeit Anzeigen') }}" name="show_time" checked="{{$slide->show_time}}"/>--}}
 
-               <div class="md:col-span-3">
+                @include('monitorSlides.partials.background-settings', ['monitor' => $monitor, 'slide' => $slide])
+
+               <div>
                    <label class="form-control w-full">
                        <span class="label-text text-sm font-medium text-base-content">{{ __('Ausgewählte Besucher') }}</span>
                    </label>
@@ -38,6 +32,11 @@
 
                {{-- Hidden inputs for the POST request of the form to laravel --}}
                 <input type="hidden" id="visitorsInput" name="visitors" />
+            </div>
+
+            <div class="mt-6 flex justify-end gap-3">
+                <a type="button" class="btn-sm rounded-xl btn" href="{{ route('monitors.edit', $monitor) }}">{{ __('Abbrechen') }}</a>
+                <input type="submit" class="btn btn-primary btn-sm rounded-xl" value="{{ __('Speichern') }}"/>
             </div>
         </form>
 

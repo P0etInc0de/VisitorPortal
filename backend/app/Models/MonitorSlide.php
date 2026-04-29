@@ -3,7 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Facades\Storage;
 
 class MonitorSlide extends Model
 {
@@ -21,6 +21,8 @@ class MonitorSlide extends Model
         'show_date',
         'show_time',
         'visitors',
+        'image_path',
+        'background_source',
     ];
 
     protected $casts = [
@@ -30,6 +32,38 @@ class MonitorSlide extends Model
     public function monitor(): BelongsTo
     {
         return $this->belongsTo(Monitor::class);
+    }
+
+    public function resolvedBackgroundSource(): ?string
+    {
+        $presets = Monitor::backgroundPresets();
+
+        if ($this->background_source === 'upload' && filled($this->image_path) && Storage::disk('public')->exists($this->image_path)) {
+            return 'upload';
+        }
+
+        if (array_key_exists((string) $this->background_source, $presets) && $this->background_source !== 'upload') {
+            return (string) $this->background_source;
+        }
+
+        return null;
+    }
+
+    public function backgroundAssetUrl(Monitor $monitor): ?string
+    {
+        $source = $this->resolvedBackgroundSource();
+
+        if ($source === null) {
+            return $monitor->backgroundAssetUrl();
+        }
+
+        if ($source === 'upload') {
+            return asset('storage/'.$this->image_path);
+        }
+
+        $preset = Monitor::backgroundPresets()[$source] ?? null;
+
+        return $preset ? asset($preset['path']) : $monitor->backgroundAssetUrl();
     }
 
     protected static function booted(): void

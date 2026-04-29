@@ -30,12 +30,15 @@ class WelcomeMonitorAutoGeneration implements ShouldQueue
                 'monitorID' => $monitor->id,
             ]);
 
+            $windowMinutes = max(1, (int) ($monitor->auto_generation_window_minutes ?: Monitor::DEFAULT_AUTO_GENERATION_WINDOW_MINUTES));
+
             $currentVisits = Visit::query()
                 ->whereBetween('scheduled_from', [
-                    Carbon::now()->subMinutes(30),
-                    Carbon::now()->addMinutes(30),
+                    Carbon::now()->subMinutes($windowMinutes),
+                    Carbon::now()->addMinutes($windowMinutes),
                 ])
                 ->where('status', VisitStatusEnum::Planned)
+                ->orderBy('scheduled_from')
                 ->with('visitors')
                 ->get();
 
@@ -55,9 +58,15 @@ class WelcomeMonitorAutoGeneration implements ShouldQueue
                     ]);
 
                     $payload = $chunk->map(function ($visitor) {
+                        $name = trim(implode(' ', array_filter([
+                            $visitor->title,
+                            $visitor->first_name,
+                            $visitor->name,
+                        ])));
+
                         return [
                             'id' => $visitor->id,
-                            'name' => $visitor->title.' '.$visitor->first_name.' '.$visitor->name,
+                            'name' => $name,
                         ];
                     })->values()->toArray();
 
