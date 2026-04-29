@@ -2,7 +2,6 @@
 
 namespace Tests\Feature\Receptionist;
 
-use App\Enums\VisitorStatusEnum;
 use App\Enums\VisitStatusEnum;
 use App\Livewire\Portal\CheckInOutBoard;
 use App\Models\User;
@@ -172,11 +171,10 @@ class ReceptionAdministerVisitTest extends TestCase
 
         $employee = User::factory()->create();
 
-        $visitors = Visitor::factory()->count(3)->create(['status' => VisitorStatusEnum::Planned]);
+        $visitors = Visitor::factory()->count(3)->create();
 
         $this->assertDatabaseHas('visitors', [
             'email' => $visitors[0]->email,
-            'status' => VisitorStatusEnum::Planned->value,
         ]);
 
         $responsibleUser = User::factory()->create();
@@ -211,7 +209,7 @@ class ReceptionAdministerVisitTest extends TestCase
 
         $employee = User::factory()->create();
 
-        $visitors = Visitor::factory()->count(3)->create(['status' => VisitorStatusEnum::Checked_In]);
+        $visitors = Visitor::factory()->count(3)->create();
 
         // all visitors present in database
         foreach ($visitors as $visitor) {
