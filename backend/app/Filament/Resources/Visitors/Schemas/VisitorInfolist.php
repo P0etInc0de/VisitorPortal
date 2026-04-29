@@ -11,15 +11,11 @@ class VisitorInfolist
     {
         return $schema
             ->components([
-                TextEntry::make('first_name')
-                    ->label('Vorname'),
-                TextEntry::make('name')
-                    ->label('Nachname'),
-                TextEntry::make('title')
-                    ->label('Titel'),
+                TextEntry::make('first_name'),
+                TextEntry::make('name'),
+                TextEntry::make('title'),
                 TextEntry::make('gender'),
-                TextEntry::make('email')
-                    ->label('Email address'),
+                TextEntry::make('email'),
                 TextEntry::make('phone'),
                 TextEntry::make('company')
                     ->placeholder('-'),

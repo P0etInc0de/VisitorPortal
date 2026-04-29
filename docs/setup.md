@@ -43,6 +43,9 @@ MAIL_PASSWORD=null
 MAIL_ENCRYPTION=null
 MAIL_FROM_ADDRESS=visitorportal@example.test
 MAIL_FROM_NAME="Besucherportal"
+
+#GitHub Link
+GITHUB_REPO_URL="https://github.com/P0etInc0de/Besucherportal"
 ```
 
 ## 3. Installiere alle PHP-Abhängigkeiten, die in composer.json definiert sind
@@ -74,7 +77,7 @@ docker-compose exec db mysql -u root -proot_pw -e "CREATE DATABASE IF NOT EXISTS
 ## 6. Datenbank mit Test-Daten befüllen (Seeding)
 
 ```bash
-docker compose exec web php bash -lc "artisan migrate:fresh --seed"
+docker compose exec web bash -lc "php artisan migrate:fresh --seed"
 ```
 
 ## 7. Browser öffnen
