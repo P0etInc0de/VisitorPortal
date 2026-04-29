@@ -35,9 +35,6 @@ Webbasiertes Besucherportal (Laravel) zur Planung und Abwicklung von Firmenbesuc
 
 ### Diagramme `docs/diagrams`
 
-- Enthält Diagramme um die Anwendung besser zu verstehen in form von Bildern und `.uxf` Dateien. 
-- Dies `.uxf` Dateien können mit dem VSCode-Plugin "UMLet" angezeigt und editiert werden.
+- Enthält Diagramme um die Anwendung besser zu verstehen in Form von Bildern und `.uxf` Dateien. 
+- Die `.uxf` Dateien können mit dem GPLv3 lizenzierten VSCode-Plugin "UMLet" angezeigt und editiert werden.
 
-## Projektorganisation
-
-Weitere Arbeitsdokumente (Protokolle/Entwürfe) liegen in MS Teams. Der reproduzierbare Projektstand (Code + zentrale Doku) liegt in diesem Repository.
