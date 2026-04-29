@@ -8,6 +8,7 @@ use App\Models\User;
 use App\Models\Visit;
 use App\Models\Visitor;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Livewire\Livewire;
 use Tests\TestCase;
@@ -18,6 +19,8 @@ class CheckInOutBoardTest extends TestCase
 
     public function test_portal_check_in_updates_pivot_and_renders_db_state(): void
     {
+        Carbon::setTestNow(Carbon::create(2026, 4, 26, 17, 0, 0, config('app.timezone')));
+
         $user = User::factory()->create();
         $visitor = Visitor::factory()->create([
             'first_name' => 'Max',
@@ -37,7 +40,8 @@ class CheckInOutBoardTest extends TestCase
             ->test(CheckInOutBoard::class)
             ->call('checkIn', $visit->id, $visitor->id)
             ->assertSee(__('Eingecheckt'))
-            ->assertSee(__('Check-in').':');
+            ->assertSee(__('Check-in').':')
+            ->assertSee('26.04.2026 17:00');
 
         $pivot = DB::table('visit_visitor')
             ->where('visit_id', $visit->id)
@@ -47,6 +51,8 @@ class CheckInOutBoardTest extends TestCase
         $this->assertNotNull($pivot);
         $this->assertNotNull($pivot->checked_in_at);
         $this->assertNull($pivot->checked_out_at);
+
+        Carbon::setTestNow();
     }
 
     public function test_portal_check_out_updates_pivot_and_renders_db_state(): void
