@@ -12,9 +12,10 @@ class VisitInfolist
         return $schema
             ->components([
                 TextEntry::make('creator.fullName')
-                    ->label('Creator'),
+                    ->label(__('Creator')),
                 TextEntry::make('responsibleUser.fullName')
-                    ->label('Responsible user'),
+                    ->label(__('Responsible user')),
+                TextEntry::make('title'),
                 TextEntry::make('scheduled_from')
                     ->dateTime(),
                 TextEntry::make('scheduled_until')
@@ -27,7 +28,7 @@ class VisitInfolist
                     ->dateTime()
                     ->placeholder('-'),
                 TextEntry::make('canceledBy.fullName')
-                    ->label('Canceled by')
+                    ->label(__('Canceled by'))
                     ->placeholder('-'),
                 TextEntry::make('created_at')
                     ->dateTime()

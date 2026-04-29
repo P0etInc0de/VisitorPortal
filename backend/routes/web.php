@@ -7,10 +7,10 @@ use App\Http\Controllers\Portal\VisitController as PortalVisitController;
 use App\Http\Controllers\Reception\DashboardController as ReceptionDashboardController;
 use App\Http\Controllers\Reception\VisitController as ReceptionVisitController;
 use App\Http\Controllers\Reception\VisitParticipantActionController;
-use App\Http\Controllers\UserPermissionsController;
 use App\Http\Middleware\CheckMonitorAutoGeneration;
 use App\Livewire\Portal\CheckInOutBoard;
 use App\Livewire\Portal\VisitShowPage;
+use App\Livewire\Profile\UserPermissionsPage;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -89,7 +89,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::resource('monitors.slides', MonitorSlidesController::class)
         ->middleware(CheckMonitorAutoGeneration::class);
 
-    Route::get('/user-permissions', [UserPermissionsController::class, 'index'])->name('user-permissions');
+    Route::get('/user-permissions', UserPermissionsPage::class)->name('user-permissions');
 });
 
 require __DIR__.'/auth.php';

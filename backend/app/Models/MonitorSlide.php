@@ -14,6 +14,7 @@ class MonitorSlide extends Model
      * @var list<string>
      */
     protected $fillable = [
+        'monitor_id',
         'heading',
         'subheading',
         'slide_number',
@@ -29,9 +30,9 @@ class MonitorSlide extends Model
         'visitors' => 'array',
     ];
 
-    public function monitor(): HasOne
+    public function monitor(): BelongsTo
     {
-        return $this->hasOne(Monitor::class);
+        return $this->belongsTo(Monitor::class);
     }
 
     public function resolvedBackgroundSource(): ?string

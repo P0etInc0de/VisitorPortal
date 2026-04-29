@@ -3,7 +3,6 @@
 namespace Database\Factories;
 
 use App\Enums\GenderEnum;
-use App\Enums\VisitorStatusEnum;
 use App\Models\Visitor;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
@@ -27,7 +26,6 @@ class VisitorFactory extends Factory
             'email' => fake()->email(),
             'phone' => fake()->phoneNumber(),
             'company' => fake()->company(),
-            'status' => VisitorStatusEnum::Planned,
             'notes' => null,
             'gender' => GenderEnum::Male,
             'title' => 'Dr.',

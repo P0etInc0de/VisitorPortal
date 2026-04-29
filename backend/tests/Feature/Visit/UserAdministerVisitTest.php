@@ -5,9 +5,9 @@ namespace Tests\Feature\Visit;
 use App\Enums\VisitStatusEnum;
 use App\Models\Visit;
 use App\Models\Visitor;
-use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\Support\PermissionHelper;
+use Tests\Support\VisitHelper;
 use Tests\TestCase;
 
 class UserAdministerVisitTest extends TestCase
@@ -28,7 +28,7 @@ class UserAdministerVisitTest extends TestCase
         $visitTitle = 'Test Visit';
 
         // create the visit
-        $visit = $this->makeVisit($user->id, $visitTitle, VisitStatusEnum::Planned, $responsibleUser->id, $visitors);
+        $visit = (new VisitHelper)->makeVisit($user->id, $visitTitle, VisitStatusEnum::Planned, $responsibleUser->id, $visitors);
 
         // check if visit is present in database
         $this->assertDatabaseHas('visits', [
@@ -49,7 +49,7 @@ class UserAdministerVisitTest extends TestCase
         $responsibleUser = (new PermissionHelper)->getUser();
 
         // create visit
-        $visit = $this->makeVisit($user->id, $visitTitle, VisitStatusEnum::Planned, $responsibleUser->id);
+        $visit = (new VisitHelper)->makeVisit($user->id, $visitTitle, VisitStatusEnum::Planned, $responsibleUser->id);
 
         // cancel the visit
         $this->actingAs($user)->post(route('portal.visits.cancel', $visit));
@@ -81,7 +81,7 @@ class UserAdministerVisitTest extends TestCase
         $updatedVisitNotes = 'Updated Visit Notes';
 
         // create visit
-        $visit = $this->makeVisit($user->id, $visitTitle, VisitStatusEnum::Planned, $responsibleUser->id);
+        $visit = (new VisitHelper)->makeVisit($user->id, $visitTitle, VisitStatusEnum::Planned, $responsibleUser->id);
 
         // send update form
         $response = $this->actingAs($user)
