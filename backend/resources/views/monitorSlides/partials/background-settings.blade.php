@@ -26,7 +26,31 @@
     };
 @endphp
 
-<section x-data="{ source: @js($currentSource) }" class="md:col-span-3 space-y-4 rounded-3xl border border-slate-200 bg-slate-50 p-5">
+<section
+    x-data="{
+        source: @js($currentSource),
+        initialUploadPreview: @js($uploadPreview),
+        uploadPreview: @js($uploadPreview),
+        uploadObjectUrl: null,
+        updateUploadPreview(event) {
+            const file = event.target.files?.[0];
+
+            if (this.uploadObjectUrl) {
+                URL.revokeObjectURL(this.uploadObjectUrl);
+                this.uploadObjectUrl = null;
+            }
+
+            if (! file) {
+                this.uploadPreview = this.initialUploadPreview;
+                return;
+            }
+
+            this.uploadObjectUrl = URL.createObjectURL(file);
+            this.uploadPreview = this.uploadObjectUrl;
+        },
+    }"
+    class="md:col-span-full space-y-4 rounded-3xl border border-slate-200 bg-slate-50 p-5"
+>
     <div>
         <h3 class="text-sm font-semibold text-slate-900">{{ __('Seitenhintergrund') }}</h3>
     </div>
@@ -47,20 +71,23 @@
             ]) x-bind:class="source === '{{ $source }}' ? 'border-indigo-500 ring-2 ring-indigo-100 shadow-sm' : 'border-slate-200 hover:border-slate-300'">
                 <input type="radio" name="background_source" value="{{ $source }}" class="sr-only" x-model="source" @checked($currentSource === $source)>
                 <div class="aspect-video w-full overflow-hidden bg-slate-100">
-                    @if ($source === 'upload' && blank($option['preview']))
-                        <div class="flex h-full items-center justify-center px-6 text-center text-sm text-slate-500">
-                            {{ __('Eigenes Bild hochladen') }}
-                        </div>
-                    @else
-                        <img src="{{ $option['preview'] }}" alt="{{ $option['label'] }}" class="h-full w-full object-cover">
-                    @endif
-                </div>
+                        @if ($source === 'upload')
+                            <template x-if="uploadPreview">
+                                <img :src="uploadPreview" alt="{{ $option['label'] }}" class="h-full w-full object-cover">
+                            </template>
+                            <template x-if="! uploadPreview">
+                                <div class="flex h-full items-center justify-center px-6 text-center text-sm text-slate-500">
+                                    {{ __('Eigenes Bild hochladen') }}
+                                </div>
+                            </template>
+                        @else
+                            <img src="{{ $option['preview'] }}" alt="{{ $option['label'] }}" class="h-full w-full object-cover">
+                        @endif
+                    </div>
                 <div class="px-3 pt-2 pb-2.5">
                     <div class="flex items-start justify-between gap-3">
                         <div class="text-sm font-semibold text-slate-900">{{ $option['label'] }}</div>
-                        @if ($isSelected)
-                            <span class="shrink-0 rounded-full bg-indigo-50 px-2 py-0.5 text-[11px] font-semibold text-indigo-700">{{ __('Aktiv') }}</span>
-                        @endif
+                        <span x-show="source === '{{ $source }}'" x-cloak class="shrink-0 rounded-full bg-indigo-50 px-2 py-0.5 text-[11px] font-semibold text-indigo-700">{{ __('Aktiv') }}</span>
                     </div>
                 </div>
             </label>
@@ -79,7 +106,7 @@
 
         <div class="mt-4 space-y-4">
             <div>
-                <input type="file" name="image" accept="image/png,image/jpeg,image/webp" class="file-input file-input-bordered w-full rounded-xl border-slate-300 bg-white">
+                <input type="file" name="image" accept="image/png,image/jpeg,image/webp" @change="updateUploadPreview($event)" class="file-input file-input-bordered w-full rounded-xl border-slate-300 bg-white">
                 @error('image')
                     <span class="mt-2 block text-sm font-medium text-red-500">{{ $message }}</span>
                 @enderror
@@ -87,13 +114,14 @@
 
             <div class="max-w-2xl overflow-hidden rounded-2xl border border-slate-200 bg-white">
                 <div class="aspect-video w-full overflow-hidden bg-slate-100">
-                    @if (filled($selectedPreview))
-                        <img src="{{ $selectedPreview }}" alt="{{ __('Seitenhintergrund Vorschau') }}" class="h-full w-full object-cover">
-                    @else
+                    <template x-if="uploadPreview">
+                        <img :src="uploadPreview" alt="{{ __('Seitenhintergrund Vorschau') }}" class="h-full w-full object-cover">
+                    </template>
+                    <template x-if="! uploadPreview">
                         <div class="flex h-full items-center justify-center px-6 text-center text-sm text-slate-500">
                             {{ __('Die Vorschau erscheint nach dem Hochladen eines eigenen Bildes.') }}
                         </div>
-                    @endif
+                    </template>
                 </div>
             </div>
         </div>

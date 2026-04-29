@@ -5,16 +5,9 @@
         </h1>
     </x-slot>
         <x-bp.card title="{{ __('Neue Seite') }}">
-            <x-slot:actions>
-                <div>
-                    <input form="createMonitorSlide" type="submit" class="btn btn-primary btn-sm rounded-xl" value="{{__('Speichern')}}"/>
-                    <a type="button" class="btn-sm rounded-xl btn" href="{{route('monitors.edit', $monitor)}}">{{__('Abbrechen')}}</a>
-                </div>
-            </x-slot:actions>
-
             <form id="createMonitorSlide" method="POST" action="{{ route('monitors.slides.store', [$monitor]) }}" enctype="multipart/form-data">
                 @csrf
-                <div class="grid gap-5 md:grid-cols-3">
+                <div class="grid gap-5">
                     <x-bp.input label="{{ __('Überschrift') }}" name="heading" value="{{ __('Herzlich willkommen!') }}"/>
                     <x-bp.input label="{{ __('Unterüberschrift') }}" name="subheading" value="{{ __('Schön, dass Sie da sind!') }}"/>
                     <x-bp.input label="{{ __('Seitennummer') }}" type="number" name="slide_number" value="{{ $defaultSlideNumber }}"/>
@@ -25,7 +18,7 @@
 
                     @include('monitorSlides.partials.background-settings', ['monitor' => $monitor, 'slide' => null])
 
-                    <div class="md:col-span-3">
+                    <div>
                         <label class="form-control w-full">
                             <span class="label-text text-sm font-medium text-base-content">{{ __('Ausgewählte Besucher') }}</span>
                         </label>
@@ -39,6 +32,11 @@
                         {{-- Hidden inputs for the POST request of the form to laravel --}}
                     <input type="hidden" id="visitorsInput" name="visitors" />
                     <input type="hidden" value="{{ $monitor->id }}" name="monitor_id"/>
+                </div>
+
+                <div class="mt-6 flex justify-end gap-3">
+                    <a type="button" class="btn-sm rounded-xl btn" href="{{ route('monitors.edit', $monitor) }}">{{ __('Abbrechen') }}</a>
+                    <input type="submit" class="btn btn-primary btn-sm rounded-xl" value="{{ __('Speichern') }}"/>
                 </div>
             </form>
         </x-bp.card>
