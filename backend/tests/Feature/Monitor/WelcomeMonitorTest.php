@@ -126,7 +126,7 @@ class WelcomeMonitorTest extends TestCase
 
             $slide = $monitor->monitorSlides()->sole();
 
-            $this->assertSame('Herzlich willkommen!', $slide->heading);
+            $this->assertSame(__('Herzlich willkommen!'), $slide->heading);
             $this->assertSame([
                 [
                     'id' => $insideVisitor->id,
