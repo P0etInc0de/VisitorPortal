@@ -126,6 +126,8 @@ class CheckInOutBoard extends Component
     private function searchResults(): Collection
     {
         $todayStart = now()->startOfDay();
+        $windowEnd = now()->copy()->addHours(48);
+        $referenceNow = now();
         $search = trim($this->search);
 
         $visits = Visit::query()
@@ -135,13 +137,7 @@ class CheckInOutBoard extends Component
                 'visitors' => fn ($query) => $query->orderBy('first_name')->orderBy('name'),
             ])
             ->where('status', '!=', VisitStatusEnum::Canceled->value)
-            ->where(function ($query) use ($todayStart) {
-                $query->where('scheduled_until', '>=', $todayStart)
-                    ->orWhere(function ($query) use ($todayStart) {
-                        $query->whereNull('scheduled_until')
-                            ->where('scheduled_from', '>=', $todayStart);
-                    });
-            })
+            ->whereBetween('scheduled_from', [$todayStart, $windowEnd])
             ->when($search !== '', function ($query) use ($search) {
                 $query->where(function ($query) use ($search) {
                     $query->where('title', 'like', '%'.$search.'%')
@@ -163,16 +159,21 @@ class CheckInOutBoard extends Component
                 });
             })
             ->orderBy('scheduled_from')
-            ->limit($search === '' ? 15 : 30)
             ->get();
 
         return $visits
-            ->flatMap(function (Visit $visit) {
-                return $visit->visitors->map(fn (Visitor $visitor) => $this->mapParticipantResult($visit, $visitor));
+            ->flatMap(function (Visit $visit) use ($referenceNow) {
+                return $visit->visitors->map(fn (Visitor $visitor) => $this->mapParticipantResult($visit, $visitor, $referenceNow));
             })
             ->when($search !== '', function (Collection $results) use ($search) {
                 return $results->filter(fn (array $result) => $this->participantMatchesSearch($result, $search));
             })
+            ->sortBy([
+                ['sort_distance_seconds', 'asc'],
+                ['is_past', 'asc'],
+                ['scheduled_from_timestamp', 'asc'],
+                ['display_name', 'asc'],
+            ])
             ->take(20)
             ->values();
     }
@@ -180,7 +181,7 @@ class CheckInOutBoard extends Component
     /**
      * @return array<string, mixed>
      */
-    private function mapParticipantResult(Visit $visit, Visitor $visitor): array
+    private function mapParticipantResult(Visit $visit, Visitor $visitor, Carbon $referenceNow): array
     {
         $pivot = $visit->visitors->firstWhere('id', $visitor->id)?->pivot;
         $status = $this->resolveParticipantStatus((string) $visit->status, $pivot);
@@ -189,6 +190,10 @@ class CheckInOutBoard extends Component
             $visitor->first_name,
             $visitor->name,
         ])));
+        $scheduledFrom = $visit->scheduled_from;
+        $sortDistanceSeconds = $scheduledFrom
+            ? abs($scheduledFrom->diffInSeconds($referenceNow, false))
+            : PHP_INT_MAX;
 
         return [
             'row_key' => "visit-{$visit->id}-visitor-{$visitor->id}",
@@ -205,6 +210,9 @@ class CheckInOutBoard extends Component
             'company' => $visitor->company,
             'email' => $visitor->email,
             'phone' => $visitor->phone,
+            'scheduled_from_timestamp' => $scheduledFrom?->timestamp ?? PHP_INT_MAX,
+            'sort_distance_seconds' => $sortDistanceSeconds,
+            'is_past' => $scheduledFrom && $scheduledFrom->lt($referenceNow) ? 1 : 0,
             'status_label' => $status['label'],
             'status_class' => $status['class'],
             'checked_in_label' => $this->formatActionTimestamp($pivot?->checked_in_at),
