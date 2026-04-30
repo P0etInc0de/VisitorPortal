@@ -17,10 +17,13 @@ class DepartmentsTable
         return $table
             ->columns([
                 TextColumn::make('name')
+                    ->label(__('Name'))
                     ->searchable(),
                 TextColumn::make('location')
+                    ->label(__('Standort'))
                     ->searchable(),
                 IconColumn::make('is_active')
+                    ->label(__('Aktiv'))
                     ->boolean(),
                 TextColumn::make('created_at')
                     ->dateTime()
