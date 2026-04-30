@@ -15,8 +15,16 @@ new class extends Component {
     {
         $this->monitor->refresh();
 
-        $slides = $this->monitor->monitorSlides()
-            ->where('is_active', true)
+        $slidesQuery = $this->monitor->monitorSlides()
+            ->where('is_active', true);
+
+        if ($this->monitor->auto_generation) {
+            $slidesQuery->where('is_auto_generated', true);
+        } else {
+            $slidesQuery->where('is_auto_generated', false);
+        }
+
+        $slides = $slidesQuery
             ->orderBy('slide_number')
             ->get()
             ->map(fn (MonitorSlide $slide): array => [

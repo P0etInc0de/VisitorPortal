@@ -107,7 +107,7 @@ class MonitorController extends Controller
         ]));
 
         if ($monitor->auto_generation) {
-            dispatch(new WelcomeMonitorAutoGeneration);
+            app(WelcomeMonitorAutoGeneration::class)();
         }
 
         Log::info('User ID '.auth()->id()." updated settings for Monitor ID: {$monitor->id}");

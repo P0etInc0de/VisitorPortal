@@ -28,6 +28,7 @@ class StoreMonitorSlideRequest extends FormRequest
         $monitor = $this->route('monitor');
         $maxSlide = MonitorSlide::query()
             ->where('monitor_id', $monitor->id)
+            ->where('is_auto_generated', false)
             ->max('slide_number') + 1;
 
         return [

@@ -42,13 +42,16 @@ new class extends Component {
     public function with(): array
     {
         $this->monitor->refresh();
-        $slides = $this->monitor->monitorSlides()->orderBy('slide_number')->get();
+        $slides = $this->monitor->monitorSlides()
+            ->orderBy('is_auto_generated')
+            ->orderBy('slide_number')
+            ->get();
 
         return [
             'monitor_slides' => $slides,
             'slides_hash' => md5((string) $slides->max('updated_at').$this->monitor->updated_at),
             'empty_message' => $this->monitor->auto_generation
-                ? __('Keine registrierten Besuche im Zeitraum von +/- :minutes Minuten.', ['minutes' => $this->monitor->auto_generation_window_minutes])
+                ? __('Keine geplanten Besuche im Zeitraum von +/- :minutes Minuten.', ['minutes' => $this->monitor->auto_generation_window_minutes])
                 : __('Noch keine Seiten angelegt.'),
         ];
     }
@@ -106,8 +109,14 @@ new class extends Component {
                         @endif
                     </div>
 
-                    <span class="badge rounded-full px-3 py-3 text-sm font-semibold lg:self-start {{ $monitor_slide->is_active ? 'badge-success' : 'badge-ghost' }}">
-                        {{ $monitor_slide->is_active ? __('Aktiv') : __('Inaktiv') }}
+                    @php
+                        $isEffectivelyActive = $monitor->auto_generation
+                            ? $monitor_slide->is_auto_generated
+                            : (! $monitor_slide->is_auto_generated && $monitor_slide->is_active);
+                    @endphp
+
+                    <span class="badge rounded-full px-3 py-3 text-sm font-semibold lg:self-start {{ $isEffectivelyActive ? 'badge-success' : 'badge-ghost' }}">
+                        {{ $isEffectivelyActive ? __('Aktiv') : __('Inaktiv') }}
                     </span>
 
                     @if($monitor->auto_generation === false)
@@ -142,6 +151,7 @@ new class extends Component {
                 <p class="text-base font-medium text-slate-700">{{ $empty_message }}</p>
                 @if ($monitor->auto_generation)
                     <p class="mt-2 text-sm text-slate-500">{{ __('Die Live-Anzeige zeigt in der Zwischenzeit automatisch die allgemeine Begrüßungsseite an.') }}</p>
+                    <p class="mt-1 text-sm text-slate-500">{{ __('Entwürfe werden bei der automatischen Erstellung nicht berücksichtigt.') }}</p>
                 @endif
             </div>
         @endforelse

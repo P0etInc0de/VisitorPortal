@@ -31,6 +31,7 @@ class MonitorSlidesController extends Controller
 
         $currentMax = MonitorSlide::query()
             ->where('monitor_id', $monitor->id)
+            ->where('is_auto_generated', false)
             ->max('monitor_slides.slide_number') ?? 0; // Default to 0 if null
 
         $defaultSlideNumber = $currentMax + 1;
