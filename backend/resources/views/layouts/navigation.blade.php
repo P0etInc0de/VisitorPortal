@@ -108,7 +108,7 @@
         <nav class="space-y-3">
             <div>
                 <div class="mb-1 px-3 text-[11px] font-medium uppercase tracking-[0.18em] text-base-content/42">
-                    {{ __('Start') }}
+                    {{ __('Portal') }}
                 </div>
 
                 <a href="{{ route('dashboard') }}" class="{{ $navLinkClasses(request()->routeIs('dashboard')) }}">
@@ -118,13 +118,6 @@
                     </svg>
                     <span>{{ __('Übersicht') }}</span>
                 </a>
-            </div>
-
-			@if ($canSeeVisits)
-            <div>
-                <div class="mb-1 px-3 text-[11px] font-medium uppercase tracking-[0.18em] text-base-content/42">
-                    {{ __('Portal') }}
-                </div>
 
 				@can('Create:Visit')
                 <a href="{{ route('portal.visits.create') }}" class="{{ $navLinkClasses(request()->routeIs('portal.visits.create')) }}">
@@ -136,7 +129,6 @@
 				@endcan
 
             </div>
-			@endif
 
             @if ($canSeeReception)
                 <div>
