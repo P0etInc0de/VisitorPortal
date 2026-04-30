@@ -16,7 +16,7 @@
                 color="gray"
                 icon="heroicon-m-arrow-top-right-on-square"
             >
-                Open in GitHub
+                {{ __('Open in GitHub') }}
             </x-filament::button>
         </x-slot:afterHeader>
 

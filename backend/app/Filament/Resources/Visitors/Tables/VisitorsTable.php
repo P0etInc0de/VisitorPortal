@@ -16,23 +16,39 @@ class VisitorsTable
         return $table
             ->columns([
                 TextColumn::make('first_name')
+                    ->label(__('Vorname'))
                     ->searchable(),
                 TextColumn::make('name')
+                    ->label(__('Nachname'))
                     ->searchable(),
-                TextColumn::make('title'),
+                TextColumn::make('title')
+                    ->label(__('Titel')),
                 TextColumn::make('email')
+                    ->label(__('E-Mail'))
                     ->searchable(),
                 TextColumn::make('phone')
+                    ->label(__('Telefon'))
                     ->searchable(),
                 TextColumn::make('company')
+                    ->label(__('Firma'))
                     ->searchable(),
                 TextColumn::make('status')
+                    ->label(__('Status'))
+                    ->formatStateUsing(fn (string $state): string => match ($state) {
+                        'planned' => __('Geplant'),
+                        'canceled' => __('Abgesagt'),
+                        'checked_in' => __('Eingecheckt'),
+                        'checked_out' => __('Ausgecheckt'),
+                        default => $state,
+                    })
                     ->searchable(),
                 TextColumn::make('created_at')
+                    ->label(__('Erstellt am'))
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('updated_at')
+                    ->label(__('Aktualisiert am'))
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
