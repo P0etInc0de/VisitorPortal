@@ -273,7 +273,7 @@
                                                 value="{{ $user->id }}"
                                                 @selected((int) old('user_id', $visit->user_id ?: auth()->id()) === $user->id)
                                             >
-                                                {{ $user->name }}
+                                                {{ $user->fullName }}
                                             </option>
                                         @endforeach
                                     </select>
@@ -295,7 +295,7 @@
                                                 value="{{ $user->id }}"
                                                 @selected((int) old('responsible_user_id', $visit->responsible_user_id) === $user->id)
                                             >
-                                                {{ $user->name }}
+                                                {{ $user->fullName }}
                                             </option>
                                         @endforeach
                                     </select>

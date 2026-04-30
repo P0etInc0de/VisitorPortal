@@ -78,11 +78,11 @@
                     </span>
 
                     <span class="{{ $metaChipClass }}">
-                        {{ __('Host') }}: {{ $visit->host?->name ?: '-' }}
+                        {{ __('Host') }}: {{ $visit->host?->fullName ?: '-' }}
                     </span>
 
                     <span class="{{ $metaChipClass }}">
-                        {{ __('Vertretung') }}: {{ $visit->responsibleUser?->name ?: '-' }}
+                        {{ __('Vertretung') }}: {{ $visit->responsibleUser?->fullName ?: '-' }}
                     </span>
 
                     <span class="{{ $metaChipClass }}">
