@@ -11,6 +11,17 @@ class VisitManagementTest extends TestCase
 {
     use RefreshDatabase;
 
+    public function test_visit_create_page_defaults_status_to_planned(): void
+    {
+        $user = (new PermissionHelper)->getUser();
+
+        $this
+            ->actingAs($user)
+            ->get(route('portal.visits.create'))
+            ->assertOk()
+            ->assertSee('option value="planned" selected', false);
+    }
+
     public function test_visit_can_be_created_with_multiple_participants(): void
     {
         $user = (new PermissionHelper)->getUser();

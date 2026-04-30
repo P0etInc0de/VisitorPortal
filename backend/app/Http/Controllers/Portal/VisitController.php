@@ -25,7 +25,7 @@ class VisitController extends Controller
 
         return $this->formView(new Visit([
             'user_id' => auth()->id(),
-            'status' => VisitStatusEnum::Draft->value,
+            'status' => VisitStatusEnum::Planned->value,
         ]), false);
     }
 
