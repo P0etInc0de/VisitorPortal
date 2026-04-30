@@ -236,6 +236,24 @@ class WelcomeMonitorTest extends TestCase
         $this->assertFalse($slide->is_active);
     }
 
+    public function test_monitor_settings_show_validation_errors_for_invalid_numeric_input(): void
+    {
+        $user = $this->monitorUser();
+        $monitor = Monitor::query()->create([
+            'name' => 'Empfang',
+            'transition_time_milliseconds' => 5000,
+            'auto_generation' => false,
+        ]);
+
+        $this->actingAs($user);
+
+        Livewire::test('monitor.settings-form', ['monitor' => $monitor])
+            ->set('autoGenerationWindowMinutes', '18ß')
+            ->assertHasErrors(['autoGenerationWindowMinutes'])
+            ->set('transitionTimeSeconds', '')
+            ->assertHasErrors(['transitionTimeSeconds']);
+    }
+
     public function test_auto_generation_uses_the_configured_monitor_window(): void
     {
         Carbon::setTestNow('2026-04-24 10:00:00');
