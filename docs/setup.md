@@ -9,12 +9,7 @@ Laravel liegt im Ordner `backend/`.
 - Git installiert
 - Repository lokal geklont
 
-## 1. Container bauen und starten
-```bash
-docker compose up -d --build
-````
-
-## 2. `.env` anlegen und konfigurieren
+## 1. `.env` anlegen und konfigurieren
 
 * Datei: `backend/.env` (nicht committen)
 * Falls noch nicht vorhanden:
@@ -27,6 +22,7 @@ Wichtige Werte für Docker:
 
 ```env
 APP_URL=http://localhost:8080
+APP_TIMEZONE=Europe/Berlin
 
 DB_CONNECTION=mysql
 DB_HOST=db
@@ -48,10 +44,15 @@ MAIL_FROM_NAME="Besucherportal"
 GITHUB_REPO_URL="https://github.com/P0etInc0de/Besucherportal"
 ```
 
+## 2. Container bauen und starten
+```bash
+docker compose build web
+````
+
 ## 3. Installiere alle PHP-Abhängigkeiten, die in composer.json definiert sind
 
 ```bash
-docker compose exec web bash -lc "composer install"
+docker compose run --rm web composer install
 ```
 
 Ergebnis: Alle Laravel-Pakete sind im Container verfügbar.
