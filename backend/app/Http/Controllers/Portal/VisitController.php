@@ -10,6 +10,7 @@ use App\Http\Requests\UpdateVisitRequest;
 use App\Models\User;
 use App\Models\Visit;
 use App\Models\Visitor;
+use App\Policies\VisitPolicy;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Arr;
@@ -187,11 +188,7 @@ class VisitController extends Controller
             'visitors' => fn ($query) => $query->orderBy('first_name')->orderBy('name'),
         ]);
 
-        $users = User::query()
-            ->select('id', 'first_name', 'name', 'title')
-            ->orderBy('first_name')
-            ->orderBy('name')
-            ->get();
+        $users = app(VisitPolicy::class)->assignableUsers(auth()->user(), $isEdit ? $visit : null);
         $existingVisitors = Visitor::query()
             ->select('id', 'title', 'first_name', 'name', 'company', 'email', 'phone')
             ->orderBy('first_name')

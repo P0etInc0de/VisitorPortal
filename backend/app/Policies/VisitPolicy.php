@@ -8,10 +8,62 @@ use App\Models\User;
 use App\Models\Visit;
 // use Illuminate\Foundation\Auth\User as AuthUser;
 use Illuminate\Auth\Access\HandlesAuthorization;
+use Illuminate\Database\Eloquent\Collection as EloquentCollection;
 
 class VisitPolicy
 {
     use HandlesAuthorization;
+
+    /**
+     * @return EloquentCollection<int, User>
+     */
+    public function assignableUsers(User $user, ?Visit $visit = null): EloquentCollection
+    {
+        $query = User::query()->select('id', 'first_name', 'name', 'title', 'department_id');
+
+        if ($this->editAny($user)) {
+            // keep full query
+        } elseif ($user->can('EditDepartment:Visit') && filled($user->department_id)) {
+            $query->where('department_id', $user->department_id);
+        } else {
+            $query->whereKey($user->id);
+        }
+
+        $users = $query
+            ->orderBy('first_name')
+            ->orderBy('name')
+            ->get();
+
+        $requiredIds = collect([
+            $user->id,
+            $visit?->user_id,
+            $visit?->responsible_user_id,
+        ])->filter()->unique();
+
+        $missingIds = $requiredIds->diff($users->modelKeys());
+
+        if ($missingIds->isNotEmpty()) {
+            $users = $users->concat(
+                User::query()
+                    ->select('id', 'first_name', 'name', 'title', 'department_id')
+                    ->whereIn('id', $missingIds)
+                    ->get()
+            );
+        }
+
+        return $users
+            ->sortBy(fn (User $candidate) => ($candidate->id === $user->id ? '0-' : '1-').mb_strtolower(trim($candidate->first_name.' '.$candidate->name)))
+            ->values();
+    }
+
+    /**
+     * @return array<int, int>
+     */
+    public function assignableUserIds(User $user, ?Visit $visit = null): array
+    {
+        return $this->assignableUsers($user, $visit)
+            ->modelKeys();
+    }
 
     public function viewAny(User $user): bool
     {
