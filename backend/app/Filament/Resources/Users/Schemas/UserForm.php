@@ -14,27 +14,35 @@ class UserForm
         return $schema
             ->components([
                 Select::make('department_id')
+                    ->label(__('Abteilung'))
                     ->relationship('department', 'name')
                     ->preload(),
                 TextInput::make('first_name')
+                    ->label(__('Vorname'))
                     ->required(),
                 TextInput::make('name')
+                    ->label(__('Nachname'))
                     ->required(),
                 Select::make('roles')
+                    ->label(__('Rollen'))
                     ->relationship('roles', 'name')
                     ->multiple()
                     ->preload()
                     ->searchable(),
-                TextInput::make('title'),
+                TextInput::make('title')
+                    ->label(__('Titel')),
                 Select::make('gender')
+                    ->label(__('Geschlecht'))
                     ->options(GenderEnum::class)
                     ->required()
                     ->preload()
                     ->default(GenderEnum::Not_Specified),
                 TextInput::make('email')
+                    ->label(__('E-Mail'))
                     ->email()
                     ->required(),
                 TextInput::make('password')
+                    ->label(__('Passwort'))
                     ->password()
                     ->required(),
             ]);
