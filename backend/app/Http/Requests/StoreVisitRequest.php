@@ -3,6 +3,8 @@
 namespace App\Http\Requests;
 
 use App\Enums\VisitStatusEnum;
+use App\Models\Visit;
+use App\Policies\VisitPolicy;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
@@ -15,10 +17,13 @@ class StoreVisitRequest extends FormRequest
 
     public function rules(): array
     {
+        $visit = $this->route('visit');
+        $assignableUserIds = app(VisitPolicy::class)->assignableUserIds($this->user(), $visit);
+
         return [
             'title' => ['required', 'string', 'max:255'],
-            'user_id' => ['required', 'integer', 'exists:users,id'],
-            'responsible_user_id' => ['nullable', 'integer', 'exists:users,id'],
+            'user_id' => ['required', 'integer', 'exists:users,id', Rule::in($assignableUserIds)],
+            'responsible_user_id' => ['nullable', 'integer', 'exists:users,id', Rule::in($assignableUserIds)],
             'scheduled_from' => ['required', 'date', 'after_or_equal:1970-01-01'],
             'scheduled_until' => ['required', 'date', 'after:scheduled_from', 'after_or_equal:1970-01-01'],
             'status' => ['required', 'string', Rule::in(VisitStatusEnum::values())],
