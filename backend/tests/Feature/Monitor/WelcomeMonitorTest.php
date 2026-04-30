@@ -9,6 +9,7 @@ use App\Models\Visitor;
 use App\Tasks\WelcomeMonitorAutoGeneration;
 use Carbon\Carbon;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Queue;
 use Livewire\Livewire;
 use Tests\Support\PermissionHelper;
 use Tests\TestCase;
@@ -19,6 +20,8 @@ class WelcomeMonitorTest extends TestCase
 
     public function test_monitor_settings_can_be_saved_from_the_livewire_editor(): void
     {
+        Queue::fake();
+
         $user = $this->monitorUser();
         $monitor = Monitor::query()->create([
             'name' => 'Empfang',
@@ -50,6 +53,8 @@ class WelcomeMonitorTest extends TestCase
         $this->assertSame('none', $monitor->content_card_style);
 
         $this->assertSame(0, $monitor->monitorSlides()->count());
+
+        Queue::assertPushed(WelcomeMonitorAutoGeneration::class);
     }
 
     public function test_fallback_page_can_be_updated_from_its_dedicated_edit_flow(): void
