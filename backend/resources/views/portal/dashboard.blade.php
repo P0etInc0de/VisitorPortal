@@ -7,8 +7,8 @@
         </div>
     </x-slot>
 
-    <div class="grid gap-4">
-        <section class="grid gap-4 md:grid-cols-2 xl:grid-cols-3 lg:sticky lg:top-24 lg:z-10 lg:bg-gradient-to-b lg:from-base-200 lg:via-base-200 lg:to-transparent lg:pb-1">
+    <div class="grid gap-4 lg:h-[calc(100dvh-9.5rem)] lg:min-h-0 lg:grid-rows-[auto_minmax(0,1fr)]">
+        <section class="grid gap-4 md:grid-cols-2 xl:grid-cols-3 lg:shrink-0">
             @foreach ($stats as $stat)
                 <article class="rounded-3xl border border-base-300 bg-base-100 shadow-sm rounded-[1.2rem]">
                     <div class="p-4 sm:p-[1.05rem]">
@@ -22,16 +22,16 @@
             @endforeach
         </section>
 
-        <section class="grid items-start gap-4 xl:grid-cols-[minmax(0,1.45fr)_minmax(18rem,0.72fr)]">
-            <article class="rounded-3xl border border-base-300 bg-base-100 shadow-sm rounded-[1.35rem]">
-                <div class="p-4 sm:p-[1.05rem]">
+        <section class="grid items-start gap-4 lg:min-h-0 xl:grid-cols-[minmax(0,1.45fr)_minmax(18rem,0.72fr)]">
+            <article class="rounded-3xl border border-base-300 bg-base-100 shadow-sm rounded-[1.35rem] lg:flex lg:h-full lg:min-h-0 lg:flex-col lg:overflow-hidden">
+                <div class="p-4 sm:p-[1.05rem] lg:flex lg:h-full lg:min-h-0 lg:flex-col">
                     <div class="mb-3 flex items-center justify-between gap-4">
                         <h2 class="text-[1.35rem] font-bold leading-tight tracking-tight text-base-content">
                             {{ __('Anstehende Besuche') }}
                         </h2>
                     </div>
 
-                    <div class="grid gap-3">
+                    <div class="grid gap-3 lg:min-h-0 lg:flex-1 lg:overflow-y-auto lg:overscroll-contain lg:pr-1">
                         @forelse ($visits as $visit)
                             <article class="grid gap-3 rounded-[1.1rem] border border-base-300 bg-base-100/95 p-4 xl:grid-cols-[5rem_minmax(0,1fr)_auto] xl:items-start xl:gap-3.5">
                                 <div class="flex flex-col self-stretch">
