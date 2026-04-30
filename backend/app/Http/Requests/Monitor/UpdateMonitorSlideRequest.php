@@ -26,7 +26,10 @@ class UpdateMonitorSlideRequest extends FormRequest
      */
     public function rules(): array
     {
-        $maxSlide = MonitorSlide::max('slide_number');
+        $monitor = $this->route('monitor');
+        $maxSlide = max(1, (int) MonitorSlide::query()
+            ->where('monitor_id', $monitor->id)
+            ->max('slide_number'));
 
         return [
             'visitors' => ['nullable', 'json'],
@@ -36,6 +39,7 @@ class UpdateMonitorSlideRequest extends FormRequest
                 'integer',
                 'between:1,'.$maxSlide,
             ],
+            'is_active' => 'boolean',
             'show_logo' => 'boolean',
             'show_date' => 'boolean',
             'show_time' => 'boolean',

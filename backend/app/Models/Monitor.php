@@ -31,6 +31,7 @@ class Monitor extends Model
         'image_path',
         'background_source',
         'background_overlay_enabled',
+        'header_text_is_light',
         'content_card_style',
         'auto_generation',
         'auto_generation_window_minutes',
@@ -45,6 +46,7 @@ class Monitor extends Model
     protected $casts = [
         'auto_generation' => 'boolean',
         'background_overlay_enabled' => 'boolean',
+        'header_text_is_light' => 'boolean',
         'transition_time_milliseconds' => 'integer',
         'auto_generation_window_minutes' => 'integer',
         'fallback_show_logo' => 'boolean',
@@ -78,6 +80,7 @@ class Monitor extends Model
             'auto_generation_window_minutes' => self::DEFAULT_AUTO_GENERATION_WINDOW_MINUTES,
             'background_source' => self::DEFAULT_BACKGROUND_SOURCE,
             'background_overlay_enabled' => false,
+            'header_text_is_light' => false,
             'content_card_style' => self::DEFAULT_CONTENT_CARD_STYLE,
             'fallback_heading' => self::DEFAULT_FALLBACK_HEADING,
             'fallback_subheading' => self::DEFAULT_FALLBACK_SUBHEADING,

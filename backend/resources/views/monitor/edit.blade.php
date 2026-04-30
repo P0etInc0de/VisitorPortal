@@ -11,7 +11,7 @@
     <div class="grid gap-6 xl:grid-cols-[minmax(0,1.1fr)_minmax(360px,0.9fr)]">
 
         {{-- LEFT AREA --}}
-        <div class="space-y-6">
+        <div class="space-y-6" id="monitor-pages">
 
             <x-bp.card title="{{ __('Monitor Seiten') }}">
                 <livewire:monitor.index-monitor-slides :monitor="$monitor" />
@@ -20,7 +20,7 @@
         </div>
         {{-- RIGHT AREA --}}
         <aside class="space-y-6">
-            <x-bp.card title="{{ __('Vorschau') }}" class="p-4">
+            <x-bp.card id="monitor-preview" title="{{ __('Vorschau') }}" class="p-4">
                 <x-slot:actions>
                     <a
                         href="{{ route('monitors.show', $monitor) }}"
@@ -58,7 +58,7 @@
                 </div>
             </x-bp.card>
 
-            <x-bp.card title="{{__('Monitor Einstellungen')}}">
+            <x-bp.card id="monitor-settings" title="{{__('Monitor Einstellungen')}}">
                 <livewire:monitor.settings-form :monitor="$monitor" />
             </x-bp.card>
         </aside>

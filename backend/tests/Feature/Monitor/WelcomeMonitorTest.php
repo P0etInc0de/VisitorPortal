@@ -37,6 +37,7 @@ class WelcomeMonitorTest extends TestCase
             ->set('autoGenerationWindowMinutes', 45)
             ->set('backgroundSource', 'preset-3')
             ->set('backgroundOverlayEnabled', true)
+            ->set('headerTextIsLight', true)
             ->set('contentCardStyle', 'none')
             ->call('save')
             ->assertHasNoErrors();
@@ -48,6 +49,7 @@ class WelcomeMonitorTest extends TestCase
         $this->assertSame(45, $monitor->auto_generation_window_minutes);
         $this->assertSame('preset-3', $monitor->background_source);
         $this->assertTrue($monitor->background_overlay_enabled);
+        $this->assertTrue($monitor->header_text_is_light);
         $this->assertSame('none', $monitor->content_card_style);
 
         Queue::assertPushed(WelcomeMonitorAutoGeneration::class);
@@ -72,7 +74,7 @@ class WelcomeMonitorTest extends TestCase
                 'background_source' => 'preset-2',
             ]);
 
-        $response->assertRedirect(route('monitors.edit', $monitor));
+        $response->assertRedirect(route('monitors.edit', $monitor).'#monitor-pages');
 
         $monitor->refresh();
 
@@ -98,24 +100,30 @@ class WelcomeMonitorTest extends TestCase
                 'heading' => 'Herzlich willkommen!',
                 'subheading' => 'Schön, dass Sie da sind!',
                 'slide_number' => 1,
+                'is_active' => '0',
                 'show_logo' => '1',
                 'show_date' => '1',
                 'background_source' => 'inherit',
-                'visitors' => json_encode([]),
+                'visitors' => json_encode([
+                    ['id' => null, 'name' => 'Theo Pünktlich'],
+                ]),
             ]);
 
-        $response->assertRedirect(route('monitors.edit', $monitor));
+        $response->assertRedirect(route('monitors.edit', $monitor).'#monitor-pages');
 
         $slide = $monitor->monitorSlides()->sole();
 
         $this->assertSame('Herzlich willkommen!', $slide->heading);
         $this->assertSame('Schön, dass Sie da sind!', $slide->subheading);
         $this->assertSame(1, $slide->slide_number);
+        $this->assertFalse($slide->is_active);
         $this->assertTrue($slide->show_logo);
         $this->assertTrue($slide->show_date);
         $this->assertNull($slide->background_source);
         $this->assertNull($slide->image_path);
-        $this->assertSame([], $slide->visitors);
+        $this->assertSame([
+            ['id' => null, 'name' => 'Theo Pünktlich'],
+        ], $slide->visitors);
     }
 
     public function test_monitor_slide_can_be_updated_from_the_editor_flow(): void
@@ -142,26 +150,93 @@ class WelcomeMonitorTest extends TestCase
                 'heading' => 'Neue Seite',
                 'subheading' => 'Aktualisiert',
                 'slide_number' => 1,
+                'is_active' => '1',
                 'show_logo' => '0',
                 'show_date' => '0',
                 'background_source' => 'preset-2',
                 'visitors' => json_encode([
                     ['id' => 5, 'name' => 'Theo Pünktlich'],
+                    ['id' => null, 'name' => 'Gast ohne Termin'],
                 ]),
             ]);
 
-        $response->assertRedirect(route('monitors.edit', $monitor));
+        $response->assertRedirect(route('monitors.edit', $monitor).'#monitor-pages');
 
         $slide->refresh();
 
         $this->assertSame('Neue Seite', $slide->heading);
         $this->assertSame('Aktualisiert', $slide->subheading);
+        $this->assertTrue($slide->is_active);
         $this->assertFalse($slide->show_logo);
         $this->assertFalse($slide->show_date);
         $this->assertSame('preset-2', $slide->background_source);
         $this->assertSame([
             ['id' => 5, 'name' => 'Theo Pünktlich'],
+            ['id' => null, 'name' => 'Gast ohne Termin'],
         ], $slide->visitors);
+    }
+
+    public function test_monitor_slide_editor_pages_render_the_new_manual_name_and_visibility_controls(): void
+    {
+        $user = $this->monitorUser();
+        $monitor = Monitor::query()->create([
+            'name' => 'Empfang',
+            'transition_time_milliseconds' => 5000,
+            'auto_generation' => false,
+        ]);
+
+        $slide = $monitor->monitorSlides()->create([
+            'heading' => 'Bestehende Seite',
+            'subheading' => 'Schon da',
+            'slide_number' => 1,
+            'is_active' => true,
+            'show_logo' => true,
+            'show_date' => true,
+            'visitors' => [],
+        ]);
+
+        $this
+            ->actingAs($user)
+            ->get(route('monitors.slides.create', $monitor))
+            ->assertOk()
+            ->assertSee(__('Seite aktiv'))
+            ->assertSee(__('Eigenen Namen hinzufügen'));
+
+        $this
+            ->actingAs($user)
+            ->get(route('monitors.slides.edit', [$monitor, $slide]))
+            ->assertOk()
+            ->assertSee(__('Seite aktiv'))
+            ->assertSee(__('Eigenen Namen hinzufügen'));
+    }
+
+    public function test_manual_page_visibility_can_be_toggled_from_the_editor_component(): void
+    {
+        $user = $this->monitorUser();
+        $monitor = Monitor::query()->create([
+            'name' => 'Empfang',
+            'transition_time_milliseconds' => 5000,
+            'auto_generation' => false,
+        ]);
+
+        $slide = $monitor->monitorSlides()->create([
+            'heading' => 'Sichtbar',
+            'subheading' => 'Noch aktiv',
+            'slide_number' => 1,
+            'is_active' => true,
+            'show_logo' => true,
+            'show_date' => true,
+            'visitors' => [],
+        ]);
+
+        $this->actingAs($user);
+
+        Livewire::test('monitor.index-monitor-slides', ['monitor' => $monitor])
+            ->call('toggleSlideVisibility', $slide->id);
+
+        $slide->refresh();
+
+        $this->assertFalse($slide->is_active);
     }
 
     public function test_auto_generation_uses_the_configured_monitor_window(): void
@@ -268,6 +343,73 @@ class WelcomeMonitorTest extends TestCase
             ->assertOk()
             ->assertSee('Sonderseite')
             ->assertSee('monitor-default-3.jpg');
+    }
+
+    public function test_live_display_renders_active_manual_pages_without_linked_visits(): void
+    {
+        $user = $this->monitorUser();
+        $monitor = Monitor::query()->create([
+            'name' => 'Empfang',
+            'transition_time_milliseconds' => 5000,
+            'auto_generation' => false,
+            'header_text_is_light' => true,
+        ]);
+
+        $monitor->monitorSlides()->create([
+            'heading' => 'Herzlich willkommen!',
+            'subheading' => 'Schön, dass Sie da sind!',
+            'slide_number' => 1,
+            'is_active' => true,
+            'show_logo' => true,
+            'show_date' => true,
+            'visitors' => [
+                ['id' => null, 'name' => 'Gast ohne Termin'],
+            ],
+        ]);
+
+        $response = $this
+            ->actingAs($user)
+            ->get(route('monitors.show', $monitor));
+
+        $response
+            ->assertOk()
+            ->assertSee('Herzlich willkommen!')
+            ->assertSee('Gast ohne Termin')
+            ->assertSee('text-white');
+    }
+
+    public function test_live_display_falls_back_when_all_manual_pages_are_inactive(): void
+    {
+        $user = $this->monitorUser();
+        $monitor = Monitor::query()->create([
+            'name' => 'Empfang',
+            'transition_time_milliseconds' => 5000,
+            'auto_generation' => false,
+            'fallback_heading' => 'Fallback aktiv',
+            'fallback_subheading' => 'Keine aktive Seite vorhanden.',
+        ]);
+
+        $monitor->monitorSlides()->create([
+            'heading' => 'Nicht sichtbar',
+            'subheading' => 'Inaktiv',
+            'slide_number' => 1,
+            'is_active' => false,
+            'show_logo' => true,
+            'show_date' => true,
+            'visitors' => [
+                ['id' => null, 'name' => 'Versteckt'],
+            ],
+        ]);
+
+        $response = $this
+            ->actingAs($user)
+            ->get(route('monitors.show', $monitor));
+
+        $response
+            ->assertOk()
+            ->assertSee('Fallback aktiv')
+            ->assertDontSee('Nicht sichtbar')
+            ->assertDontSee('Versteckt');
     }
 
     private function monitorUser()

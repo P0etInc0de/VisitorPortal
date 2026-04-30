@@ -18,6 +18,7 @@ class MonitorSlide extends Model
         'heading',
         'subheading',
         'slide_number',
+        'is_active',
         'show_logo',
         'show_date',
         'show_time',
@@ -27,6 +28,7 @@ class MonitorSlide extends Model
     ];
 
     protected $casts = [
+        'is_active' => 'boolean',
         'show_logo' => 'boolean',
         'show_date' => 'boolean',
         'show_time' => 'boolean',

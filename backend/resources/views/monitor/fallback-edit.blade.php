@@ -21,7 +21,7 @@
             </div>
 
             <div class="mt-6 flex justify-end gap-3">
-                <a type="button" class="btn-sm rounded-xl btn" href="{{ route('monitors.edit', $monitor) }}">{{ __('Abbrechen') }}</a>
+                <a type="button" class="btn-sm rounded-xl btn" href="{{ route('monitors.edit', $monitor) }}#monitor-pages">{{ __('Abbrechen') }}</a>
                 <input type="submit" class="btn btn-primary btn-sm rounded-xl" value="{{ __('Speichern') }}"/>
             </div>
         </form>
