@@ -88,59 +88,53 @@ new class extends Component {
 
         @forelse ($monitor_slides as $monitor_slide)
             <article class="mb-2 rounded-3xl border border-base-300 bg-base-100 px-5 py-5">
-                <div class="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
-                    <div class="min-w-0 flex-1">
-                        <div class="grid gap-x-6 gap-y-3 lg:grid-cols-[auto_minmax(0,1fr)] lg:items-start">
-                            <div class="pt-1 lg:row-span-2">
-                                <div class="text-[1.22rem] font-bold leading-none tracking-tight text-base-content">
-                                    {{ $monitor_slide->slide_number }}
-                                </div>
-                            </div>
-
-                            <div class="min-w-0">
-                                <div class="text-base font-bold leading-tight tracking-tight text-base-content">
-                                    {{ $monitor_slide->heading }}
-                                </div>
-                                @if($monitor_slide->subheading)
-                                    <p class="mt-1 text-sm text-slate-500">
-                                        {{ $monitor_slide->subheading }}
-                                    </p>
-                                @endif
-                            </div>
-
-                            @if(! empty($monitor_slide->visitors))
-                                <div class="lg:col-start-2">
-                                    <div class="grid w-fit max-w-full grid-cols-1 gap-2 sm:grid-cols-2 sm:gap-x-4">
-                                        @foreach($monitor_slide->visitors as $visitor)
-                                            <span class="inline-flex w-fit max-w-full items-center justify-self-start rounded-full border border-base-300 bg-base-200/60 px-2.5 py-1 text-xs leading-tight text-base-content/75">
-                                                {{ $visitor['name'] }}
-                                            </span>
-                                        @endforeach
-                                    </div>
-                                </div>
-                            @endif
+                <div class="grid gap-x-6 gap-y-3 lg:grid-cols-[auto_minmax(0,1fr)_auto_auto] lg:items-start">
+                    <div class="pt-1 lg:row-span-2">
+                        <div class="text-[1.22rem] font-bold leading-none tracking-tight text-base-content">
+                            {{ $monitor_slide->slide_number }}
                         </div>
                     </div>
 
-                    <div class="grid gap-3 lg:grid-cols-[auto_auto] lg:items-start lg:justify-end">
-                        <span class="badge rounded-full px-3 py-3 text-sm font-semibold {{ $monitor_slide->is_active ? 'badge-success' : 'badge-ghost' }}">
-                            {{ $monitor_slide->is_active ? __('Aktiv') : __('Inaktiv') }}
-                        </span>
-
-                        @if($monitor->auto_generation === false)
-                            <div class="flex flex-col items-end gap-2">
-                                <a href="{{ route('monitors.slides.edit', [$monitor->id, $monitor_slide->id]) }}" class="btn-sm rounded-xl btn min-w-[6.5rem] px-3 justify-center">
-                                    {{ __('Bearbeiten') }}
-                                </a>
-                                <button type="button" class="btn-sm rounded-xl btn min-w-[6.5rem] px-3 justify-center" wire:click="toggleSlideVisibility({{ $monitor_slide->id }})">
-                                    {{ $monitor_slide->is_active ? __('Ausblenden') : __('Anzeigen') }}
-                                </button>
-                                <button type="button" class="btn-sm rounded-xl btn min-w-[6.5rem] px-3 justify-center" x-on:click="if (confirm('{{ __('Sicher löschen?') }}')) { $wire.deleteSlide({{ $monitor_slide->id }}) }">
-                                    {{ __('Löschen') }}
-                                </button>
-                            </div>
+                    <div class="min-w-0">
+                        <div class="text-base font-bold leading-tight tracking-tight text-base-content">
+                            {{ $monitor_slide->heading }}
+                        </div>
+                        @if($monitor_slide->subheading)
+                            <p class="mt-1 text-sm text-slate-500">
+                                {{ $monitor_slide->subheading }}
+                            </p>
                         @endif
                     </div>
+
+                    <span class="badge rounded-full px-3 py-3 text-sm font-semibold lg:self-start {{ $monitor_slide->is_active ? 'badge-success' : 'badge-ghost' }}">
+                        {{ $monitor_slide->is_active ? __('Aktiv') : __('Inaktiv') }}
+                    </span>
+
+                    @if($monitor->auto_generation === false)
+                        <div class="flex flex-col items-end gap-2 lg:row-span-2">
+                            <a href="{{ route('monitors.slides.edit', [$monitor->id, $monitor_slide->id]) }}" class="btn-sm rounded-xl btn min-w-[6.5rem] px-3 justify-center">
+                                {{ __('Bearbeiten') }}
+                            </a>
+                            <button type="button" class="btn-sm rounded-xl btn min-w-[6.5rem] px-3 justify-center" wire:click="toggleSlideVisibility({{ $monitor_slide->id }})">
+                                {{ $monitor_slide->is_active ? __('Ausblenden') : __('Anzeigen') }}
+                            </button>
+                            <button type="button" class="btn-sm rounded-xl btn min-w-[6.5rem] px-3 justify-center" x-on:click="if (confirm('{{ __('Sicher löschen?') }}')) { $wire.deleteSlide({{ $monitor_slide->id }}) }">
+                                {{ __('Löschen') }}
+                            </button>
+                        </div>
+                    @endif
+
+                    @if(! empty($monitor_slide->visitors))
+                        <div class="lg:col-start-2 lg:col-end-4">
+                            <div class="grid max-w-full grid-cols-1 gap-2 sm:grid-cols-2 sm:gap-x-4">
+                                @foreach($monitor_slide->visitors as $visitor)
+                                    <span class="inline-flex w-fit max-w-full items-center justify-self-start rounded-full border border-base-300 bg-base-200/60 px-2.5 py-1 text-xs leading-tight text-base-content/75">
+                                        {{ $visitor['name'] }}
+                                    </span>
+                                @endforeach
+                            </div>
+                        </div>
+                    @endif
                 </div>
             </article>
         @empty
