@@ -1,0 +1,24 @@
+<diagram program="umletino" version="15.1"><zoom_level>8</zoom_level><help_text>Space for diagram notes</help_text><element><id>UMLClass</id><coordinates><x>32</x><y>296</y><w>488</w><h>88</h></coordinates><panel_attributes>MonitorController
+--
++ show(monitor: Monitor): View
++ edit(monitor: Monitor): View
++ update(request: UpdateMonitorRequest, monitor: Monitor): RedirectResponse
++ editFallbackPage(monitor: Monitor): View
++ updateFallbackPage(request: UpdateMonitorFallbackPageRequest, monitor: Monitor): RedirectResponse
+
+
+
+</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>552</x><y>144</y><w>80</w><h>32</h></coordinates><panel_attributes>Controller
+(Laravel)
+</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>336</x><y>152</y><w>232</w><h>160</h></coordinates><panel_attributes>lt=&lt;&lt;-</panel_attributes><additional_attributes>270;10;10;10;10;180</additional_attributes></element><element><id>UMLClass</id><coordinates><x>560</x><y>504</y><w>80</w><h>32</h></coordinates><panel_attributes>Routes</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>336</x><y>376</y><w>240</w><h>160</h></coordinates><panel_attributes>lt=&lt;-</panel_attributes><additional_attributes>10;10;10;180;280;180</additional_attributes></element><element><id>UMLClass</id><coordinates><x>560</x><y>296</y><w>488</w><h>96</h></coordinates><panel_attributes>MonitorSlidesController
+--
++ create(monitor: Monitor): View
++ store(request: StoreMonitorSlideRequest, monitor: Monitor): RedirectResponse
++ edit(monitor: Monitor, slide: MonitorSlide): View
++ update(request: UpdateMonitorSlideRequest, monitor: Monitor, slide: MonitorSlide): RedirectResponse
++ destroy(monitor: Monitor, slide: MonitorSlide): RedirectResponse
+- prepareBackgroundData(request: Request, validated: array, slide: MonitorSlide = null): array
+
+
+
+</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>624</x><y>152</y><w>216</w><h>160</h></coordinates><panel_attributes>lt=&lt;&lt;-</panel_attributes><additional_attributes>10;10;250;10;250;180</additional_attributes></element><element><id>Relation</id><coordinates><x>632</x><y>384</y><w>216</w><h>152</h></coordinates><panel_attributes>lt=&lt;-</panel_attributes><additional_attributes>250;10;250;170;10;170</additional_attributes></element></diagram>
