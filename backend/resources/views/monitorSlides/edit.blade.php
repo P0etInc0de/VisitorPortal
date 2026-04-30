@@ -42,7 +42,7 @@
 
     </x-bp.card>
 
-    <x-bp.card title="{{ __('Heutige Besuche') }}">
+    <x-bp.card :title="__('Heutige Besuche')">
         @foreach ($todayVisits as $visit)
             <x-bp.list-item :title="$visit->title">
                 <x-slot:index>

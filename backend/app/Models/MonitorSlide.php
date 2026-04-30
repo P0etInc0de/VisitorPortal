@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Facades\Storage;
 
 class MonitorSlide extends Model
@@ -26,6 +27,9 @@ class MonitorSlide extends Model
     ];
 
     protected $casts = [
+        'show_logo' => 'boolean',
+        'show_date' => 'boolean',
+        'show_time' => 'boolean',
         'visitors' => 'array',
     ];
 
