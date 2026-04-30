@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers\Portal;
 
-use App\Http\Controllers\Controller;
 use App\Enums\VisitStatusEnum;
+use App\Http\Controllers\Controller;
 use App\Models\Monitor;
 use App\Models\Visit;
 use App\Models\Visitor;
