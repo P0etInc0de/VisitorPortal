@@ -83,6 +83,87 @@ class WelcomeMonitorTest extends TestCase
         $this->assertSame('preset-2', $monitor->fallback_background_source);
     }
 
+    public function test_monitor_slide_can_be_created_from_the_editor_flow(): void
+    {
+        $user = $this->monitorUser();
+        $monitor = Monitor::query()->create([
+            'name' => 'Empfang',
+            'transition_time_milliseconds' => 5000,
+            'auto_generation' => false,
+        ]);
+
+        $response = $this
+            ->actingAs($user)
+            ->post(route('monitors.slides.store', $monitor), [
+                'heading' => 'Herzlich willkommen!',
+                'subheading' => 'Schön, dass Sie da sind!',
+                'slide_number' => 1,
+                'show_logo' => '1',
+                'show_date' => '1',
+                'background_source' => 'inherit',
+                'visitors' => json_encode([]),
+            ]);
+
+        $response->assertRedirect(route('monitors.edit', $monitor));
+
+        $slide = $monitor->monitorSlides()->sole();
+
+        $this->assertSame('Herzlich willkommen!', $slide->heading);
+        $this->assertSame('Schön, dass Sie da sind!', $slide->subheading);
+        $this->assertSame(1, $slide->slide_number);
+        $this->assertTrue($slide->show_logo);
+        $this->assertTrue($slide->show_date);
+        $this->assertNull($slide->background_source);
+        $this->assertNull($slide->image_path);
+        $this->assertSame([], $slide->visitors);
+    }
+
+    public function test_monitor_slide_can_be_updated_from_the_editor_flow(): void
+    {
+        $user = $this->monitorUser();
+        $monitor = Monitor::query()->create([
+            'name' => 'Empfang',
+            'transition_time_milliseconds' => 5000,
+            'auto_generation' => false,
+        ]);
+
+        $slide = $monitor->monitorSlides()->create([
+            'heading' => 'Alte Seite',
+            'subheading' => 'Alt',
+            'slide_number' => 1,
+            'show_logo' => true,
+            'show_date' => true,
+            'visitors' => [],
+        ]);
+
+        $response = $this
+            ->actingAs($user)
+            ->put(route('monitors.slides.update', [$monitor, $slide]), [
+                'heading' => 'Neue Seite',
+                'subheading' => 'Aktualisiert',
+                'slide_number' => 1,
+                'show_logo' => '0',
+                'show_date' => '0',
+                'background_source' => 'preset-2',
+                'visitors' => json_encode([
+                    ['id' => 5, 'name' => 'Theo Pünktlich'],
+                ]),
+            ]);
+
+        $response->assertRedirect(route('monitors.edit', $monitor));
+
+        $slide->refresh();
+
+        $this->assertSame('Neue Seite', $slide->heading);
+        $this->assertSame('Aktualisiert', $slide->subheading);
+        $this->assertFalse($slide->show_logo);
+        $this->assertFalse($slide->show_date);
+        $this->assertSame('preset-2', $slide->background_source);
+        $this->assertSame([
+            ['id' => 5, 'name' => 'Theo Pünktlich'],
+        ], $slide->visitors);
+    }
+
     public function test_auto_generation_uses_the_configured_monitor_window(): void
     {
         Carbon::setTestNow('2026-04-24 10:00:00');
