@@ -12,11 +12,11 @@ new class extends Component {
 
     public Monitor $monitor;
 
-    public int $transitionTimeSeconds = 5;
+    public $transitionTimeSeconds = '5';
 
     public bool $autoGeneration = true;
 
-    public int $autoGenerationWindowMinutes = 30;
+    public $autoGenerationWindowMinutes = '30';
 
     public string $backgroundSource = Monitor::DEFAULT_BACKGROUND_SOURCE;
 
@@ -57,6 +57,10 @@ new class extends Component {
             $this->resetErrorBag('image');
         }
 
+        if (in_array($property, ['transitionTimeSeconds', 'autoGenerationWindowMinutes'], true)) {
+            $this->validateOnly($property);
+        }
+
         $this->refreshDirtyState();
     }
 
@@ -79,9 +83,9 @@ new class extends Component {
     {
         $defaults = Monitor::defaultSettings();
 
-        $this->transitionTimeSeconds = (int) ($defaults['transition_time_milliseconds'] / 1000);
+        $this->transitionTimeSeconds = (string) (int) ($defaults['transition_time_milliseconds'] / 1000);
         $this->autoGeneration = (bool) $defaults['auto_generation'];
-        $this->autoGenerationWindowMinutes = (int) $defaults['auto_generation_window_minutes'];
+        $this->autoGenerationWindowMinutes = (string) (int) $defaults['auto_generation_window_minutes'];
         $this->backgroundSource = (string) $defaults['background_source'];
         $this->backgroundOverlayEnabled = (bool) $defaults['background_overlay_enabled'];
         $this->headerTextIsLight = (bool) $defaults['header_text_is_light'];
@@ -99,16 +103,7 @@ new class extends Component {
             return;
         }
 
-        $validated = $this->validate([
-            'transitionTimeSeconds' => ['required', 'integer', 'between:1,50'],
-            'autoGeneration' => ['boolean'],
-            'autoGenerationWindowMinutes' => ['required', 'integer', 'between:1,180'],
-            'backgroundSource' => ['required', 'in:preset-1,preset-2,preset-3,upload'],
-            'backgroundOverlayEnabled' => ['boolean'],
-            'headerTextIsLight' => ['boolean'],
-            'contentCardStyle' => ['required', 'in:solid,transparent,none'],
-            'image' => ['nullable', 'image', 'mimes:jpeg,jpg,png,webp', 'max:20000'],
-        ]);
+        $validated = $this->validate();
 
         if (
             $validated['backgroundSource'] === 'upload'
@@ -138,9 +133,9 @@ new class extends Component {
         }
 
         $this->monitor->update([
-            'transition_time_milliseconds' => $validated['transitionTimeSeconds'] * 1000,
+            'transition_time_milliseconds' => (int) $validated['transitionTimeSeconds'] * 1000,
             'auto_generation' => $validated['autoGeneration'],
-            'auto_generation_window_minutes' => $validated['autoGenerationWindowMinutes'],
+            'auto_generation_window_minutes' => (int) $validated['autoGenerationWindowMinutes'],
             'background_source' => $validated['backgroundSource'],
             'background_overlay_enabled' => $validated['backgroundOverlayEnabled'],
             'header_text_is_light' => $validated['headerTextIsLight'],
@@ -168,9 +163,9 @@ new class extends Component {
     protected function syncFromMonitor(): void
     {
         $this->monitor->refresh();
-        $this->transitionTimeSeconds = max(1, (int) round($this->monitor->transition_time_milliseconds / 1000));
+        $this->transitionTimeSeconds = (string) max(1, (int) round($this->monitor->transition_time_milliseconds / 1000));
         $this->autoGeneration = (bool) $this->monitor->auto_generation;
-        $this->autoGenerationWindowMinutes = (int) ($this->monitor->auto_generation_window_minutes ?: Monitor::DEFAULT_AUTO_GENERATION_WINDOW_MINUTES);
+        $this->autoGenerationWindowMinutes = (string) (int) ($this->monitor->auto_generation_window_minutes ?: Monitor::DEFAULT_AUTO_GENERATION_WINDOW_MINUTES);
         $this->backgroundSource = $this->monitor->resolvedBackgroundSource();
         $this->backgroundOverlayEnabled = (bool) $this->monitor->background_overlay_enabled;
         $this->headerTextIsLight = (bool) $this->monitor->header_text_is_light;
@@ -207,6 +202,32 @@ new class extends Component {
             'contentCardStyle' => $this->contentCardStyle,
             'hasPendingUpload' => $this->image !== null,
             'removeExistingImage' => $this->removeExistingImage,
+        ];
+    }
+
+    protected function rules(): array
+    {
+        return [
+            'transitionTimeSeconds' => ['required', 'integer', 'between:1,50'],
+            'autoGeneration' => ['boolean'],
+            'autoGenerationWindowMinutes' => ['required', 'integer', 'between:1,180'],
+            'backgroundSource' => ['required', 'in:preset-1,preset-2,preset-3,upload'],
+            'backgroundOverlayEnabled' => ['boolean'],
+            'headerTextIsLight' => ['boolean'],
+            'contentCardStyle' => ['required', 'in:solid,transparent,none'],
+            'image' => ['nullable', 'image', 'mimes:jpeg,jpg,png,webp', 'max:20000'],
+        ];
+    }
+
+    protected function messages(): array
+    {
+        return [
+            'autoGenerationWindowMinutes.required' => __('Bitte geben Sie eine Zahl zwischen 1 und 180 ein.'),
+            'autoGenerationWindowMinutes.integer' => __('Bitte geben Sie eine Zahl zwischen 1 und 180 ein.'),
+            'autoGenerationWindowMinutes.between' => __('Bitte geben Sie eine Zahl zwischen 1 und 180 ein.'),
+            'transitionTimeSeconds.required' => __('Bitte geben Sie eine Zahl zwischen 1 und 50 ein.'),
+            'transitionTimeSeconds.integer' => __('Bitte geben Sie eine Zahl zwischen 1 und 50 ein.'),
+            'transitionTimeSeconds.between' => __('Bitte geben Sie eine Zahl zwischen 1 und 50 ein.'),
         ];
     }
 };
@@ -267,9 +288,11 @@ new class extends Component {
             <div class="md:w-1/3 md:max-w-[15rem]">
                 <input
                     id="auto-window-minutes"
-                    type="number"
+                    type="text"
                     min="1"
                     max="180"
+                    inputmode="numeric"
+                    autocomplete="off"
                     wire:model.live="autoGenerationWindowMinutes"
                     class="input input-bordered h-10 w-full rounded-xl border-slate-300 bg-white text-sm focus:border-indigo-500 transition-all"
                 >
@@ -284,9 +307,11 @@ new class extends Component {
             <div class="md:w-1/3 md:max-w-[15rem]">
                 <input
                     id="transition-time-seconds"
-                    type="number"
+                    type="text"
                     min="1"
                     max="50"
+                    inputmode="numeric"
+                    autocomplete="off"
                     wire:model.live="transitionTimeSeconds"
                     class="input input-bordered h-10 w-full rounded-xl border-slate-300 bg-white text-sm focus:border-indigo-500 transition-all"
                 >
