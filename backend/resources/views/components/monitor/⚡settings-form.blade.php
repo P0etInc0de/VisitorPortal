@@ -22,6 +22,8 @@ new class extends Component {
 
     public bool $backgroundOverlayEnabled = false;
 
+    public bool $headerTextIsLight = false;
+
     public string $contentCardStyle = Monitor::DEFAULT_CONTENT_CARD_STYLE;
 
     public $image = null;
@@ -82,6 +84,7 @@ new class extends Component {
         $this->autoGenerationWindowMinutes = (int) $defaults['auto_generation_window_minutes'];
         $this->backgroundSource = (string) $defaults['background_source'];
         $this->backgroundOverlayEnabled = (bool) $defaults['background_overlay_enabled'];
+        $this->headerTextIsLight = (bool) $defaults['header_text_is_light'];
         $this->contentCardStyle = (string) $defaults['content_card_style'];
         $this->image = null;
         $this->removeExistingImage = filled($this->existingImagePath);
@@ -92,12 +95,17 @@ new class extends Component {
 
     public function save(): void
     {
+        if (! $this->isDirty) {
+            return;
+        }
+
         $validated = $this->validate([
             'transitionTimeSeconds' => ['required', 'integer', 'between:1,50'],
             'autoGeneration' => ['boolean'],
             'autoGenerationWindowMinutes' => ['required', 'integer', 'between:1,180'],
             'backgroundSource' => ['required', 'in:preset-1,preset-2,preset-3,upload'],
             'backgroundOverlayEnabled' => ['boolean'],
+            'headerTextIsLight' => ['boolean'],
             'contentCardStyle' => ['required', 'in:solid,transparent,none'],
             'image' => ['nullable', 'image', 'mimes:jpeg,jpg,png,webp', 'max:20000'],
         ]);
@@ -135,6 +143,7 @@ new class extends Component {
             'auto_generation_window_minutes' => $validated['autoGenerationWindowMinutes'],
             'background_source' => $validated['backgroundSource'],
             'background_overlay_enabled' => $validated['backgroundOverlayEnabled'],
+            'header_text_is_light' => $validated['headerTextIsLight'],
             'content_card_style' => $validated['contentCardStyle'],
             'image_path' => $imagePath,
         ]);
@@ -142,7 +151,11 @@ new class extends Component {
         Log::info('User ID '.auth()->id()." updated settings for Monitor ID: {$this->monitor->id}");
 
         if ($this->monitor->auto_generation) {
-            dispatch(new WelcomeMonitorAutoGeneration);
+            app(WelcomeMonitorAutoGeneration::class)();
+        } else {
+            $this->monitor->monitorSlides()
+                ->where('is_auto_generated', true)
+                ->delete();
         }
 
         $this->monitor->refresh();
@@ -160,6 +173,7 @@ new class extends Component {
         $this->autoGenerationWindowMinutes = (int) ($this->monitor->auto_generation_window_minutes ?: Monitor::DEFAULT_AUTO_GENERATION_WINDOW_MINUTES);
         $this->backgroundSource = $this->monitor->resolvedBackgroundSource();
         $this->backgroundOverlayEnabled = (bool) $this->monitor->background_overlay_enabled;
+        $this->headerTextIsLight = (bool) $this->monitor->header_text_is_light;
         $this->contentCardStyle = $this->monitor->content_card_style ?: Monitor::DEFAULT_CONTENT_CARD_STYLE;
         $this->existingImagePath = $this->monitor->image_path;
         $this->image = null;
@@ -189,6 +203,7 @@ new class extends Component {
             'autoGenerationWindowMinutes' => $this->autoGenerationWindowMinutes,
             'backgroundSource' => $this->backgroundSource,
             'backgroundOverlayEnabled' => $this->backgroundOverlayEnabled,
+            'headerTextIsLight' => $this->headerTextIsLight,
             'contentCardStyle' => $this->contentCardStyle,
             'hasPendingUpload' => $this->image !== null,
             'removeExistingImage' => $this->removeExistingImage,
@@ -383,6 +398,14 @@ new class extends Component {
             <p class="mt-1 text-sm text-slate-500">{{ __('Optionaler Aufheller für Texte auf kontrastreichen Bildern. Deaktiviert zeigt das Bild unverändert an.') }}</p>
         </div>
         <input type="checkbox" wire:model.live="backgroundOverlayEnabled" class="toggle toggle-primary shrink-0">
+    </div>
+
+    <div class="flex min-h-12 items-center justify-between gap-4 rounded-2xl border border-slate-200 bg-white px-4 py-3">
+        <div>
+            <div class="text-sm font-medium text-slate-900">{{ __('Heller Headertext') }}</div>
+            <p class="mt-1 text-sm text-slate-500">{{ __('Weiße Überschrift und Unterüberschrift für dunkle Hintergründe.') }}</p>
+        </div>
+        <input type="checkbox" wire:model.live="headerTextIsLight" class="toggle toggle-primary shrink-0">
     </div>
 
     <div class="flex flex-wrap items-center justify-between gap-3">

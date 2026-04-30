@@ -15,7 +15,16 @@ new class extends Component {
     {
         $this->monitor->refresh();
 
-        $slides = $this->monitor->monitorSlides()
+        $slidesQuery = $this->monitor->monitorSlides()
+            ->where('is_active', true);
+
+        if ($this->monitor->auto_generation) {
+            $slidesQuery->where('is_auto_generated', true);
+        } else {
+            $slidesQuery->where('is_auto_generated', false);
+        }
+
+        $slides = $slidesQuery
             ->orderBy('slide_number')
             ->get()
             ->map(fn (MonitorSlide $slide): array => [
@@ -74,6 +83,12 @@ new class extends Component {
         @php
             $hasLogo = file_exists(public_path('images/logo.png'));
             $cardStyle = $monitor->content_card_style ?: \App\Models\Monitor::DEFAULT_CONTENT_CARD_STYLE;
+            $headerTextClasses = $monitor->header_text_is_light
+                ? 'text-white drop-shadow-[0_8px_30px_rgba(15,23,42,0.4)]'
+                : 'text-slate-900';
+            $subheadingTextClasses = $monitor->header_text_is_light
+                ? 'text-white/90 drop-shadow-[0_8px_30px_rgba(15,23,42,0.35)]'
+                : 'text-[#1f2a44]/80';
             $contentCardClasses = match ($cardStyle) {
                 'solid' => 'rounded-[2rem] border border-slate-200 bg-white/95 shadow-[0_18px_44px_rgba(15,23,42,0.08)]',
                 'none' => 'rounded-[2rem] border border-transparent bg-transparent shadow-none',
@@ -111,15 +126,15 @@ new class extends Component {
 
                         <div class="flex flex-1 items-center justify-center py-6">
                             <div class="w-full max-w-[82rem]">
-                                <div class="flex flex-col items-center justify-center gap-6 text-center lg:flex-row lg:items-center lg:gap-8 lg:text-left">
+                                <div class="flex flex-col items-center justify-center gap-6 text-center sm:flex-row sm:items-center sm:justify-center sm:gap-8 sm:text-left lg:gap-10">
                                     @if ($slide['show_logo'] && $hasLogo)
-                                        <img src="{{ asset('images/logo.png') }}" alt="{{ __('Logo') }}" class="max-h-20 w-auto object-contain lg:max-h-24">
+                                        <img src="{{ asset('images/logo.png') }}" alt="{{ __('Logo') }}" class="max-h-28 w-auto object-contain sm:max-h-32 lg:max-h-36 {{ $monitor->header_text_is_light ? 'drop-shadow-[0_8px_30px_rgba(15,23,42,0.35)]' : '' }}">
                                     @endif
 
                                     <div>
-                                        <h1 class="text-center font-bold leading-[0.95] tracking-[-0.06em] text-[clamp(3rem,2.5rem+2vw,4.9rem)] lg:text-left xl:text-[clamp(4.2rem,3.3rem+2.6vw,6.3rem)]">{{ $slide['heading'] }}</h1>
+                                        <h1 class="text-center font-bold leading-[0.95] tracking-[-0.06em] text-[clamp(3rem,2.5rem+2vw,4.9rem)] sm:text-left xl:text-[clamp(4.2rem,3.3rem+2.6vw,6.3rem)] {{ $headerTextClasses }}">{{ $slide['heading'] }}</h1>
                                         @if (filled($slide['subheading']))
-                                            <h3 class="mx-auto mt-5 max-w-[58rem] text-center text-[clamp(1.2rem,1rem+0.55vw,1.7rem)] leading-[1.6] text-[#1f2a44]/80 lg:mx-0 lg:text-left">
+                                            <h3 class="mx-auto mt-5 max-w-[58rem] text-center text-[clamp(1.2rem,1rem+0.55vw,1.7rem)] leading-[1.6] sm:mx-0 sm:text-left {{ $subheadingTextClasses }}">
                                                 {{ $slide['subheading'] }}
                                             </h3>
                                         @endif

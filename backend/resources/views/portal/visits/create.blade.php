@@ -273,7 +273,7 @@
                                                 value="{{ $user->id }}"
                                                 @selected((int) old('user_id', $visit->user_id ?: auth()->id()) === $user->id)
                                             >
-                                                {{ $user->name }}
+                                                {{ $user->fullName }}
                                             </option>
                                         @endforeach
                                     </select>
@@ -295,7 +295,7 @@
                                                 value="{{ $user->id }}"
                                                 @selected((int) old('responsible_user_id', $visit->responsible_user_id) === $user->id)
                                             >
-                                                {{ $user->name }}
+                                                {{ $user->fullName }}
                                             </option>
                                         @endforeach
                                     </select>
@@ -310,7 +310,7 @@
                                         class="select select-bordered w-full @error('status') select-error @enderror"
                                     >
                                         @foreach (\App\Enums\VisitStatusEnum::options() as $value => $label)
-                                            <option value="{{ $value }}" @selected(old('status', $visit->status ?: 'draft') === $value)>
+                                            <option value="{{ $value }}" @selected(old('status', $visit->status ?: \App\Enums\VisitStatusEnum::Planned->value) === $value)>
                                                 {{ $label }}
                                             </option>
                                         @endforeach

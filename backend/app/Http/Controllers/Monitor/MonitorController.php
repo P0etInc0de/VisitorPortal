@@ -107,7 +107,7 @@ class MonitorController extends Controller
         ]));
 
         if ($monitor->auto_generation) {
-            dispatch(new WelcomeMonitorAutoGeneration);
+            app(WelcomeMonitorAutoGeneration::class)();
         }
 
         Log::info('User ID '.auth()->id()." updated settings for Monitor ID: {$monitor->id}");
@@ -167,7 +167,7 @@ class MonitorController extends Controller
 
         Log::info('User ID '.auth()->id()." updated fallback page for Monitor ID: {$monitor->id}");
 
-        return redirect()->route('monitors.edit', $monitor)
+        return redirect(route('monitors.edit', $monitor).'#monitor-pages')
             ->with('success', __('Allgemeine Begrüßungsseite gespeichert'));
     }
 

@@ -11,6 +11,44 @@ class VisitManagementTest extends TestCase
 {
     use RefreshDatabase;
 
+    public function test_visit_create_page_defaults_status_to_planned(): void
+    {
+        $user = (new PermissionHelper)->getUser();
+
+        $this
+            ->actingAs($user)
+            ->get(route('portal.visits.create'))
+            ->assertOk()
+            ->assertSee('option value="planned" selected', false);
+    }
+
+    public function test_visit_create_page_shows_full_user_names_for_host_and_substitute(): void
+    {
+        $user = (new PermissionHelper)->getUser();
+        $user->update([
+            'first_name' => 'User',
+            'name' => 'Admin',
+        ]);
+
+        $substitute = (new PermissionHelper)->getUser();
+        $substitute->update([
+            'first_name' => 'Clara',
+            'name' => 'Bergmann',
+        ]);
+
+        $response = $this
+            ->actingAs($user)
+            ->get(route('portal.visits.create'))
+            ->assertOk()
+            ->assertSee('User Admin')
+            ->assertSee('Clara Bergmann');
+
+        $this->assertMatchesRegularExpression(
+            '/<option\s+value="'.$user->id.'"[^>]*selected[^>]*>/i',
+            $response->getContent()
+        );
+    }
+
     public function test_visit_can_be_created_with_multiple_participants(): void
     {
         $user = (new PermissionHelper)->getUser();
