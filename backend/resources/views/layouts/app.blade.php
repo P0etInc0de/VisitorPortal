@@ -22,7 +22,7 @@
 <div class="min-h-screen" x-data="{ navOpen: false }">
     @include('layouts.navigation')
 
-    <div class="min-w-0 xl:ml-72">
+    <div class="min-w-0 lg:ml-72">
         @if (isset($header))
             <header class="relative z-20 border-b border-base-300/70 bg-base-100 [&_.btn]:min-h-11">
                 <div class="w-full max-w-none px-4 py-5 sm:px-6 lg:px-8">
