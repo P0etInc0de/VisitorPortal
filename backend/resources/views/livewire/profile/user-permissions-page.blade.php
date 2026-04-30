@@ -7,6 +7,9 @@
                     <p class="mt-2 max-w-3xl text-sm text-base-content/70">
                         {{ __('Hier siehst du kompakt, welche Rollen du hast und was du im Portal konkret machen darfst.') }}
                     </p>
+                    <p class="mt-2 max-w-3xl text-sm text-base-content/60">
+                        {{ __('Hinweis: Der Zugriff auf den Admin-Bereich wird rollenbasiert vergeben, zum Beispiel über die Rolle admin.') }}
+                    </p>
 
                     <div class="mt-3 flex flex-wrap gap-2">
                         @forelse ($summary['roles'] as $role)
