@@ -66,8 +66,8 @@ class VisitController extends Controller
         $this->authorize('view', $visit);
 
         $visit->load([
-            'host:id,name',
-            'responsibleUser:id,name',
+            'host:id,first_name,name,title',
+            'responsibleUser:id,first_name,name,title',
             'visitors' => fn ($query) => $query->orderBy('first_name')->orderBy('name'),
         ]);
 
