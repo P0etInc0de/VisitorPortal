@@ -9,12 +9,7 @@ Laravel liegt im Ordner `backend/`.
 - Git installiert
 - Repository lokal geklont
 
-## 1. Container bauen und starten
-```bash
-docker compose up -d --build
-````
-
-## 2. `.env` anlegen und konfigurieren
+## 1. `.env` anlegen und konfigurieren
 
 * Datei: `backend/.env` (nicht committen)
 * Falls noch nicht vorhanden:
@@ -27,6 +22,7 @@ Wichtige Werte für Docker:
 
 ```env
 APP_URL=http://localhost:8080
+APP_TIMEZONE=Europe/Berlin
 
 DB_CONNECTION=mysql
 DB_HOST=db
@@ -48,39 +44,50 @@ MAIL_FROM_NAME="Besucherportal"
 GITHUB_REPO_URL="https://github.com/P0etInc0de/Besucherportal"
 ```
 
+## 2. Web-Container bauen und starten
+```bash
+docker compose build web
+````
+
 ## 3. Installiere alle PHP-Abhängigkeiten, die in composer.json definiert sind
 
 ```bash
-docker compose exec web bash -lc "composer install"
+docker compose run --rm web composer install
+```
+
+## 4. Alle container bauen und starten
+
+```bash
+docker compose up -d --build
 ```
 
 Ergebnis: Alle Laravel-Pakete sind im Container verfügbar.
 
-## 4. App-Key generieren
+## 5. App-Key generieren
 
 ```bash
 docker compose exec web php artisan key:generate
 ```
 
-## 5. Migrationen ausführen
+## 6. Migrationen ausführen
 
 ```bash
 docker compose exec web bash -lc "php artisan migrate"
 ```
 
-## 5.1 Test-Datenbank erstellen
+## 6.1 Test-Datenbank erstellen
 
 ```bash
 docker-compose exec db mysql -u root -proot_pw -e "CREATE DATABASE IF NOT EXISTS besucherportal_test;"
 ```
 
-## 6. Datenbank mit Test-Daten befüllen (Seeding)
+## 7. Datenbank mit Test-Daten befüllen (Seeding)
 
 ```bash
 docker compose exec web bash -lc "php artisan migrate:fresh --seed"
 ```
 
-## 7. Browser öffnen
+## 8. Browser öffnen
 
 * App: [http://localhost:8080](http://localhost:8080)
 * Mailhog UI: [http://localhost:8025](http://localhost:8025)
