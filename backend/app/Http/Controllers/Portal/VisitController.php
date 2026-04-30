@@ -7,7 +7,6 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\RescheduleVisitRequest;
 use App\Http\Requests\StoreVisitRequest;
 use App\Http\Requests\UpdateVisitRequest;
-use App\Models\User;
 use App\Models\Visit;
 use App\Models\Visitor;
 use App\Policies\VisitPolicy;
