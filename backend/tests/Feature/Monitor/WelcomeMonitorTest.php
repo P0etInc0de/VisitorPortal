@@ -107,6 +107,13 @@ class WelcomeMonitorTest extends TestCase
             ]);
 
         $response->assertRedirect(route('monitors.edit', $monitor).'#monitor-pages');
+                'show_logo' => '1',
+                'show_date' => '1',
+                'background_source' => 'inherit',
+                'visitors' => json_encode([]),
+            ]);
+
+        $response->assertRedirect(route('monitors.edit', $monitor));
 
         $slide = $monitor->monitorSlides()->sole();
 
@@ -121,6 +128,7 @@ class WelcomeMonitorTest extends TestCase
         $this->assertSame([
             ['id' => null, 'name' => 'Theo Pünktlich'],
         ], $slide->visitors);
+        $this->assertSame([], $slide->visitors);
     }
 
     public function test_monitor_slide_can_be_updated_from_the_editor_flow(): void
@@ -158,6 +166,10 @@ class WelcomeMonitorTest extends TestCase
             ]);
 
         $response->assertRedirect(route('monitors.edit', $monitor).'#monitor-pages');
+                ]),
+            ]);
+
+        $response->assertRedirect(route('monitors.edit', $monitor));
 
         $slide->refresh();
 
@@ -234,6 +246,9 @@ class WelcomeMonitorTest extends TestCase
         $slide->refresh();
 
         $this->assertFalse($slide->is_active);
+    }
+
+        ], $slide->visitors);
     }
 
     public function test_auto_generation_uses_the_configured_monitor_window(): void
