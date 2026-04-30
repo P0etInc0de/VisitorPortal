@@ -9,7 +9,6 @@ use App\Models\Visitor;
 use App\Tasks\WelcomeMonitorAutoGeneration;
 use Carbon\Carbon;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Support\Facades\Queue;
 use Livewire\Livewire;
 use Tests\Support\PermissionHelper;
 use Tests\TestCase;
@@ -20,8 +19,6 @@ class WelcomeMonitorTest extends TestCase
 
     public function test_monitor_settings_can_be_saved_from_the_livewire_editor(): void
     {
-        Queue::fake();
-
         $user = $this->monitorUser();
         $monitor = Monitor::query()->create([
             'name' => 'Empfang',
@@ -53,8 +50,6 @@ class WelcomeMonitorTest extends TestCase
         $this->assertSame('none', $monitor->content_card_style);
 
         $this->assertSame(0, $monitor->monitorSlides()->count());
-
-        Queue::assertPushed(WelcomeMonitorAutoGeneration::class);
     }
 
     public function test_fallback_page_can_be_updated_from_its_dedicated_edit_flow(): void
@@ -292,6 +287,138 @@ class WelcomeMonitorTest extends TestCase
                     'name' => 'Anna Beispiel',
                 ],
             ], $slide->visitors);
+        } finally {
+            Carbon::setTestNow();
+        }
+    }
+
+    public function test_auto_generation_includes_overlapping_planned_visits_and_ignores_drafts(): void
+    {
+        Carbon::setTestNow('2026-04-24 10:00:00');
+
+        try {
+            $monitor = Monitor::query()->create([
+                'name' => 'Empfang',
+                'transition_time_milliseconds' => 5000,
+                'auto_generation' => true,
+                'auto_generation_window_minutes' => 30,
+            ]);
+
+            $overlappingPlannedVisit = Visit::factory()->create([
+                'scheduled_from' => now()->subMinutes(45),
+                'scheduled_until' => now()->addMinutes(15),
+                'status' => VisitStatusEnum::Planned->value,
+            ]);
+
+            $draftVisit = Visit::factory()->create([
+                'scheduled_from' => now()->addMinutes(5),
+                'scheduled_until' => now()->addMinutes(35),
+                'status' => VisitStatusEnum::Draft->value,
+            ]);
+
+            $plannedVisitor = Visitor::factory()->create([
+                'title' => '',
+                'first_name' => 'Clara',
+                'name' => 'Geplant',
+            ]);
+
+            $draftVisitor = Visitor::factory()->create([
+                'title' => '',
+                'first_name' => 'Dario',
+                'name' => 'Entwurf',
+            ]);
+
+            $overlappingPlannedVisit->visitors()->attach($plannedVisitor);
+            $draftVisit->visitors()->attach($draftVisitor);
+
+            (new WelcomeMonitorAutoGeneration)();
+
+            $slide = $monitor->monitorSlides()->sole();
+
+            $this->assertTrue($slide->is_auto_generated);
+            $this->assertSame([
+                [
+                    'id' => $plannedVisitor->id,
+                    'name' => 'Clara Geplant',
+                ],
+            ], $slide->visitors);
+        } finally {
+            Carbon::setTestNow();
+        }
+    }
+
+    public function test_auto_generation_keeps_manual_pages_and_only_replaces_generated_pages(): void
+    {
+        Carbon::setTestNow('2026-04-24 10:00:00');
+
+        try {
+            $monitor = Monitor::query()->create([
+                'name' => 'Empfang',
+                'transition_time_milliseconds' => 5000,
+                'auto_generation' => true,
+                'auto_generation_window_minutes' => 30,
+            ]);
+
+            $manualSlide = $monitor->monitorSlides()->create([
+                'heading' => 'Manuell',
+                'subheading' => 'Soll bleiben',
+                'slide_number' => 1,
+                'is_active' => true,
+                'is_auto_generated' => false,
+                'show_logo' => true,
+                'show_date' => true,
+                'visitors' => [
+                    ['id' => null, 'name' => 'Theo Pünktlich'],
+                ],
+            ]);
+
+            $oldGeneratedSlide = $monitor->monitorSlides()->create([
+                'heading' => 'Alt generiert',
+                'subheading' => 'Wird ersetzt',
+                'slide_number' => 1,
+                'is_active' => true,
+                'is_auto_generated' => true,
+                'show_logo' => true,
+                'show_date' => true,
+                'visitors' => [],
+            ]);
+
+            $visit = Visit::factory()->create([
+                'scheduled_from' => now()->addMinutes(5),
+                'scheduled_until' => now()->addMinutes(65),
+                'status' => VisitStatusEnum::Planned->value,
+            ]);
+
+            $visitor = Visitor::factory()->create([
+                'title' => '',
+                'first_name' => 'Anna',
+                'name' => 'Beispiel',
+            ]);
+
+            $visit->visitors()->attach($visitor);
+
+            (new WelcomeMonitorAutoGeneration)();
+
+            $this->assertDatabaseHas('monitor_slides', [
+                'id' => $manualSlide->id,
+                'is_auto_generated' => false,
+            ]);
+
+            $this->assertDatabaseMissing('monitor_slides', [
+                'id' => $oldGeneratedSlide->id,
+            ]);
+
+            $generatedSlides = $monitor->monitorSlides()
+                ->where('is_auto_generated', true)
+                ->get();
+
+            $this->assertCount(1, $generatedSlides);
+            $this->assertSame([
+                [
+                    'id' => $visitor->id,
+                    'name' => 'Anna Beispiel',
+                ],
+            ], $generatedSlides->sole()->visitors);
         } finally {
             Carbon::setTestNow();
         }
