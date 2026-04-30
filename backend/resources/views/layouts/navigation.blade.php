@@ -135,14 +135,6 @@
                 </a>
 				@endcan
 
-				@canany(['CheckIn:Visit', 'CheckOut:Visit'])
-                <a href="{{ route('portal.check_in_out') }}" class="{{ $navLinkClasses(request()->routeIs('portal.check_in_out')) }}">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1" />
-                    </svg>
-                    <span>{{ __('Check-In_Out') }}</span>
-                </a>
-				@endcanany
             </div>
 			@endif
 
@@ -158,6 +150,15 @@
                         </svg>
                         <span>{{ __('Dashboard') }}</span>
                     </a>
+
+					@canany(['CheckIn:Visit', 'CheckOut:Visit'])
+                    <a href="{{ route('portal.check_in_out') }}" class="{{ $navLinkClasses(request()->routeIs('portal.check_in_out')) }}">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1" />
+                        </svg>
+                        <span>{{ __('Check-In_Out') }}</span>
+                    </a>
+					@endcanany
 
                     <a href="{{ route('reception.all-visits') }}" class="{{ $navLinkClasses(request()->routeIs('reception.all-visits')) }}">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
@@ -287,10 +288,11 @@
             <nav class="space-y-2">
                 <a href="{{ route('dashboard') }}" class="{{ $navLinkClasses(request()->routeIs('dashboard')) }}" @click="navOpen = false">{{ __('Übersicht') }}</a>
                 <a href="{{ route('portal.visits.create') }}" class="{{ $navLinkClasses(request()->routeIs('portal.visits.create')) }}" @click="navOpen = false">{{ __('Besuch anlegen') }}</a>
-                <a href="{{ route('portal.check_in_out') }}" class="{{ $navLinkClasses(request()->routeIs('portal.check_in_out')) }}" @click="navOpen = false">{{ __('Check-In/Out') }}</a>
-
                 @if ($canSeeReception)
                     <a href="{{ route('reception.dashboard') }}" class="{{ $navLinkClasses(request()->routeIs('reception.dashboard')) }}" @click="navOpen = false">{{ __('Dashboard') }}</a>
+                    @canany(['CheckIn:Visit', 'CheckOut:Visit'])
+                        <a href="{{ route('portal.check_in_out') }}" class="{{ $navLinkClasses(request()->routeIs('portal.check_in_out')) }}" @click="navOpen = false">{{ __('Check-In/Out') }}</a>
+                    @endcanany
                     <a href="{{ route('reception.all-visits') }}" class="{{ $navLinkClasses(request()->routeIs('reception.all-visits')) }}" @click="navOpen = false">{{ __('Alle Besuche') }}</a>
                 @endif
 
