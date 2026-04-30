@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\Portal;
 
 use App\Http\Controllers\Controller;
+use App\Enums\VisitStatusEnum;
+use App\Models\Monitor;
 use App\Models\Visit;
 use App\Models\Visitor;
 use Illuminate\Contracts\View\View;
@@ -13,6 +15,8 @@ class DashboardController extends Controller
     public function index(Request $request): View
     {
         $user = $request->user();
+        $now = now();
+        $upcomingWindowEnd = now()->copy()->addDays(30);
 
         $this->authorizeAny(['viewGeneral', 'view'], Monitor::class);
 
@@ -29,8 +33,16 @@ class DashboardController extends Controller
             ->get();
 
         $upcomingVisits = (clone $baseQuery)
-            ->where('scheduled_until', '>=', now())
-            ->take(6)
+            ->whereNotIn('status', [VisitStatusEnum::Canceled->value, VisitStatusEnum::Completed->value])
+            ->where('scheduled_from', '<=', $upcomingWindowEnd)
+            ->where(function ($query) use ($now) {
+                $query->where('scheduled_until', '>=', $now)
+                    ->orWhere(function ($query) use ($now) {
+                        $query->whereNull('scheduled_until')
+                            ->where('scheduled_from', '>=', $now);
+                    });
+            })
+            ->limit(15)
             ->get();
 
         $nextVisit = $upcomingVisits->first();
