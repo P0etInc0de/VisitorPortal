@@ -11,10 +11,6 @@
     }"
     x-on:print-badge.window="printBadge($event.detail.url)"
 >
-    <div class="mb-8">
-        <h1 class="text-4xl font-bold leading-none tracking-tight text-base-content lg:text-5xl">{{ __('Check-In / Out') }}</h1>
-    </div>
-
     <div class="grid grid-cols-1 gap-6 lg:grid-cols-4 lg:items-start">
         <div class="flex flex-col gap-6 lg:col-span-3">
             @if (session('status'))
