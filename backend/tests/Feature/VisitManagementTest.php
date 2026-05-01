@@ -123,7 +123,7 @@ class VisitManagementTest extends TestCase
             ->actingAs($user)
             ->get(route('portal.my-visits'))
             ->assertOk()
-            ->assertSee('Meine Besuche')
+            ->assertSee(__('Meine Besuche'))
             ->assertSee('Eigener Host-Besuch')
             ->assertSee('Eigener Vertretungs-Besuch')
             ->assertDontSee('Fremder Besuch');
