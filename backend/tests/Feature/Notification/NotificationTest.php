@@ -11,6 +11,7 @@ use App\Notifications\Host\VisitReminderDaily;
 use Carbon\Carbon;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Notification;
+use Tests\Support\PermissionHelper;
 use Tests\TestCase;
 
 class NotificationTest extends TestCase
@@ -23,10 +24,14 @@ class NotificationTest extends TestCase
     public function test_guest_checked_in_notification()
     {
         $user = User::factory()->create();
+        $visit = Visit::factory()->create([
+            'user_id' => $user->id,
+            'responsible_user_id' => $user->id,
+        ]);
         $visitor = Visitor::factory()->create();
 
         // Send the notification
-        Notification::send($user, new GuestCheckedIn($visitor));
+        Notification::send($user, new GuestCheckedIn($visit, $visitor));
 
         // Extract the array of sent messages from Laravel's underlying Symfony Mailer
         $messages = app('mailer')->getSymfonyTransport()->messages();
@@ -51,6 +56,42 @@ class NotificationTest extends TestCase
             $visitor->first_name,
             $email->getOriginalMessage()->getBody()->bodyToString()
         );
+
+        $notification = $user->fresh()->notifications()->first();
+
+        $this->assertNotNull($notification);
+        $this->assertSame('guest_checked_in', $notification->data['type']);
+        $this->assertSame('Besuch eingetroffen', $notification->data['title']);
+        $this->assertSame(
+            sprintf('Gast %s %s ist soeben eingetroffen.', $visitor->first_name, $visitor->name),
+            $notification->data['message']
+        );
+    }
+
+    public function test_check_in_action_creates_portal_notification(): void
+    {
+        $host = User::factory()->create();
+        $receptionist = (new PermissionHelper)->getReceptionistUser();
+        $visit = Visit::factory()->create([
+            'user_id' => $host->id,
+            'responsible_user_id' => $host->id,
+        ]);
+        $visitor = Visitor::factory()->create([
+            'first_name' => 'Max',
+            'name' => 'Mustermann',
+        ]);
+
+        $visit->visitors()->attach($visitor->id);
+
+        $this->actingAs($receptionist)
+            ->post(route('reception.participants.check-in', [$visit, $visitor]))
+            ->assertStatus(302);
+
+        $notification = $host->fresh()->notifications()->first();
+
+        $this->assertNotNull($notification);
+        $this->assertSame('guest_checked_in', $notification->data['type']);
+        $this->assertSame('Gast Max Mustermann ist soeben eingetroffen.', $notification->data['message']);
     }
 
     public function test_daily_notification()

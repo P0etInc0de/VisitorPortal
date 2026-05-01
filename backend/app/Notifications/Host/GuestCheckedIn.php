@@ -4,7 +4,9 @@ namespace App\Notifications\Host;
 
 use App\Mail\Host\GuestCheckedInMail;
 use App\Models\User;
+use App\Models\Visit;
 use App\Models\Visitor;
+use App\Support\PortalNotificationData;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
@@ -19,6 +21,7 @@ class GuestCheckedIn extends Notification implements ShouldQueue
      * Create a new notification instance.
      */
     public function __construct(
+        protected Visit $visit,
         protected Visitor $visitor
     ) {}
 
@@ -29,7 +32,7 @@ class GuestCheckedIn extends Notification implements ShouldQueue
      */
     public function via(User $notifiable): array
     {
-        return ['mail'];
+        return ['mail', 'database'];
     }
 
     /**
@@ -53,8 +56,40 @@ class GuestCheckedIn extends Notification implements ShouldQueue
      */
     public function toArray(object $notifiable): array
     {
-        return [
-            //
-        ];
+        return PortalNotificationData::make(
+            type: 'guest_checked_in',
+            title: __('Besuch eingetroffen'),
+            message: __('Gast :name ist soeben eingetroffen.', [
+                'name' => $this->visitorDisplayName(),
+            ]),
+            actionUrl: route('portal.visits.show', $this->visit),
+            actionLabel: __('Weitere Informationen'),
+            context: [
+                'visit_id' => $this->visit->id,
+                'visitor_id' => $this->visitor->id,
+            ],
+        );
+    }
+
+    private function visitorDisplayName(): string
+    {
+        $fullName = trim(implode(' ', array_filter([
+            $this->visitor->first_name,
+            $this->visitor->name,
+        ])));
+
+        if ($fullName !== '') {
+            return $fullName;
+        }
+
+        foreach ([$this->visitor->company, $this->visitor->email] as $fallback) {
+            $fallback = trim((string) $fallback);
+
+            if ($fallback !== '') {
+                return $fallback;
+            }
+        }
+
+        return __('Gast');
     }
 }
