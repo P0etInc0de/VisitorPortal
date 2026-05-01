@@ -131,7 +131,8 @@
 				@canany(['ViewOwn:Visit', 'EditOwn:Visit', 'Create:Visit'])
                 <a href="{{ route('portal.my-visits') }}" class="{{ $navLinkClasses(request()->routeIs('portal.my-visits')) }}">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16" />
+                        <rect x="3" y="4" width="18" height="17" rx="2" />
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M8 2v4M16 2v4M3 10h18" />
                     </svg>
                     <span>{{ __('Meine Besuche') }}</span>
                 </a>
