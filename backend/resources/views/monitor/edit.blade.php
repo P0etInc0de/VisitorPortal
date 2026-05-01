@@ -13,14 +13,14 @@
         {{-- LEFT AREA --}}
         <div class="space-y-6" id="monitor-pages">
 
-            <x-bp.card title="{{ __('Monitor Seiten') }}" class="mt-0">
+            <x-bp.card title="{{ __('Monitor Seiten') }}" class="!mt-0">
                 <livewire:monitor.index-monitor-slides :monitor="$monitor" />
             </x-bp.card>
 
         </div>
         {{-- RIGHT AREA --}}
         <aside class="space-y-6">
-            <x-bp.card id="monitor-preview" title="{{ __('Vorschau') }}" class="mt-0 p-4">
+            <x-bp.card id="monitor-preview" title="{{ __('Vorschau') }}" class="!mt-0 p-4">
                 <x-slot:actions>
                     <a
                         href="{{ route('monitors.show', $monitor) }}"
