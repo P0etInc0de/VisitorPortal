@@ -156,6 +156,13 @@ class MonitorSlidesController extends Controller
             }
 
             $numericId = is_numeric($visitor['id'] ?? null) ? (int) $visitor['id'] : null;
+
+            if ($numericId === null && mb_strlen($name) > 50) {
+                throw ValidationException::withMessages([
+                    'visitors' => __('Manuell hinzugefügte Namen dürfen maximal :count Zeichen lang sein.', ['count' => 50]),
+                ]);
+            }
+
             $key = $numericId !== null ? 'visit:'.$numericId : 'manual:'.mb_strtolower($name);
 
             if (isset($seen[$key])) {
