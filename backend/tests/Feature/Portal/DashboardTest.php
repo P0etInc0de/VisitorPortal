@@ -142,7 +142,8 @@ class DashboardTest extends TestCase
                 'scheduled_until' => now()->copy()->setTime(14, 0),
             ]);
 
-            $this->actingAs($user)
+            $this->withSession(['locale' => 'de'])
+                ->actingAs($user)
                 ->get(route('overview'))
                 ->assertOk()
                 ->assertSee('heute | 13:00');
@@ -167,7 +168,8 @@ class DashboardTest extends TestCase
                 'scheduled_until' => now()->copy()->addDay()->setTime(10, 30),
             ]);
 
-            $this->actingAs($user)
+            $this->withSession(['locale' => 'de'])
+                ->actingAs($user)
                 ->get(route('overview'))
                 ->assertOk()
                 ->assertSee('morgen | 09:30');
@@ -235,7 +237,8 @@ class DashboardTest extends TestCase
                 'scheduled_until' => now()->copy()->addDay()->setTime(10, 0),
             ]);
 
-            $this->actingAs($user)
+            $this->withSession(['locale' => 'de'])
+                ->actingAs($user)
                 ->get(route('overview'))
                 ->assertOk()
                 ->assertSee('Meine Besuche heute')
