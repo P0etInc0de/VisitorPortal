@@ -3,7 +3,7 @@
         <div class="flex flex-col gap-4">
             <div class="flex flex-col gap-4 xl:flex-row xl:items-end xl:justify-between">
                 <div>
-                    <h1 class="text-3xl font-bold tracking-tight md:text-4xl">{{ __('Meine Berechtigungen') }}</h1>
+                    <h1 class="text-4xl font-bold leading-none tracking-tight text-base-content lg:text-5xl">{{ __('Meine Berechtigungen') }}</h1>
                     <p class="mt-2 max-w-3xl text-sm text-base-content/70">
                         {{ __('Hier siehst du kompakt, welche Rollen du hast und was du im Portal konkret machen darfst.') }}
                     </p>

@@ -2,7 +2,7 @@
     <x-slot name="header">
         <div class="flex flex-col items-start gap-4 lg:flex-row lg:justify-between">
             <div>
-                <h1 class="text-3xl font-bold tracking-tight md:text-4xl">{{ __('Profil') }}</h1>
+                <h1 class="text-4xl font-bold leading-none tracking-tight text-base-content lg:text-5xl">{{ __('Profil') }}</h1>
             </div>
         </div>
     </x-slot>

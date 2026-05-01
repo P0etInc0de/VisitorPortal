@@ -37,7 +37,7 @@
     <x-slot name="header">
         <div class="flex items-start justify-between gap-4">
             <div>
-                <h1 class="text-4xl font-bold leading-none tracking-tight lg:text-5xl">
+                <h1 class="text-4xl font-bold leading-none tracking-tight text-base-content lg:text-5xl">
                     {{ $isEdit ? __('Besuch bearbeiten') : __('Besuch anlegen') }}
                 </h1>
             </div>

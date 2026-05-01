@@ -1,6 +1,6 @@
 <x-app-layout>
     <x-slot name="header">
-        <h1 class="text-3xl font-semibold tracking-tight text-slate-900">
+        <h1 class="text-4xl font-bold leading-none tracking-tight text-base-content lg:text-5xl">
             {{ __('Allgemeine Begrüßungsseite bearbeiten') }}
         </h1>
     </x-slot>
