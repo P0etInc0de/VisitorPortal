@@ -125,6 +125,15 @@ class DashboardTest extends TestCase
             $user = (new PermissionHelper)->getReceptionistUser();
 
             Visit::factory()->create([
+                'title' => 'Laufender Termin',
+                'user_id' => $user->id,
+                'responsible_user_id' => $user->id,
+                'status' => VisitStatusEnum::Planned->value,
+                'scheduled_from' => now()->copy()->setTime(10, 30),
+                'scheduled_until' => now()->copy()->setTime(12, 30),
+            ]);
+
+            Visit::factory()->create([
                 'title' => 'Termin heute',
                 'user_id' => $user->id,
                 'responsible_user_id' => $user->id,
@@ -187,6 +196,52 @@ class DashboardTest extends TestCase
                 ->get(route('overview'))
                 ->assertOk()
                 ->assertSee('02.05. | 13:00');
+        } finally {
+            Carbon::setTestNow();
+        }
+    }
+
+    public function test_dashboard_shows_started_vs_total_visits_for_today_and_week(): void
+    {
+        Carbon::setTestNow(Carbon::create(2026, 4, 30, 11, 2, 0, config('app.timezone')));
+
+        try {
+            $user = (new PermissionHelper)->getReceptionistUser();
+
+            Visit::factory()->create([
+                'title' => 'Heute gestartet',
+                'user_id' => $user->id,
+                'responsible_user_id' => $user->id,
+                'status' => VisitStatusEnum::Planned->value,
+                'scheduled_from' => now()->copy()->setTime(9, 0),
+                'scheduled_until' => now()->copy()->setTime(10, 0),
+            ]);
+
+            Visit::factory()->create([
+                'title' => 'Heute spaeter',
+                'user_id' => $user->id,
+                'responsible_user_id' => $user->id,
+                'status' => VisitStatusEnum::Planned->value,
+                'scheduled_from' => now()->copy()->setTime(15, 0),
+                'scheduled_until' => now()->copy()->setTime(16, 0),
+            ]);
+
+            Visit::factory()->create([
+                'title' => 'Morgen',
+                'user_id' => $user->id,
+                'responsible_user_id' => $user->id,
+                'status' => VisitStatusEnum::Planned->value,
+                'scheduled_from' => now()->copy()->addDay()->setTime(9, 0),
+                'scheduled_until' => now()->copy()->addDay()->setTime(10, 0),
+            ]);
+
+            $this->actingAs($user)
+                ->get(route('overview'))
+                ->assertOk()
+                ->assertSee('Meine Besuche heute')
+                ->assertSee('1/2')
+                ->assertSee('Meine Besuche diese Woche')
+                ->assertSee('1/3');
         } finally {
             Carbon::setTestNow();
         }

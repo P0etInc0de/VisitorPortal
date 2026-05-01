@@ -10,6 +10,7 @@ use App\Models\Visit;
 use App\Models\Visitor;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\Request;
+use Illuminate\Support\Collection;
 
 class OverviewController extends Controller
 {
@@ -51,7 +52,11 @@ class OverviewController extends Controller
             ->limit(15)
             ->get();
 
-        $nextVisit = $upcomingVisits->first();
+        $nextVisit = (clone $baseQuery)
+            ->whereNotIn('status', [VisitStatusEnum::Canceled->value, VisitStatusEnum::Completed->value])
+            ->where('scheduled_from', '>', $now)
+            ->where('scheduled_from', '<=', $upcomingWindowEnd)
+            ->first();
 
         $weeklyVisits = (clone $baseQuery)
             ->whereBetween('scheduled_from', [now()->startOfWeek(), now()->endOfWeek()])
@@ -88,7 +93,7 @@ class OverviewController extends Controller
             'stats' => [
                 [
                     'label' => __('Meine Besuche heute'),
-                    'value' => (string) $todayVisits->count(),
+                    'value' => $this->formatVisitProgress($todayVisits, $now),
                     'meta' => $todayVisits->contains(
                         fn (Visit $visit) => $visit->scheduled_from && $visit->scheduled_from->between(now(), now()->copy()->addHour())
                     )
@@ -106,8 +111,8 @@ class OverviewController extends Controller
                         : __('Kein Termin geplant'),
                 ],
                 [
-                    'label' => __('Diese Woche'),
-                    'value' => (string) $weeklyVisits->count(),
+                    'label' => __('Meine Besuche diese Woche'),
+                    'value' => $this->formatVisitProgress($weeklyVisits, $now),
                     'meta' => __(':planned geplant · :draft Entwürfe', [
                         'planned' => $weeklyVisits->where('status', 'planned')->count(),
                         'draft' => $weeklyVisits->where('status', 'draft')->count(),
@@ -116,6 +121,19 @@ class OverviewController extends Controller
             ],
             'visits' => $visitCards,
         ]);
+    }
+
+    /**
+     * @param  Collection<int, Visit>  $visits
+     */
+    private function formatVisitProgress(Collection $visits, $referenceTime): string
+    {
+        $total = $visits->count();
+        $started = $visits->filter(
+            fn (Visit $visit) => $visit->scheduled_from && $visit->scheduled_from->lte($referenceTime)
+        )->count();
+
+        return $started.'/'.$total;
     }
 
     private function formatNextVisitValue(?Visit $visit): string
