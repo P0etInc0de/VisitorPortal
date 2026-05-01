@@ -19,12 +19,14 @@
 
                 <button
                     type="button"
-                    class="btn btn-primary btn-sm btn-circle absolute top-1/2 right-1.5 h-9 min-h-0 w-9 -translate-y-1/2 rounded-full text-xl leading-none"
+                    class="btn btn-primary btn-sm btn-circle absolute top-1/2 right-1.5 inline-flex h-9 min-h-0 w-9 -translate-y-1/2 items-center justify-center rounded-full p-0"
                     onclick="addManualVisitor()"
                     aria-label="{{ __('Zur Liste hinzufügen') }}"
                     title="{{ __('Zur Liste hinzufügen') }}"
                 >
-                    +
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 5v14M5 12h14" />
+                    </svg>
                 </button>
             </div>
         </div>
