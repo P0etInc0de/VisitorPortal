@@ -5,6 +5,7 @@ namespace App\Livewire\Profile;
 use App\Models\User;
 use Illuminate\Contracts\View\View;
 use Illuminate\Support\Collection;
+use Illuminate\Support\HtmlString;
 use Illuminate\Support\Str;
 use Livewire\Component;
 
@@ -29,6 +30,12 @@ class UserPermissionsPage extends Component
                 'resource_count' => $permissions->count(),
             ],
             'permissionGroups' => $permissions,
+        ])->layout('layouts.app', [
+            'header' => new HtmlString(
+                view('partials.page-header', [
+                    'title' => __('Meine Berechtigungen'),
+                ])->render()
+            ),
         ]);
     }
 

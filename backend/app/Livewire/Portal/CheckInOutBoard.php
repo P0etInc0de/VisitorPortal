@@ -12,6 +12,7 @@ use Illuminate\Contracts\View\View;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\HtmlString;
 use Illuminate\Support\Str;
 use Livewire\Component;
 
@@ -102,6 +103,12 @@ class CheckInOutBoard extends Component
                 ->orderBy('name')
                 ->get(),
             'results' => $this->searchResults(),
+        ])->layout('layouts.app', [
+            'header' => new HtmlString(
+                view('partials.page-header', [
+                    'title' => __('Check-In / Out'),
+                ])->render()
+            ),
         ]);
     }
 
