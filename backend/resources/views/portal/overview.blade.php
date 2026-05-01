@@ -22,7 +22,7 @@
             @endforeach
         </section>
 
-        <section class="grid items-start gap-4 lg:min-h-0 xl:grid-cols-[minmax(0,1.45fr)_minmax(18rem,0.72fr)]">
+        <section class="grid gap-4 lg:min-h-0 xl:items-stretch xl:grid-cols-[minmax(0,1.45fr)_minmax(18rem,0.72fr)]">
             <article class="rounded-3xl border border-base-300 bg-base-100 shadow-sm rounded-[1.35rem] lg:flex lg:h-full lg:min-h-0 lg:flex-col lg:overflow-hidden">
                 <div class="px-4 pt-4 sm:px-[1.05rem] sm:pt-[1.05rem]">
                     <div class="mb-3 flex items-center justify-between gap-4">
@@ -102,13 +102,15 @@
                 </div>
             </article>
 
-            <aside class="rounded-3xl border border-base-300 bg-base-100 shadow-sm rounded-[1.35rem] lg:min-h-0">
-                <div class="p-4 sm:p-[1.05rem] lg:flex lg:h-full lg:min-h-0 lg:flex-col">
+            <aside class="rounded-3xl border border-base-300 bg-base-100 shadow-sm rounded-[1.35rem] lg:flex lg:h-full lg:min-h-0 lg:flex-col lg:overflow-hidden">
+                <div class="px-4 pt-4 sm:px-[1.05rem] sm:pt-[1.05rem]">
                     <h2 class="mb-3 text-[1.35rem] font-bold leading-tight tracking-tight text-base-content">
                         {{ __('Status & Benachrichtigungen') }}
                     </h2>
+                </div>
 
-                    <div class="grid gap-3 lg:min-h-0 lg:flex-1 lg:overflow-y-auto lg:overscroll-contain">
+                <div class="px-4 pb-4 sm:px-[1.05rem] sm:pb-[1.05rem] lg:min-h-0 lg:flex-1 lg:overflow-y-auto lg:overscroll-contain">
+                    <div class="grid gap-3">
                         @forelse ($notifications as $notification)
                             <article @class([
                                 'rounded-2xl border px-4 py-3 transition-colors',
