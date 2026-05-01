@@ -75,7 +75,7 @@ class DashboardTest extends TestCase
             ]);
 
             $this->actingAs($user)
-                ->get(route('dashboard'))
+                ->get(route('overview'))
                 ->assertOk()
                 ->assertSee('Laufender Besuch')
                 ->assertSee('Besuch in 2 Tagen')
@@ -107,7 +107,7 @@ class DashboardTest extends TestCase
             }
 
             $this->actingAs($user)
-                ->get(route('dashboard'))
+                ->get(route('overview'))
                 ->assertOk()
                 ->assertSee('Limit Besuch 01')
                 ->assertSee('Limit Besuch 15')

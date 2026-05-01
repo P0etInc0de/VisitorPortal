@@ -614,7 +614,7 @@
             </section>
 
             <div class="flex flex-wrap items-center justify-end gap-3">
-                <a href="{{ $isEdit ? route('portal.visits.show', $visit) : route('dashboard') }}" class="btn btn-outline">
+                <a href="{{ $isEdit ? route('portal.visits.show', $visit) : route('overview') }}" class="btn btn-outline">
                     {{ __('Abbrechen') }}
                 </a>
                 <button type="submit" class="btn btn-primary">

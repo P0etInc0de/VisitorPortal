@@ -76,7 +76,7 @@
             </div>
         </div>
 
-        <a href="{{ route('dashboard') }}" class="btn btn-outline btn-sm rounded-xl">
+        <a href="{{ route('overview') }}" class="btn btn-outline btn-sm rounded-xl">
             {{ __('Start') }}
         </a>
     </div>
@@ -84,7 +84,7 @@
 
 <aside class="hidden w-72 border-r border-base-300/70 bg-base-100 [&_.btn]:min-h-11 lg:fixed lg:inset-y-0 lg:left-0 lg:z-30 lg:flex lg:flex-col lg:min-h-screen lg:px-4 lg:pt-4 lg:pb-4">
     <div class="border-b border-base-300/70 px-4 py-4">
-        <a href="{{ route('dashboard') }}" class="flex flex-col items-start gap-3">
+        <a href="{{ route('overview') }}" class="flex flex-col items-start gap-3">
             @if ($hasLogo)
                 <img
                     src="{{ asset('images/logo.png') }}"
@@ -111,7 +111,7 @@
                     {{ __('Portal') }}
                 </div>
 
-                <a href="{{ route('dashboard') }}" class="{{ $navLinkClasses(request()->routeIs('dashboard')) }}">
+                <a href="{{ route('overview') }}" class="{{ $navLinkClasses(request()->routeIs('overview')) }}">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M3 12l9-8 9 8" />
                         <path stroke-linecap="round" stroke-linejoin="round" d="M5 10v10h14V10" />
@@ -288,7 +288,7 @@
 
         <div class="flex-1 overflow-y-auto px-4 py-5">
             <nav class="space-y-2">
-                <a href="{{ route('dashboard') }}" class="{{ $navLinkClasses(request()->routeIs('dashboard')) }}" @click="navOpen = false">{{ __('Übersicht') }}</a>
+                <a href="{{ route('overview') }}" class="{{ $navLinkClasses(request()->routeIs('overview')) }}" @click="navOpen = false">{{ __('Übersicht') }}</a>
                 <a href="{{ route('portal.visits.create') }}" class="{{ $navLinkClasses(request()->routeIs('portal.visits.create')) }}" @click="navOpen = false">{{ __('Besuch anlegen') }}</a>
                 @canany(['ViewOwn:Visit', 'EditOwn:Visit', 'Create:Visit'])
                     <a href="{{ route('portal.my-visits') }}" class="{{ $navLinkClasses(request()->routeIs('portal.my-visits')) }}" @click="navOpen = false">{{ __('Meine Besuche') }}</a>
