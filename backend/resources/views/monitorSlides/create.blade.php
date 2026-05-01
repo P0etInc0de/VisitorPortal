@@ -23,58 +23,16 @@
 
                     @include('monitorSlides.partials.background-settings', ['monitor' => $monitor, 'slide' => null])
 
-                    <div class="grid gap-3 rounded-2xl border border-slate-200 bg-slate-50 p-3.5 md:grid-cols-[minmax(0,1fr)_auto] md:items-end">
-                        <x-bp.input label="{{ __('Eigenen Namen hinzufügen') }}" name="manual_name" id="manualNameInput" value="" placeholder="{{ __('Name für Begrüßungsseite') }}" onkeydown="if (event.key === 'Enter') { event.preventDefault(); addManualVisitor(); }" class="h-11"/>
-                        <button type="button" class="btn btn-outline btn-sm rounded-xl" onclick="addManualVisitor()">{{ __('Zur Liste hinzufügen') }}</button>
-                    </div>
+                    @include('monitorSlides.partials.visitor-selection', ['todayVisits' => $todayVisits])
 
-                    <div>
-                        <label class="form-control w-full">
-                            <span class="label-text text-sm font-medium text-base-content">{{ __('Ausgewählte Besucher') }}</span>
-                        </label>
-
-                        <div id="selectedVisitors" class="flex min-h-14 flex-wrap gap-2 rounded-xl border border-slate-200 bg-base-100 p-2.5">
-                            <!-- selected visitors are put here  -->
-                        </div>
-                        <span class="mt-1 block text-sm text-red-500 font-medium" id="visitorError" ></span>
-                    </div>
-
-                    {{-- Hidden inputs for the POST request of the form to laravel --}}
-                    <input type="hidden" id="visitorsInput" name="visitors" />
                     <input type="hidden" value="{{ $monitor->id }}" name="monitor_id"/>
                 </div>
 
-                <div class="mt-5 flex justify-end gap-3">
-                    <a type="button" class="btn-sm rounded-xl btn" href="{{ route('monitors.edit', $monitor) }}#monitor-pages">{{ __('Abbrechen') }}</a>
+                <div class="mt-3 flex justify-end gap-3">
+                    <a type="button" class="btn btn-sm rounded-xl" href="{{ route('monitors.edit', $monitor) }}#monitor-pages">{{ __('Abbrechen') }}</a>
                     <input type="submit" class="btn btn-primary btn-sm rounded-xl" value="{{ __('Speichern') }}"/>
                 </div>
             </form>
-        </x-bp.card>
-
-        <x-bp.card :title="__('Heutige Besuche')">
-                @foreach ($todayVisits as $visit)
-                    <x-bp.list-item :title="$visit->title">
-                        <x-slot:index>
-                            {{ \Carbon\Carbon::parse($visit->scheduled_from)->format('H:i') }}
-                        </x-slot:index>
-                        <x-slot:items>
-                            @foreach($visit->visitors as $visitor)
-                                <button
-                                    type="button"
-                                    class="btn btn-xs btn-outline rounded-full"
-                                    onclick='addVisitor(@json(["key" => "visit-{$visitor->id}", "id" => $visitor->id, "name" => trim($visitor->title." ".$visitor->first_name." ".$visitor->name)]))'
-                                >
-                                    + {{ $visitor->title.' ' }}{{ $visitor->first_name }} {{ $visitor->name }}
-                                </button>
-                            @endforeach
-                        </x-slot:items>
-                        <x-slot:status>
-                            <span class="badge {{ $visit['statusClass'] }} rounded-full px-3 py-3 text-sm font-semibold">
-                                    {{ $visit['status'] }}
-                                </span>
-                        </x-slot:status>
-                    </x-bp.list-item>
-                @endforeach
         </x-bp.card>
 </x-app-layout>
 
@@ -82,6 +40,8 @@
     let selectedVisitors = @js(json_decode(old('visitors', '[]'), true) ?? []);
     const errorMessage = document.getElementById('visitorError');
     const manualNameInput = document.getElementById('manualNameInput');
+    const maxManualVisitorNameLength = 50;
+    const manualVisitorTooLongMessage = @js(__('Manuell hinzugefügte Namen dürfen maximal :count Zeichen lang sein.', ['count' => 50]));
 
     selectedVisitors = selectedVisitors.map((visitor, index) => ({
         key: visitor.id ? `visit-${visitor.id}` : `manual-${index}`,
@@ -92,12 +52,18 @@
     function addVisitor(visitor) {
         const trimmedName = (visitor.name ?? '').trim();
 
-        if (!trimmedName) return;
-        if (selectedVisitors.find(v => (visitor.id && v.id === visitor.id) || (!visitor.id && v.name.toLowerCase() === trimmedName.toLowerCase()))) return;
+        if (!trimmedName) return false;
+
+        if (!visitor.id && trimmedName.length > maxManualVisitorNameLength) {
+            errorMessage.textContent = manualVisitorTooLongMessage;
+            return false;
+        }
+
+        if (selectedVisitors.find(v => (visitor.id && v.id === visitor.id) || (!visitor.id && v.name.toLowerCase() === trimmedName.toLowerCase()))) return false;
 
         if (selectedVisitors.length >= 6){
             errorMessage.textContent = "{{ __('Maximal 6 Besucher je Seite') }}"
-            return;
+            return false;
         }else{
             errorMessage.textContent = "";
         }
@@ -108,16 +74,20 @@
             name: trimmedName,
         });
         renderVisitors();
+
+        return true;
     }
 
     function addManualVisitor() {
-        addVisitor({
+        const wasAdded = addVisitor({
             key: `manual-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
             id: null,
             name: manualNameInput.value,
         });
 
-        manualNameInput.value = '';
+        if (wasAdded) {
+            manualNameInput.value = '';
+        }
     }
 
     function removeVisitor(key) {
@@ -134,14 +104,16 @@
 
         selectedVisitors.forEach(visitor => {
             const chip = document.createElement('div');
-            chip.className = "badge badge-primary gap-2 px-3 py-3 rounded-full";
+            chip.className = "badge badge-primary max-w-full gap-2 overflow-hidden rounded-full px-3 py-3";
 
             const name = document.createElement('span');
+            name.className = "max-w-[16rem] truncate sm:max-w-[28rem]";
             name.textContent = visitor.name;
 
             const button = document.createElement('button');
             button.type = 'button';
             button.textContent = '✕';
+            button.className = 'shrink-0';
             button.addEventListener('click', () => removeVisitor(visitor.key));
 
             chip.appendChild(name);
