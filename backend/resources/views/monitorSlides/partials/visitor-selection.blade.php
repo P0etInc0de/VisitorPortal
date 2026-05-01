@@ -1,5 +1,5 @@
-<section class="grid gap-3 xl:grid-cols-[minmax(0,1fr)_minmax(0,2fr)] xl:items-start">
-    <div class="grid min-w-0 content-start gap-3">
+<section class="grid gap-3 xl:grid-cols-[minmax(0,1fr)_minmax(0,2fr)] xl:items-stretch">
+    <div class="grid min-w-0 content-start gap-3 xl:h-full xl:grid-rows-[auto_minmax(0,1fr)]">
         <div class="min-w-0 overflow-hidden rounded-2xl border border-slate-200 bg-slate-50 p-3.5">
             <label class="form-control w-full">
                 <div class="label px-0 pb-2">
@@ -45,65 +45,72 @@
         </div>
     </div>
 
-    <div class="min-w-0 rounded-2xl border border-slate-200 bg-slate-50 p-3.5 xl:row-span-2">
-        <h3 class="text-sm font-medium text-base-content">{{ __('Heutige Besuche') }}</h3>
+    <div class="grid min-w-0 gap-3 xl:h-full xl:grid-rows-[minmax(0,1fr)_auto]">
+        <div class="min-w-0 rounded-2xl border border-slate-200 bg-slate-50 p-3.5">
+            <h3 class="text-sm font-medium text-base-content">{{ __('Heutige Besuche') }}</h3>
 
-        <div class="mt-3 grid gap-2">
-            @forelse ($todayVisits as $visit)
-                @php
-                    $visitStatusLabel = match ((string) $visit->status) {
-                        'canceled' => __('Abgesagt'),
-                        'completed' => __('Abgeschlossen'),
-                        'draft' => __('Entwurf'),
-                        default => __('Geplant'),
-                    };
+            <div class="mt-3 grid gap-2">
+                @forelse ($todayVisits as $visit)
+                    @php
+                        $visitStatusLabel = match ((string) $visit->status) {
+                            'canceled' => __('Abgesagt'),
+                            'completed' => __('Abgeschlossen'),
+                            'draft' => __('Entwurf'),
+                            default => __('Geplant'),
+                        };
 
-                    $visitStatusClass = match ((string) $visit->status) {
-                        'canceled' => 'badge-neutral badge-outline',
-                        'completed' => 'badge-success badge-outline',
-                        'draft' => 'badge-error badge-outline',
-                        default => 'badge-warning badge-outline',
-                    };
-                @endphp
+                        $visitStatusClass = match ((string) $visit->status) {
+                            'canceled' => 'badge-neutral badge-outline',
+                            'completed' => 'badge-success badge-outline',
+                            'draft' => 'badge-error badge-outline',
+                            default => 'badge-warning badge-outline',
+                        };
+                    @endphp
 
-                <article class="rounded-2xl border border-slate-200 bg-white px-4 py-3 shadow-sm">
-                    <div class="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
-                        <div class="min-w-0 flex-1">
-                            <div class="flex items-center gap-4">
-                                <div class="w-14 shrink-0 text-[1.05rem] font-semibold tracking-tight text-base-content">
-                                    {{ \Carbon\Carbon::parse($visit->scheduled_from)->format('H:i') }}
+                    <article class="rounded-2xl border border-slate-200 bg-white px-4 py-3 shadow-sm">
+                        <div class="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
+                            <div class="min-w-0 flex-1">
+                                <div class="flex items-center gap-4">
+                                    <div class="w-14 shrink-0 text-[1.05rem] font-semibold tracking-tight text-base-content">
+                                        {{ \Carbon\Carbon::parse($visit->scheduled_from)->format('H:i') }}
+                                    </div>
+
+                                    <div class="min-w-0">
+                                        <div class="truncate text-base font-semibold tracking-tight text-base-content">{{ $visit->title }}</div>
+                                    </div>
                                 </div>
 
-                                <div class="min-w-0">
-                                    <div class="truncate text-base font-semibold tracking-tight text-base-content">{{ $visit->title }}</div>
-                                </div>
+                                @if ($visit->visitors->isNotEmpty())
+                                    <div class="mt-2 flex flex-wrap gap-2 pl-[4.5rem]">
+                                        @foreach ($visit->visitors as $visitor)
+                                            <button
+                                                type="button"
+                                                class="btn btn-xs btn-outline rounded-full"
+                                                onclick='addVisitor(@json(["key" => "visit-{$visitor->id}", "id" => $visitor->id, "name" => trim($visitor->title." ".$visitor->first_name." ".$visitor->name)]))'
+                                            >
+                                                + {{ trim($visitor->title.' '.$visitor->first_name.' '.$visitor->name) }}
+                                            </button>
+                                        @endforeach
+                                    </div>
+                                @endif
                             </div>
 
-                            @if ($visit->visitors->isNotEmpty())
-                                <div class="mt-2 flex flex-wrap gap-2 pl-[4.5rem]">
-                                    @foreach ($visit->visitors as $visitor)
-                                        <button
-                                            type="button"
-                                            class="btn btn-xs btn-outline rounded-full"
-                                            onclick='addVisitor(@json(["key" => "visit-{$visitor->id}", "id" => $visitor->id, "name" => trim($visitor->title." ".$visitor->first_name." ".$visitor->name)]))'
-                                        >
-                                            + {{ trim($visitor->title.' '.$visitor->first_name.' '.$visitor->name) }}
-                                        </button>
-                                    @endforeach
-                                </div>
-                            @endif
+                            <span class="badge {{ $visitStatusClass }} shrink-0 rounded-full px-3 py-1.5 text-xs font-semibold">
+                                {{ $visitStatusLabel }}
+                            </span>
                         </div>
-
-                        <span class="badge {{ $visitStatusClass }} shrink-0 rounded-full px-3 py-1.5 text-xs font-semibold">
-                            {{ $visitStatusLabel }}
-                        </span>
+                    </article>
+                @empty
+                    <div class="rounded-2xl border border-dashed border-slate-200 bg-white px-4 py-5 text-sm text-slate-500">
+                        {{ __('Für heute sind aktuell keine Termine geplant.') }}
                     </div>
-                </article>
-            @empty
-                <div class="rounded-2xl border border-dashed border-slate-200 bg-white px-4 py-5 text-sm text-slate-500">
-                    {{ __('Für heute sind aktuell keine Termine geplant.') }}
-                </div>
-            @endforelse
+                @endforelse
+            </div>
+        </div>
+
+        <div class="flex justify-end gap-3">
+            <a type="button" class="btn btn-sm rounded-xl" href="{{ $cancelUrl }}">{{ __('Abbrechen') }}</a>
+            <input type="submit" class="btn btn-primary btn-sm rounded-xl" value="{{ $submitLabel }}">
         </div>
     </div>
 </section>

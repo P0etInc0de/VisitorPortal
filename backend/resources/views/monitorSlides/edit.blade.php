@@ -24,12 +24,11 @@
 
                 @include('monitorSlides.partials.background-settings', ['monitor' => $monitor, 'slide' => $slide])
 
-                @include('monitorSlides.partials.visitor-selection', ['todayVisits' => $todayVisits])
-            </div>
-
-            <div class="mt-3 flex justify-end gap-3">
-                <a type="button" class="btn btn-sm rounded-xl" href="{{ route('monitors.edit', $monitor) }}#monitor-pages">{{ __('Abbrechen') }}</a>
-                <input type="submit" class="btn btn-primary btn-sm rounded-xl" value="{{ __('Speichern') }}"/>
+                @include('monitorSlides.partials.visitor-selection', [
+                    'todayVisits' => $todayVisits,
+                    'cancelUrl' => route('monitors.edit', $monitor).'#monitor-pages',
+                    'submitLabel' => __('Speichern'),
+                ])
             </div>
         </form>
 
