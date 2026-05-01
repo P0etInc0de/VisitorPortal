@@ -10,7 +10,7 @@ use App\Models\Visitor;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\Request;
 
-class DashboardController extends Controller
+class OverviewController extends Controller
 {
     public function index(Request $request): View
     {
@@ -50,18 +50,6 @@ class DashboardController extends Controller
         $weeklyVisits = (clone $baseQuery)
             ->whereBetween('scheduled_from', [now()->startOfWeek(), now()->endOfWeek()])
             ->get();
-
-        $notes = $upcomingVisits
-            ->flatMap(function (Visit $visit) {
-                return $visit->visitors
-                    ->filter(fn (Visitor $visitor) => blank($visitor->pivot?->badge_printed_at))
-                    ->map(fn (Visitor $visitor) => __('Badge noch offen für :name bei :title', [
-                        'name' => $this->visitorDisplayName($visitor),
-                        'title' => $visit->display_title,
-                    ]));
-            })
-            ->take(3)
-            ->values();
 
         $visitCards = $upcomingVisits
             ->map(function (Visit $visit) {
@@ -121,7 +109,6 @@ class DashboardController extends Controller
                 ],
             ],
             'visits' => $visitCards,
-            'notes' => $notes,
         ]);
     }
 
