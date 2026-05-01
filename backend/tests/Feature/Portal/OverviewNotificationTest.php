@@ -2,11 +2,13 @@
 
 namespace Tests\Feature\Portal;
 
+use App\Livewire\Portal\StatusNotificationsCard;
 use App\Models\Visit;
 use App\Models\Visitor;
 use App\Notifications\Host\GuestCheckedIn;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Notification;
+use Livewire\Livewire;
 use Tests\Support\PermissionHelper;
 use Tests\TestCase;
 
@@ -48,9 +50,9 @@ class OverviewNotificationTest extends TestCase
 
         $notification = $user->notifications()->firstOrFail();
 
-        $this->actingAs($user)
-            ->patch(route('portal.notifications.toggle-read', $notification->id))
-            ->assertRedirect(route('overview'));
+        Livewire::actingAs($user)
+            ->test(StatusNotificationsCard::class)
+            ->call('toggleRead', $notification->id);
 
         $this->assertNotNull($notification->fresh()->read_at);
     }
@@ -69,9 +71,9 @@ class OverviewNotificationTest extends TestCase
         $notification = $user->notifications()->firstOrFail();
         $notification->markAsRead();
 
-        $this->actingAs($user)
-            ->patch(route('portal.notifications.toggle-read', $notification->id))
-            ->assertRedirect(route('overview'));
+        Livewire::actingAs($user)
+            ->test(StatusNotificationsCard::class)
+            ->call('toggleRead', $notification->id);
 
         $this->assertNull($notification->fresh()->read_at);
     }
@@ -88,10 +90,15 @@ class OverviewNotificationTest extends TestCase
         Notification::send($user, new GuestCheckedIn($visit, $visitor));
 
         $notification = $user->notifications()->firstOrFail();
+        $message = __('Gast :name ist soeben eingetroffen.', [
+            'name' => trim(($visitor->first_name ?? '').' '.($visitor->name ?? '')),
+        ]);
 
-        $this->actingAs($user)
-            ->delete(route('portal.notifications.destroy', $notification->id))
-            ->assertRedirect(route('overview'));
+        Livewire::actingAs($user)
+            ->test(StatusNotificationsCard::class)
+            ->assertSee($message)
+            ->call('deleteNotification', $notification->id)
+            ->assertDontSee($message);
 
         $this->assertDatabaseMissing('notifications', [
             'id' => $notification->id,

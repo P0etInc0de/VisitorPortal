@@ -2,7 +2,6 @@
 
 use App\Http\Controllers\Monitor\MonitorController;
 use App\Http\Controllers\Monitor\MonitorSlidesController;
-use App\Http\Controllers\Portal\NotificationController as PortalNotificationController;
 use App\Http\Controllers\Portal\OverviewController as PortalDashboardController;
 use App\Http\Controllers\Portal\VisitController as PortalVisitController;
 use App\Http\Controllers\Reception\DashboardController as ReceptionDashboardController;
@@ -63,11 +62,6 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::view('/my-visits', 'portal.my-visits')->name('my-visits');
         Route::redirect('/check_in_out', '/portal/check-in-out');
         Route::get('/check-in-out', CheckInOutBoard::class)->name('check_in_out');
-
-        Route::prefix('notifications')->name('notifications.')->group(function () {
-            Route::patch('/{notification}/read', [PortalNotificationController::class, 'toggleRead'])->name('toggle-read');
-            Route::delete('/{notification}', [PortalNotificationController::class, 'destroy'])->name('destroy');
-        });
     });
 
     Route::prefix('reception')->name('reception.')->group(function () {
