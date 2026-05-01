@@ -36,7 +36,7 @@
                 </div>
             </label>
 
-            <div id="selectedVisitors" class="flex min-h-14 flex-1 flex-wrap gap-2 rounded-xl border border-slate-200 bg-white p-2.5">
+            <div id="selectedVisitors" class="flex min-h-14 flex-1 flex-wrap content-start gap-2 rounded-xl border border-slate-200 bg-white p-2.5">
                 <!-- selected visitors are put here -->
             </div>
             <span class="mt-2 block text-sm font-medium text-red-500" id="visitorError"></span>
