@@ -197,14 +197,46 @@ class WelcomeMonitorTest extends TestCase
             ->get(route('monitors.slides.create', $monitor))
             ->assertOk()
             ->assertSee(__('Seite aktiv'))
-            ->assertSee(__('Eigenen Namen hinzufügen'));
+            ->assertSee(__('Manuell Name hinzufügen'));
 
         $this
             ->actingAs($user)
             ->get(route('monitors.slides.edit', [$monitor, $slide]))
             ->assertOk()
             ->assertSee(__('Seite aktiv'))
-            ->assertSee(__('Eigenen Namen hinzufügen'));
+            ->assertSee(__('Manuell Name hinzufügen'));
+    }
+
+    public function test_monitor_slide_rejects_manual_names_longer_than_50_characters(): void
+    {
+        $user = $this->monitorUser();
+        $monitor = Monitor::query()->create([
+            'name' => 'Empfang',
+            'transition_time_milliseconds' => 5000,
+            'auto_generation' => false,
+        ]);
+
+        $response = $this
+            ->actingAs($user)
+            ->from(route('monitors.slides.create', $monitor))
+            ->post(route('monitors.slides.store', $monitor), [
+                'heading' => 'Herzlich willkommen!',
+                'subheading' => 'Schön, dass Sie da sind!',
+                'slide_number' => 1,
+                'is_active' => '1',
+                'show_logo' => '1',
+                'show_date' => '1',
+                'background_source' => 'inherit',
+                'visitors' => json_encode([
+                    ['id' => null, 'name' => str_repeat('A', 51)],
+                ]),
+            ]);
+
+        $response
+            ->assertRedirect(route('monitors.slides.create', $monitor))
+            ->assertSessionHasErrors('visitors');
+
+        $this->assertSame(0, $monitor->monitorSlides()->count());
     }
 
     public function test_manual_page_visibility_can_be_toggled_from_the_editor_component(): void
