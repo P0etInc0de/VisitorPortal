@@ -66,7 +66,7 @@ class AdminPanelProvider extends PanelProvider
             ->renderHook(
                 PanelsRenderHook::GLOBAL_SEARCH_AFTER,
                 fn (): string => Blade::render('
-                    <x-filament::button tag="a" href="/dashboard" size="sm">
+                    <x-filament::button tag="a" href="/overview" size="sm">
                         {{__("User-Bereich")}}
                     </x-filament::button>
                 ')
