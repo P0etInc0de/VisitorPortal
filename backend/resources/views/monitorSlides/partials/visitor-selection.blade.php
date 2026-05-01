@@ -1,52 +1,35 @@
-<section class="grid gap-3 xl:grid-cols-[minmax(0,1fr)_minmax(0,2fr)] xl:items-start">
-    <div class="grid min-w-0 content-start gap-3">
-        <div class="min-w-0 overflow-hidden rounded-2xl border border-slate-200 bg-slate-50 p-3.5">
-            <label class="form-control w-full">
-                <div class="label px-0 pb-2">
-                    <span class="label-text text-sm font-medium text-base-content">{{ __('Manuell Name hinzufügen') }}</span>
-                </div>
-            </label>
-
-            <div class="relative min-w-0">
-                <input
-                    id="manualNameInput"
-                    type="text"
-                    maxlength="50"
-                    placeholder="{{ __('Name') }}"
-                    onkeydown="if (event.key === 'Enter') { event.preventDefault(); addManualVisitor(); }"
-                    class="input input-bordered h-11 w-full min-w-0 rounded-xl border-slate-300 bg-white pr-14 focus:border-indigo-500 transition-all"
-                >
-
-                <button
-                    type="button"
-                    class="btn btn-primary btn-sm btn-circle absolute top-1/2 right-1.5 h-9 min-h-0 w-9 -translate-y-1/2 rounded-full text-xl leading-none"
-                    onclick="addManualVisitor()"
-                    aria-label="{{ __('Zur Liste hinzufügen') }}"
-                    title="{{ __('Zur Liste hinzufügen') }}"
-                >
-                    +
-                </button>
+<section class="grid gap-3 xl:grid-cols-3 xl:items-start">
+    <div class="rounded-2xl border border-slate-200 bg-slate-50 p-3.5 xl:col-span-1">
+        <label class="form-control w-full">
+            <div class="label px-0 pb-2">
+                <span class="label-text text-sm font-medium text-base-content">{{ __('Manuell Name hinzufügen') }}</span>
             </div>
-        </div>
+        </label>
 
-        <div class="flex h-full min-w-0 flex-col rounded-2xl border border-slate-200 bg-slate-50 p-3.5">
-            <label class="form-control w-full">
-                <div class="label px-0 pb-2">
-                    <span class="label-text text-sm font-medium text-base-content">{{ __('Ausgewählte Besucher') }}</span>
-                </div>
-            </label>
+        <div class="relative">
+            <input
+                id="manualNameInput"
+                type="text"
+                maxlength="50"
+                placeholder="{{ __('Name') }}"
+                onkeydown="if (event.key === 'Enter') { event.preventDefault(); addManualVisitor(); }"
+                class="input input-bordered h-11 w-full rounded-xl border-slate-300 bg-white pr-14 focus:border-indigo-500 transition-all"
+            >
 
-            <div id="selectedVisitors" class="flex min-h-14 flex-1 flex-wrap gap-2 rounded-xl border border-slate-200 bg-white p-2.5">
-                <!-- selected visitors are put here -->
-            </div>
-            <span class="mt-2 block text-sm font-medium text-red-500" id="visitorError"></span>
-
-            <input type="hidden" id="visitorsInput" name="visitors">
+            <button
+                type="button"
+                class="btn btn-primary btn-sm btn-circle absolute top-1/2 right-1.5 h-9 min-h-0 w-9 -translate-y-1/2 rounded-full text-xl leading-none"
+                onclick="addManualVisitor()"
+                aria-label="{{ __('Zur Liste hinzufügen') }}"
+                title="{{ __('Zur Liste hinzufügen') }}"
+            >
+                +
+            </button>
         </div>
     </div>
 
-    <div class="min-w-0 rounded-2xl border border-slate-200 bg-slate-50 p-3.5 xl:row-span-2">
-        <h3 class="text-sm font-medium text-base-content">{{ __('Heutige Besuche') }}</h3>
+    <div class="rounded-2xl border border-slate-200 bg-slate-50 p-3.5 xl:col-span-2">
+        <h3 class="text-sm font-semibold text-slate-900">{{ __('Heutige Besuche') }}</h3>
 
         <div class="mt-3 grid gap-2">
             @forelse ($todayVisits as $visit)
@@ -105,5 +88,20 @@
                 </div>
             @endforelse
         </div>
+    </div>
+
+    <div class="xl:col-span-3">
+        <label class="form-control w-full">
+            <div class="label px-0 pb-2">
+                <span class="label-text text-sm font-medium text-base-content">{{ __('Ausgewählte Besucher') }}</span>
+            </div>
+        </label>
+
+        <div id="selectedVisitors" class="flex min-h-14 flex-wrap gap-2 rounded-xl border border-slate-200 bg-base-100 p-2.5">
+            <!-- selected visitors are put here -->
+        </div>
+        <span class="mt-1 block text-sm font-medium text-red-500" id="visitorError"></span>
+
+        <input type="hidden" id="visitorsInput" name="visitors">
     </div>
 </section>
