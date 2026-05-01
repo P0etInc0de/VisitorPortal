@@ -22,7 +22,7 @@
             @endforeach
         </section>
 
-        <section class="grid items-start gap-4 lg:min-h-0 xl:grid-cols-[minmax(0,1.45fr)_minmax(18rem,0.72fr)]">
+        <section class="grid gap-4 lg:min-h-0 xl:items-stretch xl:grid-cols-[minmax(0,1.45fr)_minmax(18rem,0.72fr)]">
             <article class="rounded-3xl border border-base-300 bg-base-100 shadow-sm rounded-[1.35rem] lg:flex lg:h-full lg:min-h-0 lg:flex-col lg:overflow-hidden">
                 <div class="px-4 pt-4 sm:px-[1.05rem] sm:pt-[1.05rem]">
                     <div class="mb-3 flex items-center justify-between gap-4">
@@ -102,25 +102,8 @@
                 </div>
             </article>
 
-            <aside class="rounded-3xl border border-base-300 bg-base-100 shadow-sm rounded-[1.35rem]">
-                <div class="p-4 sm:p-[1.05rem]">
-                    <h2 class="mb-3 text-[1.35rem] font-bold leading-tight tracking-tight text-base-content">
-                        {{ __('Notizen') }}
-                    </h2>
+            <livewire:portal.status-notifications-card />
 
-                    <div class="grid gap-3">
-                        @forelse ($notes as $note)
-                            <div class="rounded-2xl border border-base-300 bg-base-100/95 px-4 py-3 text-sm leading-6 text-base-content">
-                                {{ $note }}
-                            </div>
-                        @empty
-                            <div class="rounded-2xl border border-dashed border-base-300 bg-base-100/80 px-4 py-3 text-sm leading-6 text-base-content/65">
-                                {{ __('Aktuell gibt es keine offenen Notizen.') }}
-                            </div>
-                        @endforelse
-                    </div>
-                </div>
-            </aside>
         </section>
     </div>
 </x-app-layout>
