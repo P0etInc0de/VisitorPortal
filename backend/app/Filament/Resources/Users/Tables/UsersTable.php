@@ -16,23 +16,26 @@ class UsersTable
         return $table
             ->columns([
                 TextColumn::make('department.name')
+                    ->label(__('Abteilung'))
                     ->searchable(),
                 TextColumn::make('first_name')
-                    ->label('Vorname')
+                    ->label(__('Vorname'))
                     ->searchable(),
                 TextColumn::make('name')
-                    ->label('Nachname')
+                    ->label(__('Nachname'))
                     ->searchable(),
                 TextColumn::make('title')
-                    ->label('Titel'),
+                    ->label(__('Titel')),
                 TextColumn::make('email')
-                    ->label('Email address')
+                    ->label(__('E-Mail'))
                     ->searchable(),
                 TextColumn::make('created_at')
+                    ->label(__('Erstellt am'))
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('updated_at')
+                    ->label(__('Aktualisiert am'))
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),

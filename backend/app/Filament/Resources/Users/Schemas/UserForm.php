@@ -3,7 +3,6 @@
 namespace App\Filament\Resources\Users\Schemas;
 
 use App\Enums\GenderEnum;
-use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Schema;
@@ -15,25 +14,35 @@ class UserForm
         return $schema
             ->components([
                 Select::make('department_id')
-                    ->relationship('department', 'name'),
+                    ->label(__('Abteilung'))
+                    ->relationship('department', 'name')
+                    ->preload(),
                 TextInput::make('first_name')
-                    ->label('Vorname')
+                    ->label(__('Vorname'))
                     ->required(),
                 TextInput::make('name')
-                    ->label('Nachname')
+                    ->label(__('Nachname'))
                     ->required(),
+                Select::make('roles')
+                    ->label(__('Rollen'))
+                    ->relationship('roles', 'name')
+                    ->multiple()
+                    ->preload()
+                    ->searchable(),
                 TextInput::make('title')
-                    ->label('Titel'),
+                    ->label(__('Titel')),
                 Select::make('gender')
+                    ->label(__('Geschlecht'))
                     ->options(GenderEnum::class)
                     ->required()
+                    ->preload()
                     ->default(GenderEnum::Not_Specified),
                 TextInput::make('email')
-                    ->label('Email address')
+                    ->label(__('E-Mail'))
                     ->email()
                     ->required(),
-                DateTimePicker::make('email_verified_at'),
                 TextInput::make('password')
+                    ->label(__('Passwort'))
                     ->password()
                     ->required(),
             ]);

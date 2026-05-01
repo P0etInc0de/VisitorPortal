@@ -7,10 +7,10 @@ use App\Http\Controllers\Portal\VisitController as PortalVisitController;
 use App\Http\Controllers\Reception\DashboardController as ReceptionDashboardController;
 use App\Http\Controllers\Reception\VisitController as ReceptionVisitController;
 use App\Http\Controllers\Reception\VisitParticipantActionController;
-use App\Http\Controllers\UserPermissionsController;
 use App\Http\Middleware\CheckMonitorAutoGeneration;
 use App\Livewire\Portal\CheckInOutBoard;
 use App\Livewire\Portal\VisitShowPage;
+use App\Livewire\Profile\UserPermissionsPage;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -83,11 +83,13 @@ Route::middleware(['auth', 'verified'])->group(function () {
             ->name('participants.check-out');
     });
 
+    Route::get('monitors/{monitor}/fallback/edit', [MonitorController::class, 'editFallbackPage'])->name('monitors.fallback.edit');
+    Route::put('monitors/{monitor}/fallback', [MonitorController::class, 'updateFallbackPage'])->name('monitors.fallback.update');
     Route::resource('monitors', MonitorController::class);
     Route::resource('monitors.slides', MonitorSlidesController::class)
         ->middleware(CheckMonitorAutoGeneration::class);
 
-    Route::get('/user-permissions', [UserPermissionsController::class, 'index'])->name('user-permissions');
+    Route::get('/user-permissions', UserPermissionsPage::class)->name('user-permissions');
 });
 
 require __DIR__.'/auth.php';

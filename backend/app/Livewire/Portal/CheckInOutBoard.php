@@ -9,8 +9,10 @@ use App\Models\Visit;
 use App\Models\Visitor;
 use App\Services\VisitActionService;
 use Illuminate\Contracts\View\View;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\HtmlString;
 use Illuminate\Support\Str;
 use Livewire\Component;
 
@@ -19,8 +21,6 @@ class CheckInOutBoard extends Component
     public string $search = '';
 
     public ?string $walkInHostId = null;
-
-    protected VisitActionService $visitActionService;
 
     /**
      * @var array<string, string>
@@ -34,16 +34,11 @@ class CheckInOutBoard extends Component
         'company' => '',
     ];
 
-    public function boot(VisitActionService $visitActionService): void
-    {
-        $this->visitActionService = $visitActionService;
-    }
-
     public function checkIn(int $visitId, int $visitorId): void
     {
         [$visit, $visitor, $user] = $this->resolveActionContext($visitId, $visitorId);
 
-        $this->visitActionService->checkInParticipant($visit, $visitor, $user);
+        $this->visitActionService()->checkInParticipant($visit, $visitor, $user);
 
         session()->flash('status', __('Teilnehmender wurde eingecheckt.'));
     }
@@ -52,7 +47,7 @@ class CheckInOutBoard extends Component
     {
         [$visit, $visitor, $user] = $this->resolveActionContext($visitId, $visitorId);
 
-        $this->visitActionService->checkOutParticipant($visit, $visitor, $user);
+        $this->visitActionService()->checkOutParticipant($visit, $visitor, $user);
 
         session()->flash('status', __('Teilnehmender wurde ausgecheckt.'));
     }
@@ -86,7 +81,7 @@ class CheckInOutBoard extends Component
                 ],
             ]);
 
-            $this->visitActionService->checkInParticipant($visit, $visitor, $user);
+            $this->visitActionService()->checkInParticipant($visit, $visitor, $user);
 
             return [$visit->loadMissing('responsibleUser'), $visitor];
         });
@@ -108,6 +103,12 @@ class CheckInOutBoard extends Component
                 ->orderBy('name')
                 ->get(),
             'results' => $this->searchResults(),
+        ])->layout('layouts.app', [
+            'header' => new HtmlString(
+                view('partials.page-header', [
+                    'title' => __('Check-In / Out'),
+                ])->render()
+            ),
         ]);
     }
 
@@ -132,6 +133,8 @@ class CheckInOutBoard extends Component
     private function searchResults(): Collection
     {
         $todayStart = now()->startOfDay();
+        $windowEnd = now()->copy()->addHours(48);
+        $referenceNow = now();
         $search = trim($this->search);
 
         $visits = Visit::query()
@@ -141,13 +144,7 @@ class CheckInOutBoard extends Component
                 'visitors' => fn ($query) => $query->orderBy('first_name')->orderBy('name'),
             ])
             ->where('status', '!=', VisitStatusEnum::Canceled->value)
-            ->where(function ($query) use ($todayStart) {
-                $query->where('scheduled_until', '>=', $todayStart)
-                    ->orWhere(function ($query) use ($todayStart) {
-                        $query->whereNull('scheduled_until')
-                            ->where('scheduled_from', '>=', $todayStart);
-                    });
-            })
+            ->whereBetween('scheduled_from', [$todayStart, $windowEnd])
             ->when($search !== '', function ($query) use ($search) {
                 $query->where(function ($query) use ($search) {
                     $query->where('title', 'like', '%'.$search.'%')
@@ -169,16 +166,21 @@ class CheckInOutBoard extends Component
                 });
             })
             ->orderBy('scheduled_from')
-            ->limit($search === '' ? 15 : 30)
             ->get();
 
         return $visits
-            ->flatMap(function (Visit $visit) {
-                return $visit->visitors->map(fn (Visitor $visitor) => $this->mapParticipantResult($visit, $visitor));
+            ->flatMap(function (Visit $visit) use ($referenceNow) {
+                return $visit->visitors->map(fn (Visitor $visitor) => $this->mapParticipantResult($visit, $visitor, $referenceNow));
             })
             ->when($search !== '', function (Collection $results) use ($search) {
                 return $results->filter(fn (array $result) => $this->participantMatchesSearch($result, $search));
             })
+            ->sortBy([
+                ['sort_distance_seconds', 'asc'],
+                ['is_past', 'asc'],
+                ['scheduled_from_timestamp', 'asc'],
+                ['display_name', 'asc'],
+            ])
             ->take(20)
             ->values();
     }
@@ -186,7 +188,7 @@ class CheckInOutBoard extends Component
     /**
      * @return array<string, mixed>
      */
-    private function mapParticipantResult(Visit $visit, Visitor $visitor): array
+    private function mapParticipantResult(Visit $visit, Visitor $visitor, Carbon $referenceNow): array
     {
         $pivot = $visit->visitors->firstWhere('id', $visitor->id)?->pivot;
         $status = $this->resolveParticipantStatus((string) $visit->status, $pivot);
@@ -195,8 +197,13 @@ class CheckInOutBoard extends Component
             $visitor->first_name,
             $visitor->name,
         ])));
+        $scheduledFrom = $visit->scheduled_from;
+        $sortDistanceSeconds = $scheduledFrom
+            ? abs($scheduledFrom->diffInSeconds($referenceNow, false))
+            : PHP_INT_MAX;
 
         return [
+            'row_key' => "visit-{$visit->id}-visitor-{$visitor->id}",
             'visit_id' => $visit->id,
             'visitor_id' => $visitor->id,
             'badge_url' => route('reception.participants.badge', [$visit->id, $visitor->id]),
@@ -210,8 +217,13 @@ class CheckInOutBoard extends Component
             'company' => $visitor->company,
             'email' => $visitor->email,
             'phone' => $visitor->phone,
+            'scheduled_from_timestamp' => $scheduledFrom?->timestamp ?? PHP_INT_MAX,
+            'sort_distance_seconds' => $sortDistanceSeconds,
+            'is_past' => $scheduledFrom && $scheduledFrom->lt($referenceNow) ? 1 : 0,
             'status_label' => $status['label'],
             'status_class' => $status['class'],
+            'checked_in_label' => $this->formatActionTimestamp($pivot?->checked_in_at),
+            'checked_out_label' => $this->formatActionTimestamp($pivot?->checked_out_at),
             'badge_ready' => filled($pivot?->badge_printed_at),
             'can_check_in' => blank($pivot?->checked_in_at) || filled($pivot?->checked_out_at),
             'check_in_label' => filled($pivot?->checked_out_at) ? __('Erneut einchecken') : __('Check-in'),
@@ -332,6 +344,24 @@ class CheckInOutBoard extends Component
         $value = trim((string) $value);
 
         return $value === '' ? null : $value;
+    }
+
+    private function visitActionService(): VisitActionService
+    {
+        return app(VisitActionService::class);
+    }
+
+    private function formatActionTimestamp(mixed $value): ?string
+    {
+        if (! $value) {
+            return null;
+        }
+
+        if ($value instanceof Carbon) {
+            return $value->format('d.m.Y H:i');
+        }
+
+        return Carbon::parse($value)->format('d.m.Y H:i');
     }
 
     /**

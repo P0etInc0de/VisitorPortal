@@ -7,6 +7,7 @@ use App\Models\User;
 use App\Models\Visit;
 use App\Models\Visitor;
 use Illuminate\Contracts\View\View;
+use Illuminate\Support\HtmlString;
 use Livewire\Component;
 
 class VisitShowPage extends Component
@@ -74,6 +75,12 @@ class VisitShowPage extends Component
             'participants' => $this->participantItems(),
             'visitStatus' => $this->resolveVisitStatus(),
             'visitMeta' => $this->visitMeta(),
+        ])->layout('layouts.app', [
+            'header' => new HtmlString(
+                view('partials.page-header', [
+                    'title' => $this->visit->display_title,
+                ])->render()
+            ),
         ]);
     }
 

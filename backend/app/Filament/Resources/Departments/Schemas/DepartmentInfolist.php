@@ -12,15 +12,20 @@ class DepartmentInfolist
     {
         return $schema
             ->components([
-                TextEntry::make('name'),
+                TextEntry::make('name')
+                    ->label(__('Name')),
                 TextEntry::make('location')
+                    ->label(__('Standort'))
                     ->placeholder('-'),
                 IconEntry::make('is_active')
+                    ->label(__('Aktiv'))
                     ->boolean(),
                 TextEntry::make('created_at')
+                    ->label(__('Erstellt am'))
                     ->dateTime()
                     ->placeholder('-'),
                 TextEntry::make('updated_at')
+                    ->label(__('Aktualisiert am'))
                     ->dateTime()
                     ->placeholder('-'),
             ]);

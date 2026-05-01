@@ -37,7 +37,7 @@
     <x-slot name="header">
         <div class="flex items-start justify-between gap-4">
             <div>
-                <h1 class="text-4xl font-bold leading-none tracking-tight lg:text-5xl">
+                <h1 class="text-4xl font-bold leading-none tracking-tight text-base-content lg:text-5xl">
                     {{ $isEdit ? __('Besuch bearbeiten') : __('Besuch anlegen') }}
                 </h1>
             </div>
@@ -273,7 +273,7 @@
                                                 value="{{ $user->id }}"
                                                 @selected((int) old('user_id', $visit->user_id ?: auth()->id()) === $user->id)
                                             >
-                                                {{ $user->name }}
+                                                {{ $user->fullName }}
                                             </option>
                                         @endforeach
                                     </select>
@@ -295,7 +295,7 @@
                                                 value="{{ $user->id }}"
                                                 @selected((int) old('responsible_user_id', $visit->responsible_user_id) === $user->id)
                                             >
-                                                {{ $user->name }}
+                                                {{ $user->fullName }}
                                             </option>
                                         @endforeach
                                     </select>
@@ -310,7 +310,7 @@
                                         class="select select-bordered w-full @error('status') select-error @enderror"
                                     >
                                         @foreach (\App\Enums\VisitStatusEnum::options() as $value => $label)
-                                            <option value="{{ $value }}" @selected(old('status', $visit->status ?: 'draft') === $value)>
+                                            <option value="{{ $value }}" @selected(old('status', $visit->status ?: \App\Enums\VisitStatusEnum::Planned->value) === $value)>
                                                 {{ $label }}
                                             </option>
                                         @endforeach

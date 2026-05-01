@@ -12,25 +12,39 @@ class VisitorInfolist
         return $schema
             ->components([
                 TextEntry::make('first_name')
-                    ->label('Vorname'),
+                    ->label(__('Vorname')),
                 TextEntry::make('name')
-                    ->label('Nachname'),
+                    ->label(__('Nachname')),
                 TextEntry::make('title')
-                    ->label('Titel'),
-                TextEntry::make('gender'),
+                    ->label(__('Titel')),
+                TextEntry::make('gender')
+                    ->label(__('Geschlecht')),
                 TextEntry::make('email')
-                    ->label('Email address'),
-                TextEntry::make('phone'),
+                    ->label(__('E-Mail')),
+                TextEntry::make('phone')
+                    ->label(__('Telefon')),
                 TextEntry::make('company')
+                    ->label(__('Firma'))
                     ->placeholder('-'),
-                TextEntry::make('status'),
+                TextEntry::make('status')
+                    ->label(__('Status'))
+                    ->formatStateUsing(fn (string $state): string => match ($state) {
+                        'planned' => __('Geplant'),
+                        'canceled' => __('Abgesagt'),
+                        'checked_in' => __('Eingecheckt'),
+                        'checked_out' => __('Ausgecheckt'),
+                        default => $state,
+                    }),
                 TextEntry::make('notes')
+                    ->label(__('Notizen'))
                     ->placeholder('-')
                     ->columnSpanFull(),
                 TextEntry::make('created_at')
+                    ->label(__('Erstellt am'))
                     ->dateTime()
                     ->placeholder('-'),
                 TextEntry::make('updated_at')
+                    ->label(__('Aktualisiert am'))
                     ->dateTime()
                     ->placeholder('-'),
             ]);

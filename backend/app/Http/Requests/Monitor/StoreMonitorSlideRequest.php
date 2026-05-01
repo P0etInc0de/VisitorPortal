@@ -25,19 +25,28 @@ class StoreMonitorSlideRequest extends FormRequest
      */
     public function rules(): array
     {
-        $maxSlide = MonitorSlide::max('slide_number') + 1;
+        $monitor = $this->route('monitor');
+        $maxSlide = MonitorSlide::query()
+            ->where('monitor_id', $monitor->id)
+            ->where('is_auto_generated', false)
+            ->max('slide_number') + 1;
 
         return [
+            'visitors' => ['nullable', 'json'],
             'heading' => 'required',
             'slide_number' => [
                 'required',
                 'integer',
                 'between:1,'.$maxSlide,
             ],
+            'is_active' => 'boolean',
             'show_logo' => 'boolean',
             'show_date' => 'boolean',
             'show_time' => 'boolean',
             'subheading' => 'string|nullable',
+            'background_source' => 'required|in:inherit,preset-1,preset-2,preset-3,upload',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:20000',
+            'deleteImage' => 'boolean',
         ];
     }
 }

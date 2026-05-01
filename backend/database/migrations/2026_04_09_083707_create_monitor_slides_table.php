@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('monitor_id')->constrained()->cascadeOnDelete();
             $table->string('image_path')->default(null)->nullable();
+            $table->string('background_source')->default(null)->nullable();
             $table->integer('slide_number')->default(0);
             $table->timestamps();
             $table->string('heading');

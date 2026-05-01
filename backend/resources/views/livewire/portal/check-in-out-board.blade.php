@@ -11,10 +11,6 @@
     }"
     x-on:print-badge.window="printBadge($event.detail.url)"
 >
-    <div class="mb-8">
-        <h1 class="text-3xl font-extrabold tracking-tight text-base-content">{{ __('Check-In / Out') }}</h1>
-    </div>
-
     <div class="grid grid-cols-1 gap-6 lg:grid-cols-4 lg:items-start">
         <div class="flex flex-col gap-6 lg:col-span-3">
             @if (session('status'))
@@ -45,6 +41,7 @@
                 <div class="mb-4 flex items-start justify-between gap-4">
                     <div>
                         <h2 class="mb-4 text-xl font-bold text-base-content">{{ __('Heute & anstehend') }}</h2>
+                        <p class="-mt-2 mb-3 text-sm text-base-content/65">{{ __('Besuche von heute sowie Termine bis zu 48 Stunden im Voraus.') }}</p>
                         <p class="mt-1 text-sm text-base-content/70">{{ trans_choice(':count Treffer|:count Treffer', count($results), ['count' => count($results)]) }}</p>
                     </div>
                 </div>
@@ -56,7 +53,7 @@
                 @else
                     <div class="grid gap-3">
                         @foreach ($results as $result)
-                            <article class="rounded-2xl border border-base-300 bg-base-100 px-4 py-4">
+                            <article wire:key="check-in-out-result-{{ $result['row_key'] }}" class="rounded-2xl border border-base-300 bg-base-100 px-4 py-4">
                                 <div class="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
                                     <div class="min-w-0">
                                         <div class="flex flex-wrap items-center gap-2">
@@ -83,6 +80,18 @@
                                                 <span>{{ $result['phone'] }}</span>
                                             @endif
                                         </div>
+
+                                        @if (!empty($result['checked_in_label']) || !empty($result['checked_out_label']))
+                                            <div class="mt-3 flex flex-wrap gap-x-4 gap-y-1 text-xs text-base-content/55">
+                                                @if (!empty($result['checked_in_label']))
+                                                    <span>{{ __('Check-in') }}: {{ $result['checked_in_label'] }}</span>
+                                                @endif
+
+                                                @if (!empty($result['checked_out_label']))
+                                                    <span>{{ __('Check-out') }}: {{ $result['checked_out_label'] }}</span>
+                                                @endif
+                                            </div>
+                                        @endif
                                     </div>
 
                                     <div class="flex shrink-0 flex-wrap gap-2">
@@ -92,7 +101,7 @@
                                                 class="btn btn-primary btn-sm rounded-xl"
                                                 wire:click="checkIn({{ $result['visit_id'] }}, {{ $result['visitor_id'] }})"
                                                 wire:loading.attr="disabled"
-                                                wire:target="checkIn"
+                                                wire:target="checkIn({{ $result['visit_id'] }}, {{ $result['visitor_id'] }})"
                                             >
                                                 {{ $result['check_in_label'] }}
                                             </button>
@@ -104,7 +113,7 @@
                                                 class="btn btn-outline btn-sm rounded-xl"
                                                 wire:click="checkOut({{ $result['visit_id'] }}, {{ $result['visitor_id'] }})"
                                                 wire:loading.attr="disabled"
-                                                wire:target="checkOut"
+                                                wire:target="checkOut({{ $result['visit_id'] }}, {{ $result['visitor_id'] }})"
                                             >
                                                 {{ __('Check-out') }}
                                             </button>
@@ -149,32 +158,32 @@
 
                         <div>
                             <label class="label px-0 pb-2"><span class="label-text font-medium">{{ __('Titel') }}</span></label>
-                            <input type="text" class="input input-bordered w-full" wire:model.defer="walkIn.title" placeholder="{{ __('z. B. Dr.') }}">
+                            <input type="text" class="input input-bordered w-full" wire:model="walkIn.title" placeholder="{{ __('z. B. Dr.') }}">
                         </div>
 
                         <div>
                             <label class="label px-0 pb-2"><span class="label-text font-medium">{{ __('Vorname') }}</span></label>
-                            <input type="text" class="input input-bordered w-full" wire:model.defer="walkIn.first_name" required>
+                            <input type="text" class="input input-bordered w-full" wire:model="walkIn.first_name" required>
                         </div>
 
                         <div>
                             <label class="label px-0 pb-2"><span class="label-text font-medium">{{ __('Nachname') }}</span></label>
-                            <input type="text" class="input input-bordered w-full" wire:model.defer="walkIn.name" required>
+                            <input type="text" class="input input-bordered w-full" wire:model="walkIn.name" required>
                         </div>
 
                         <div>
                             <label class="label px-0 pb-2"><span class="label-text font-medium">{{ __('Firma') }}</span></label>
-                            <input type="text" class="input input-bordered w-full" wire:model.defer="walkIn.company">
+                            <input type="text" class="input input-bordered w-full" wire:model="walkIn.company">
                         </div>
 
                         <div>
                             <label class="label px-0 pb-2"><span class="label-text font-medium">{{ __('E-Mail') }}</span></label>
-                            <input type="email" class="input input-bordered w-full" wire:model.defer="walkIn.email" placeholder="{{ __('optional') }}">
+                            <input type="email" class="input input-bordered w-full" wire:model="walkIn.email" placeholder="{{ __('optional') }}">
                         </div>
 
                         <div>
                             <label class="label px-0 pb-2"><span class="label-text font-medium">{{ __('Telefon') }}</span></label>
-                            <input type="text" class="input input-bordered w-full" wire:model.defer="walkIn.phone" placeholder="{{ __('optional') }}">
+                            <input type="text" class="input input-bordered w-full" wire:model="walkIn.phone" placeholder="{{ __('optional') }}">
                         </div>
                     </div>
 

@@ -5,9 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>{{ __('Live-Anzeige') }}</title>
 
+    @livewireStyles
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 <body class="h-screen w-screen overflow-hidden">
     <livewire:monitor.monitor-slides :monitor="$monitor"/>
+
+    @livewireScripts
 </body>
 </html>

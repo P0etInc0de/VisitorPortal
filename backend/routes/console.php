@@ -15,4 +15,4 @@ Artisan::command('inspire', function () {
  * Connect to mailhog to check if the Scheduler works
  */
 Schedule::call(new DailyVisitorReminder)->dailyAt('07:00')->description('DailyVisitorReminder');
-Schedule::call(new WelcomeMonitorAutoGeneration)->everyFiveMinutes()->description('WelcomeMonitorAutoGeneration');
+Schedule::call(new WelcomeMonitorAutoGeneration)->everyMinute()->description('WelcomeMonitorAutoGeneration');

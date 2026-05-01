@@ -77,7 +77,7 @@ services:
     ports:
       - "5173:5173"
     environment:
-      - CHOKIDAR_USEPOLLING=true
+      - CHOKIDAR_USEPOLLING=false
     command: sh -lc "npm install && npm run dev -- --host 0.0.0.0 --port 5173"
 
   gotenberg:

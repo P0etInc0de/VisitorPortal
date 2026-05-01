@@ -1,29 +1,30 @@
 <x-app-layout>
     <x-slot name="header">
-        <h1 class="text-3xl font-semibold tracking-tight text-slate-900">
+        <h1 class="text-4xl font-bold leading-none tracking-tight text-base-content lg:text-5xl">
             {{ __('Neue Seite erstellen') }}
         </h1>
     </x-slot>
         <x-bp.card title="{{ __('Neue Seite') }}">
-            <x-slot:actions>
-                <div>
-                    <input form="createMonitorSlide" type="submit" class="btn btn-primary btn-sm rounded-xl" value="{{__('Speichern')}}"/>
-                    <a type="button" class="btn-sm rounded-xl btn" href="{{route('monitors.edit', $monitor)}}">{{__('Abbrechen')}}</a>
-                </div>
-            </x-slot:actions>
-
-            <form id="createMonitorSlide" method="POST" action="{{ route('monitors.slides.store', [$monitor]) }}">
+            <form id="createMonitorSlide" method="POST" action="{{ route('monitors.slides.store', [$monitor]) }}" enctype="multipart/form-data">
                 @csrf
-                <div class="grid gap-5 md:grid-cols-3">
+                <div class="grid gap-5">
                     <x-bp.input label="{{ __('Überschrift') }}" name="heading" value="{{ __('Herzlich willkommen!') }}"/>
                     <x-bp.input label="{{ __('Unterüberschrift') }}" name="subheading" value="{{ __('Schön, dass Sie da sind!') }}"/>
                     <x-bp.input label="{{ __('Seitennummer') }}" type="number" name="slide_number" value="{{ $defaultSlideNumber }}"/>
 
+                    <x-bp.toggle label="{{ __('Seite aktiv') }}" name="is_active" checked="1"/>
                     <x-bp.toggle label="{{ __('Logo Anzeigen') }}" name="show_logo" checked="1"/>
                     <x-bp.toggle label="{{ __('Datum Anzeigen') }}" name="show_date" checked="1"/>
                     {{--<x-bp.toggle label="{{ __('Zeit Anzeigen') }}" name="show_time"/>--}}
 
-                    <div class="md:col-span-3">
+                    @include('monitorSlides.partials.background-settings', ['monitor' => $monitor, 'slide' => null])
+
+                    <div class="grid gap-3 rounded-3xl border border-slate-200 bg-slate-50 p-4 md:grid-cols-[minmax(0,1fr)_auto] md:items-end">
+                        <x-bp.input label="{{ __('Eigenen Namen hinzufügen') }}" name="manual_name" id="manualNameInput" value="" placeholder="{{ __('Name für Begrüßungsseite') }}" onkeydown="if (event.key === 'Enter') { event.preventDefault(); addManualVisitor(); }"/>
+                        <button type="button" class="btn btn-outline rounded-xl" onclick="addManualVisitor()">{{ __('Zur Liste hinzufügen') }}</button>
+                    </div>
+
+                    <div>
                         <label class="form-control w-full">
                             <span class="label-text text-sm font-medium text-base-content">{{ __('Ausgewählte Besucher') }}</span>
                         </label>
@@ -34,14 +35,19 @@
                         <span class="mt-1 block text-sm text-red-500 font-medium" id="visitorError" ></span>
                     </div>
 
-                        {{-- Hidden inputs for the POST request of the form to laravel --}}
+                    {{-- Hidden inputs for the POST request of the form to laravel --}}
                     <input type="hidden" id="visitorsInput" name="visitors" />
                     <input type="hidden" value="{{ $monitor->id }}" name="monitor_id"/>
+                </div>
+
+                <div class="mt-6 flex justify-end gap-3">
+                    <a type="button" class="btn-sm rounded-xl btn" href="{{ route('monitors.edit', $monitor) }}#monitor-pages">{{ __('Abbrechen') }}</a>
+                    <input type="submit" class="btn btn-primary btn-sm rounded-xl" value="{{ __('Speichern') }}"/>
                 </div>
             </form>
         </x-bp.card>
 
-        <x-bp.card title="{{ __('Heutige Besuche') }}">
+        <x-bp.card :title="__('Heutige Besuche')">
                 @foreach ($todayVisits as $visit)
                     <x-bp.list-item :title="$visit->title">
                         <x-slot:index>
@@ -52,7 +58,7 @@
                                 <button
                                     type="button"
                                     class="btn btn-xs btn-outline rounded-full"
-                                    onclick="addVisitor({{ $visitor->id }}, '{{ $visitor->title.' ' }}{{ $visitor->first_name }} {{ $visitor->name }}')"
+                                    onclick='addVisitor(@json(["key" => "visit-{$visitor->id}", "id" => $visitor->id, "name" => trim($visitor->title." ".$visitor->first_name." ".$visitor->name)]))'
                                 >
                                     + {{ $visitor->title.' ' }}{{ $visitor->first_name }} {{ $visitor->name }}
                                 </button>
@@ -69,11 +75,22 @@
 </x-app-layout>
 
 <script>
-    let selectedVisitors =  [];
+    let selectedVisitors = @js(json_decode(old('visitors', '[]'), true) ?? []);
     const errorMessage = document.getElementById('visitorError');
+    const manualNameInput = document.getElementById('manualNameInput');
 
-    function addVisitor(id, name) {
-        if (selectedVisitors.find(v => v.id === id)) return;
+    selectedVisitors = selectedVisitors.map((visitor, index) => ({
+        key: visitor.id ? `visit-${visitor.id}` : `manual-${index}`,
+        id: visitor.id ?? null,
+        name: visitor.name,
+    }));
+
+    function addVisitor(visitor) {
+        const trimmedName = (visitor.name ?? '').trim();
+
+        if (!trimmedName) return;
+        if (selectedVisitors.find(v => (visitor.id && v.id === visitor.id) || (!visitor.id && v.name.toLowerCase() === trimmedName.toLowerCase()))) return;
+
         if (selectedVisitors.length >= 6){
             errorMessage.textContent = "{{ __('Maximal 6 Besucher je Seite') }}"
             return;
@@ -81,12 +98,26 @@
             errorMessage.textContent = "";
         }
 
-        selectedVisitors.push({ id, name });
+        selectedVisitors.push({
+            key: visitor.key,
+            id: visitor.id ?? null,
+            name: trimmedName,
+        });
         renderVisitors();
     }
 
-    function removeVisitor(id) {
-        selectedVisitors = selectedVisitors.filter(v => v.id !== id);
+    function addManualVisitor() {
+        addVisitor({
+            key: `manual-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+            id: null,
+            name: manualNameInput.value,
+        });
+
+        manualNameInput.value = '';
+    }
+
+    function removeVisitor(key) {
+        selectedVisitors = selectedVisitors.filter(v => v.key !== key);
         renderVisitors();
         errorMessage.textContent = "";
     }
@@ -101,15 +132,22 @@
             const chip = document.createElement('div');
             chip.className = "badge badge-primary gap-2 px-3 py-3 rounded-full";
 
-            chip.innerHTML = `
-                ${visitor.name}
-                <button type="button" onclick="removeVisitor(${visitor.id})">✕</button>
-            `;
+            const name = document.createElement('span');
+            name.textContent = visitor.name;
 
+            const button = document.createElement('button');
+            button.type = 'button';
+            button.textContent = '✕';
+            button.addEventListener('click', () => removeVisitor(visitor.key));
+
+            chip.appendChild(name);
+            chip.appendChild(button);
             container.appendChild(chip);
         });
 
         //Save IDs of selected visitors to hidden input
-        input.value = JSON.stringify(selectedVisitors);
+        input.value = JSON.stringify(selectedVisitors.map(({ id, name }) => ({ id, name })));
     }
+
+    renderVisitors();
 </script>
