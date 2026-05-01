@@ -65,7 +65,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/check-in-out', CheckInOutBoard::class)->name('check_in_out');
 
         Route::prefix('notifications')->name('notifications.')->group(function () {
-            Route::patch('/{notification}/read', [PortalNotificationController::class, 'markAsRead'])->name('read');
+            Route::patch('/{notification}/read', [PortalNotificationController::class, 'toggleRead'])->name('toggle-read');
             Route::delete('/{notification}', [PortalNotificationController::class, 'destroy'])->name('destroy');
         });
     });

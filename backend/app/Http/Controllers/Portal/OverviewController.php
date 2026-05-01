@@ -130,34 +130,178 @@ class OverviewController extends Controller
             ->latest()
             ->limit(12)
             ->get()
-            ->filter(function (DatabaseNotification $notification) {
-                return filled(Arr::get($notification->data, 'title'))
-                    && filled(Arr::get($notification->data, 'message'));
-            })
-            ->sort(function (DatabaseNotification $left, DatabaseNotification $right): int {
-                $leftIsRead = filled($left->read_at);
-                $rightIsRead = filled($right->read_at);
-
-                if ($leftIsRead !== $rightIsRead) {
-                    return $leftIsRead <=> $rightIsRead;
+            ->map(fn (DatabaseNotification $notification) => $this->mapNotificationCard($notification))
+            ->filter()
+            ->sort(function (array $left, array $right): int {
+                if ($left['sort_is_read'] !== $right['sort_is_read']) {
+                    return $left['sort_is_read'] <=> $right['sort_is_read'];
                 }
 
-                return ($right->created_at?->timestamp ?? 0) <=> ($left->created_at?->timestamp ?? 0);
+                return $right['sort_created_at'] <=> $left['sort_created_at'];
             })
             ->take(6)
-            ->map(function (DatabaseNotification $notification) {
-                return [
-                    'id' => $notification->id,
-                    'title' => Arr::get($notification->data, 'title', __('Benachrichtigung')),
-                    'message' => Arr::get($notification->data, 'message', __('Es liegt eine neue Benachrichtigung vor.')),
-                    'action_url' => Arr::get($notification->data, 'action_url'),
-                    'action_label' => Arr::get($notification->data, 'action_label', __('Weitere Informationen')),
-                    'is_read' => filled($notification->read_at),
-                    'created_at' => $notification->created_at?->format('d.m.Y H:i'),
-                ];
-            })
             ->values()
             ->all();
+    }
+
+    /**
+     * @return array<string, mixed>|null
+     */
+    private function mapNotificationCard(DatabaseNotification $notification): ?array
+    {
+        $title = $this->notificationTitle($notification);
+        $message = $this->notificationMessage($notification);
+
+        if (! filled($title) || ! filled($message)) {
+            return null;
+        }
+
+        return [
+            'id' => $notification->id,
+            'title' => $title,
+            'message' => $message,
+            'action_url' => $this->notificationActionUrl($notification),
+            'action_label' => $this->notificationActionLabel($notification),
+            'is_read' => filled($notification->read_at),
+            'created_at' => $notification->created_at?->format('d.m.Y H:i'),
+            'sort_is_read' => filled($notification->read_at) ? 1 : 0,
+            'sort_created_at' => $notification->created_at?->timestamp ?? 0,
+        ];
+    }
+
+    private function notificationTitle(DatabaseNotification $notification): string
+    {
+        return $this->translateNotificationText($notification, 'title')
+            ?? $this->notificationTypeTitle($notification)
+            ?? Arr::get($notification->data, 'title')
+            ?? __('Benachrichtigung');
+    }
+
+    private function notificationMessage(DatabaseNotification $notification): ?string
+    {
+        return $this->translateNotificationText($notification, 'message')
+            ?? $this->notificationTypeMessage($notification)
+            ?? Arr::get($notification->data, 'message');
+    }
+
+    private function notificationActionLabel(DatabaseNotification $notification): ?string
+    {
+        if (! filled($this->notificationActionUrl($notification))) {
+            return null;
+        }
+
+        return $this->translateNotificationText($notification, 'action_label')
+            ?? $this->notificationTypeActionLabel($notification)
+            ?? Arr::get($notification->data, 'action_label')
+            ?? __('Weitere Informationen');
+    }
+
+    private function notificationActionUrl(DatabaseNotification $notification): ?string
+    {
+        if (Arr::get($notification->data, 'type') === 'guest_checked_in') {
+            $visitId = Arr::get($notification->data, 'context.visit_id');
+
+            if (filled($visitId)) {
+                return route('portal.visits.show', $visitId, absolute: false);
+            }
+        }
+
+        return $this->normalizeNotificationUrl(Arr::get($notification->data, 'action_url'));
+    }
+
+    private function notificationTypeTitle(DatabaseNotification $notification): ?string
+    {
+        return match (Arr::get($notification->data, 'type')) {
+            'guest_checked_in' => __('Besuch eingetroffen'),
+            default => null,
+        };
+    }
+
+    private function notificationTypeMessage(DatabaseNotification $notification): ?string
+    {
+        return match (Arr::get($notification->data, 'type')) {
+            'guest_checked_in' => filled($name = $this->notificationVisitorName($notification))
+                ? __('Gast :name ist soeben eingetroffen.', ['name' => $name])
+                : null,
+            default => null,
+        };
+    }
+
+    private function notificationTypeActionLabel(DatabaseNotification $notification): ?string
+    {
+        return match (Arr::get($notification->data, 'type')) {
+            'guest_checked_in' => __('Weitere Informationen'),
+            default => null,
+        };
+    }
+
+    private function notificationVisitorName(DatabaseNotification $notification): ?string
+    {
+        $visitorName = trim((string) Arr::get($notification->data, 'context.visitor_name'));
+
+        if ($visitorName !== '') {
+            return $visitorName;
+        }
+
+        $visitorId = Arr::get($notification->data, 'context.visitor_id');
+
+        if (! filled($visitorId)) {
+            return null;
+        }
+
+        $visitor = Visitor::query()->find($visitorId);
+
+        return $visitor ? $this->visitorDisplayName($visitor) : null;
+    }
+
+    private function translateNotificationText(DatabaseNotification $notification, string $prefix): ?string
+    {
+        $key = Arr::get($notification->data, $prefix.'_key');
+
+        if (! filled($key)) {
+            return null;
+        }
+
+        $replacements = Arr::get($notification->data, $prefix.'_replacements', []);
+
+        return __($key, is_array($replacements) ? $replacements : []);
+    }
+
+    private function normalizeNotificationUrl(?string $url): ?string
+    {
+        $url = trim((string) $url);
+
+        if ($url === '') {
+            return null;
+        }
+
+        if (str_starts_with($url, '/')) {
+            return $url;
+        }
+
+        $parts = parse_url($url);
+
+        if (! is_array($parts)) {
+            return $url;
+        }
+
+        $host = $parts['host'] ?? null;
+
+        if ($host === request()->getHost() || $host === 'localhost') {
+            $relativeUrl = $parts['path'] ?? '/';
+
+            if (isset($parts['query'])) {
+                $relativeUrl .= '?'.$parts['query'];
+            }
+
+            if (isset($parts['fragment'])) {
+                $relativeUrl .= '#'.$parts['fragment'];
+            }
+
+            return $relativeUrl;
+        }
+
+        return $url;
     }
 
     private function visitStatusLabel(string $status): string
