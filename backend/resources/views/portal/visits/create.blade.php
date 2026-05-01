@@ -376,7 +376,7 @@
                                 </div>
                                 <textarea
                                     name="notes"
-                                    class="textarea textarea-bordered min-h-[9rem] w-full @error('notes') textarea-error @enderror"
+                                    class="textarea textarea-bordered h-40 max-h-40 w-full resize-none overflow-y-auto @error('notes') textarea-error @enderror"
                                 >{{ old('notes', $visit->notes) }}</textarea>
                             </label>
                         </div>
