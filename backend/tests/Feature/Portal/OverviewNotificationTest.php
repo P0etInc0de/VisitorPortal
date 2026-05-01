@@ -49,10 +49,31 @@ class OverviewNotificationTest extends TestCase
         $notification = $user->notifications()->firstOrFail();
 
         $this->actingAs($user)
-            ->patch(route('portal.notifications.read', $notification->id))
+            ->patch(route('portal.notifications.toggle-read', $notification->id))
             ->assertRedirect(route('overview'));
 
         $this->assertNotNull($notification->fresh()->read_at);
+    }
+
+    public function test_user_can_toggle_notification_back_to_unread(): void
+    {
+        $user = (new PermissionHelper)->getReceptionistUser();
+        $visit = Visit::factory()->create([
+            'user_id' => $user->id,
+            'responsible_user_id' => $user->id,
+        ]);
+        $visitor = Visitor::factory()->create();
+
+        Notification::send($user, new GuestCheckedIn($visit, $visitor));
+
+        $notification = $user->notifications()->firstOrFail();
+        $notification->markAsRead();
+
+        $this->actingAs($user)
+            ->patch(route('portal.notifications.toggle-read', $notification->id))
+            ->assertRedirect(route('overview'));
+
+        $this->assertNull($notification->fresh()->read_at);
     }
 
     public function test_user_can_delete_notification(): void
@@ -75,5 +96,29 @@ class OverviewNotificationTest extends TestCase
         $this->assertDatabaseMissing('notifications', [
             'id' => $notification->id,
         ]);
+    }
+
+    public function test_overview_translates_notifications_using_active_locale(): void
+    {
+        $user = (new PermissionHelper)->getReceptionistUser();
+        $visit = Visit::factory()->create([
+            'user_id' => $user->id,
+            'responsible_user_id' => $user->id,
+        ]);
+        $visitor = Visitor::factory()->create([
+            'first_name' => 'Lisa',
+            'name' => 'Punctual',
+        ]);
+
+        Notification::send($user, new GuestCheckedIn($visit, $visitor));
+
+        $this->withSession(['locale' => 'en'])
+            ->actingAs($user)
+            ->get(route('overview'))
+            ->assertOk()
+            ->assertSee('Status & Notifications')
+            ->assertSee('Visit arrived')
+            ->assertSee('Guest Lisa Punctual has just arrived.')
+            ->assertSee('More information');
     }
 }

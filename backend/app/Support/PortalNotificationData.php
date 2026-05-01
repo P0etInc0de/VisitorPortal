@@ -10,18 +10,22 @@ class PortalNotificationData
      */
     public static function make(
         string $type,
-        string $title,
-        string $message,
+        string $titleKey,
+        string $messageKey,
+        array $messageReplacements = [],
         ?string $actionUrl = null,
-        ?string $actionLabel = null,
+        ?string $actionLabelKey = null,
+        array $actionLabelReplacements = [],
         array $context = [],
     ): array {
         return array_filter([
             'type' => $type,
-            'title' => $title,
-            'message' => $message,
+            'title_key' => $titleKey,
+            'message_key' => $messageKey,
+            'message_replacements' => $messageReplacements,
             'action_url' => $actionUrl,
-            'action_label' => $actionLabel,
+            'action_label_key' => $actionLabelKey,
+            'action_label_replacements' => $actionLabelReplacements,
             'context' => $context,
         ], static fn (mixed $value): bool => $value !== null && $value !== []);
     }

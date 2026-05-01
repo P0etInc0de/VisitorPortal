@@ -61,10 +61,11 @@ class NotificationTest extends TestCase
 
         $this->assertNotNull($notification);
         $this->assertSame('guest_checked_in', $notification->data['type']);
-        $this->assertSame('Besuch eingetroffen', $notification->data['title']);
+        $this->assertSame('Besuch eingetroffen', $notification->data['title_key']);
+        $this->assertSame('Gast :name ist soeben eingetroffen.', $notification->data['message_key']);
         $this->assertSame(
-            sprintf('Gast %s %s ist soeben eingetroffen.', $visitor->first_name, $visitor->name),
-            $notification->data['message']
+            trim($visitor->first_name.' '.$visitor->name),
+            $notification->data['message_replacements']['name']
         );
     }
 
@@ -91,7 +92,8 @@ class NotificationTest extends TestCase
 
         $this->assertNotNull($notification);
         $this->assertSame('guest_checked_in', $notification->data['type']);
-        $this->assertSame('Gast Max Mustermann ist soeben eingetroffen.', $notification->data['message']);
+        $this->assertSame('Gast :name ist soeben eingetroffen.', $notification->data['message_key']);
+        $this->assertSame('Max Mustermann', $notification->data['message_replacements']['name']);
     }
 
     public function test_daily_notification()

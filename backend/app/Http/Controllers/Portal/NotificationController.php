@@ -10,11 +10,13 @@ use Illuminate\Notifications\DatabaseNotification;
 
 class NotificationController extends Controller
 {
-    public function markAsRead(Request $request, string $notification): RedirectResponse
+    public function toggleRead(Request $request, string $notification): RedirectResponse
     {
         $notificationRecord = $this->findNotification($request, $notification);
 
-        if (blank($notificationRecord->read_at)) {
+        if (filled($notificationRecord->read_at)) {
+            $notificationRecord->forceFill(['read_at' => null])->save();
+        } else {
             $notificationRecord->markAsRead();
         }
 

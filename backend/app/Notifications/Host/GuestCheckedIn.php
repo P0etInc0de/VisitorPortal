@@ -58,15 +58,17 @@ class GuestCheckedIn extends Notification implements ShouldQueue
     {
         return PortalNotificationData::make(
             type: 'guest_checked_in',
-            title: __('Besuch eingetroffen'),
-            message: __('Gast :name ist soeben eingetroffen.', [
+            titleKey: 'Besuch eingetroffen',
+            messageKey: 'Gast :name ist soeben eingetroffen.',
+            messageReplacements: [
                 'name' => $this->visitorDisplayName(),
-            ]),
-            actionUrl: route('portal.visits.show', $this->visit),
-            actionLabel: __('Weitere Informationen'),
+            ],
+            actionUrl: route('portal.visits.show', $this->visit->getKey(), absolute: false),
+            actionLabelKey: 'Weitere Informationen',
             context: [
                 'visit_id' => $this->visit->id,
                 'visitor_id' => $this->visitor->id,
+                'visitor_name' => $this->visitorDisplayName(),
             ],
         );
     }
