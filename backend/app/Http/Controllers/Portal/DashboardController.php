@@ -90,7 +90,7 @@ class DashboardController extends Controller
             })
             ->values();
 
-        return view('portal.dashboard', [
+        return view('portal.overview', [
             'stats' => [
                 [
                     'label' => __('Meine Besuche heute'),

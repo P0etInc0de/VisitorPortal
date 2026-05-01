@@ -16,7 +16,7 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
     return auth()->check()
-        ? redirect()->route('dashboard')
+        ? redirect()->route('overview')
         : redirect()->route('login');
 })->name('home');
 
@@ -31,7 +31,7 @@ Route::get('/lang', function (Request $request) {
 });
 
 Route::middleware(['auth', 'verified'])->group(function () {
-    Route::get('/dashboard', [PortalDashboardController::class, 'index'])->name('dashboard');
+    Route::get('/overview', [PortalDashboardController::class, 'index'])->name('overview');
 
     Route::prefix('portal')->name('portal.')->group(function () {
         Route::prefix('visits')->name('visits.')->group(function () {
