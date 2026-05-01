@@ -15,7 +15,7 @@ Webbasiertes Besucherportal (Laravel) zur Planung und Abwicklung von Firmenbesuc
 - Standard-Branch: `develop` (laufende Entwicklung)
 - `main`: stabile, präsentierbare Stände (Meilenstein-/Release-Stände), versioniert über Tags/Releases
 - `feature/`: neue feature
-- `bug/`: bug-fixes
+- `fix/`: bug-fixes
 - `documents/`: Dokumentation
 
 ## Doku `docs/`
