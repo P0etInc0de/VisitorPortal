@@ -100,6 +100,7 @@
     "Das Ende muss nach dem Beginn liegen.": "The end must be after the start.",
     "Das Startdatum muss innerhalb des technisch unterstützten Bereichs liegen.": "The start date must be within the supported technical range.",
     "Dashboard": "Dashboard",
+    "Die allgemeine Begrüßungsseite ist immer verfügbar und kann nicht gelöscht werden.": "The general welcome page is always available and cannot be deleted.",
     "Die Live-Anzeige zeigt in der Zwischenzeit automatisch die allgemeine Begrüßungsseite an.": "In the meantime, the live display automatically shows the general welcome page.",
     "Die Vorschau erscheint nach dem Hochladen eines eigenen Bildes.": "The preview will appear after uploading a custom image.",
     "Datum": "Date",
