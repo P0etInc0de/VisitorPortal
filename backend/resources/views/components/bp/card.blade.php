@@ -1,6 +1,6 @@
 @props(['title' => null, 'subtitle' => null])
 <section {{ $attributes->merge(['class' => 'mt-3 rounded-3xl border border-slate-200 bg-white p-6 shadow-sm']) }}>
-    @if($title || $slot->hasActualContent())
+    @if($title || $subtitle || isset($actions))
         <div class="mb-5 flex items-center justify-between gap-4">
             <div>
                 @if($title)
