@@ -128,6 +128,15 @@
                 </a>
 				@endcan
 
+				@canany(['ViewOwn:Visit', 'EditOwn:Visit', 'Create:Visit'])
+                <a href="{{ route('portal.my-visits') }}" class="{{ $navLinkClasses(request()->routeIs('portal.my-visits')) }}">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16" />
+                    </svg>
+                    <span>{{ __('Meine Besuche') }}</span>
+                </a>
+				@endcanany
+
             </div>
 
             @if ($canSeeReception)
@@ -280,6 +289,9 @@
             <nav class="space-y-2">
                 <a href="{{ route('dashboard') }}" class="{{ $navLinkClasses(request()->routeIs('dashboard')) }}" @click="navOpen = false">{{ __('Übersicht') }}</a>
                 <a href="{{ route('portal.visits.create') }}" class="{{ $navLinkClasses(request()->routeIs('portal.visits.create')) }}" @click="navOpen = false">{{ __('Besuch anlegen') }}</a>
+                @canany(['ViewOwn:Visit', 'EditOwn:Visit', 'Create:Visit'])
+                    <a href="{{ route('portal.my-visits') }}" class="{{ $navLinkClasses(request()->routeIs('portal.my-visits')) }}" @click="navOpen = false">{{ __('Meine Besuche') }}</a>
+                @endcanany
                 @if ($canSeeReception)
                     <a href="{{ route('reception.dashboard') }}" class="{{ $navLinkClasses(request()->routeIs('reception.dashboard')) }}" @click="navOpen = false">{{ __('Dashboard') }}</a>
                     @canany(['CheckIn:Visit', 'CheckOut:Visit'])

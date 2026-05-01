@@ -59,6 +59,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
                 ->name('reschedule');
         });
 
+        Route::view('/my-visits', 'portal.my-visits')->name('my-visits');
         Route::redirect('/check_in_out', '/portal/check-in-out');
         Route::get('/check-in-out', CheckInOutBoard::class)->name('check_in_out');
     });
