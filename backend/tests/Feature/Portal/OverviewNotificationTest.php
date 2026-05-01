@@ -30,7 +30,8 @@ class OverviewNotificationTest extends TestCase
 
         Notification::send($user, new GuestCheckedIn($visit, $visitor));
 
-        $this->actingAs($user)
+        $this->withSession(['locale' => 'de'])
+            ->actingAs($user)
             ->get(route('overview'))
             ->assertOk()
             ->assertSee('Status & Benachrichtigungen')
