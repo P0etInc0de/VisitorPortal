@@ -4,7 +4,7 @@
             {{ __('Seite bearbeiten') }}
         </h1>
     </x-slot>
-    <x-bp.card title="{{ __('Seite bearbeiten') }}">
+    <x-bp.card>
         <form id="editMonitorSlide" method="POST" action="{{ route('monitors.slides.update',[$monitor, $slide]) }}" enctype="multipart/form-data">
             @csrf
             @method('PUT')
