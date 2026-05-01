@@ -27,7 +27,7 @@
 
     @foreach ($toggleValues as $toggle)
         <div class="rounded-2xl border border-slate-200 bg-slate-50 p-3.5">
-            <label class="flex cursor-pointer flex-col items-start gap-3">
+            <label class="flex items-center justify-between gap-3">
                 <span class="text-sm font-medium text-base-content">{{ $toggle['label'] }}</span>
 
                 <span class="shrink-0">
