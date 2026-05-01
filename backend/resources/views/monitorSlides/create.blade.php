@@ -7,21 +7,25 @@
         <x-bp.card title="{{ __('Neue Seite') }}">
             <form id="createMonitorSlide" method="POST" action="{{ route('monitors.slides.store', [$monitor]) }}" enctype="multipart/form-data">
                 @csrf
-                <div class="grid gap-5">
-                    <x-bp.input label="{{ __('Überschrift') }}" name="heading" value="{{ __('Herzlich willkommen!') }}"/>
-                    <x-bp.input label="{{ __('Unterüberschrift') }}" name="subheading" value="{{ __('Schön, dass Sie da sind!') }}"/>
-                    <x-bp.input label="{{ __('Seitennummer') }}" type="number" name="slide_number" value="{{ $defaultSlideNumber }}"/>
+                <div class="grid gap-4">
+                    <x-bp.input label="{{ __('Überschrift') }}" name="heading" value="{{ __('Herzlich willkommen!') }}" class="h-11"/>
+                    <x-bp.input label="{{ __('Unterüberschrift') }}" name="subheading" value="{{ __('Schön, dass Sie da sind!') }}" class="h-11"/>
 
-                    <x-bp.toggle label="{{ __('Seite aktiv') }}" name="is_active" checked="1"/>
-                    <x-bp.toggle label="{{ __('Logo Anzeigen') }}" name="show_logo" checked="1"/>
-                    <x-bp.toggle label="{{ __('Datum Anzeigen') }}" name="show_date" checked="1"/>
+                    @include('monitorSlides.partials.page-settings', [
+                        'slideNumber' => $defaultSlideNumber,
+                        'toggleValues' => [
+                            ['label' => __('Seite aktiv'), 'name' => 'is_active', 'checked' => 1],
+                            ['label' => __('Logo Anzeigen'), 'name' => 'show_logo', 'checked' => 1],
+                            ['label' => __('Datum Anzeigen'), 'name' => 'show_date', 'checked' => 1],
+                        ],
+                    ])
                     {{--<x-bp.toggle label="{{ __('Zeit Anzeigen') }}" name="show_time"/>--}}
 
                     @include('monitorSlides.partials.background-settings', ['monitor' => $monitor, 'slide' => null])
 
-                    <div class="grid gap-3 rounded-3xl border border-slate-200 bg-slate-50 p-4 md:grid-cols-[minmax(0,1fr)_auto] md:items-end">
-                        <x-bp.input label="{{ __('Eigenen Namen hinzufügen') }}" name="manual_name" id="manualNameInput" value="" placeholder="{{ __('Name für Begrüßungsseite') }}" onkeydown="if (event.key === 'Enter') { event.preventDefault(); addManualVisitor(); }"/>
-                        <button type="button" class="btn btn-outline rounded-xl" onclick="addManualVisitor()">{{ __('Zur Liste hinzufügen') }}</button>
+                    <div class="grid gap-3 rounded-2xl border border-slate-200 bg-slate-50 p-3.5 md:grid-cols-[minmax(0,1fr)_auto] md:items-end">
+                        <x-bp.input label="{{ __('Eigenen Namen hinzufügen') }}" name="manual_name" id="manualNameInput" value="" placeholder="{{ __('Name für Begrüßungsseite') }}" onkeydown="if (event.key === 'Enter') { event.preventDefault(); addManualVisitor(); }" class="h-11"/>
+                        <button type="button" class="btn btn-outline btn-sm rounded-xl" onclick="addManualVisitor()">{{ __('Zur Liste hinzufügen') }}</button>
                     </div>
 
                     <div>
@@ -29,7 +33,7 @@
                             <span class="label-text text-sm font-medium text-base-content">{{ __('Ausgewählte Besucher') }}</span>
                         </label>
 
-                        <div id="selectedVisitors" class="flex flex-wrap gap-2 p-3 border rounded-xl bg-base-100 min-h-15">
+                        <div id="selectedVisitors" class="flex min-h-14 flex-wrap gap-2 rounded-xl border border-slate-200 bg-base-100 p-2.5">
                             <!-- selected visitors are put here  -->
                         </div>
                         <span class="mt-1 block text-sm text-red-500 font-medium" id="visitorError" ></span>
@@ -40,7 +44,7 @@
                     <input type="hidden" value="{{ $monitor->id }}" name="monitor_id"/>
                 </div>
 
-                <div class="mt-6 flex justify-end gap-3">
+                <div class="mt-5 flex justify-end gap-3">
                     <a type="button" class="btn-sm rounded-xl btn" href="{{ route('monitors.edit', $monitor) }}#monitor-pages">{{ __('Abbrechen') }}</a>
                     <input type="submit" class="btn btn-primary btn-sm rounded-xl" value="{{ __('Speichern') }}"/>
                 </div>
