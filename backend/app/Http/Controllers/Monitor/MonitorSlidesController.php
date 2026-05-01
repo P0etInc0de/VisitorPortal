@@ -24,7 +24,7 @@ class MonitorSlidesController extends Controller
     public function create(Monitor $monitor)
     {
         $this->authorize('create', MonitorSlide::class);
-        $this->authorize('update', $monitor);
+        $this->authorize('update', Monitor::class);
 
         $currentMax = MonitorSlide::query()
             ->where('monitor_id', $monitor->id)
@@ -72,7 +72,7 @@ class MonitorSlidesController extends Controller
     public function edit(Monitor $monitor, MonitorSlide $slide)
     {
         $this->authorize('update', $slide);
-        $this->authorize('update', $monitor);
+        $this->authorize('update', Monitor::class);
 
         $todayVisits = Visit::query()
             ->whereDate('visits.scheduled_from', '<=', Carbon::today())

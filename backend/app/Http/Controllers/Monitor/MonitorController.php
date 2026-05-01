@@ -37,7 +37,7 @@ class MonitorController extends Controller
      */
     public function show(Monitor $monitor)
     {
-        $this->authorize('view', $monitor);
+        $this->authorize('View:Monitor');
 
         return view('monitor.show')
             ->with('monitor', $monitor);
@@ -49,7 +49,7 @@ class MonitorController extends Controller
      */
     public function edit(Monitor $monitor)
     {
-        $this->authorize('update', $monitor);
+        $this->authorize('update', Monitor::class);
 
         $monitor_slides = MonitorSlide::query()->where('monitor_id', $monitor->id)->orderBy('monitor_slides.slide_number')->get();
 

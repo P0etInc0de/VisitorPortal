@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Policies;
 
 use App\Models\User;
+use App\Models\Monitor;
 // use Illuminate\Foundation\Auth\User as AuthUser;
 use Illuminate\Auth\Access\HandlesAuthorization;
 
@@ -19,7 +20,7 @@ class MonitorPolicy
 
     public function view(User $user): bool
     {
-        return $user->can('View:Monitor');
+        return $user->can('View:Monitor') || $user->can('ViewAny:Monitor');
     }
 
     public function create(User $user): bool
