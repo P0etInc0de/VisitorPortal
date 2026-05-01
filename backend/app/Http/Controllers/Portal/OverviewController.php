@@ -97,7 +97,7 @@ class OverviewController extends Controller
                 ],
                 [
                     'label' => __('Nächster Termin'),
-                    'value' => $nextVisit?->scheduled_from?->format('H:i') ?? '–',
+                    'value' => $this->formatNextVisitValue($nextVisit),
                     'meta' => $nextVisit
                         ? __(':title · :count Teilnehmende', [
                             'title' => $nextVisit->display_title,
@@ -116,6 +116,27 @@ class OverviewController extends Controller
             ],
             'visits' => $visitCards,
         ]);
+    }
+
+    private function formatNextVisitValue(?Visit $visit): string
+    {
+        $scheduledFrom = $visit?->scheduled_from;
+
+        if (! $scheduledFrom) {
+            return '–';
+        }
+
+        $time = $scheduledFrom->format('H:i');
+
+        if ($scheduledFrom->isToday()) {
+            return __('heute').' | '.$time;
+        }
+
+        if ($scheduledFrom->isTomorrow()) {
+            return __('morgen').' | '.$time;
+        }
+
+        return $scheduledFrom->format('d.m.').' | '.$time;
     }
 
     private function visitStatusLabel(string $status): string
