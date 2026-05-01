@@ -8,21 +8,37 @@
     </x-slot>
 
     <div class="grid gap-4 lg:h-[calc(100dvh-8.75rem)] lg:min-h-0 lg:grid-rows-[auto_minmax(0,1fr)]">
-        <section class="grid gap-4 md:grid-cols-2 xl:grid-cols-3 lg:shrink-0">
-            @foreach ($stats as $stat)
-                <article class="rounded-3xl border border-base-300 bg-base-100 shadow-sm rounded-[1.2rem]">
-                    <div class="p-4 sm:p-[1.05rem]">
-                        <div class="text-sm text-base-content/65">{{ $stat['label'] }}</div>
-                        <div class="mt-1.5 text-[clamp(1.8rem,1.25rem+0.7vw,2.5rem)] font-bold leading-none tracking-tight text-base-content">
-                            {{ $stat['value'] }}
+        <section class="grid gap-4 lg:shrink-0 xl:grid-cols-[minmax(0,2fr)_minmax(18rem,1fr)]">
+            <div class="grid gap-4 md:grid-cols-2">
+                @foreach (array_slice($stats, 0, 2) as $stat)
+                    <article class="rounded-3xl border border-base-300 bg-base-100 shadow-sm rounded-[1.2rem]">
+                        <div class="p-4 sm:p-[1.05rem]">
+                            <div class="text-sm text-base-content/65">{{ $stat['label'] }}</div>
+                            <div class="mt-1.5 text-[clamp(1.8rem,1.25rem+0.7vw,2.5rem)] font-bold leading-none tracking-tight text-base-content">
+                                {{ $stat['value'] }}
+                            </div>
+                            <div class="mt-2 text-sm text-base-content/70">{{ $stat['meta'] }}</div>
                         </div>
-                        <div class="mt-2 text-sm text-base-content/70">{{ $stat['meta'] }}</div>
-                    </div>
-                </article>
-            @endforeach
+                    </article>
+                @endforeach
+            </div>
+
+            <div class="grid gap-4">
+                @foreach (array_slice($stats, 2) as $stat)
+                    <article class="rounded-3xl border border-base-300 bg-base-100 shadow-sm rounded-[1.2rem]">
+                        <div class="p-4 sm:p-[1.05rem]">
+                            <div class="text-sm text-base-content/65">{{ $stat['label'] }}</div>
+                            <div class="mt-1.5 text-[clamp(1.8rem,1.25rem+0.7vw,2.5rem)] font-bold leading-none tracking-tight text-base-content">
+                                {{ $stat['value'] }}
+                            </div>
+                            <div class="mt-2 text-sm text-base-content/70">{{ $stat['meta'] }}</div>
+                        </div>
+                    </article>
+                @endforeach
+            </div>
         </section>
 
-        <section class="grid gap-4 lg:min-h-0 xl:items-stretch xl:grid-cols-[minmax(0,1.45fr)_minmax(18rem,0.72fr)]">
+        <section class="grid gap-4 lg:min-h-0 xl:items-stretch xl:grid-cols-[minmax(0,2fr)_minmax(18rem,1fr)]">
             <article class="rounded-3xl border border-base-300 bg-base-100 shadow-sm rounded-[1.35rem] lg:flex lg:h-full lg:min-h-0 lg:flex-col lg:overflow-hidden">
                 <div class="px-4 pt-4 sm:px-[1.05rem] sm:pt-[1.05rem]">
                     <div class="mb-3 flex items-center justify-between gap-4">
