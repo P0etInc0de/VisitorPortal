@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Support\UserPreferences;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\Support\PermissionHelper;
 use Tests\TestCase;
@@ -20,7 +21,11 @@ class ProfileTest extends TestCase
 
         $response
             ->assertOk()
-            ->assertSee(__('Sprache ändern'))
+            ->assertSee(__('Sprache'))
+            ->assertSee(__('Theme'))
+            ->assertSee('🇩🇪 Deutsch', false)
+            ->assertSee('🇬🇧 English', false)
+            ->assertSee(__('True Black (OLED)'))
             ->assertDontSee(__('Konto löschen'));
     }
 
@@ -33,16 +38,22 @@ class ProfileTest extends TestCase
             ->patch('/profile', [
                 'name' => 'Test User',
                 'email' => 'test@example.com',
+                'locale' => 'de',
+                'theme_preference' => 'dark',
             ]);
 
         $response
             ->assertSessionHasNoErrors()
-            ->assertRedirect('/profile');
+            ->assertRedirect('/profile')
+            ->assertCookie(UserPreferences::LOCALE_COOKIE, 'de')
+            ->assertCookie(UserPreferences::THEME_COOKIE, 'dark');
 
         $user->refresh();
 
         $this->assertSame('Test User', $user->name);
         $this->assertSame('test@example.com', $user->email);
+        $this->assertSame('de', $user->locale);
+        $this->assertSame('dark', $user->theme_preference);
         $this->assertNull($user->email_verified_at);
     }
 
@@ -55,6 +66,8 @@ class ProfileTest extends TestCase
             ->patch('/profile', [
                 'name' => 'Test User',
                 'email' => $user->email,
+                'locale' => 'en',
+                'theme_preference' => 'system',
             ]);
 
         $response
@@ -62,6 +75,21 @@ class ProfileTest extends TestCase
             ->assertRedirect('/profile');
 
         $this->assertNotNull($user->refresh()->email_verified_at);
+    }
+
+    public function test_user_locale_from_database_overrides_browser_locale(): void
+    {
+        $user = (new PermissionHelper)->getUser();
+        $user->update(['locale' => 'de']);
+
+        $response = $this
+            ->withHeaders(['Accept-Language' => 'en-US,en;q=0.9'])
+            ->actingAs($user)
+            ->get('/profile');
+
+        $response
+            ->assertOk()
+            ->assertSee('Sprache');
     }
 
     public function test_user_cannot_delete_their_own_account(): void

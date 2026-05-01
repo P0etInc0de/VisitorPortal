@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use App\Models\User;
+use App\Support\UserPreferences;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
@@ -26,6 +27,8 @@ class ProfileUpdateRequest extends FormRequest
                 'max:255',
                 Rule::unique(User::class)->ignore($this->user()->id),
             ],
+            'locale' => ['sometimes', 'string', Rule::in(UserPreferences::supportedLocales())],
+            'theme_preference' => ['sometimes', 'string', Rule::in(UserPreferences::supportedThemes())],
         ];
     }
 }
