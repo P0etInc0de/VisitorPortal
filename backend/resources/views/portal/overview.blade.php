@@ -22,7 +22,7 @@
             @endforeach
         </section>
 
-        <section class="grid items-start gap-4 lg:min-h-0">
+        <section class="grid items-start gap-4 lg:min-h-0 xl:grid-cols-[minmax(0,1.45fr)_minmax(18rem,0.72fr)]">
             <article class="rounded-3xl border border-base-300 bg-base-100 shadow-sm rounded-[1.35rem] lg:flex lg:h-full lg:min-h-0 lg:flex-col lg:overflow-hidden">
                 <div class="px-4 pt-4 sm:px-[1.05rem] sm:pt-[1.05rem]">
                     <div class="mb-3 flex items-center justify-between gap-4">
@@ -101,6 +101,104 @@
                     </div>
                 </div>
             </article>
+
+            <aside class="rounded-3xl border border-base-300 bg-base-100 shadow-sm rounded-[1.35rem] lg:min-h-0">
+                <div class="p-4 sm:p-[1.05rem] lg:flex lg:h-full lg:min-h-0 lg:flex-col">
+                    <h2 class="mb-3 text-[1.35rem] font-bold leading-tight tracking-tight text-base-content">
+                        {{ __('Status & Benachrichtigungen') }}
+                    </h2>
+
+                    <div class="grid gap-3 lg:min-h-0 lg:flex-1 lg:overflow-y-auto lg:overscroll-contain">
+                        @forelse ($notifications as $notification)
+                            <article @class([
+                                'rounded-2xl border px-4 py-3 transition-colors',
+                                'border-base-300 bg-base-100/95 shadow-sm' => ! $notification['is_read'],
+                                'border-base-300 bg-base-200/35 text-base-content/60' => $notification['is_read'],
+                            ])>
+                                <div class="flex items-start gap-3">
+                                    <div class="min-w-0 flex-1">
+                                        <div class="flex flex-wrap items-center gap-x-2 gap-y-1">
+                                            <h3 @class([
+                                                'font-semibold',
+                                                'text-base-content' => ! $notification['is_read'],
+                                                'text-base-content/60' => $notification['is_read'],
+                                            ])>
+                                                {{ $notification['title'] }}
+                                            </h3>
+
+                                            @if (filled($notification['created_at']))
+                                                <span class="text-xs text-base-content/50">{{ $notification['created_at'] }}</span>
+                                            @endif
+                                        </div>
+
+                                        <p @class([
+                                            'mt-1 text-sm leading-6',
+                                            'text-base-content/85' => ! $notification['is_read'],
+                                            'text-base-content/55' => $notification['is_read'],
+                                        ])>
+                                            {{ $notification['message'] }}
+                                        </p>
+
+                                        @if (filled($notification['action_url']))
+                                            <a
+                                                href="{{ $notification['action_url'] }}"
+                                                class="mt-2 inline-flex text-sm font-medium text-primary hover:text-primary/80"
+                                            >
+                                                {{ $notification['action_label'] }}
+                                            </a>
+                                        @endif
+                                    </div>
+
+                                    <div class="flex shrink-0 items-center gap-1">
+                                        @unless ($notification['is_read'])
+                                            <form method="POST" action="{{ route('portal.notifications.read', $notification['id']) }}">
+                                                @csrf
+                                                @method('PATCH')
+
+                                                <button
+                                                    type="submit"
+                                                    class="btn btn-ghost btn-sm btn-square rounded-xl"
+                                                    aria-label="{{ __('Als gelesen markieren') }}"
+                                                    title="{{ __('Als gelesen markieren') }}"
+                                                >
+                                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5s8.268 2.943 9.542 7c-1.274 4.057-5.065 7-9.542 7S3.732 16.057 2.458 12Z" />
+                                                        <circle cx="12" cy="12" r="3" />
+                                                    </svg>
+                                                </button>
+                                            </form>
+                                        @endunless
+
+                                        <form method="POST" action="{{ route('portal.notifications.destroy', $notification['id']) }}">
+                                            @csrf
+                                            @method('DELETE')
+
+                                            <button
+                                                type="submit"
+                                                class="btn btn-ghost btn-sm btn-square rounded-xl"
+                                                aria-label="{{ __('Benachrichtigung löschen') }}"
+                                                title="{{ __('Benachrichtigung löschen') }}"
+                                            >
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" d="M4 7h16" />
+                                                    <path stroke-linecap="round" stroke-linejoin="round" d="M10 11v6" />
+                                                    <path stroke-linecap="round" stroke-linejoin="round" d="M14 11v6" />
+                                                    <path stroke-linecap="round" stroke-linejoin="round" d="M6 7l1 12h10l1-12" />
+                                                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 7V4h6v3" />
+                                                </svg>
+                                            </button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </article>
+                        @empty
+                            <div class="rounded-2xl border border-dashed border-base-300 bg-base-100/80 px-4 py-6 text-sm leading-6 text-base-content/65">
+                                {{ __('Aktuell gibt es keine Benachrichtigungen.') }}
+                            </div>
+                        @endforelse
+                    </div>
+                </div>
+            </aside>
 
         </section>
     </div>

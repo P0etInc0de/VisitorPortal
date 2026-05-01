@@ -5,16 +5,24 @@ namespace App\Http\Controllers\Portal;
 use App\Enums\VisitStatusEnum;
 use App\Http\Controllers\Controller;
 use App\Models\Monitor;
+use App\Models\User;
 use App\Models\Visit;
 use App\Models\Visitor;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\Request;
+use Illuminate\Notifications\DatabaseNotification;
+use Illuminate\Support\Arr;
 
 class OverviewController extends Controller
 {
     public function index(Request $request): View
     {
         $user = $request->user();
+
+        if (! $user instanceof User) {
+            abort(403);
+        }
+
         $now = now();
         $upcomingWindowEnd = now()->copy()->addDays(30);
 
@@ -108,8 +116,48 @@ class OverviewController extends Controller
                     ]),
                 ],
             ],
+            'notifications' => $this->notificationCards($user),
             'visits' => $visitCards,
         ]);
+    }
+
+    /**
+     * @return array<int, array<string, mixed>>
+     */
+    private function notificationCards(User $user): array
+    {
+        return $user->notifications()
+            ->latest()
+            ->limit(12)
+            ->get()
+            ->filter(function (DatabaseNotification $notification) {
+                return filled(Arr::get($notification->data, 'title'))
+                    && filled(Arr::get($notification->data, 'message'));
+            })
+            ->sort(function (DatabaseNotification $left, DatabaseNotification $right): int {
+                $leftIsRead = filled($left->read_at);
+                $rightIsRead = filled($right->read_at);
+
+                if ($leftIsRead !== $rightIsRead) {
+                    return $leftIsRead <=> $rightIsRead;
+                }
+
+                return ($right->created_at?->timestamp ?? 0) <=> ($left->created_at?->timestamp ?? 0);
+            })
+            ->take(6)
+            ->map(function (DatabaseNotification $notification) {
+                return [
+                    'id' => $notification->id,
+                    'title' => Arr::get($notification->data, 'title', __('Benachrichtigung')),
+                    'message' => Arr::get($notification->data, 'message', __('Es liegt eine neue Benachrichtigung vor.')),
+                    'action_url' => Arr::get($notification->data, 'action_url'),
+                    'action_label' => Arr::get($notification->data, 'action_label', __('Weitere Informationen')),
+                    'is_read' => filled($notification->read_at),
+                    'created_at' => $notification->created_at?->format('d.m.Y H:i'),
+                ];
+            })
+            ->values()
+            ->all();
     }
 
     private function visitStatusLabel(string $status): string
