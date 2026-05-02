@@ -1,17 +1,19 @@
 [data-theme="dark"] {
+    color-scheme: dark;
+
     --radius-selector: 1rem;
     --radius-field: 1rem;
     --radius-box: 1rem;
 
-    --color-base-100: #111827;
-    --color-base-200: #0f172a;
-    --color-base-300: #1f2937;
-    --color-base-content: #e5eefc;
+    --color-base-100: #1e1e1e;
+    --color-base-200: #121212;
+    --color-base-300: #2a2a2a;
+    --color-base-content: #f3f4f6;
 
-    --color-neutral: #334155;
+    --color-neutral: #2f2f2f;
     --color-neutral-content: #f8fafc;
 
-    --color-primary: #818cf8;
+    --color-primary: #a5b4fc;
     --color-primary-content: #111827;
 
     --color-success: #22c55e;

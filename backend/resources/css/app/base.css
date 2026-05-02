@@ -19,3 +19,11 @@ html.is-ready body {
 ::selection {
     background: color-mix(in srgb, var(--color-primary) 20%, transparent);
 }
+
+/* Form focus states */
+:where(.input, .select, .textarea, .file-input):focus,
+:where(.input, .select, .textarea, .file-input):focus-visible {
+    outline: none !important;
+    border-color: color-mix(in srgb, var(--color-primary) 45%, var(--color-base-300)) !important;
+    box-shadow: 0 0 0 1px color-mix(in srgb, var(--color-primary) 16%, transparent) !important;
+}

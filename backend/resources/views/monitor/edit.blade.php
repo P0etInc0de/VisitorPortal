@@ -43,7 +43,7 @@
                      new ResizeObserver(() => updateScale()).observe($el);
                  "
                          {{-- Fix hinzugefügt: isolate und transform-gpu erzwingen sauberes Clipping der Ecken --}}
-                         class="relative w-full aspect-video overflow-hidden border border-slate-200 isolate transform-gpu">
+                         class="relative w-full aspect-video overflow-hidden border border-base-300 isolate transform-gpu">
 
                         <div id="preview-content"
                              x-ref="content"

@@ -11,7 +11,9 @@ use App\Http\Middleware\CheckMonitorAutoGeneration;
 use App\Livewire\Portal\CheckInOutBoard;
 use App\Livewire\Portal\VisitShowPage;
 use App\Livewire\Profile\UserPermissionsPage;
+use App\Support\UserPreferences;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cookie;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -21,10 +23,16 @@ Route::get('/', function () {
 })->name('home');
 
 Route::get('/lang', function (Request $request) {
-    $locale = $request->input('locale');
+    $locale = UserPreferences::normalizeLocale($request->input('locale'));
 
-    if (in_array($locale, ['de', 'en'])) {
+    if ($locale) {
         session(['locale' => $locale]);
+
+        if ($request->user()) {
+            $request->user()->forceFill(['locale' => $locale])->save();
+        }
+
+        Cookie::queue(UserPreferences::LOCALE_COOKIE, $locale, 60 * 24 * 365);
     }
 
     return redirect()->to(url()->previous());
