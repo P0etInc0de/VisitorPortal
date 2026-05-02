@@ -7,12 +7,19 @@ use Illuminate\Http\Request;
 class UserPreferences
 {
     public const THEME_LIGHT = 'light';
+
     public const THEME_DARK = 'dark';
+
     public const THEME_TRUE_BLACK = 'true-black';
+
     public const THEME_SYSTEM = 'system';
+
     public const THEME_COOKIE = 'theme_preference';
+
     public const LOCALE_COOKIE = 'locale';
+
     public const LOCALE_EN = 'en';
+
     public const LOCALE_DE = 'de';
 
     /**
