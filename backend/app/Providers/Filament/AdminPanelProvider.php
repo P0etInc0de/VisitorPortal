@@ -65,7 +65,7 @@ class AdminPanelProvider extends PanelProvider
             ])
             ->renderHook(
                 PanelsRenderHook::HEAD_START,
-                fn (): string => Blade::render(
+                fn(): string => Blade::render(
                     <<<'BLADE'
                     @php
                         $themePreference = \App\Support\UserPreferences::normalizeTheme(auth()->user()?->theme_preference)
@@ -76,13 +76,13 @@ class AdminPanelProvider extends PanelProvider
 
                     <script>
                         (function () {
-                            const preference = @js($themePreference)
-                            const syncUrl = @js($themeSyncUrl)
-                            const trueBlackLabel = @js($trueBlackLabel)
-                            const root = document.documentElement
-                            const prefersDark = () => window.matchMedia('(prefers-color-scheme: dark)').matches
-                            const activeButtonIndex = { light: 0, dark: 1, system: 2 }
-                            let manualThemeSwitcherClick = false
+                            const preference = @js($themePreference);
+                            const syncUrl = @js($themeSyncUrl);
+                            const trueBlackLabel = @js($trueBlackLabel);
+                            const root = document.documentElement;
+                            const prefersDark = () => window.matchMedia('(prefers-color-scheme: dark)').matches;
+                            const activeButtonIndex = { light: 0, dark: 1, system: 2 };
+                            let manualThemeSwitcherClick = false;
 
                             const syncThemeSwitcherUi = (themePreference) => {
                                 document.querySelectorAll('.fi-theme-switcher').forEach((switcher) => {
@@ -196,23 +196,38 @@ class AdminPanelProvider extends PanelProvider
                                 }
                             }, true)
 
-                            document.addEventListener('theme-changed', async (event) => {
-                                const selectedTheme = typeof event.detail === 'string' ? event.detail : 'system'
+                                                        document.addEventListener('theme-changed', async (event) => {
+                                const selectedTheme = typeof event.detail === 'string' ? event.detail : 'system';
+                                const storedPreference = localStorage.getItem('app-theme-preference') ?? preference;
+                                const wasManualThemeSwitcherClick = manualThemeSwitcherClick;
+
+                                manualThemeSwitcherClick = false;
 
                                 if (
-                                    localStorage.getItem('app-theme-preference') === 'true-black'
+                                    storedPreference === 'true-black'
                                     && selectedTheme === 'dark'
-                                    && ! manualThemeSwitcherClick
+                                    && !wasManualThemeSwitcherClick
                                 ) {
-                                    applyThemePreference('true-black')
+                                    applyThemePreference('true-black');
 
-                                    return
+                                    return;
                                 }
 
-                                applyThemePreference(selectedTheme)
-                                await persistThemePreference(selectedTheme)
-                                manualThemeSwitcherClick = false
-                            })
+                                if (!wasManualThemeSwitcherClick) {
+                                    applyThemePreference(storedPreference);
+
+                                    return;
+                                }
+
+                                if (selectedTheme === storedPreference) {
+                                    applyThemePreference(selectedTheme);
+
+                                    return;
+                                }
+
+                                applyThemePreference(selectedTheme);
+                                await persistThemePreference(selectedTheme);
+                            });                                                                                                   await persistThemePreference(selectedTheme)
 
                             const startThemeSwitcherObserver = () => {
                                 mountTrueBlackButtons()
@@ -284,7 +299,7 @@ class AdminPanelProvider extends PanelProvider
             )
             ->renderHook(
                 PanelsRenderHook::GLOBAL_SEARCH_AFTER,
-                fn (): string => Blade::render('
+                fn(): string => Blade::render('
                     <x-filament::button tag="a" href="/overview" size="sm">
                         {{__("User-Bereich")}}
                     </x-filament::button>
