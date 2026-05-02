@@ -1,6 +1,6 @@
 
 @php
-    $hasLogo = file_exists(public_path('images/logo.png'));
+    $hasLogo = file_exists(public_path('images/logo-light.png'));
 
     $user = Auth::user();
 
@@ -61,14 +61,24 @@
             <div class="flex min-w-0 items-center gap-3">
                 @if ($hasLogo)
                     <img
-                        src="{{ asset('images/logo.png') }}"
+                        src="{{ asset('images/logo-light.png') }}"
+                        class="logo-light block h-9 w-[6.75rem] shrink-0 object-cover object-center"
                         alt="{{ __('Logo') }}"
                         width="108"
                         height="36"
                         loading="eager"
                         decoding="async"
                         fetchpriority="high"
-                        class="block h-9 w-[6.75rem] shrink-0 object-cover object-center"
+                    >
+                    <img
+                        src="{{ asset('images/logo-dark.png') }}"
+                        class="logo-dark block h-9 w-[6.75rem] shrink-0 object-cover object-center"
+                        alt="{{ __('Logo') }}"
+                        width="108"
+                        height="36"
+                        loading="eager"
+                        decoding="async"
+                        fetchpriority="high"
                     >
                 @endif
 
@@ -87,14 +97,24 @@
         <a href="{{ route('overview') }}" class="flex flex-col items-start gap-3">
             @if ($hasLogo)
                 <img
-                    src="{{ asset('images/logo.png') }}"
+                    src="{{ asset('images/logo-light.png') }}"
+                    class="logo-light block h-10 w-[7.5rem] shrink-0 object-cover object-center"
                     alt="{{ __('Logo') }}"
                     width="120"
                     height="40"
                     loading="eager"
                     decoding="async"
                     fetchpriority="high"
-                    class="block h-10 w-[7.5rem] shrink-0 object-cover object-center"
+                >
+                <img
+                    src="{{ asset('images/logo-dark.png') }}"
+                    class="logo-dark block h-10 w-[7.5rem] shrink-0 object-cover object-center"
+                    alt="{{ __('Logo') }}"
+                    width="120"
+                    height="40"
+                    loading="eager"
+                    decoding="async"
+                    fetchpriority="high"
                 >
             @endif
 
@@ -261,14 +281,24 @@
             <div class="flex min-w-0 items-center gap-3">
                 @if ($hasLogo)
                     <img
-                        src="{{ asset('images/logo.png') }}"
+                        src="{{ asset('images/logo-light.png') }}"
+                        class="logo-light block h-9 w-[6.75rem] shrink-0 object-cover object-center"
                         alt="{{ __('Logo') }}"
                         width="108"
                         height="36"
                         loading="eager"
                         decoding="async"
                         fetchpriority="high"
-                        class="block h-9 w-[6.75rem] shrink-0 object-cover object-center"
+                    >
+                    <img
+                        src="{{ asset('images/logo-dark.png') }}"
+                        class="logo-dark block h-9 w-[6.75rem] shrink-0 object-cover object-center"
+                        alt="{{ __('Logo') }}"
+                        width="108"
+                        height="36"
+                        loading="eager"
+                        decoding="async"
+                        fetchpriority="high"
                     >
                 @endif
                 <span class="truncate text-base font-semibold">{{ __('Besucherportal') }}</span>

@@ -20,6 +20,7 @@ use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
 use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Session\Middleware\StartSession;
 use Illuminate\Support\Facades\Blade;
+use Illuminate\Support\HtmlString;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
 
 class AdminPanelProvider extends PanelProvider
@@ -31,7 +32,10 @@ class AdminPanelProvider extends PanelProvider
             ->id('admin')
             ->path('admin')
             ->globalSearch(position: GlobalSearchPosition::Sidebar)
-            ->brandLogo(asset('images/logo.png'))
+            ->brandLogo(new HtmlString('
+                <img src="'.asset('images/logo-light.png').'" class="fi-logo logo-light h-10 w-auto" alt="Logo">
+                <img src="'.asset('images/logo-dark.png').'" class="fi-logo logo-dark h-10 w-auto" alt="Logo">
+            '))
             ->brandLogoHeight('4rem')
             ->colors([
                 // 'primary' => Color::Amber,
@@ -296,6 +300,21 @@ class AdminPanelProvider extends PanelProvider
                         html[data-theme="true-black"] .fi-theme-switcher-btn.fi-active {
                             background-color: rgb(139 147 255 / 0.18) !important;
                             color: rgb(199 210 254 / 1) !important;
+                        }
+
+                        /* Logo Switching for Filament Admin - matches app.css */
+                        .fi-logo.logo-dark { display: none; }
+                        .fi-logo.logo-light { display: inline-block; }
+
+                        html[data-theme="dark"] .fi-logo.logo-light,
+                        html[data-theme="true-black"] .fi-logo.logo-light { display: none; }
+
+                        html[data-theme="dark"] .fi-logo.logo-dark,
+                        html[data-theme="true-black"] .fi-logo.logo-dark { display: inline-block; }
+
+                        @media (prefers-color-scheme: dark) {
+                            html[data-theme="system"] .fi-logo.logo-light { display: none; }
+                            html[data-theme="system"] .fi-logo.logo-dark { display: inline-block; }
                         }
                     </style>
                     BLADE
