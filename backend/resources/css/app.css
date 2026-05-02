@@ -18,3 +18,26 @@
 @import './themes/true-black.css';
 @import './themes/tenant-example.css';
 @import './app/base.css';
+
+/* Logo-Switching via data-theme - Clean CSS Only */
+.logo-dark { display: none; }
+.logo-light { display: inline-block; }
+
+/* Explicit Dark/True-Black */
+[data-theme="dark"] .logo-light,
+[data-theme="true-black"] .logo-light { display: none; }
+
+[data-theme="dark"] .logo-dark,
+[data-theme="true-black"] .logo-dark { display: inline-block; }
+
+/* System-Theme Support: Media Query für prefers-color-scheme */
+@media (prefers-color-scheme: dark) {
+    [data-theme="system"] .logo-light { display: none; }
+    [data-theme="system"] .logo-dark { display: inline-block; }
+}
+
+/* Optional: Light-Logo beim Drucken erzwingen */
+@media print {
+    .logo-dark { display: none !important; }
+    .logo-light { display: inline-block !important; }
+}

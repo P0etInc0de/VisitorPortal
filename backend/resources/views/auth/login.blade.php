@@ -1,5 +1,5 @@
 @php
-    $hasLogo = file_exists(public_path('images/logo.png'));
+    $hasLogo = file_exists(public_path('images/logo-light.png'));
 @endphp
 
 <x-guest-layout>
@@ -8,7 +8,8 @@
             <div class="border-b border-base-300/70 bg-base-100 px-7 pb-7 pt-5 sm:px-9 sm:pb-9 sm:pt-6 lg:border-b-0 lg:border-r">
                 @if ($hasLogo)
                     <div class="mb-2 flex justify-center">
-                        <img src="{{ asset('images/logo.png') }}" alt="{{ __('Besucherportal_Logo') }}" class="max-h-28 w-auto object-contain sm:max-h-32 lg:max-h-36">
+                        <img src="{{ asset('images/logo-light.png') }}" alt="{{ __('Besucherportal_Logo') }}" class="logo-light max-h-28 w-auto object-contain sm:max-h-32 lg:max-h-36">
+                        <img src="{{ asset('images/logo-dark.png') }}" alt="{{ __('Besucherportal_Logo') }}" class="logo-dark max-h-28 w-auto object-contain sm:max-h-32 lg:max-h-36">
                     </div>
                 @endif
 
