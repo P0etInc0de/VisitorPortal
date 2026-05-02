@@ -331,7 +331,8 @@ class ReceptionAdministerVisitTest extends TestCase
 
     }
 
-    public function test_reception_can_create_badges(): void {
+    public function test_reception_can_create_badges(): void
+    {
         $this->markTestSkipped('Badge creation test is not implemented yet.');
     }
 
