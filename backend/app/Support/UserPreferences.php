@@ -7,16 +7,13 @@ use Illuminate\Http\Request;
 class UserPreferences
 {
     public const THEME_LIGHT = 'light';
-
     public const THEME_DARK = 'dark';
-
     public const THEME_TRUE_BLACK = 'true-black';
-
     public const THEME_SYSTEM = 'system';
-
     public const THEME_COOKIE = 'theme_preference';
-
     public const LOCALE_COOKIE = 'locale';
+    public const LOCALE_EN = 'en';
+    public const LOCALE_DE = 'de';
 
     /**
      * @return list<string>
@@ -51,6 +48,17 @@ class UserPreferences
 
     public static function browserLocale(Request $request): string
     {
-        return $request->getPreferredLanguage(self::supportedLocales()) ?: 'en';
+        $supportedLocales = self::supportedLocales();
+
+        foreach ($request->getLanguages() as $language) {
+            $normalizedLanguage = strtolower(str_replace('_', '-', $language));
+            $baseLocale = explode('-', $normalizedLanguage)[0];
+
+            if (in_array($baseLocale, $supportedLocales, true)) {
+                return $baseLocale;
+            }
+        }
+
+        return self::LOCALE_EN;
     }
 }
