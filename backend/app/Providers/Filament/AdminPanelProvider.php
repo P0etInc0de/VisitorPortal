@@ -20,8 +20,8 @@ use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
 use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Session\Middleware\StartSession;
 use Illuminate\Support\Facades\Blade;
-use Illuminate\View\Middleware\ShareErrorsFromSession;
 use Illuminate\Support\HtmlString;
+use Illuminate\View\Middleware\ShareErrorsFromSession;
 
 class AdminPanelProvider extends PanelProvider
 {
@@ -33,8 +33,8 @@ class AdminPanelProvider extends PanelProvider
             ->path('admin')
             ->globalSearch(position: GlobalSearchPosition::Sidebar)
             ->brandLogo(new HtmlString('
-                <img src="' . asset('images/logo-light.png') . '" class="fi-logo logo-light h-10 w-auto" alt="Logo">
-                <img src="' . asset('images/logo-dark.png') . '" class="fi-logo logo-dark h-10 w-auto" alt="Logo">
+                <img src="'.asset('images/logo-light.png').'" class="fi-logo logo-light h-10 w-auto" alt="Logo">
+                <img src="'.asset('images/logo-dark.png').'" class="fi-logo logo-dark h-10 w-auto" alt="Logo">
             '))
             ->brandLogoHeight('4rem')
             ->colors([
