@@ -294,7 +294,7 @@ new class extends Component {
                     inputmode="numeric"
                     autocomplete="off"
                     wire:model.live="autoGenerationWindowMinutes"
-                    class="input input-bordered h-10 w-full rounded-xl border-slate-300 bg-white text-sm focus:border-indigo-500 transition-all"
+                    class="input input-bordered h-10 w-full rounded-xl border-base-300 bg-base-100 text-sm focus:border-primary transition-all"
                 >
                 @error('autoGenerationWindowMinutes')
                     <span class="mt-1 block text-sm font-medium text-red-500">{{ $message }}</span>
@@ -313,7 +313,7 @@ new class extends Component {
                     inputmode="numeric"
                     autocomplete="off"
                     wire:model.live="transitionTimeSeconds"
-                    class="input input-bordered h-10 w-full rounded-xl border-slate-300 bg-white text-sm focus:border-indigo-500 transition-all"
+                    class="input input-bordered h-10 w-full rounded-xl border-base-300 bg-base-100 text-sm focus:border-primary transition-all"
                 >
                 @error('transitionTimeSeconds')
                     <span class="mt-1 block text-sm font-medium text-red-500">{{ $message }}</span>
@@ -327,7 +327,7 @@ new class extends Component {
                 <select
                     id="content-card-style"
                     wire:model.live="contentCardStyle"
-                    class="select select-bordered h-10 w-full rounded-xl border-slate-300 bg-white text-sm focus:border-indigo-500 transition-all"
+                    class="select select-bordered h-10 w-full rounded-xl border-base-300 bg-base-100 text-sm focus:border-primary transition-all"
                 >
                     @foreach ($contentCardStyles as $styleValue => $styleLabel)
                         <option value="{{ $styleValue }}">{{ $styleLabel }}</option>
@@ -342,7 +342,7 @@ new class extends Component {
 
     <div class="space-y-4">
         <div>
-            <h3 class="text-sm font-semibold text-slate-900">{{ __('Standard-Hintergrund') }}</h3>
+            <h3 class="text-sm font-semibold text-base-content">{{ __('Standard-Hintergrund') }}</h3>
         </div>
 
         <div class="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
@@ -354,14 +354,14 @@ new class extends Component {
                     $isSelected = $backgroundSource === $source;
                 @endphp
                 <label @class([
-                    'cursor-pointer overflow-hidden rounded-[1.5rem] border bg-white transition-all',
-                    'border-indigo-500 ring-2 ring-indigo-100 shadow-sm' => $isSelected,
-                    'border-slate-200 hover:border-slate-300' => ! $isSelected,
+                    'cursor-pointer overflow-hidden rounded-[1.5rem] border bg-base-100 transition-all',
+                    'border-primary ring-1 ring-primary/20 shadow-sm' => $isSelected,
+                    'border-base-300 hover:border-base-content/20' => ! $isSelected,
                 ])>
                     <input type="radio" wire:model.live="backgroundSource" value="{{ $source }}" class="sr-only">
-                    <div class="aspect-video w-full overflow-hidden bg-slate-100">
+                    <div class="aspect-video w-full overflow-hidden bg-base-200">
                         @if ($source === 'upload' && blank($uploadPreview))
-                            <div class="flex h-full items-center justify-center px-4 text-center text-sm text-slate-500">
+                            <div class="flex h-full items-center justify-center px-4 text-center text-sm text-base-content/65">
                                 {{ __('Eigenes Bild hochladen') }}
                             </div>
                         @else
@@ -370,9 +370,9 @@ new class extends Component {
                     </div>
                     <div class="px-3 pt-2 pb-2.5">
                         <div class="flex items-start justify-between gap-3">
-                            <span class="text-sm font-semibold text-slate-900">{{ $preset['label'] }}</span>
+                            <span class="text-sm font-semibold text-base-content">{{ $preset['label'] }}</span>
                             @if ($isSelected)
-                                <span class="shrink-0 rounded-full bg-indigo-50 px-2 py-0.5 text-[11px] font-semibold text-indigo-700">{{ __('Aktiv') }}</span>
+                                <span class="shrink-0 rounded-full bg-primary/12 px-2 py-0.5 text-[11px] font-semibold text-primary">{{ __('Aktiv') }}</span>
                             @endif
                         </div>
                     </div>
@@ -381,11 +381,11 @@ new class extends Component {
         </div>
 
         @if ($backgroundSource === 'upload')
-            <div class="rounded-3xl border border-slate-200 bg-slate-50 p-5">
+            <div class="rounded-3xl border border-base-300 bg-base-200 p-5">
                 <div class="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
                     <div>
-                        <h4 class="text-sm font-semibold text-slate-900">{{ __('Eigenes Hintergrundbild') }}</h4>
-                        <p class="mt-1 text-sm text-slate-500">{{ __('Empfohlen: 1920x1080 oder größer im Format 16:9.') }}</p>
+                        <h4 class="text-sm font-semibold text-base-content">{{ __('Eigenes Hintergrundbild') }}</h4>
+                        <p class="mt-1 text-sm text-base-content/65">{{ __('Empfohlen: 1920x1080 oder größer im Format 16:9.') }}</p>
                     </div>
                     @if ($image !== null || $hasStoredUpload)
                         <button type="button" wire:click="removeUploadedImage" class="btn btn-outline btn-sm rounded-xl">{{ __('Bild entfernen') }}</button>
@@ -394,19 +394,19 @@ new class extends Component {
 
                 <div class="mt-4 space-y-4">
                     <div>
-                        <input id="monitor-background-upload" type="file" wire:model="image" accept="image/png,image/jpeg,image/webp" class="file-input file-input-bordered w-full rounded-xl border-slate-300 bg-white">
-                        <div wire:loading wire:target="image" class="mt-2 text-sm text-slate-500">{{ __('Bild wird geladen...') }}</div>
+                        <input id="monitor-background-upload" type="file" wire:model="image" accept="image/png,image/jpeg,image/webp" class="file-input file-input-bordered w-full rounded-xl border-base-300 bg-base-100">
+                        <div wire:loading wire:target="image" class="mt-2 text-sm text-base-content/65">{{ __('Bild wird geladen...') }}</div>
                         @error('image')
                             <span class="mt-2 block text-sm font-medium text-red-500">{{ $message }}</span>
                         @enderror
                     </div>
 
-                    <div class="max-w-2xl overflow-hidden rounded-2xl border border-slate-200 bg-white">
-                        <div class="aspect-video w-full overflow-hidden bg-slate-100">
+                    <div class="max-w-2xl overflow-hidden rounded-2xl border border-base-300 bg-base-100">
+                        <div class="aspect-video w-full overflow-hidden bg-base-200">
                             @if (filled($previewBackground))
                                 <img src="{{ $previewBackground }}" alt="{{ __('Monitor Hintergrund Vorschau') }}" class="h-full w-full object-cover">
                             @else
-                                <div class="flex h-full items-center justify-center px-6 text-center text-sm text-slate-500">
+                                <div class="flex h-full items-center justify-center px-6 text-center text-sm text-base-content/65">
                                     {{ __('Die Vorschau erscheint nach dem Hochladen eines eigenen Bildes.') }}
                                 </div>
                             @endif
@@ -417,18 +417,18 @@ new class extends Component {
         @endif
     </div>
 
-    <div class="flex min-h-12 items-center justify-between gap-4 rounded-2xl border border-slate-200 bg-white px-4 py-3">
+    <div class="flex min-h-12 items-center justify-between gap-4 rounded-2xl border border-base-300 bg-base-100 px-4 py-3">
         <div>
-            <div class="text-sm font-medium text-slate-900">{{ __('Bildfilter') }}</div>
-            <p class="mt-1 text-sm text-slate-500">{{ __('Optionaler Aufheller für Texte auf kontrastreichen Bildern. Deaktiviert zeigt das Bild unverändert an.') }}</p>
+            <div class="text-sm font-medium text-base-content">{{ __('Bildfilter') }}</div>
+            <p class="mt-1 text-sm text-base-content/65">{{ __('Optionaler Aufheller für Texte auf kontrastreichen Bildern. Deaktiviert zeigt das Bild unverändert an.') }}</p>
         </div>
         <input type="checkbox" wire:model.live="backgroundOverlayEnabled" class="toggle toggle-primary shrink-0">
     </div>
 
-    <div class="flex min-h-12 items-center justify-between gap-4 rounded-2xl border border-slate-200 bg-white px-4 py-3">
+    <div class="flex min-h-12 items-center justify-between gap-4 rounded-2xl border border-base-300 bg-base-100 px-4 py-3">
         <div>
-            <div class="text-sm font-medium text-slate-900">{{ __('Heller Headertext') }}</div>
-            <p class="mt-1 text-sm text-slate-500">{{ __('Weiße Überschrift und Unterüberschrift für dunkle Hintergründe.') }}</p>
+            <div class="text-sm font-medium text-base-content">{{ __('Heller Headertext') }}</div>
+            <p class="mt-1 text-sm text-base-content/65">{{ __('Weiße Überschrift und Unterüberschrift für dunkle Hintergründe.') }}</p>
         </div>
         <input type="checkbox" wire:model.live="headerTextIsLight" class="toggle toggle-primary shrink-0">
     </div>

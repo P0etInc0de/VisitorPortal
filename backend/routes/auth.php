@@ -8,6 +8,7 @@ use App\Http\Controllers\Auth\NewPasswordController;
 use App\Http\Controllers\Auth\PasswordController;
 use App\Http\Controllers\Auth\PasswordResetLinkController;
 use App\Http\Controllers\Auth\ProfileController;
+use App\Http\Controllers\Auth\ThemePreferenceController;
 use App\Http\Controllers\Auth\VerifyEmailController;
 use Illuminate\Support\Facades\Route;
 
@@ -43,6 +44,9 @@ Route::middleware('auth')->group(function () {
 
     Route::patch('profile', [ProfileController::class, 'update'])
         ->name('profile.update');
+
+    Route::patch('profile/theme-preference', [ThemePreferenceController::class, 'update'])
+        ->name('profile.theme-preference.update');
 
     Route::delete('profile', [ProfileController::class, 'destroy'])
         ->name('profile.destroy');

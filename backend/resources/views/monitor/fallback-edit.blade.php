@@ -15,7 +15,7 @@
                 <x-bp.input label="{{ __('Unterüberschrift') }}" name="subheading" value="{{ old('subheading', $monitor->fallback_subheading) }}"/>
 
                 <div class="grid gap-3 sm:grid-cols-2 xl:max-w-[28rem]">
-                    <div class="rounded-2xl border border-slate-200 bg-slate-50 p-3.5">
+                    <div class="rounded-2xl border border-base-300 bg-base-200 p-3.5">
                         <label class="flex cursor-pointer flex-col items-start gap-3">
                             <span class="text-sm font-medium text-base-content">{{ __('Logo Anzeigen') }}</span>
 
@@ -32,7 +32,7 @@
                         </label>
                     </div>
 
-                    <div class="rounded-2xl border border-slate-200 bg-slate-50 p-3.5">
+                    <div class="rounded-2xl border border-base-300 bg-base-200 p-3.5">
                         <label class="flex cursor-pointer flex-col items-start gap-3">
                             <span class="text-sm font-medium text-base-content">{{ __('Datum Anzeigen') }}</span>
 

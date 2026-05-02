@@ -92,6 +92,26 @@ class ProfileTest extends TestCase
             ->assertSee('Sprache');
     }
 
+    public function test_theme_preference_can_be_updated_via_sync_endpoint(): void
+    {
+        $user = (new PermissionHelper)->getUser();
+
+        $response = $this
+            ->actingAs($user)
+            ->patchJson(route('profile.theme-preference.update'), [
+                'theme_preference' => 'true-black',
+            ]);
+
+        $response
+            ->assertOk()
+            ->assertJson([
+                'theme_preference' => 'true-black',
+            ])
+            ->assertCookie(UserPreferences::THEME_COOKIE, 'true-black');
+
+        $this->assertSame('true-black', $user->fresh()->theme_preference);
+    }
+
     public function test_user_cannot_delete_their_own_account(): void
     {
         $user = (new PermissionHelper)->getUser();

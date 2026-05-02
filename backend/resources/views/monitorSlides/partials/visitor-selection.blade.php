@@ -1,6 +1,6 @@
 <section class="grid gap-3 xl:grid-cols-[minmax(0,1fr)_minmax(0,2fr)] xl:items-stretch">
     <div class="grid min-w-0 content-start gap-3 xl:h-full xl:grid-rows-[auto_minmax(0,1fr)]">
-        <div class="min-w-0 overflow-hidden rounded-2xl border border-slate-200 bg-slate-50 p-3.5">
+        <div class="min-w-0 overflow-hidden rounded-2xl border border-base-300 bg-base-200 p-3.5">
             <label class="form-control w-full">
                 <div class="label px-0 pb-2">
                     <span class="label-text text-sm font-medium text-base-content">{{ __('Manuell Name hinzufügen') }}</span>
@@ -14,7 +14,7 @@
                     maxlength="50"
                     placeholder="{{ __('Name') }}"
                     onkeydown="if (event.key === 'Enter') { event.preventDefault(); addManualVisitor(); }"
-                    class="input input-bordered h-11 w-full min-w-0 rounded-xl border-slate-300 bg-white pr-14 focus:border-indigo-500 transition-all"
+                    class="input input-bordered h-11 w-full min-w-0 rounded-xl border-base-300 bg-base-100 pr-14 focus:border-primary transition-all"
                 >
 
                 <button
@@ -31,14 +31,14 @@
             </div>
         </div>
 
-        <div class="flex h-full min-w-0 flex-col rounded-2xl border border-slate-200 bg-slate-50 p-3.5">
+        <div class="flex h-full min-w-0 flex-col rounded-2xl border border-base-300 bg-base-200 p-3.5">
             <label class="form-control w-full">
                 <div class="label px-0 pb-2">
                     <span class="label-text text-sm font-medium text-base-content">{{ __('Ausgewählte Besucher') }}</span>
                 </div>
             </label>
 
-            <div id="selectedVisitors" class="flex min-h-14 flex-1 flex-wrap content-start gap-2 rounded-xl border border-slate-200 bg-white p-2.5">
+            <div id="selectedVisitors" class="flex min-h-14 flex-1 flex-wrap content-start gap-2 rounded-xl border border-base-300 bg-base-100 p-2.5">
                 <!-- selected visitors are put here -->
             </div>
             <span class="mt-2 block text-sm font-medium text-red-500" id="visitorError"></span>
@@ -48,7 +48,7 @@
     </div>
 
     <div class="grid min-w-0 gap-3 xl:h-full xl:grid-rows-[minmax(0,1fr)_auto]">
-        <div class="min-w-0 rounded-2xl border border-slate-200 bg-slate-50 p-3.5">
+        <div class="min-w-0 rounded-2xl border border-base-300 bg-base-200 p-3.5">
             <h3 class="text-sm font-medium text-base-content">{{ __('Heutige Besuche') }}</h3>
 
             <div class="mt-3 grid gap-2">
@@ -69,7 +69,7 @@
                         };
                     @endphp
 
-                    <article class="rounded-2xl border border-slate-200 bg-white px-4 py-3 shadow-sm">
+                    <article class="rounded-2xl border border-base-300 bg-base-100 px-4 py-3 shadow-sm">
                         <div class="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
                             <div class="min-w-0 flex-1">
                                 <div class="flex items-center gap-4">
@@ -103,7 +103,7 @@
                         </div>
                     </article>
                 @empty
-                    <div class="rounded-2xl border border-dashed border-slate-200 bg-white px-4 py-5 text-sm text-slate-500">
+                    <div class="rounded-2xl border border-dashed border-base-300 bg-base-100 px-4 py-5 text-sm text-base-content/65">
                         {{ __('Für heute sind aktuell keine Termine geplant.') }}
                     </div>
                 @endforelse

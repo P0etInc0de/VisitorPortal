@@ -1,4 +1,6 @@
 [data-theme="dark"] {
+    color-scheme: dark;
+
     --radius-selector: 1rem;
     --radius-field: 1rem;
     --radius-box: 1rem;

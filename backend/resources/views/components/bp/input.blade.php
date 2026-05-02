@@ -24,7 +24,7 @@
         value="{{ is_string($name) ? old($name, $value) : (!is_array($value) ? $value : '') }}"
 
         {{ $attributes->merge([
-            'class' => "input input-bordered h-12 w-full rounded-xl border-slate-300 bg-white focus:border-indigo-500 transition-all"
+            'class' => "input input-bordered h-12 w-full rounded-xl border-base-300 bg-base-100 focus:border-primary transition-all"
         ]) }}
     >
 

@@ -1,11 +1,13 @@
 [data-theme="true-black"] {
+    color-scheme: dark;
+
     --radius-selector: 1rem;
     --radius-field: 1rem;
     --radius-box: 1rem;
 
-    --color-base-100: #000000;
+    --color-base-100: #050505;
     --color-base-200: #000000;
-    --color-base-300: #161616;
+    --color-base-300: #1a1a1a;
     --color-base-content: #f3f6ff;
 
     --color-neutral: #1d1d1d;

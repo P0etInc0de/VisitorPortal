@@ -4,7 +4,7 @@
 @endphp
 
 <div class="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-    <div class="rounded-2xl border border-slate-200 bg-slate-50 p-3.5">
+    <div class="rounded-2xl border border-base-300 bg-base-200 p-3.5">
         <label class="form-control max-w-[7rem]">
             <div class="label px-0 pb-2">
                 <span class="label-text text-sm font-medium text-base-content">{{ __('Seitennummer') }}</span>
@@ -16,7 +16,7 @@
                 step="1"
                 name="slide_number"
                 value="{{ old('slide_number', $slideNumber) }}"
-                class="input input-bordered h-11 w-full rounded-xl border-slate-300 bg-white focus:border-indigo-500 transition-all"
+                class="input input-bordered h-11 w-full rounded-xl border-base-300 bg-base-100 focus:border-primary transition-all"
             >
         </label>
 
@@ -26,7 +26,7 @@
     </div>
 
     @foreach ($toggleValues as $toggle)
-        <div class="rounded-2xl border border-slate-200 bg-slate-50 p-3.5">
+        <div class="rounded-2xl border border-base-300 bg-base-200 p-3.5">
             <label class="flex cursor-pointer flex-col items-start gap-3">
                 <span class="text-sm font-medium text-base-content">{{ $toggle['label'] }}</span>
 
