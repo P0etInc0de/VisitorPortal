@@ -54,5 +54,19 @@
     </div>
 </div>
 @livewireScripts
+    <script>
+        document.addEventListener('livewire:navigating', () => {
+            window.sidebarScrollPos = document.querySelector('#sidebar-content')?.scrollTop;
+        });
+
+        document.addEventListener('livewire:navigated', () => {
+            if (window.sidebarScrollPos !== undefined) {
+                const sidebar = document.querySelector('#sidebar-content');
+                if (sidebar) {
+                    sidebar.scrollTo({ top: window.sidebarScrollPos, behavior: 'instant' });
+                }
+            }
+        });
+    </script>
 </body>
 </html>

@@ -86,15 +86,15 @@
             </div>
         </div>
 
-        <a href="{{ route('overview') }}" class="btn btn-outline btn-sm rounded-xl">
+        <a href="{{ route('overview') }}" class="btn btn-outline btn-sm rounded-xl" wire:navigate.hover>
             {{ __('Start') }}
         </a>
     </div>
 </div>
 
-<aside class="hidden w-72 border-r border-base-300/70 bg-base-100 [&_.btn]:min-h-11 lg:fixed lg:inset-y-0 lg:left-0 lg:z-30 lg:flex lg:flex-col lg:min-h-screen lg:px-4 lg:pt-4 lg:pb-4">
+<aside id="sidebar" class="hidden w-72 border-r border-base-300/70 bg-base-100 [&_.btn]:min-h-11 lg:fixed lg:inset-y-0 lg:left-0 lg:z-30 lg:flex lg:flex-col lg:min-h-screen lg:px-4 lg:pt-4 lg:pb-4">
     <div class="border-b border-base-300/70 px-4 py-4">
-        <a href="{{ route('overview') }}" class="flex flex-col items-start gap-3">
+        <a href="{{ route('overview') }}" class="flex flex-col items-start gap-3" wire:navigate.hover>
             @if ($hasLogo)
                 <img
                     src="{{ asset('images/logo-light.png') }}"
@@ -124,14 +124,14 @@
         </a>
     </div>
 
-    <div class="flex-1 overflow-y-auto px-3 py-3">
+    <div id="sidebar-content" class="flex-1 overflow-y-auto px-3 py-3">
         <nav class="space-y-3">
             <div>
                 <div class="mb-1 px-3 text-[11px] font-medium uppercase tracking-[0.18em] text-base-content/42">
                     {{ __('Portal') }}
                 </div>
 
-                <a href="{{ route('overview') }}" class="{{ $navLinkClasses(request()->routeIs('overview')) }}">
+                <a href="{{ route('overview') }}" class="{{ $navLinkClasses(request()->routeIs('overview')) }}" wire:navigate.hover>
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M3 12l9-8 9 8" />
                         <path stroke-linecap="round" stroke-linejoin="round" d="M5 10v10h14V10" />
@@ -140,7 +140,7 @@
                 </a>
 
 				@can('Create:Visit')
-                <a href="{{ route('portal.visits.create') }}" class="{{ $navLinkClasses(request()->routeIs('portal.visits.create')) }}">
+                <a href="{{ route('portal.visits.create') }}" class="{{ $navLinkClasses(request()->routeIs('portal.visits.create')) }}" wire:navigate.hover>
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M12 5v14M5 12h14" />
                     </svg>
@@ -149,7 +149,7 @@
 				@endcan
 
 				@canany(['ViewOwn:Visit', 'EditOwn:Visit', 'Create:Visit'])
-                <a href="{{ route('portal.my-visits') }}" class="{{ $navLinkClasses(request()->routeIs('portal.my-visits')) }}">
+                <a href="{{ route('portal.my-visits') }}" class="{{ $navLinkClasses(request()->routeIs('portal.my-visits')) }}" wire:navigate.hover>
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
                         <rect x="3" y="4" width="18" height="17" rx="2" />
                         <path stroke-linecap="round" stroke-linejoin="round" d="M8 2v4M16 2v4M3 10h18" />
@@ -166,7 +166,7 @@
                         {{ __('Empfang') }}
                     </div>
 
-                    <a href="{{ route('reception.dashboard') }}" class="{{ $navLinkClasses(request()->routeIs('reception.dashboard')) }}">
+                    <a href="{{ route('reception.dashboard') }}" class="{{ $navLinkClasses(request()->routeIs('reception.dashboard')) }}" wire:navigate.hover>
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M4 7h16M4 12h16M4 17h8" />
                         </svg>
@@ -174,7 +174,7 @@
                     </a>
 
 					@canany(['CheckIn:Visit', 'CheckOut:Visit'])
-                    <a href="{{ route('portal.check_in_out') }}" class="{{ $navLinkClasses(request()->routeIs('portal.check_in_out')) }}">
+                    <a href="{{ route('portal.check_in_out') }}" class="{{ $navLinkClasses(request()->routeIs('portal.check_in_out')) }}" wire:navigate.hover>
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1" />
                         </svg>
@@ -182,7 +182,7 @@
                     </a>
 					@endcanany
 
-                    <a href="{{ route('reception.all-visits') }}" class="{{ $navLinkClasses(request()->routeIs('reception.all-visits')) }}">
+                    <a href="{{ route('reception.all-visits') }}" class="{{ $navLinkClasses(request()->routeIs('reception.all-visits')) }}" wire:navigate.hover>
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M4 7h16M4 12h16M4 17h16" />
                         </svg>
@@ -198,7 +198,7 @@
                     </div>
 
 					@can('View:Monitor')
-                    <a href="{{ route('monitors.show', $monitor) }}" class="{{ $navLinkClasses(request()->routeIs('monitors.show*')) }}">
+                    <a href="{{ route('monitors.show', $monitor) }}" class="{{ $navLinkClasses(request()->routeIs('monitors.show*')) }}" wire:navigate.hover>
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
                             <rect x="3" y="4" width="18" height="12" rx="2" />
                             <path stroke-linecap="round" stroke-linejoin="round" d="M8 20h8M12 16v4" />
@@ -208,7 +208,7 @@
 					@endcan
 
                     @can('Edit:Monitor')
-                        <a href="{{ route('monitors.edit', $monitor) }}" class="{{ $navLinkClasses(request()->routeIs('monitors.edit*')) }}">
+                        <a href="{{ route('monitors.edit', $monitor) }}" class="{{ $navLinkClasses(request()->routeIs('monitors.edit*')) }}" wire:navigate.hover>
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M4 20h4l10-10a2.121 2.121 0 10-4-4L4 16v4z" />
                         </svg>
@@ -225,7 +225,7 @@
                 </div>
 
 				@can('viewOwn', auth()->user())
-                <a href="{{ route('profile.edit') }}" class="{{ $navLinkClasses(request()->routeIs('profile.*')) }}">
+                <a href="{{ route('profile.edit') }}" class="{{ $navLinkClasses(request()->routeIs('profile.*')) }}" wire:navigate.hover>
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M20 21a8 8 0 10-16 0" />
                         <circle cx="12" cy="8" r="4" />
@@ -235,7 +235,7 @@
 				@endcan
 
 				@can('View:Role')
-				<a href="{{ route('user-permissions') }}" class="{{ $navLinkClasses(request()->routeIs('user-permissions')) }}">
+				<a href="{{ route('user-permissions') }}" class="{{ $navLinkClasses(request()->routeIs('user-permissions')) }}" wire:navigate.hover>
     				<svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
         				<path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4" />
         				<path stroke-linecap="round" stroke-linejoin="round" d="M12 3a9 9 0 1 0 0 18A9 9 0 0 0 12 3Z" />
@@ -318,26 +318,26 @@
 
         <div class="flex-1 overflow-y-auto px-4 py-5">
             <nav class="space-y-2">
-                <a href="{{ route('overview') }}" class="{{ $navLinkClasses(request()->routeIs('overview')) }}" @click="navOpen = false">{{ __('Übersicht') }}</a>
-                <a href="{{ route('portal.visits.create') }}" class="{{ $navLinkClasses(request()->routeIs('portal.visits.create')) }}" @click="navOpen = false">{{ __('Besuch anlegen') }}</a>
+                <a href="{{ route('overview') }}" class="{{ $navLinkClasses(request()->routeIs('overview')) }}" wire:navigate.hover @click="navOpen = false">{{ __('Übersicht') }}</a>
+                <a href="{{ route('portal.visits.create') }}" class="{{ $navLinkClasses(request()->routeIs('portal.visits.create')) }}" wire:navigate.hover @click="navOpen = false">{{ __('Besuch anlegen') }}</a>
                 @canany(['ViewOwn:Visit', 'EditOwn:Visit', 'Create:Visit'])
-                    <a href="{{ route('portal.my-visits') }}" class="{{ $navLinkClasses(request()->routeIs('portal.my-visits')) }}" @click="navOpen = false">{{ __('Meine Besuche') }}</a>
+                    <a href="{{ route('portal.my-visits') }}" class="{{ $navLinkClasses(request()->routeIs('portal.my-visits')) }}" wire:navigate.hover @click="navOpen = false">{{ __('Meine Besuche') }}</a>
                 @endcanany
                 @if ($canSeeReception)
-                    <a href="{{ route('reception.dashboard') }}" class="{{ $navLinkClasses(request()->routeIs('reception.dashboard')) }}" @click="navOpen = false">{{ __('Dashboard') }}</a>
+                    <a href="{{ route('reception.dashboard') }}" class="{{ $navLinkClasses(request()->routeIs('reception.dashboard')) }}" wire:navigate.hover @click="navOpen = false">{{ __('Dashboard') }}</a>
                     @canany(['CheckIn:Visit', 'CheckOut:Visit'])
-                        <a href="{{ route('portal.check_in_out') }}" class="{{ $navLinkClasses(request()->routeIs('portal.check_in_out')) }}" @click="navOpen = false">{{ __('Check-In/Out') }}</a>
+                        <a href="{{ route('portal.check_in_out') }}" class="{{ $navLinkClasses(request()->routeIs('portal.check_in_out')) }}" wire:navigate.hover @click="navOpen = false">{{ __('Check-In/Out') }}</a>
                     @endcanany
-                    <a href="{{ route('reception.all-visits') }}" class="{{ $navLinkClasses(request()->routeIs('reception.all-visits')) }}" @click="navOpen = false">{{ __('Alle Besuche') }}</a>
+                    <a href="{{ route('reception.all-visits') }}" class="{{ $navLinkClasses(request()->routeIs('reception.all-visits')) }}" wire:navigate.hover @click="navOpen = false">{{ __('Alle Besuche') }}</a>
                 @endif
 
                 @if ($canSeeMonitor && ($monitor = \App\Models\Monitor::query()->first()))
-                    <a href="{{ route('monitors.show', $monitor) }}" class="{{ $navLinkClasses(request()->routeIs('monitors.show*')) }}" @click="navOpen = false">{{ __('Live-Anzeige') }}</a>
-                    <a href="{{ route('monitors.edit', $monitor) }}" class="{{ $navLinkClasses(request()->routeIs('monitors.edit*')) }}" @click="navOpen = false">{{ __('Monitor Editor') }}</a>
+                    <a href="{{ route('monitors.show', $monitor) }}" class="{{ $navLinkClasses(request()->routeIs('monitors.show*')) }}" wire:navigate.hover @click="navOpen = false">{{ __('Live-Anzeige') }}</a>
+                    <a href="{{ route('monitors.edit', $monitor) }}" class="{{ $navLinkClasses(request()->routeIs('monitors.edit*')) }}" wire:navigate.hover @click="navOpen = false">{{ __('Monitor Editor') }}</a>
                 @endif
 
-                <a href="{{ route('profile.edit') }}" class="{{ $navLinkClasses(request()->routeIs('profile.*')) }}" @click="navOpen = false">{{ __('Profil') }}</a>
-                <a href="{{ route('user-permissions') }}" class="{{ $navLinkClasses(request()->routeIs('user-permissions')) }}" @click="navOpen = false">{{ __('Meine Berechtigungen') }}</a>
+                <a href="{{ route('profile.edit') }}" class="{{ $navLinkClasses(request()->routeIs('profile.*')) }}" wire:navigate.hover @click="navOpen = false">{{ __('Profil') }}</a>
+                <a href="{{ route('user-permissions') }}" class="{{ $navLinkClasses(request()->routeIs('user-permissions')) }}" wire:navigate.hover @click="navOpen = false">{{ __('Meine Berechtigungen') }}</a>
 
                 @if ($canSeeAdmin)
                     <a href="{{ url('/admin') }}" class="{{ $navLinkClasses(request()->is('admin') || request()->is('admin/*')) }}" @click="navOpen = false">{{ __('Admin-Bereich') }}</a>
