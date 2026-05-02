@@ -65,7 +65,7 @@ class AdminPanelProvider extends PanelProvider
             ])
             ->renderHook(
                 PanelsRenderHook::HEAD_START,
-                fn(): string => Blade::render(
+                fn (): string => Blade::render(
                     <<<'BLADE'
                     @php
                         $themePreference = \App\Support\UserPreferences::normalizeTheme(auth()->user()?->theme_preference)
@@ -303,7 +303,7 @@ class AdminPanelProvider extends PanelProvider
             )
             ->renderHook(
                 PanelsRenderHook::GLOBAL_SEARCH_AFTER,
-                fn(): string => Blade::render('
+                fn (): string => Blade::render('
                     <x-filament::button tag="a" href="/overview" size="sm">
                         {{__("User-Bereich")}}
                     </x-filament::button>
