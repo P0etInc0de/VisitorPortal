@@ -16,6 +16,7 @@
                 color="gray"
                 outlined
                 icon="heroicon-m-arrow-top-right-on-square"
+                class="bp-github-link-button"
             >
                 {{ __('Open in GitHub') }}
             </x-filament::button>
