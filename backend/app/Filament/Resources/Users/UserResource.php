@@ -20,8 +20,7 @@ class UserResource extends Resource
 {
     protected static ?string $model = User::class;
 
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
-
+    protected static string|null|BackedEnum $navigationIcon = 'heroicon-o-users';
     public static function getNavigationLabel(): string
     {
         return __('Benutzer');

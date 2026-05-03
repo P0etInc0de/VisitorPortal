@@ -20,8 +20,7 @@ class DepartmentResource extends Resource
 {
     protected static ?string $model = Department::class;
 
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
-
+    protected static string|null|BackedEnum $navigationIcon = 'heroicon-o-building-office';
     public static function getNavigationLabel(): string
     {
         return __('Abteilungen');

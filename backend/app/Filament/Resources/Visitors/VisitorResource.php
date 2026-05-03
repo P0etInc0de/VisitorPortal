@@ -20,8 +20,7 @@ class VisitorResource extends Resource
 {
     protected static ?string $model = Visitor::class;
 
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
-
+    protected static string|null|BackedEnum $navigationIcon = 'heroicon-o-identification';
     public static function getNavigationLabel(): string
     {
         return __('Besucher');

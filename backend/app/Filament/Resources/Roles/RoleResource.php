@@ -38,6 +38,7 @@ class RoleResource extends Resource
     use Essentials\HasNavigation;
     use HasShieldFormComponents;
 
+    protected static string|null|\BackedEnum $navigationIcon = 'heroicon-o-shield-check';
     protected static ?string $recordTitleAttribute = 'name';
 
     public static function getNavigationGroup(): ?string

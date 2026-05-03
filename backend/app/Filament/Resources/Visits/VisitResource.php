@@ -21,8 +21,7 @@ class VisitResource extends Resource
 {
     protected static ?string $model = Visit::class;
 
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
-
+    protected static string|null|BackedEnum $navigationIcon = 'heroicon-o-calendar-days';
     public static function getNavigationLabel(): string
     {
         return __('Besuche');
