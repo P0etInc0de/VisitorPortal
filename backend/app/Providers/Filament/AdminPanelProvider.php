@@ -13,7 +13,6 @@ use Filament\Http\Middleware\DispatchServingFilamentEvent;
 use Filament\Panel;
 use Filament\PanelProvider;
 use Filament\View\PanelsRenderHook;
-use Filament\Widgets\AccountWidget;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
 use Illuminate\Cookie\Middleware\EncryptCookies;
 use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
@@ -47,7 +46,6 @@ class AdminPanelProvider extends PanelProvider
             ])
             ->discoverWidgets(in: app_path('Filament/Widgets'), for: 'App\Filament\Widgets')
             ->widgets([
-                AccountWidget::class,
             ])
             ->middleware([
                 EncryptCookies::class,
@@ -274,8 +272,6 @@ class AdminPanelProvider extends PanelProvider
                         }
 
                         html[data-theme="true-black"] .fi-section,
-                        html[data-theme="true-black"] .fi-sidebar,
-                        html[data-theme="true-black"] .fi-topbar,
                         html[data-theme="true-black"] .fi-dropdown-panel,
                         html[data-theme="true-black"] .fi-modal-window,
                         html[data-theme="true-black"] .fi-ta-record,
@@ -321,12 +317,8 @@ class AdminPanelProvider extends PanelProvider
                 )
             )
             ->renderHook(
-                PanelsRenderHook::GLOBAL_SEARCH_AFTER,
-                fn (): string => Blade::render('
-                    <x-filament::button tag="a" href="/overview" size="sm">
-                        {{__("User-Bereich")}}
-                    </x-filament::button>
-                ')
+                PanelsRenderHook::SIDEBAR_NAV_END,
+                fn (): string => Blade::render('filament.sidebar-footer')
             );
     }
 }
