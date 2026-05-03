@@ -35,7 +35,6 @@ class AdminAdministerVisitorTest extends TestCase
                 'email' => 'max@example.com',
                 'phone' => '+49123456789',
                 'company' => 'Test GmbH',
-                'status' => VisitorStatusEnum::Planned->value,
                 'notes' => 'Test Notiz',
             ])
             ->call('create')
@@ -162,4 +161,72 @@ class AdminAdministerVisitorTest extends TestCase
             'notes' => 'Aktualisierte Notiz',
         ]);
     }
+    public function test_admin_cannot_create_visitor_without_required_fields(): void
+    {
+        $admin = (new PermissionHelper)->getSuperAdminUser();
+
+        Livewire::actingAs($admin)
+            ->test(CreateVisitor::class)
+            ->fillForm([])
+            ->call('create')
+            ->assertHasFormErrors([
+                'first_name',
+                'name',
+                'email',
+            ]);
+    }
+    public function test_admin_cannot_create_visitor_with_invalid_email(): void
+    {
+        $admin = (new PermissionHelper)->getSuperAdminUser();
+
+        Livewire::actingAs($admin)
+            ->test(CreateVisitor::class)
+            ->fillForm([
+                'first_name' => 'Max',
+                'name' => 'Mustermann',
+                'email' => 'not-an-email',
+            ])
+            ->call('create')
+            ->assertHasFormErrors(['email']);
+    }
+
+    public function test_admin_can_create_visitor_without_optional_fields(): void
+    {
+        $admin = (new PermissionHelper)->getSuperAdminUser();
+
+        Livewire::actingAs($admin)
+            ->test(CreateVisitor::class)
+            ->fillForm([
+                'first_name' => 'Max',
+                'name' => 'Mustermann',
+                'email' => 'minimal@example.com',
+                'phone' => '+49987654321',
+            ])
+            ->call('create')
+            ->assertHasNoFormErrors();
+
+        $this->assertDatabaseHas('visitors', [
+            'first_name' => 'Max',
+            'name' => 'Mustermann',
+            'email' => 'minimal@example.com',
+            'phone' => '+49987654321',
+        ]);
+    }
+
+    public function test_admin_cannot_create_visitor_with_invalid_phone(): void
+    {
+        $admin = (new PermissionHelper)->getSuperAdminUser();
+
+        Livewire::actingAs($admin)
+            ->test(CreateVisitor::class)
+            ->fillForm([
+                'first_name' => 'Max',
+                'name' => 'Mustermann',
+                'email' => 'max@example.com',
+                'phone' => 'invalid-phone',
+            ])
+            ->call('create')
+            ->assertHasFormErrors(['phone']);
+    }
+
 }
