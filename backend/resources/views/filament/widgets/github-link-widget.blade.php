@@ -1,12 +1,12 @@
 <x-filament-widgets::widget>
     <x-filament::section>
         <x-slot:heading>
-            {{__('GitHub Repository')}}
-        </x-slot>
+            {{ __('GitHub Repository') }}
+        </x-slot:heading>
 
         <x-slot:description>
-            {{__('Besuchen Sie unser Repository')}}
-        </x-slot>
+            {{ __('Besuchen Sie unser Repository') }}
+        </x-slot:description>
 
         <x-slot:afterHeader>
             <x-filament::button
@@ -14,11 +14,11 @@
                 tag="a"
                 target="_blank"
                 color="gray"
+                outlined
                 icon="heroicon-m-arrow-top-right-on-square"
             >
                 {{ __('Open in GitHub') }}
             </x-filament::button>
         </x-slot:afterHeader>
-
     </x-filament::section>
 </x-filament-widgets::widget>

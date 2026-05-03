@@ -1,95 +1,20 @@
 <style>
-    :root {
-        --bp-admin-border: rgb(229 231 235 / 1);
-        --bp-admin-focus-border: rgb(245 158 11 / 1);
-        --bp-admin-panel-bg: rgb(255 255 255 / 1);
-        --bp-admin-page-bg: rgb(249 250 251 / 1);
-    }
-
-    html.dark,
-    html[data-theme="dark"] {
-        --bp-admin-border: rgb(63 63 70 / 1);
-        --bp-admin-panel-bg: rgb(24 24 27 / 1);
-        --bp-admin-page-bg: rgb(9 9 11 / 1);
-    }
-
     html[data-theme="true-black"] {
         color-scheme: dark;
-        --bp-admin-border: rgb(38 38 38 / 1);
-        --bp-admin-panel-bg: #050505;
-        --bp-admin-page-bg: #000;
     }
 
     /*
-       Large surfaces:
-       Keep these stable during zoom with a pseudo border.
-    */
-    .fi-section,
-    .fi-dropdown-panel,
-    .fi-modal-window,
-    .fi-ta-record {
-        position: relative;
-        background-clip: padding-box !important;
-    }
+       True Black theme for Filament.
 
-    .fi-section::after,
-    .fi-dropdown-panel::after,
-    .fi-modal-window::after,
-    .fi-ta-record::after {
-        content: "";
-        position: absolute;
-        inset: 0;
-        z-index: 1;
-        pointer-events: none;
-        border: 1px solid var(--bp-admin-border);
-        border-radius: inherit;
-    }
+       Important:
+       Filament renders many visible borders as Tailwind rings using box-shadow
+       variables such as --tw-ring-shadow and --tw-ring-color. In Firefox, these
+       1px box-shadow/ring based borders can render inconsistently during zoom,
+       especially together with border-radius and very dark backgrounds.
 
-    /*
-       Controls:
-       Use inset box-shadow instead of a border pseudo element.
-       This is more robust for search fields and button-like controls
-       that have inner wrappers / prefixes / suffixes.
-    */
-    .fi-input-wrp,
-    .fi-btn,
-    .fi-icon-btn,
-    .fi-theme-switcher-btn {
-        position: relative;
-        overflow: hidden !important;
-        isolation: isolate;
-        background-clip: padding-box !important;
-        box-shadow: inset 0 0 0 1px var(--bp-admin-border);
-    }
-
-    .fi-input-wrp:focus-within,
-    .fi-btn:focus-visible,
-    .fi-icon-btn:focus-visible,
-    .fi-theme-switcher-btn:focus-visible {
-        box-shadow: inset 0 0 0 1px var(--bp-admin-focus-border);
-    }
-
-    /*
-       Ensure inner children cannot paint square overlays past rounded corners.
-    */
-    .fi-input-wrp > *,
-    .fi-btn > *,
-    .fi-icon-btn > *,
-    .fi-theme-switcher-btn > * {
-        position: relative;
-        z-index: 1;
-    }
-
-    .fi-input-wrp .fi-input,
-    .fi-input-wrp .fi-select-input,
-    .fi-input-wrp .fi-textarea {
-        background-color: transparent !important;
-        background-clip: padding-box !important;
-        box-shadow: none !important;
-    }
-
-    /*
-       True Black surfaces.
+       For True Black we therefore use real CSS borders on the affected Filament
+       surfaces and controls. This keeps the visible edge stable in Firefox while
+       keeping the change limited to the custom true-black theme.
     */
     html[data-theme="true-black"] body,
     html[data-theme="true-black"] .fi-layout,
@@ -97,22 +22,80 @@
     html[data-theme="true-black"] .fi-sidebar,
     html[data-theme="true-black"] .fi-topbar,
     html[data-theme="true-black"] .fi-header {
-        background-color: var(--bp-admin-page-bg) !important;
+        background-color: #000 !important;
     }
 
-    html[data-theme="true-black"] .fi-section,
+    /*
+       Contained sections/cards.
+       Use real borders as the stable visible edge. Disable the normal ring
+       shadow for these surfaces so Firefox does not render broken ring segments
+       on top of the real border during zoom.
+    */
+    html[data-theme="true-black"] .fi-section:not(.fi-section-not-contained):not(.fi-aside),
+    html[data-theme="true-black"] .fi-section:not(.fi-section-not-contained).fi-aside > .fi-section-content-ctn,
     html[data-theme="true-black"] .fi-dropdown-panel,
-    html[data-theme="true-black"] .fi-modal-window,
-    html[data-theme="true-black"] .fi-ta-record,
-    html[data-theme="true-black"] .fi-input-wrp {
-        background-color: var(--bp-admin-panel-bg) !important;
-        border-color: var(--bp-admin-border) !important;
+    html[data-theme="true-black"] .fi-modal-window {
+        background-color: #050505 !important;
+        border: 2px solid rgb(64 64 64 / 1) !important;
+        box-sizing: border-box;
+        --tw-ring-shadow: 0 0 #0000 !important;
     }
 
-    html[data-theme="true-black"] .fi-input,
-    html[data-theme="true-black"] .fi-select-input,
-    html[data-theme="true-black"] .fi-textarea {
-        border-color: var(--bp-admin-border) !important;
+    html[data-theme="true-black"] .fi-ta-record {
+        background-color: #050505 !important;
+        border-color: rgb(64 64 64 / 1) !important;
+    }
+
+    /*
+       Input/search/select wrappers.
+       These are also ring-based in Filament. True Black uses a real 2px border
+       instead, so the search field does not lose parts of its border in Firefox
+       when zooming.
+    */
+    html[data-theme="true-black"] .fi-input-wrp {
+        background-color: #050505 !important;
+        border: 2px solid rgb(82 82 91 / 1) !important;
+        box-sizing: border-box;
+        overflow: hidden;
+        --tw-ring-shadow: 0 0 #0000 !important;
+    }
+
+    html[data-theme="true-black"] .fi-input-wrp:not(.fi-disabled):not(:has(.fi-ac-action:focus)):focus-within {
+        border-color: rgb(245 158 11 / 1) !important;
+        --tw-ring-shadow: 0 0 #0000 !important;
+    }
+
+    html[data-theme="true-black"] .fi-input-wrp.fi-invalid {
+        border-color: rgb(239 68 68 / 1) !important;
+    }
+
+    html[data-theme="true-black"] .fi-input-wrp .fi-input,
+    html[data-theme="true-black"] .fi-input-wrp .fi-select-input,
+    html[data-theme="true-black"] .fi-input-wrp .fi-textarea {
+        background-color: transparent !important;
+    }
+
+    html[data-theme="true-black"] .fi-input-wrp .fi-input-wrp-prefix:not(.fi-inline),
+    html[data-theme="true-black"] .fi-input-wrp .fi-input-wrp-suffix:not(.fi-inline) {
+        border-color: rgb(38 38 38 / 1) !important;
+    }
+
+    /*
+       Gray outlined buttons.
+       The GitHub button uses Filament's outlined gray button variant. Use a real
+       border here as well, instead of relying on the ring shadow as the visible
+       outline.
+    */
+    html[data-theme="true-black"] .fi-btn.fi-color-gray.fi-outlined {
+        border: 2px solid rgb(82 82 91 / 1) !important;
+        box-sizing: border-box;
+        background-clip: padding-box;
+        --tw-ring-shadow: 0 0 #0000 !important;
+    }
+
+    html[data-theme="true-black"] .fi-btn.fi-color-gray.fi-outlined:focus-visible {
+        border-color: rgb(245 158 11 / 1) !important;
+        --tw-ring-shadow: 0 0 #0000 !important;
     }
 
     html[data-theme="true-black"] .fi-theme-switcher-btn.fi-active {
@@ -120,7 +103,9 @@
         color: rgb(199 210 254 / 1) !important;
     }
 
-    /* Logo switching for Filament Admin */
+    /*
+       Logo switching for Filament Admin.
+    */
     .fi-logo.logo-dark {
         display: none;
     }

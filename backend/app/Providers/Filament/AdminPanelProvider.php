@@ -32,8 +32,8 @@ class AdminPanelProvider extends PanelProvider
             ->path('admin')
             ->globalSearch(position: GlobalSearchPosition::Sidebar)
             ->brandLogo(new HtmlString('
-                <img src="' . asset('images/logo-light.png') . '" class="fi-logo logo-light h-10 w-auto" alt="Logo">
-                <img src="' . asset('images/logo-dark.png') . '" class="fi-logo logo-dark h-10 w-auto" alt="Logo">
+                <img src="'.asset('images/logo-light.png').'" class="fi-logo logo-light h-10 w-auto" alt="Logo">
+                <img src="'.asset('images/logo-dark.png').'" class="fi-logo logo-dark h-10 w-auto" alt="Logo">
             '))
             ->brandLogoHeight('4rem')
             ->colors([
