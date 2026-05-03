@@ -3,11 +3,8 @@
 namespace AdminPanel;
 
 use App\Enums\GenderEnum;
-use App\Enums\VisitorStatusEnum;
-use App\Filament\Resources\Departments\Pages\EditDepartment;
 use App\Filament\Resources\Visitors\Pages\CreateVisitor;
 use App\Filament\Resources\Visitors\Pages\EditVisitor;
-use App\Models\Department;
 use App\Models\Visitor;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Livewire\Livewire;
@@ -17,10 +14,12 @@ use Tests\TestCase;
 class AdminAdministerVisitorTest extends TestCase
 {
     use RefreshDatabase;
+
     /**
      * A basic feature test example.
      */
-    public function test_admin_can_create_new_visitors(): void {
+    public function test_admin_can_create_new_visitors(): void
+    {
 
         $admin = (new PermissionHelper)->getSuperAdminUser();
 
@@ -52,7 +51,8 @@ class AdminAdministerVisitorTest extends TestCase
         ]);
     }
 
-    public function test_admin_can_edit_existing_visitors(): void {
+    public function test_admin_can_edit_existing_visitors(): void
+    {
 
         $admin = (new PermissionHelper)->getSuperAdminUser();
 
@@ -113,7 +113,9 @@ class AdminAdministerVisitorTest extends TestCase
         ]);
 
     }
-    public function test_admin_can_delete_visitors(): void {
+
+    public function test_admin_can_delete_visitors(): void
+    {
         $admin = (new PermissionHelper)->getSuperAdminUser();
 
         Livewire::actingAs($admin)
@@ -161,6 +163,7 @@ class AdminAdministerVisitorTest extends TestCase
             'notes' => 'Aktualisierte Notiz',
         ]);
     }
+
     public function test_admin_cannot_create_visitor_without_required_fields(): void
     {
         $admin = (new PermissionHelper)->getSuperAdminUser();
@@ -175,6 +178,7 @@ class AdminAdministerVisitorTest extends TestCase
                 'email',
             ]);
     }
+
     public function test_admin_cannot_create_visitor_with_invalid_email(): void
     {
         $admin = (new PermissionHelper)->getSuperAdminUser();
@@ -228,5 +232,4 @@ class AdminAdministerVisitorTest extends TestCase
             ->call('create')
             ->assertHasFormErrors(['phone']);
     }
-
 }

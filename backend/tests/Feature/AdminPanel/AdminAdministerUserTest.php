@@ -2,18 +2,12 @@
 
 namespace AdminPanel;
 
-use App\Filament\Resources\Departments\Pages\CreateDepartment;
-use App\Filament\Resources\Departments\Pages\EditDepartment;
-use App\Filament\Resources\Monitors\Pages\CreateMonitor;
 use App\Filament\Resources\Users\Pages\CreateUser;
 use App\Filament\Resources\Users\Pages\EditUser;
-use App\Models\Department;
 use App\Models\User;
 use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Storage;
 use Livewire\Livewire;
 use Spatie\Permission\Models\Role;
 use Spatie\Permission\PermissionRegistrar;
@@ -177,6 +171,7 @@ class AdminAdministerUserTest extends TestCase
                 'password',
             ]);
     }
+
     public function test_admin_cannot_create_user_with_invalid_email(): void
     {
         $this->app->make(PermissionRegistrar::class)->forgetCachedPermissions();
@@ -197,8 +192,6 @@ class AdminAdministerUserTest extends TestCase
             ->call('create')
             ->assertHasFormErrors(['email']);
     }
-
-
 
     public function test_admin_cannot_create_user_without_password(): void
     {

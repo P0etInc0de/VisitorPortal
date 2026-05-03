@@ -2,13 +2,9 @@
 
 namespace AdminPanel;
 
-use App\Enums\GenderEnum;
-use App\Enums\VisitorStatusEnum;
 use App\Enums\VisitStatusEnum;
-use App\Filament\Resources\Visitors\Pages\CreateVisitor;
 use App\Filament\Resources\Visits\Pages\CreateVisit;
 use App\Filament\Resources\Visits\Pages\EditVisit;
-use App\Http\Requests\UpdateVisitRequest;
 use App\Models\User;
 use App\Models\Visit;
 use App\Models\Visitor;
@@ -20,10 +16,12 @@ use Tests\TestCase;
 class AdminAdministerVisitsTest extends TestCase
 {
     use RefreshDatabase;
+
     /**
      * Feature Tests for the admin, administering visits
      */
-    public function test_admin_can_create_new_visits(): void {
+    public function test_admin_can_create_new_visits(): void
+    {
 
         $admin = (new PermissionHelper)->getSuperAdminUser();
 
@@ -35,8 +33,6 @@ class AdminAdministerVisitsTest extends TestCase
 
         $scheduledFrom = now()->addDay()->format('Y-m-d H:i:00');
         $scheduledUntil = now()->addDays(2)->format('Y-m-d H:i:00');
-
-
 
         Livewire::actingAs($admin)
             ->test(CreateVisit::class)
@@ -68,7 +64,8 @@ class AdminAdministerVisitsTest extends TestCase
         ]);
     }
 
-    public function test_admin_can_edit_existing_visits(): void {
+    public function test_admin_can_edit_existing_visits(): void
+    {
 
         $admin = (new PermissionHelper)->getSuperAdminUser();
 
@@ -117,7 +114,7 @@ class AdminAdministerVisitsTest extends TestCase
             'responsible_user_id' => $responsibleUser->id,
         ])->latest()->first();
 
-        foreach($visitors as $visitor) {
+        foreach ($visitors as $visitor) {
             $this->assertDatabaseHas('visit_visitor', [
                 'visit_id' => $visit->id,
                 'visitor_id' => $visitor->id,
@@ -128,8 +125,8 @@ class AdminAdministerVisitsTest extends TestCase
         $updatedUserId = User::factory()->create()->id;
         $updatedTitle = 'New Test Title';
         $updatedResponsibleUserId = User::factory()->create()->id;
-        $updatedScheduledFrom = now()->addDays(2)->format('Y-m-d H:i:00');;
-        $updatedScheduledUntil = now()->addDays(3)->format('Y-m-d H:i:00');;
+        $updatedScheduledFrom = now()->addDays(2)->format('Y-m-d H:i:00');
+        $updatedScheduledUntil = now()->addDays(3)->format('Y-m-d H:i:00');
         $updatedStatus = VisitStatusEnum::Completed->value;
         $updatedNotes = 'Updated Visit';
         $updatedVisitors = Visitor::factory()->count(2)->create()->pluck('id')->toArray();
@@ -162,7 +159,8 @@ class AdminAdministerVisitsTest extends TestCase
         ]);
     }
 
-    public function test_admin_can_delete_visits(): void {
+    public function test_admin_can_delete_visits(): void
+    {
 
         $admin = (new PermissionHelper)->getSuperAdminUser();
 
@@ -213,7 +211,7 @@ class AdminAdministerVisitsTest extends TestCase
         ])->latest()->first();
 
         // check if pivot is filled accordingly
-        foreach($visitors as $visitor) {
+        foreach ($visitors as $visitor) {
             $this->assertDatabaseHas('visit_visitor', [
                 'visit_id' => $visit->id,
                 'visitor_id' => $visitor->id,
@@ -261,6 +259,7 @@ class AdminAdministerVisitsTest extends TestCase
 
         $this->assertDatabaseCount('visit_visitor', 0);
     }
+
     public function test_admin_cannot_create_visit_without_required_fields(): void
     {
         $admin = (new PermissionHelper)->getSuperAdminUser();
@@ -303,6 +302,7 @@ class AdminAdministerVisitsTest extends TestCase
             ->assertHasFormErrors();
 
     }
+
     public function test_admin_can_complete_visit(): void
     {
         $admin = (new PermissionHelper)->getSuperAdminUser();
@@ -313,7 +313,6 @@ class AdminAdministerVisitsTest extends TestCase
         $visit = Visit::factory()->create([
             'status' => VisitStatusEnum::Planned->value,
         ]);
-
 
         // complete visit
         Livewire::actingAs($admin)
@@ -329,6 +328,7 @@ class AdminAdministerVisitsTest extends TestCase
             'status' => VisitStatusEnum::Completed->value,
         ]);
     }
+
     public function test_admin_can_cancel_visit(): void
     {
         $admin = (new PermissionHelper)->getSuperAdminUser();
@@ -337,7 +337,6 @@ class AdminAdministerVisitsTest extends TestCase
         $visit = Visit::factory()->create([
             'status' => VisitStatusEnum::Planned->value,
         ]);
-
 
         // cancel visit
         Livewire::actingAs($admin)
@@ -348,7 +347,7 @@ class AdminAdministerVisitsTest extends TestCase
         $this->assertDatabaseHas('visits', [
             'id' => $visit->id,
             'status' => VisitStatusEnum::Canceled->value,
-            'canceled_by_user_id' => $admin->id
+            'canceled_by_user_id' => $admin->id,
         ]);
     }
 
@@ -361,7 +360,6 @@ class AdminAdministerVisitsTest extends TestCase
             'status' => VisitStatusEnum::Canceled->value,
         ]);
 
-
         // restore visit
         Livewire::actingAs($admin)
             ->test(EditVisit::class, ['record' => $visit->id])
@@ -373,5 +371,4 @@ class AdminAdministerVisitsTest extends TestCase
             'status' => VisitStatusEnum::Planned->value,
         ]);
     }
-
 }

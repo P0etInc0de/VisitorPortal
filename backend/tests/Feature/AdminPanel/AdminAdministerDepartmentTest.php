@@ -13,10 +13,12 @@ use Tests\TestCase;
 class AdminAdministerDepartmentTest extends TestCase
 {
     use RefreshDatabase;
+
     /**
      * Feature test for admin administering departments (CRUD))
      */
-    public function test_admin_can_create_new_departments(): void {
+    public function test_admin_can_create_new_departments(): void
+    {
 
         $admin = (new PermissionHelper)->getSuperAdminUser();
 
@@ -26,7 +28,7 @@ class AdminAdministerDepartmentTest extends TestCase
             ->fillForm([
                 'name' => 'IT Department',
                 'location' => 'Berlin',
-                'is_active' => true
+                'is_active' => true,
             ])
             ->call('create')
             ->assertHasNoFormErrors();
@@ -39,7 +41,8 @@ class AdminAdministerDepartmentTest extends TestCase
         ]);
     }
 
-    public function test_admin_can_edit_existing_departments(): void {
+    public function test_admin_can_edit_existing_departments(): void
+    {
         $admin = (new PermissionHelper)->getSuperAdminUser();
 
         // send form to create a new department
@@ -48,7 +51,7 @@ class AdminAdministerDepartmentTest extends TestCase
             ->fillForm([
                 'name' => 'IT Department',
                 'location' => 'Berlin',
-                'is_active' => true
+                'is_active' => true,
             ])
             ->call('create')
             ->assertHasNoFormErrors();
@@ -69,7 +72,7 @@ class AdminAdministerDepartmentTest extends TestCase
             ->fillForm([
                 'name' => 'HR Department',
                 'location' => 'Stuttgart',
-                'is_active' => false
+                'is_active' => false,
             ])
             ->call('save')
             ->assertHasNoFormErrors();
@@ -78,11 +81,12 @@ class AdminAdministerDepartmentTest extends TestCase
         $this->assertDatabaseHas('departments', [
             'name' => 'HR Department',
             'location' => 'Stuttgart',
-            'is_active' => false
+            'is_active' => false,
         ]);
     }
 
-    public function test_admin_can_delete_existing_departments(): void {
+    public function test_admin_can_delete_existing_departments(): void
+    {
         $admin = (new PermissionHelper)->getSuperAdminUser();
 
         // send form to create a new department
@@ -91,7 +95,7 @@ class AdminAdministerDepartmentTest extends TestCase
             ->fillForm([
                 'name' => 'IT Department',
                 'location' => 'Berlin',
-                'is_active' => true
+                'is_active' => true,
             ])
             ->call('create')
             ->assertHasNoFormErrors();
@@ -180,6 +184,4 @@ class AdminAdministerDepartmentTest extends TestCase
             'is_active' => false,
         ]);
     }
-
-
 }
