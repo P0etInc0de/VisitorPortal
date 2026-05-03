@@ -261,4 +261,117 @@ class AdminAdministerVisitsTest extends TestCase
 
         $this->assertDatabaseCount('visit_visitor', 0);
     }
+    public function test_admin_cannot_create_visit_without_required_fields(): void
+    {
+        $admin = (new PermissionHelper)->getSuperAdminUser();
+
+        Livewire::actingAs($admin)
+            ->test(CreateVisit::class)
+            ->fillForm([])
+            ->call('create')
+            ->assertHasFormErrors([
+                'title',
+                'responsible_user_id',
+                'scheduled_from',
+                'scheduled_until',
+                'status',
+            ]);
+    }
+
+    public function test_admin_cannot_attach_duplicate_visitors(): void
+    {
+        $admin = (new PermissionHelper)->getSuperAdminUser();
+
+        $employee = User::factory()->create();
+        $responsibleUser = User::factory()->create();
+
+        $visitor = Visitor::factory()->create();
+        $anotherVisitor = Visitor::factory()->create();
+
+        Livewire::actingAs($admin)
+            ->test(CreateVisit::class)
+            ->fillForm([
+                'user_id' => $employee->id,
+                'title' => 'Duplicate Visitor Test',
+                'responsible_user_id' => $responsibleUser->id,
+                'scheduled_from' => now()->addDay()->format('Y-m-d H:i:00'),
+                'scheduled_until' => now()->addDays(2)->format('Y-m-d H:i:00'),
+                'status' => VisitStatusEnum::Planned->value,
+                'visitors' => [$visitor->id, $visitor->id],
+            ])
+            ->call('create')
+            ->assertHasFormErrors();
+
+    }
+    public function test_admin_can_complete_visit(): void
+    {
+        $admin = (new PermissionHelper)->getSuperAdminUser();
+
+        $employee = User::factory()->create();
+
+        // create a planned visit
+        $visit = Visit::factory()->create([
+            'status' => VisitStatusEnum::Planned->value,
+        ]);
+
+
+        // complete visit
+        Livewire::actingAs($admin)
+            ->test(EditVisit::class, ['record' => $visit->id])
+            ->fillForm([
+                'status' => VisitStatusEnum::Completed->value,
+            ])
+            ->call('save')
+            ->assertHasNoFormErrors();
+
+        $this->assertDatabaseHas('visits', [
+            'id' => $visit->id,
+            'status' => VisitStatusEnum::Completed->value,
+        ]);
+    }
+    public function test_admin_can_cancel_visit(): void
+    {
+        $admin = (new PermissionHelper)->getSuperAdminUser();
+
+        // create a planned visit
+        $visit = Visit::factory()->create([
+            'status' => VisitStatusEnum::Planned->value,
+        ]);
+
+
+        // cancel visit
+        Livewire::actingAs($admin)
+            ->test(EditVisit::class, ['record' => $visit->id])
+            ->callAction('cancel')
+            ->assertHasNoFormErrors();
+
+        $this->assertDatabaseHas('visits', [
+            'id' => $visit->id,
+            'status' => VisitStatusEnum::Canceled->value,
+            'canceled_by_user_id' => $admin->id
+        ]);
+    }
+
+    public function test_admin_can_restore_visit(): void
+    {
+        $admin = (new PermissionHelper)->getSuperAdminUser();
+
+        // create a canceled visit
+        $visit = Visit::factory()->create([
+            'status' => VisitStatusEnum::Canceled->value,
+        ]);
+
+
+        // restore visit
+        Livewire::actingAs($admin)
+            ->test(EditVisit::class, ['record' => $visit->id])
+            ->callAction('Restore')
+            ->assertHasNoFormErrors();
+
+        $this->assertDatabaseHas('visits', [
+            'id' => $visit->id,
+            'status' => VisitStatusEnum::Planned->value,
+        ]);
+    }
+
 }
