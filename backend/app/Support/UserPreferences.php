@@ -35,6 +35,15 @@ class UserPreferences
         ];
     }
 
+    public static function initialTheme(?string $themePreference): string
+    {
+        return match (self::normalizeTheme($themePreference)) {
+            self::THEME_DARK => self::THEME_DARK,
+            self::THEME_TRUE_BLACK => self::THEME_TRUE_BLACK,
+            default => self::THEME_LIGHT,
+        };
+    }
+
     /**
      * @return list<string>
      */

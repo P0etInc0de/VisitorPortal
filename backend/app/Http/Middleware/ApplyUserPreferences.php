@@ -26,11 +26,7 @@ class ApplyUserPreferences
         }
 
         View::share('themePreference', $themePreference);
-        View::share('theme', match ($themePreference) {
-            UserPreferences::THEME_DARK => UserPreferences::THEME_DARK,
-            UserPreferences::THEME_TRUE_BLACK => UserPreferences::THEME_TRUE_BLACK,
-            default => UserPreferences::THEME_LIGHT,
-        });
+        View::share('theme', UserPreferences::initialTheme($themePreference));
 
         return $next($request);
     }

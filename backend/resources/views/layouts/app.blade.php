@@ -3,23 +3,15 @@
 @endphp
 
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" data-theme="{{ $theme ?? 'light' }}">
+<html
+    lang="{{ str_replace('_', '-', app()->getLocale()) }}"
+    data-theme="{{ $theme ?? \App\Support\UserPreferences::THEME_LIGHT }}"
+    data-theme-preference="{{ $themePreference ?? \App\Support\UserPreferences::THEME_SYSTEM }}"
+>
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>{{ config('app.name', __('Besucherportal')) }}</title>
-
-    @if ($themePreference === \App\Support\UserPreferences::THEME_SYSTEM)
-        <script>
-            (function () {
-                document.documentElement.setAttribute(
-                    'data-theme',
-                    window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
-                )
-            })()
-        </script>
-    @endif
-
 
     <script>
         document.documentElement.classList.add('is-preload');

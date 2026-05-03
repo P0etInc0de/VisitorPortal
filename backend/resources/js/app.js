@@ -8,7 +8,7 @@ document.addEventListener('alpine:init', () => {
     Alpine.data('visitParticipantRow', (participant) => ({
         participant: participant,
         busy: false,
-        
+
         async submitAction(url) {
             if (this.busy || !url) {
                 return;
@@ -17,16 +17,18 @@ document.addEventListener('alpine:init', () => {
             this.busy = true;
 
             try {
+                const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content || '';
+
                 const response = await fetch(url, {
                     method: 'POST',
                     headers: {
-                        'Accept': 'application/json',
+                        Accept: 'application/json',
                         'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
                         'X-Requested-With': 'XMLHttpRequest',
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || '',
+                        'X-CSRF-TOKEN': csrfToken,
                     },
-                    body: new URLSearchParams({ 
-                        _token: document.querySelector('meta[name="csrf-token"]')?.content || '' 
+                    body: new URLSearchParams({
+                        _token: csrfToken,
                     }).toString(),
                     credentials: 'same-origin',
                 });
@@ -51,6 +53,47 @@ document.addEventListener('alpine:init', () => {
         },
     }));
 });
+
+if (!window.__bpUserThemeResolverInstalled) {
+    window.__bpUserThemeResolverInstalled = true;
+
+    const systemDarkQuery = window.matchMedia('(prefers-color-scheme: dark)');
+
+    const resolveEffectiveTheme = (themePreference) => {
+        if (themePreference === 'dark') {
+            return 'dark';
+        }
+
+        if (themePreference === 'true-black') {
+            return 'true-black';
+        }
+
+        if (themePreference === 'light') {
+            return 'light';
+        }
+
+        return systemDarkQuery.matches ? 'dark' : 'light';
+    };
+
+    const applyResolvedThemePreference = () => {
+        const root = document.documentElement;
+        const themePreference = root.dataset.themePreference || 'system';
+
+        root.setAttribute('data-theme', resolveEffectiveTheme(themePreference));
+    };
+
+    applyResolvedThemePreference();
+
+    document.addEventListener('livewire:navigated', () => {
+        applyResolvedThemePreference();
+    });
+
+    if (systemDarkQuery.addEventListener) {
+        systemDarkQuery.addEventListener('change', applyResolvedThemePreference);
+    } else {
+        systemDarkQuery.addListener(applyResolvedThemePreference);
+    }
+}
 
 if (!window.__bpLivewireNavigateRejectionHandlerInstalled) {
     window.__bpLivewireNavigateRejectionHandlerInstalled = true;
@@ -82,6 +125,7 @@ if (!window.__bpLivewireNavigateRejectionHandlerInstalled) {
         if (navigationInProgress) {
             expectedCancellationUntil = Date.now() + 2000;
         }
+
         navigationInProgress = true;
     };
 
