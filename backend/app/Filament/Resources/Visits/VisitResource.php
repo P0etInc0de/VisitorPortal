@@ -14,7 +14,6 @@ use App\Models\Visit;
 use BackedEnum;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
-use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
 
 class VisitResource extends Resource
@@ -22,6 +21,7 @@ class VisitResource extends Resource
     protected static ?string $model = Visit::class;
 
     protected static string|null|BackedEnum $navigationIcon = 'heroicon-o-calendar-days';
+
     public static function getNavigationLabel(): string
     {
         return __('Besuche');
