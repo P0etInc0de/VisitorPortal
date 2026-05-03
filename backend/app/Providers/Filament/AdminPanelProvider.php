@@ -255,107 +255,121 @@ class AdminPanelProvider extends PanelProvider
                     </script>
 
                     <style>
-                        html[data-theme="true-black"] {
-                            color-scheme: dark;
+                        :root {
+                            --bp-admin-border: rgb(229 231 235 / 1);
+                            --bp-admin-border-strong: rgb(209 213 219 / 1);
+                            --bp-admin-focus-border: rgb(245 158 11 / 1);
+                            --bp-admin-panel-bg: rgb(255 255 255 / 1);
+                            --bp-admin-page-bg: rgb(249 250 251 / 1);
                         }
 
-                        /* Base backgrounds for layout and panels */
+                        html.dark,
+                        html[data-theme="dark"] {
+                            --bp-admin-border: rgb(63 63 70 / 1);
+                            --bp-admin-border-strong: rgb(82 82 91 / 1);
+                            --bp-admin-panel-bg: rgb(24 24 27 / 1);
+                            --bp-admin-page-bg: rgb(9 9 11 / 1);
+                        }
+
+                        html[data-theme="true-black"] {
+                            color-scheme: dark;
+                            --bp-admin-border: rgb(38 38 38 / 1);
+                            --bp-admin-border-strong: rgb(64 64 64 / 1);
+                            --bp-admin-panel-bg: #050505;
+                            --bp-admin-page-bg: #000;
+                        }
+
+                        /*
+                           Stable admin borders:
+                           Filament often renders subtle borders via rings and shadows.
+                           During browser zoom these can become partially invisible due to
+                           subpixel rendering. The pseudo-border below keeps rounded panel,
+                           input and button borders stable without removing Filament's own
+                           focus rings or shadows.
+                        */
+                        .fi-section,
+                        .fi-dropdown-panel,
+                        .fi-modal-window,
+                        .fi-input-wrp,
+                        .fi-btn,
+                        .fi-icon-btn,
+                        .fi-theme-switcher-btn {
+                            position: relative;
+                            background-clip: padding-box !important;
+                        }
+
+                        .fi-section::after,
+                        .fi-dropdown-panel::after,
+                        .fi-modal-window::after,
+                        .fi-input-wrp::after,
+                        .fi-btn::after,
+                        .fi-icon-btn::after,
+                        .fi-theme-switcher-btn::after {
+                            content: "";
+                            position: absolute;
+                            inset: 0;
+                            z-index: 1;
+                            pointer-events: none;
+                            border: 1px solid var(--bp-admin-border);
+                            border-radius: inherit;
+                        }
+
+                        .fi-input-wrp:focus-within::after,
+                        .fi-btn:focus-visible::after,
+                        .fi-icon-btn:focus-visible::after,
+                        .fi-theme-switcher-btn:focus-visible::after {
+                            border-color: var(--bp-admin-focus-border);
+                        }
+
+                        /*
+                           Clip inner fill colors to rounded wrapper corners.
+                           This fixes square fill artifacts on the right side of inputs,
+                           search fields, selects and buttons while keeping visible borders.
+                        */
+                        .fi-input-wrp,
+                        .fi-btn,
+                        .fi-icon-btn,
+                        .fi-theme-switcher-btn {
+                            overflow: hidden !important;
+                        }
+
+                        .fi-input-wrp .fi-input,
+                        .fi-input-wrp .fi-select-input,
+                        .fi-input-wrp .fi-textarea {
+                            background-color: transparent !important;
+                            background-clip: padding-box !important;
+                        }
+
+                        /*
+                           True Black theme surfaces.
+                           These override only colors, not Filament's border/focus mechanics.
+                        */
                         html[data-theme="true-black"] body,
                         html[data-theme="true-black"] .fi-layout,
                         html[data-theme="true-black"] .fi-main,
                         html[data-theme="true-black"] .fi-sidebar,
                         html[data-theme="true-black"] .fi-topbar,
-                        html[data-theme="true-black"] .fi-header,
-                        html[data-theme="true-black"] .fi-section,
-                        html[data-theme="true-black"] .fi-dropdown-panel,
-                        html[data-theme="true-black"] .fi-modal-window {
-                            background-color: #000 !important;
+                        html[data-theme="true-black"] .fi-header {
+                            background-color: var(--bp-admin-page-bg) !important;
                         }
 
-                        /* Panel and table surfaces keep their visible borders */
                         html[data-theme="true-black"] .fi-section,
                         html[data-theme="true-black"] .fi-dropdown-panel,
                         html[data-theme="true-black"] .fi-modal-window,
-                        html[data-theme="true-black"] .fi-ta-record {
-                            background-color: #050505 !important;
-                            border-color: rgb(38 38 38 / 1) !important;
-                        }
-
-                        /*
-                           Form controls:
-                           Keep Filament borders and focus rings, but clip inner fill colors
-                           to rounded corners. Do not reset box-shadow or border here, because
-                           Filament often uses them for visible borders and focus states.
-                        */
                         html[data-theme="true-black"] .fi-input-wrp {
-                            position: relative;
-                            overflow: hidden !important;
-                            background-color: #050505 !important;
-                            border-color: rgb(38 38 38 / 1) !important;
-                            background-clip: padding-box !important;
+                            background-color: var(--bp-admin-panel-bg) !important;
+                            border-color: var(--bp-admin-border) !important;
                         }
 
-                        /* Stable inner border for zoom and subpixel cases */
-                        html[data-theme="true-black"] .fi-input-wrp::after {
-                            content: "";
-                            position: absolute;
-                            inset: 0;
-                            z-index: 1;
-                            pointer-events: none;
-                            border: 1px solid rgb(38 38 38 / 1);
-                            border-radius: inherit;
+                        html[data-theme="true-black"] .fi-ta-record {
+                            background-color: var(--bp-admin-panel-bg) !important;
+                            border-color: var(--bp-admin-border) !important;
                         }
 
-                        /* Preserve the visible focus highlight on search and input wrappers */
-                        html[data-theme="true-black"] .fi-input-wrp:focus-within::after {
-                            border-color: rgb(245 158 11 / 1);
-                        }
-
-                        /* Inner fields inherit the rounded wrapper instead of painting square corners */
-                        html[data-theme="true-black"] .fi-input-wrp .fi-input,
-                        html[data-theme="true-black"] .fi-input-wrp .fi-select-input,
-                        html[data-theme="true-black"] .fi-input-wrp .fi-textarea {
-                            background-color: transparent !important;
-                            background-clip: padding-box !important;
-                        }
-
-                        /* Standalone form controls, if Filament renders any outside .fi-input-wrp */
                         html[data-theme="true-black"] .fi-input,
                         html[data-theme="true-black"] .fi-select-input,
                         html[data-theme="true-black"] .fi-textarea {
-                            border-color: rgb(38 38 38 / 1) !important;
-                        }
-
-                        /*
-                           Buttons and actions:
-                           Keep their border and focus styling, but prevent inner backgrounds
-                           from bleeding over rounded corners. The pseudo-border keeps borders
-                           stable when the browser is zoomed.
-                        */
-                        html[data-theme="true-black"] .fi-btn,
-                        html[data-theme="true-black"] .fi-icon-btn,
-                        html[data-theme="true-black"] .fi-theme-switcher-btn {
-                            position: relative;
-                            overflow: hidden !important;
-                            background-clip: padding-box !important;
-                        }
-
-                        html[data-theme="true-black"] .fi-btn::after,
-                        html[data-theme="true-black"] .fi-icon-btn::after,
-                        html[data-theme="true-black"] .fi-theme-switcher-btn::after {
-                            content: "";
-                            position: absolute;
-                            inset: 0;
-                            z-index: 1;
-                            pointer-events: none;
-                            border: 1px solid rgb(38 38 38 / 1);
-                            border-radius: inherit;
-                        }
-
-                        html[data-theme="true-black"] .fi-btn:focus-visible::after,
-                        html[data-theme="true-black"] .fi-icon-btn:focus-visible::after,
-                        html[data-theme="true-black"] .fi-theme-switcher-btn:focus-visible::after {
-                            border-color: rgb(245 158 11 / 1);
+                            border-color: var(--bp-admin-border) !important;
                         }
 
                         html[data-theme="true-black"] .fi-theme-switcher-btn.fi-active {
