@@ -259,6 +259,7 @@ class AdminPanelProvider extends PanelProvider
                             color-scheme: dark;
                         }
 
+                        /* Base backgrounds for layout and panels */
                         html[data-theme="true-black"] body,
                         html[data-theme="true-black"] .fi-layout,
                         html[data-theme="true-black"] .fi-main,
@@ -271,26 +272,90 @@ class AdminPanelProvider extends PanelProvider
                             background-color: #000 !important;
                         }
 
+                        /* Panel and table surfaces keep their visible borders */
                         html[data-theme="true-black"] .fi-section,
                         html[data-theme="true-black"] .fi-dropdown-panel,
                         html[data-theme="true-black"] .fi-modal-window,
-                        html[data-theme="true-black"] .fi-ta-record,
-                        html[data-theme="true-black"] .fi-input-wrp,
+                        html[data-theme="true-black"] .fi-ta-record {
+                            background-color: #050505 !important;
+                            border-color: rgb(38 38 38 / 1) !important;
+                        }
+
+                        /*
+                           Form controls:
+                           Keep Filament borders and focus rings, but clip inner fill colors
+                           to rounded corners. Do not reset box-shadow or border here, because
+                           Filament often uses them for visible borders and focus states.
+                        */
+                        html[data-theme="true-black"] .fi-input-wrp {
+                            position: relative;
+                            overflow: hidden !important;
+                            background-color: #050505 !important;
+                            border-color: rgb(38 38 38 / 1) !important;
+                            background-clip: padding-box !important;
+                        }
+
+                        /* Stable inner border for zoom and subpixel cases */
+                        html[data-theme="true-black"] .fi-input-wrp::after {
+                            content: "";
+                            position: absolute;
+                            inset: 0;
+                            z-index: 1;
+                            pointer-events: none;
+                            border: 1px solid rgb(38 38 38 / 1);
+                            border-radius: inherit;
+                        }
+
+                        /* Preserve the visible focus highlight on search and input wrappers */
+                        html[data-theme="true-black"] .fi-input-wrp:focus-within::after {
+                            border-color: rgb(245 158 11 / 1);
+                        }
+
+                        /* Inner fields inherit the rounded wrapper instead of painting square corners */
+                        html[data-theme="true-black"] .fi-input-wrp .fi-input,
+                        html[data-theme="true-black"] .fi-input-wrp .fi-select-input,
+                        html[data-theme="true-black"] .fi-input-wrp .fi-textarea {
+                            background-color: transparent !important;
+                            background-clip: padding-box !important;
+                        }
+
+                        /* Standalone form controls, if Filament renders any outside .fi-input-wrp */
                         html[data-theme="true-black"] .fi-input,
                         html[data-theme="true-black"] .fi-select-input,
                         html[data-theme="true-black"] .fi-textarea {
                             border-color: rgb(38 38 38 / 1) !important;
                         }
 
-                        html[data-theme="true-black"] .fi-section,
-                        html[data-theme="true-black"] .fi-dropdown-panel,
-                        html[data-theme="true-black"] .fi-modal-window,
-                        html[data-theme="true-black"] .fi-ta-record,
-                        html[data-theme="true-black"] .fi-input-wrp,
-                        html[data-theme="true-black"] .fi-input,
-                        html[data-theme="true-black"] .fi-select-input,
-                        html[data-theme="true-black"] .fi-textarea {
-                            background-color: #050505 !important;
+                        /*
+                           Buttons and actions:
+                           Keep their border and focus styling, but prevent inner backgrounds
+                           from bleeding over rounded corners. The pseudo-border keeps borders
+                           stable when the browser is zoomed.
+                        */
+                        html[data-theme="true-black"] .fi-btn,
+                        html[data-theme="true-black"] .fi-icon-btn,
+                        html[data-theme="true-black"] .fi-theme-switcher-btn {
+                            position: relative;
+                            overflow: hidden !important;
+                            background-clip: padding-box !important;
+                        }
+
+                        html[data-theme="true-black"] .fi-btn::after,
+                        html[data-theme="true-black"] .fi-icon-btn::after,
+                        html[data-theme="true-black"] .fi-theme-switcher-btn::after {
+                            content: "";
+                            position: absolute;
+                            inset: 0;
+                            z-index: 1;
+                            pointer-events: none;
+                            border: 1px solid rgb(38 38 38 / 1);
+                            border-radius: inherit;
+                        }
+
+                        html[data-theme="true-black"] .fi-btn:focus-visible::after,
+                        html[data-theme="true-black"] .fi-icon-btn:focus-visible::after,
+                        html[data-theme="true-black"] .fi-theme-switcher-btn:focus-visible::after {
+                            border-color: rgb(245 158 11 / 1);
                         }
 
                         html[data-theme="true-black"] .fi-theme-switcher-btn.fi-active {
@@ -298,19 +363,33 @@ class AdminPanelProvider extends PanelProvider
                             color: rgb(199 210 254 / 1) !important;
                         }
 
-                        /* Logo Switching for Filament Admin - matches app.css */
-                        .fi-logo.logo-dark { display: none; }
-                        .fi-logo.logo-light { display: inline-block; }
+                        /* Logo switching for Filament Admin */
+                        .fi-logo.logo-dark {
+                            display: none;
+                        }
+
+                        .fi-logo.logo-light {
+                            display: inline-block;
+                        }
 
                         html[data-theme="dark"] .fi-logo.logo-light,
-                        html[data-theme="true-black"] .fi-logo.logo-light { display: none; }
+                        html[data-theme="true-black"] .fi-logo.logo-light {
+                            display: none;
+                        }
 
                         html[data-theme="dark"] .fi-logo.logo-dark,
-                        html[data-theme="true-black"] .fi-logo.logo-dark { display: inline-block; }
+                        html[data-theme="true-black"] .fi-logo.logo-dark {
+                            display: inline-block;
+                        }
 
                         @media (prefers-color-scheme: dark) {
-                            html[data-theme="system"] .fi-logo.logo-light { display: none; }
-                            html[data-theme="system"] .fi-logo.logo-dark { display: inline-block; }
+                            html[data-theme="system"] .fi-logo.logo-light {
+                                display: none;
+                            }
+
+                            html[data-theme="system"] .fi-logo.logo-dark {
+                                display: inline-block;
+                            }
                         }
                     </style>
                     BLADE
