@@ -4,6 +4,52 @@ import focus from '@alpinejs/focus';
 
 document.addEventListener('alpine:init', () => {
     window.Alpine.plugin(focus);
+
+    Alpine.data('visitParticipantRow', (participant) => ({
+        participant: participant,
+        busy: false,
+        
+        async submitAction(url) {
+            if (this.busy || !url) {
+                return;
+            }
+
+            this.busy = true;
+
+            try {
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || '',
+                    },
+                    body: new URLSearchParams({ 
+                        _token: document.querySelector('meta[name="csrf-token"]')?.content || '' 
+                    }).toString(),
+                    credentials: 'same-origin',
+                });
+
+                if (!response.ok) {
+                    throw new Error('Request failed');
+                }
+
+                const data = await response.json();
+
+                if (data.participant) {
+                    this.participant = {
+                        ...this.participant,
+                        ...data.participant,
+                    };
+                }
+            } catch (error) {
+                window.location.reload();
+            } finally {
+                this.busy = false;
+            }
+        },
+    }));
 });
 
 if (!window.__bpLivewireNavigateRejectionHandlerInstalled) {
