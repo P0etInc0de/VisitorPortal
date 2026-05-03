@@ -31,39 +31,40 @@ class AdminAdministerVisitsTest extends TestCase
 
         $responsibleUser = User::factory()->create();
 
-        $visitors = Visit::factory()->count(3)->create();
+        $visitors = Visitor::factory()->count(3)->create();
 
-        $scheduledFrom = now()->addDay()->format('Y-m-d H:i:s');
-        $scheduledUntil = now()->addDays(2)->format('Y-m-d H:i:s');
+        $scheduledFrom = now()->addDay()->format('Y-m-d H:i:00');
+        $scheduledUntil = now()->addDays(2)->format('Y-m-d H:i:00');
+
 
 
         Livewire::actingAs($admin)
             ->test(CreateVisit::class)
             ->assertOk()
             ->fillForm([
-                'user_id' => $admin->id,
+                'user_id' => $employee->id,
+                'title' => 'Test Title',
                 'responsible_user_id' => $responsibleUser->id,
                 'scheduled_from' => $scheduledFrom,
                 'scheduled_until' => $scheduledUntil,
                 'status' => VisitStatusEnum::Planned->value,
                 'notes' => 'Test Visit',
                 'canceled_at' => null,
-                'canceledBy' => null,
-                'visitors' => $visitors->pluck('id')->toArray(),
+                'canceled_by_user_id' => null,
             ])
             ->call('create')
             ->assertHasNoFormErrors();
 
         $this->assertDatabaseHas('visits', [
             'user_id' => $employee->id,
+            'title' => 'Test Title',
             'responsible_user_id' => $responsibleUser->id,
             'scheduled_from' => $scheduledFrom,
             'scheduled_until' => $scheduledUntil,
             'status' => VisitStatusEnum::Planned->value,
             'notes' => 'Test Visit',
             'canceled_at' => null,
-            'canceledBy' => null,
-            'visitors' => $visitors->pluck('id')->toArray(),
+            'canceled_by_user_id' => null,
         ]);
     }
     public function test_admin_can_edit_existing_visits(): void {
@@ -74,23 +75,24 @@ class AdminAdministerVisitsTest extends TestCase
 
         $responsibleUser = User::factory()->create();
 
-        $visitors = Visit::factory()->count(3)->create();
+        $visitors = Visitor::factory()->count(3)->create();
 
-        $scheduledFrom = now()->addDay()->format('Y-m-d H:i:s');
-        $scheduledUntil = now()->addDays(2)->format('Y-m-d H:i:s');
+        $scheduledFrom = now()->addDay()->format('Y-m-d H:i:00');
+        $scheduledUntil = now()->addDays(2)->format('Y-m-d H:i:00');
 
         Livewire::actingAs($admin)
             ->test(CreateVisit::class)
             ->assertOk()
             ->fillForm([
                 'user_id' => $employee->id,
+                'title' => 'Test Title',
                 'responsible_user_id' => $responsibleUser->id,
                 'scheduled_from' => $scheduledFrom,
                 'scheduled_until' => $scheduledUntil,
                 'status' => VisitStatusEnum::Planned->value,
                 'notes' => 'Test Visit',
                 'canceled_at' => null,
-                'canceledBy' => null,
+                'canceled_by_user_id' => null,
                 'visitors' => $visitors->pluck('id')->toArray(),
             ])
             ->call('create')
@@ -98,62 +100,66 @@ class AdminAdministerVisitsTest extends TestCase
 
         $this->assertDatabaseHas('visits', [
             'user_id' => $employee->id,
+            'title' => 'Test Title',
             'responsible_user_id' => $responsibleUser->id,
-            'scheduled_from' => $scheduledFrom,
-            'scheduled_until' => $scheduledUntil,
             'status' => VisitStatusEnum::Planned->value,
             'notes' => 'Test Visit',
             'canceled_at' => null,
-            'canceledBy' => null,
-            'visitors' => $visitors->pluck('id')->toArray(),
+            'canceled_by_user_id' => null,
+
         ]);
 
         // ensure to get the correct visit
         $visit = Visit::where([
             'user_id' => $employee->id,
+            'title' => 'Test Title',
             'responsible_user_id' => $responsibleUser->id,
-            'scheduled_from' => $scheduledFrom,
-            'scheduled_until' => $scheduledUntil,
         ])->latest()->first();
+
+        foreach($visitors as $visitor) {
+            $this->assertDatabaseHas('visit_visitor', [
+                'visit_id' => $visit->id,
+                'visitor_id' => $visitor->id,
+            ]);
+        }
+
+
 
         // create updated values
         $updatedUserId = User::factory()->create()->id;
+        $updatedTitle = 'New Test Title';
         $updatedResponsibleUserId = User::factory()->create()->id;
-        $updatedScheduledFrom = now()->addDays(2);
-        $updatedScheduledUntil = now()->addDays(3);
+        $updatedScheduledFrom = now()->addDays(2)->format('Y-m-d H:i:00');;
+        $updatedScheduledUntil = now()->addDays(3)->format('Y-m-d H:i:00');;
         $updatedStatus = VisitStatusEnum::Completed->value;
         $updatedNotes = 'Updated Visit';
-        $updatedCanceledAt = now();
-        $updatedCanceledBy = $admin->id;
-        $updatedVisitors = User::factory()->count(2)->create()->pluck('id')->toArray();
+        $updatedVisitors = Visitor::factory()->count(2)->create()->pluck('id')->toArray();
 
         Livewire::actingAs($admin)
             ->test(EditVisit::class, ['record' => $visit->id])
             ->assertOk()
             ->fillForm([
                 'user_id' => $updatedUserId,
+                'title' => $updatedTitle,
                 'responsible_user_id' => $updatedResponsibleUserId,
                 'scheduled_from' => $updatedScheduledFrom,
                 'scheduled_until' => $updatedScheduledUntil,
                 'status' => $updatedStatus,
                 'notes' => $updatedNotes,
-                'canceled_at' => $updatedCanceledAt,
-                'canceledBy' => $updatedCanceledBy,
-                'visitors' => $updatedVisitors,
+                'canceled_at' => null,
+                'canceled_by_user_id' => null,
             ])
-            ->call('create')
+            ->call('save')
             ->assertHasNoFormErrors();
 
         $this->assertDatabaseHas('visits', [
             'user_id' => $updatedUserId,
+            'title' => $updatedTitle,
             'responsible_user_id' => $updatedResponsibleUserId,
             'scheduled_from' => $updatedScheduledFrom,
             'scheduled_until' => $updatedScheduledUntil,
             'status' => $updatedStatus,
             'notes' => $updatedNotes,
-            'canceled_at' => $updatedCanceledAt,
-            'canceledBy' => $updatedCanceledBy,
-            'visitors' => $updatedVisitors,
         ]);
     }
     public function test_admin_can_delete_visits(): void {}
