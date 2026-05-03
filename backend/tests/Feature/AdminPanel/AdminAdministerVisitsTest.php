@@ -21,7 +21,7 @@ class AdminAdministerVisitsTest extends TestCase
 {
     use RefreshDatabase;
     /**
-     * A basic feature test example.
+     * Feature Tests for the admin, administering visits
      */
     public function test_admin_can_create_new_visits(): void {
 
@@ -67,6 +67,7 @@ class AdminAdministerVisitsTest extends TestCase
             'canceled_by_user_id' => null,
         ]);
     }
+
     public function test_admin_can_edit_existing_visits(): void {
 
         $admin = (new PermissionHelper)->getSuperAdminUser();
@@ -123,8 +124,6 @@ class AdminAdministerVisitsTest extends TestCase
             ]);
         }
 
-
-
         // create updated values
         $updatedUserId = User::factory()->create()->id;
         $updatedTitle = 'New Test Title';
@@ -162,6 +161,7 @@ class AdminAdministerVisitsTest extends TestCase
             'notes' => $updatedNotes,
         ]);
     }
+
     public function test_admin_can_delete_visits(): void {
 
         $admin = (new PermissionHelper)->getSuperAdminUser();
@@ -220,8 +220,6 @@ class AdminAdministerVisitsTest extends TestCase
             ]);
         }
 
-
-
         // delete the visit
         Livewire::actingAs($admin)
             ->test(EditVisit::class, ['record' => $visit->id])
@@ -239,5 +237,28 @@ class AdminAdministerVisitsTest extends TestCase
             'canceled_at' => null,
             'canceled_by_user_id' => null,
         ]);
+    }
+
+    public function test_admin_can_create_visit_without_visitors(): void
+    {
+        $admin = (new PermissionHelper)->getSuperAdminUser();
+
+        $employee = User::factory()->create();
+        $responsibleUser = User::factory()->create();
+
+        Livewire::actingAs($admin)
+            ->test(CreateVisit::class)
+            ->fillForm([
+                'user_id' => $employee->id,
+                'title' => 'No Visitors Visit',
+                'responsible_user_id' => $responsibleUser->id,
+                'scheduled_from' => now()->addDay()->format('Y-m-d H:i:00'),
+                'scheduled_until' => now()->addDays(2)->format('Y-m-d H:i:00'),
+                'status' => VisitStatusEnum::Planned->value,
+            ])
+            ->call('create')
+            ->assertHasNoFormErrors();
+
+        $this->assertDatabaseCount('visit_visitor', 0);
     }
 }
