@@ -10,17 +10,20 @@
     data-theme-preference="{{ $themePreference }}"
 >
 <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>{{ config('app.name', __('Besucherportal')) }}</title>
-
     <script>
-        document.documentElement.classList.add('is-preload');
+        (function () {
+            const root = document.documentElement;
+            const preference = root.dataset.themePreference || 'system';
+            const systemDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
 
-        window.addEventListener('load', function () {
-            document.documentElement.classList.remove('is-preload');
-            document.documentElement.classList.add('is-ready');
-        });
+            const effectiveTheme = ['light', 'dark', 'true-black'].includes(preference)
+                ? preference
+                : (systemDark ? 'dark' : 'light');
+
+            root.setAttribute('data-theme', effectiveTheme);
+            root.classList.toggle('dark', effectiveTheme === 'dark' || effectiveTheme === 'true-black');
+            root.style.colorScheme = effectiveTheme === 'light' ? 'light' : 'dark';
+        })();
     </script>
 
     @livewireStyles
