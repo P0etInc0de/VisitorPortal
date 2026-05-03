@@ -119,4 +119,67 @@ class AdminAdministerDepartmentTest extends TestCase
             'is_active' => true,
         ]);
     }
+
+    public function test_admin_cannot_create_department_without_required_fields(): void
+    {
+        $admin = (new PermissionHelper)->getSuperAdminUser();
+
+        Livewire::actingAs($admin)
+            ->test(CreateDepartment::class)
+            ->assertOk()
+            ->fillForm([])
+            ->call('create')
+            ->assertHasFormErrors([
+                'name',
+            ]);
+    }
+
+    public function test_admin_can_create_inactive_department(): void
+    {
+        $admin = (new PermissionHelper)->getSuperAdminUser();
+
+        Livewire::actingAs($admin)
+            ->test(CreateDepartment::class)
+            ->assertOk()
+            ->fillForm([
+                'name' => 'Support Department',
+                'location' => 'Munich',
+                'is_active' => false,
+            ])
+            ->call('create')
+            ->assertHasNoFormErrors();
+
+        $this->assertDatabaseHas('departments', [
+            'name' => 'Support Department',
+            'location' => 'Munich',
+            'is_active' => false,
+        ]);
+    }
+
+    public function test_admin_can_toggle_department_active_state(): void
+    {
+        $admin = (new PermissionHelper)->getSuperAdminUser();
+
+        $department = Department::create([
+            'name' => 'Finance Department',
+            'location' => 'Berlin',
+            'is_active' => true,
+        ]);
+
+        Livewire::actingAs($admin)
+            ->test(EditDepartment::class, ['record' => $department->getRouteKey()])
+            ->assertOk()
+            ->fillForm([
+                'is_active' => false,
+            ])
+            ->call('save')
+            ->assertHasNoFormErrors();
+
+        $this->assertDatabaseHas('departments', [
+            'id' => $department->id,
+            'is_active' => false,
+        ]);
+    }
+
+
 }
