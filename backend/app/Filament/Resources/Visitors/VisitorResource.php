@@ -13,14 +13,13 @@ use App\Models\Visitor;
 use BackedEnum;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
-use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
 
 class VisitorResource extends Resource
 {
     protected static ?string $model = Visitor::class;
 
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
+    protected static string|null|BackedEnum $navigationIcon = 'heroicon-o-identification';
 
     public static function getNavigationLabel(): string
     {
