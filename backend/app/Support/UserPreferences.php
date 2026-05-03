@@ -35,6 +35,22 @@ class UserPreferences
         ];
     }
 
+    /**
+     * @return list<string>
+     */
+    public static function supportedLocales(): array
+    {
+        return [
+            self::LOCALE_DE,
+            self::LOCALE_EN,
+        ];
+    }
+
+    public static function normalizeTheme(?string $theme): ?string
+    {
+        return in_array($theme, self::supportedThemes(), true) ? $theme : null;
+    }
+
     public static function initialTheme(?string $themePreference): string
     {
         return match (self::normalizeTheme($themePreference)) {
@@ -42,19 +58,6 @@ class UserPreferences
             self::THEME_TRUE_BLACK => self::THEME_TRUE_BLACK,
             default => self::THEME_LIGHT,
         };
-    }
-
-    /**
-     * @return list<string>
-     */
-    public static function supportedLocales(): array
-    {
-        return ['de', 'en'];
-    }
-
-    public static function normalizeTheme(?string $theme): ?string
-    {
-        return in_array($theme, self::supportedThemes(), true) ? $theme : null;
     }
 
     public static function normalizeLocale(?string $locale): ?string

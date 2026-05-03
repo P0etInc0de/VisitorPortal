@@ -98,6 +98,28 @@ if (!window.__bpUserThemeResolverInstalled) {
     }
 }
 
+if (!window.__bpSidebarScrollRestorationInstalled) {
+    window.__bpSidebarScrollRestorationInstalled = true;
+
+    let sidebarScrollPos;
+
+    document.addEventListener('livewire:navigating', () => {
+        sidebarScrollPos = document.querySelector('#sidebar-content')?.scrollTop;
+    });
+
+    document.addEventListener('livewire:navigated', () => {
+        if (sidebarScrollPos === undefined) {
+            return;
+        }
+
+        const sidebar = document.querySelector('#sidebar-content');
+
+        if (sidebar) {
+            sidebar.scrollTo({ top: sidebarScrollPos, behavior: 'instant' });
+        }
+    });
+}
+
 if (!window.__bpLivewireNavigateRejectionHandlerInstalled) {
     window.__bpLivewireNavigateRejectionHandlerInstalled = true;
 

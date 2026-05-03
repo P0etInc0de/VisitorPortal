@@ -25,6 +25,29 @@
             root.style.colorScheme = effectiveTheme === 'light' ? 'light' : 'dark';
         })();
     </script>
+    <style>
+        html[data-theme="light"],
+        html[data-theme="light"] body {
+            background-color: #f3f5f9;
+        }
+
+        html[data-theme="dark"],
+        html[data-theme="dark"] body {
+            background-color: #09090b;
+        }
+
+        html[data-theme="true-black"],
+        html[data-theme="true-black"] body {
+            background-color: #000000;
+        }
+    </style>
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{{ $title ?? __('Besucherportal') }}</title>
+
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
+</head>
 <body class="min-h-screen bg-base-200 text-base-content antialiased">
 <div class="relative flex min-h-screen items-center justify-center overflow-hidden px-4 py-8 sm:px-6 lg:px-8">
     <div class="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_top_left,rgba(29,78,216,0.12),transparent_20rem),radial-gradient(circle_at_bottom_right,rgba(15,23,42,0.08),transparent_18rem)]"></div>
