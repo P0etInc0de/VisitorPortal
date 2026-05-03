@@ -1,28 +1,32 @@
 <style>
-    /* Base container: Force full width, no horizontal margins to inherit native alignment */
+    /*
+     * Base container: Uses negative margins to offset the parent container's padding.
+     * This perfectly aligns the edges with Filament's native sidebar items (which use -mx-2).
+     */
     .custom-sb-container {
         display: flex;
         flex-direction: column;
         gap: 0.5rem;
         margin-top: 0.5rem;
         padding-bottom: 1.5rem;
-        width: 100%;
+        margin-left: -0.5rem;
+        margin-right: -0.5rem;
+        width: calc(100% + 1rem);
         box-sizing: border-box;
     }
 
-    /* Divider line: Spans the exact full width of the navigation container */
+    /* Divider line */
     .custom-sb-divider {
         height: 1px;
         background-color: #e5e7eb;
-        margin: 0.5rem 0;
-        width: 100%;
+        margin: 0.5rem 0.5rem;
     }
     :is(.dark) .custom-sb-divider,
     html[data-theme="true-black"] .custom-sb-divider {
         background-color: rgba(255, 255, 255, 0.1);
     }
 
-    /* Navigation link: Exact match to Filament's native px-2 padding and gap-x-3 */
+    /* Navigation link: Exact match to Filament's native padding (0.5rem) */
     .custom-sb-link {
         display: flex;
         align-items: center;
@@ -51,7 +55,7 @@
         color: #ffffff;
     }
 
-    /* Icon: Exact match to Filament's native w-6 h-6 sizing */
+    /* Icon: Constrained to exactly 1.5rem (w-6 h-6) matching native setup */
     .custom-sb-link svg {
         width: 1.5rem;
         height: 1.5rem;
@@ -71,58 +75,66 @@
         color: #d1d5db;
     }
 
-    /* User information box: Flush left alignment with active menu background */
+    /* User information box: Flush left, exact padding */
     .custom-sb-box {
         border: 1px solid #e5e7eb;
-        border-radius: 0.75rem;
-        padding: 0.75rem;
+        border-radius: 0.5rem;
+        padding: 0.5rem 0.75rem;
         background-color: #f9fafb;
         margin: 0;
         width: 100%;
         box-sizing: border-box;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
     }
     :is(.dark) .custom-sb-box,
     html[data-theme="true-black"] .custom-sb-box {
         border-color: rgba(255, 255, 255, 0.1);
         background-color: rgba(255, 255, 255, 0.03);
     }
+
     .custom-sb-name {
         font-weight: 600;
         font-size: 0.875rem;
         color: #111827;
+        line-height: 1.25rem;
     }
     :is(.dark) .custom-sb-name,
     html[data-theme="true-black"] .custom-sb-name {
         color: #ffffff;
     }
+
     .custom-sb-email {
         font-size: 0.75rem;
         color: #6b7280;
-        margin-top: 0.125rem;
         overflow: hidden;
         text-overflow: ellipsis;
         white-space: nowrap;
+        line-height: 1rem;
+        margin-top: 0.125rem;
     }
     :is(.dark) .custom-sb-email,
     html[data-theme="true-black"] .custom-sb-email {
         color: #9ca3af;
     }
 
-    /* Logout button: Flush left alignment, full width */
+    /* Logout button */
     .custom-sb-btn {
         display: block;
         width: 100%;
         margin: 0;
-        border-radius: 0.75rem;
+        border-radius: 0.5rem;
         border: 1px solid #d1d5db;
         background-color: transparent;
-        padding: 0.5rem 1rem;
+        padding: 0.5rem;
         font-size: 0.875rem;
         font-weight: 600;
         cursor: pointer;
         transition: all 0.2s ease-in-out;
         color: #374151;
         box-sizing: border-box;
+        text-align: center;
     }
     :is(.dark) .custom-sb-btn,
     html[data-theme="true-black"] .custom-sb-btn {
