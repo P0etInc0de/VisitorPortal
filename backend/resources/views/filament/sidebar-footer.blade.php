@@ -1,25 +1,107 @@
-<div class="flex flex-col gap-4 px-4 pb-4">
+<style>
+    .custom-sb-container {
+        padding: 1rem 1rem 1.5rem 1rem;
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+    }
+    .custom-sb-divider {
+        height: 1px;
+        background-color: var(--gray-200);
+        margin-bottom: 0.5rem;
+    }
+    :is(.dark) .custom-sb-divider,
+    html[data-theme="true-black"] .custom-sb-divider {
+        background-color: rgba(255, 255, 255, 0.1);
+    }
+    .custom-sb-link {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        padding: 0.5rem 0.75rem;
+        border-radius: 0.5rem;
+        font-size: 0.875rem;
+        font-weight: 500;
+        text-decoration: none;
+        color: inherit;
+        transition: all 0.2s ease-in-out;
+    }
+    .custom-sb-link:hover {
+        background-color: rgba(156, 163, 175, 0.15);
+    }
+    .custom-sb-link svg {
+        width: 1.25rem;
+        height: 1.25rem;
+        opacity: 0.7;
+    }
+    .custom-sb-box {
+        border: 1px solid var(--gray-200);
+        border-radius: 1rem;
+        padding: 1rem;
+        background-color: var(--gray-50);
+    }
+    :is(.dark) .custom-sb-box,
+    html[data-theme="true-black"] .custom-sb-box {
+        border-color: rgba(255, 255, 255, 0.1);
+        background-color: rgba(255, 255, 255, 0.03);
+    }
+    .custom-sb-name {
+        font-weight: 600;
+        font-size: 0.875rem;
+    }
+    .custom-sb-email {
+        font-size: 0.75rem;
+        opacity: 0.6;
+        margin-top: 0.125rem;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+    .custom-sb-btn {
+        display: block;
+        width: 100%;
+        border-radius: 1rem;
+        border: 1px solid var(--gray-200);
+        background-color: transparent;
+        padding: 0.625rem 1rem;
+        font-size: 0.875rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s ease-in-out;
+        color: inherit;
+    }
+    :is(.dark) .custom-sb-btn,
+    html[data-theme="true-black"] .custom-sb-btn {
+        border-color: rgba(255, 255, 255, 0.1);
+    }
+    .custom-sb-btn:hover {
+        background-color: rgba(156, 163, 175, 0.15);
+    }
+</style>
+
+<div class="custom-sb-container">
     {{-- Trennlinie --}}
-    <div class="h-px bg-gray-200 dark:bg-white/10"></div>
+    <div class="custom-sb-divider"></div>
 
     {{-- User Area Link --}}
-    <a href="{{ route('overview') }}" class="flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-gray-700 transition hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-white/5">
-        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 text-gray-500 dark:text-gray-400">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M9 15 3 9m0 0 6-6M3 9h12a6 6 0 0 1 0 12h-3" />
+    <a href="{{ route('overview') }}" class="custom-sb-link">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M3 12l9-8 9 8" />
+            <path stroke-linecap="round" stroke-linejoin="round" d="M5 10v10h14V10" />
         </svg>
         {{ __('User Area') }}
     </a>
 
     {{-- User Info Box --}}
-    <div class="rounded-xl border border-gray-200 bg-white p-3 shadow-sm dark:border-white/10 dark:bg-gray-900">
-        <p class="truncate text-sm font-semibold text-gray-950 dark:text-white">{{ auth()->user()->name }}</p>
-        <p class="truncate text-xs text-gray-500 dark:text-gray-400">{{ auth()->user()->email }}</p>
+    <div class="custom-sb-box">
+        <div class="custom-sb-name">{{ auth()->user()->name }}</div>
+        <div class="custom-sb-email" title="{{ auth()->user()->email }}">{{ auth()->user()->email }}</div>
     </div>
 
     {{-- Logout Button --}}
-    <form method="POST" action="{{ route('logout') }}">
+    <form method="POST" action="{{ route('logout') }}" style="margin: 0;">
         @csrf
-        <button type="submit" class="w-full rounded-lg bg-danger-600 px-3 py-2 text-sm font-medium text-white shadow-sm hover:bg-danger-500 focus:outline-none focus:ring-2 focus:ring-danger-500 focus:ring-offset-2 dark:focus:ring-offset-gray-900 transition">
+        <button type="submit" class="custom-sb-btn">
             {{ __('Abmelden') }}
         </button>
     </form>
