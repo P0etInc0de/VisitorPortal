@@ -1,12 +1,13 @@
 @php
     $themePreference = $themePreference ?? \App\Support\UserPreferences::THEME_SYSTEM;
+    $theme = $theme ?? \App\Support\UserPreferences::initialTheme($themePreference);
 @endphp
 
-<!DOCTYPE html>
+    <!DOCTYPE html>
 <html
     lang="{{ str_replace('_', '-', app()->getLocale()) }}"
-    data-theme="{{ $theme ?? \App\Support\UserPreferences::THEME_LIGHT }}"
-    data-theme-preference="{{ $themePreference ?? \App\Support\UserPreferences::THEME_SYSTEM }}"
+    data-theme="{{ $theme }}"
+    data-theme-preference="{{ $themePreference }}"
 >
 <head>
     <meta charset="utf-8">
