@@ -162,5 +162,82 @@ class AdminAdministerVisitsTest extends TestCase
             'notes' => $updatedNotes,
         ]);
     }
-    public function test_admin_can_delete_visits(): void {}
+    public function test_admin_can_delete_visits(): void {
+
+        $admin = (new PermissionHelper)->getSuperAdminUser();
+
+        $employee = User::factory()->create();
+
+        $responsibleUser = User::factory()->create();
+
+        $visitors = Visitor::factory()->count(3)->create();
+
+        $scheduledFrom = now()->addDay()->format('Y-m-d H:i:00');
+        $scheduledUntil = now()->addDays(2)->format('Y-m-d H:i:00');
+
+        Livewire::actingAs($admin)
+            ->test(CreateVisit::class)
+            ->assertOk()
+            ->fillForm([
+                'user_id' => $employee->id,
+                'title' => 'Test Title',
+                'responsible_user_id' => $responsibleUser->id,
+                'scheduled_from' => $scheduledFrom,
+                'scheduled_until' => $scheduledUntil,
+                'status' => VisitStatusEnum::Planned->value,
+                'notes' => 'Test Visit',
+                'canceled_at' => null,
+                'canceled_by_user_id' => null,
+                'visitors' => $visitors->pluck('id')->toArray(),
+            ])
+            ->call('create')
+            ->assertHasNoFormErrors();
+
+        // ensure the visit previously existed
+        $this->assertDatabaseHas('visits', [
+            'user_id' => $employee->id,
+            'title' => 'Test Title',
+            'responsible_user_id' => $responsibleUser->id,
+            'status' => VisitStatusEnum::Planned->value,
+            'notes' => 'Test Visit',
+            'canceled_at' => null,
+            'canceled_by_user_id' => null,
+
+        ]);
+
+        // ensure to get the correct visit
+        $visit = Visit::where([
+            'user_id' => $employee->id,
+            'title' => 'Test Title',
+            'responsible_user_id' => $responsibleUser->id,
+        ])->latest()->first();
+
+        // check if pivot is filled accordingly
+        foreach($visitors as $visitor) {
+            $this->assertDatabaseHas('visit_visitor', [
+                'visit_id' => $visit->id,
+                'visitor_id' => $visitor->id,
+            ]);
+        }
+
+
+
+        // delete the visit
+        Livewire::actingAs($admin)
+            ->test(EditVisit::class, ['record' => $visit->id])
+            ->assertOk()
+            ->callAction('delete')
+            ->assertHasNoFormErrors();
+
+        // check if visit is missing in db
+        $this->assertDatabaseMissing('visits', [
+            'user_id' => $employee->id,
+            'title' => 'Test Title',
+            'responsible_user_id' => $responsibleUser->id,
+            'status' => VisitStatusEnum::Planned->value,
+            'notes' => 'Test Visit',
+            'canceled_at' => null,
+            'canceled_by_user_id' => null,
+        ]);
+    }
 }
