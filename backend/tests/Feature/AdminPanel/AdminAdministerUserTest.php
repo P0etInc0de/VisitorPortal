@@ -153,4 +153,64 @@ class AdminAdministerUserTest extends TestCase
             ->call('create')
             ->assertHasNoFormErrors();
     }
+
+    public function test_admin_cannot_create_user_without_required_fields(): void
+    {
+        $this->app->make(PermissionRegistrar::class)->forgetCachedPermissions();
+
+        $admin = (new PermissionHelper)->getSuperAdminUser();
+
+        Livewire::actingAs($admin)
+            ->test(CreateUser::class)
+            ->fillForm([])
+            ->call('create')
+            ->assertHasFormErrors([
+                'first_name',
+                'name',
+                'email',
+                'password',
+            ]);
+    }
+
+    public function test_admin_cannot_create_user_with_invalid_email(): void
+    {
+        $this->app->make(PermissionRegistrar::class)->forgetCachedPermissions();
+
+        $admin = (new PermissionHelper)->getSuperAdminUser();
+
+        $userRole = Role::firstOrCreate(['name' => 'employee']);
+
+        Livewire::actingAs($admin)
+            ->test(CreateUser::class)
+            ->fillForm([
+                'first_name' => 'Max',
+                'name' => 'Mustermann',
+                'email' => 'not-an-email',
+                'password' => 'password',
+                'roles' => [$userRole->id],
+            ])
+            ->call('create')
+            ->assertHasFormErrors(['email']);
+    }
+
+    public function test_admin_cannot_create_user_without_password(): void
+    {
+        $this->app->make(PermissionRegistrar::class)->forgetCachedPermissions();
+
+        $admin = (new PermissionHelper)->getSuperAdminUser();
+
+        $userRole = Role::firstOrCreate(['name' => 'employee']);
+
+        Livewire::actingAs($admin)
+            ->test(CreateUser::class)
+            ->fillForm([
+                'first_name' => 'Max',
+                'name' => 'Mustermann',
+                'email' => 'max@example.com',
+                'password' => '',
+                'roles' => [$userRole->id],
+            ])
+            ->call('create')
+            ->assertHasFormErrors(['password']);
+    }
 }
