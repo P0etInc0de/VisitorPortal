@@ -35,7 +35,7 @@ class AdminAdministerVisitorTest extends TestCase
                 'email' => 'max@example.com',
                 'phone' => '+49123456789',
                 'company' => 'Test GmbH',
-                'status' => VisitorStatusEnum::Planned,
+                'status' => VisitorStatusEnum::Planned->value,
                 'notes' => 'Test Notiz',
             ])
             ->call('create')
@@ -49,7 +49,6 @@ class AdminAdministerVisitorTest extends TestCase
             'email' => 'max@example.com',
             'phone' => '+49123456789',
             'company' => 'Test GmbH',
-            'status' => VisitorStatusEnum::Planned,
             'notes' => 'Test Notiz',
         ]);
     }
@@ -69,7 +68,6 @@ class AdminAdministerVisitorTest extends TestCase
                 'email' => 'max@example.com',
                 'phone' => '+49123456789',
                 'company' => 'Test GmbH',
-                'status' => VisitorStatusEnum::Planned,
                 'notes' => 'Test Notiz',
             ])
             ->call('create')
@@ -83,7 +81,6 @@ class AdminAdministerVisitorTest extends TestCase
             'email' => 'max@example.com',
             'phone' => '+49123456789',
             'company' => 'Test GmbH',
-            'status' => VisitorStatusEnum::Planned,
             'notes' => 'Test Notiz',
         ]);
 
@@ -100,7 +97,6 @@ class AdminAdministerVisitorTest extends TestCase
                 'email' => 'erika@example.com',
                 'phone' => '+49987654321',
                 'company' => 'Neue Firma GmbH',
-                'status' => VisitorStatusEnum::Checked_In,
                 'notes' => 'Aktualisierte Notiz',
             ])
             ->call('save')
@@ -114,7 +110,6 @@ class AdminAdministerVisitorTest extends TestCase
             'email' => 'erika@example.com',
             'phone' => '+49987654321',
             'company' => 'Neue Firma GmbH',
-            'status' => VisitorStatusEnum::Checked_In,
             'notes' => 'Aktualisierte Notiz',
         ]);
 
@@ -133,7 +128,6 @@ class AdminAdministerVisitorTest extends TestCase
                 'email' => 'max@example.com',
                 'phone' => '+49123456789',
                 'company' => 'Test GmbH',
-                'status' => VisitorStatusEnum::Planned,
                 'notes' => 'Test Notiz',
             ])
             ->call('create')
@@ -147,7 +141,6 @@ class AdminAdministerVisitorTest extends TestCase
             'email' => 'max@example.com',
             'phone' => '+49123456789',
             'company' => 'Test GmbH',
-            'status' => VisitorStatusEnum::Planned,
             'notes' => 'Test Notiz',
         ]);
 
@@ -166,7 +159,6 @@ class AdminAdministerVisitorTest extends TestCase
             'email' => 'erika@example.com',
             'phone' => '+49987654321',
             'company' => 'Neue Firma GmbH',
-            'status' => VisitorStatusEnum::Checked_In,
             'notes' => 'Aktualisierte Notiz',
         ]);
     }
