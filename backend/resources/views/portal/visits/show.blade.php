@@ -45,7 +45,7 @@
     <x-slot name="header">
         <div class="flex flex-wrap items-start justify-between gap-4">
             <div>
-                <h1 class="text-4xl font-bold leading-none tracking-tight lg:text-5xl">{{ $visit->display_title }}</h1>
+                <h1 class="text-4xl font-bold leading-none tracking-tight text-base-content lg:text-5xl">{{ $visit->display_title }}</h1>
             </div>
 
             <div class="flex flex-wrap gap-3">
@@ -78,11 +78,11 @@
                     </span>
 
                     <span class="{{ $metaChipClass }}">
-                        {{ __('Host') }}: {{ $visit->host?->name ?: '-' }}
+                        {{ __('Host') }}: {{ $visit->host?->fullName ?: '-' }}
                     </span>
 
                     <span class="{{ $metaChipClass }}">
-                        {{ __('Vertretung') }}: {{ $visit->responsibleUser?->name ?: '-' }}
+                        {{ __('Vertretung') }}: {{ $visit->responsibleUser?->fullName ?: '-' }}
                     </span>
 
                     <span class="{{ $metaChipClass }}">

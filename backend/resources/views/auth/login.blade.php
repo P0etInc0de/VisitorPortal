@@ -1,21 +1,22 @@
 @php
-    $hasLogo = file_exists(public_path('images/logo.png'));
+    $hasLogo = file_exists(public_path('images/logo-light.png'));
 @endphp
 
 <x-guest-layout>
     <div class="overflow-hidden rounded-3xl border border-base-300 bg-base-100 shadow-sm">
         <div class="grid lg:grid-cols-[1fr_0.88fr]">
-            <div class="border-b border-base-300/70 bg-base-100 p-7 sm:p-9 lg:border-b-0 lg:border-r">
+            <div class="border-b border-base-300/70 bg-base-100 px-7 pb-7 pt-5 sm:px-9 sm:pb-9 sm:pt-6 lg:border-b-0 lg:border-r">
                 @if ($hasLogo)
-                    <div class="mb-6 flex items-center gap-3">
-                        <img src="{{ asset('images/logo.png') }}" alt="{{ __('Besucherportal_Logo') }}" class="max-h-12 w-auto object-contain">
+                    <div class="mb-2 flex justify-center">
+                        <img src="{{ asset('images/logo-light.png') }}" alt="{{ __('Besucherportal_Logo') }}" class="logo-light max-h-28 w-auto object-contain sm:max-h-32 lg:max-h-36">
+                        <img src="{{ asset('images/logo-dark.png') }}" alt="{{ __('Besucherportal_Logo') }}" class="logo-dark max-h-28 w-auto object-contain sm:max-h-32 lg:max-h-36">
                     </div>
                 @endif
 
-                <h1 class="mt-4 text-3xl font-semibold tracking-tight text-base-content sm:text-4xl">
+                <h1 class="mt-0 text-3xl font-semibold tracking-tight text-base-content sm:text-4xl">
                     {{ __('Besucherportal') }}
                 </h1>
-                <p class="mt-4 max-w-md text-sm leading-7 text-base-content/70 sm:text-base">
+                <p class="mt-3 max-w-md text-sm leading-7 text-base-content/70 sm:text-base">
                     {{ __('Login_Textbeschreibung') }}
                 </p>
 

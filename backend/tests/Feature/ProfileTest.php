@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Support\UserPreferences;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\Support\PermissionHelper;
 use Tests\TestCase;
@@ -18,7 +19,14 @@ class ProfileTest extends TestCase
             ->actingAs($user)
             ->get('/profile');
 
-        $response->assertOk();
+        $response
+            ->assertOk()
+            ->assertSee(__('Sprache'))
+            ->assertSee(__('Theme'))
+            ->assertSee('🇩🇪 Deutsch', false)
+            ->assertSee('🇬🇧 English', false)
+            ->assertSee(__('True Black (OLED)'))
+            ->assertDontSee(__('Konto löschen'));
     }
 
     public function test_profile_information_can_be_updated(): void
@@ -30,16 +38,22 @@ class ProfileTest extends TestCase
             ->patch('/profile', [
                 'name' => 'Test User',
                 'email' => 'test@example.com',
+                'locale' => 'de',
+                'theme_preference' => 'dark',
             ]);
 
         $response
             ->assertSessionHasNoErrors()
-            ->assertRedirect('/profile');
+            ->assertRedirect('/profile')
+            ->assertCookie(UserPreferences::LOCALE_COOKIE, 'de')
+            ->assertCookie(UserPreferences::THEME_COOKIE, 'dark');
 
         $user->refresh();
 
         $this->assertSame('Test User', $user->name);
         $this->assertSame('test@example.com', $user->email);
+        $this->assertSame('de', $user->locale);
+        $this->assertSame('dark', $user->theme_preference);
         $this->assertNull($user->email_verified_at);
     }
 
@@ -52,6 +66,8 @@ class ProfileTest extends TestCase
             ->patch('/profile', [
                 'name' => 'Test User',
                 'email' => $user->email,
+                'locale' => 'en',
+                'theme_preference' => 'system',
             ]);
 
         $response
@@ -61,7 +77,42 @@ class ProfileTest extends TestCase
         $this->assertNotNull($user->refresh()->email_verified_at);
     }
 
-    public function test_user_can_delete_their_account(): void
+    public function test_user_locale_from_database_overrides_browser_locale(): void
+    {
+        $user = (new PermissionHelper)->getUser();
+        $user->update(['locale' => 'de']);
+
+        $response = $this
+            ->withHeaders(['Accept-Language' => 'en-US,en;q=0.9'])
+            ->actingAs($user)
+            ->get('/profile');
+
+        $response
+            ->assertOk()
+            ->assertSee('Sprache');
+    }
+
+    public function test_theme_preference_can_be_updated_via_sync_endpoint(): void
+    {
+        $user = (new PermissionHelper)->getUser();
+
+        $response = $this
+            ->actingAs($user)
+            ->patchJson(route('profile.theme-preference.update'), [
+                'theme_preference' => 'true-black',
+            ]);
+
+        $response
+            ->assertOk()
+            ->assertJson([
+                'theme_preference' => 'true-black',
+            ])
+            ->assertCookie(UserPreferences::THEME_COOKIE, 'true-black');
+
+        $this->assertSame('true-black', $user->fresh()->theme_preference);
+    }
+
+    public function test_user_cannot_delete_their_own_account(): void
     {
         $user = (new PermissionHelper)->getUser();
 
@@ -71,28 +122,22 @@ class ProfileTest extends TestCase
                 'password' => 'password',
             ]);
 
-        $response
-            ->assertSessionHasNoErrors()
-            ->assertRedirect('/');
+        $response->assertForbidden();
 
-        $this->assertGuest();
-        $this->assertNull($user->fresh());
+        $this->assertNotNull($user->fresh());
     }
 
-    public function test_correct_password_must_be_provided_to_delete_account(): void
+    public function test_delete_profile_route_is_forbidden_even_with_wrong_password(): void
     {
         $user = (new PermissionHelper)->getUser();
 
         $response = $this
             ->actingAs($user)
-            ->from('/profile')
             ->delete('/profile', [
                 'password' => 'wrong-password',
             ]);
 
-        $response
-            ->assertSessionHasErrorsIn('userDeletion', 'password')
-            ->assertRedirect('/profile');
+        $response->assertForbidden();
 
         $this->assertNotNull($user->fresh());
     }

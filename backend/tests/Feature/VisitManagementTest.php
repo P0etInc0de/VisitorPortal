@@ -11,6 +11,44 @@ class VisitManagementTest extends TestCase
 {
     use RefreshDatabase;
 
+    public function test_visit_create_page_defaults_status_to_planned(): void
+    {
+        $user = (new PermissionHelper)->getUser();
+
+        $this
+            ->actingAs($user)
+            ->get(route('portal.visits.create'))
+            ->assertOk()
+            ->assertSee('option value="planned" selected', false);
+    }
+
+    public function test_visit_create_page_shows_full_user_names_for_host_and_substitute(): void
+    {
+        $user = (new PermissionHelper)->getUser();
+        $user->update([
+            'first_name' => 'User',
+            'name' => 'Admin',
+        ]);
+
+        $substitute = (new PermissionHelper)->getUser();
+        $substitute->update([
+            'first_name' => 'Clara',
+            'name' => 'Bergmann',
+        ]);
+
+        $response = $this
+            ->actingAs($user)
+            ->get(route('portal.visits.create'))
+            ->assertOk()
+            ->assertSee('User Admin')
+            ->assertSee('Clara Bergmann');
+
+        $this->assertMatchesRegularExpression(
+            '/<option\s+value="'.$user->id.'"[^>]*selected[^>]*>/i',
+            $response->getContent()
+        );
+    }
+
     public function test_visit_can_be_created_with_multiple_participants(): void
     {
         $user = (new PermissionHelper)->getUser();
@@ -56,5 +94,38 @@ class VisitManagementTest extends TestCase
 
         $this->assertDatabaseCount('visitors', 2);
         $this->assertDatabaseCount('visit_visitor', 2);
+    }
+
+    public function test_my_visits_page_shows_only_own_and_substitute_visits(): void
+    {
+        $user = (new PermissionHelper)->getUser();
+        $otherUser = (new PermissionHelper)->getUser();
+
+        Visit::factory()->create([
+            'title' => 'Eigener Host-Besuch',
+            'user_id' => $user->id,
+            'responsible_user_id' => $otherUser->id,
+        ]);
+
+        Visit::factory()->create([
+            'title' => 'Eigener Vertretungs-Besuch',
+            'user_id' => $otherUser->id,
+            'responsible_user_id' => $user->id,
+        ]);
+
+        Visit::factory()->create([
+            'title' => 'Fremder Besuch',
+            'user_id' => $otherUser->id,
+            'responsible_user_id' => $otherUser->id,
+        ]);
+
+        $this
+            ->actingAs($user)
+            ->get(route('portal.my-visits'))
+            ->assertOk()
+            ->assertSee(__('Meine Besuche'))
+            ->assertSee('Eigener Host-Besuch')
+            ->assertSee('Eigener Vertretungs-Besuch')
+            ->assertDontSee('Fremder Besuch');
     }
 }

@@ -1,8 +1,4 @@
 <div>
-    <div class="mb-8">
-        <h1 class="text-3xl font-extrabold tracking-tight text-base-content lg:text-5xl">{{ $visit->display_title }}</h1>
-    </div>
-
     <div class="grid gap-6 xl:grid-cols-[minmax(0,1.65fr)_22rem] xl:items-start">
         <div class="grid gap-6">
             @if (session('status'))

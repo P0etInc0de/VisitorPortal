@@ -11,10 +11,6 @@
     }"
     x-on:print-badge.window="printBadge($event.detail.url)"
 >
-    <div class="mb-8">
-        <h1 class="text-3xl font-extrabold tracking-tight text-base-content">{{ __('Check-In / Out') }}</h1>
-    </div>
-
     <div class="grid grid-cols-1 gap-6 lg:grid-cols-4 lg:items-start">
         <div class="flex flex-col gap-6 lg:col-span-3">
             @if (session('status'))
@@ -45,6 +41,7 @@
                 <div class="mb-4 flex items-start justify-between gap-4">
                     <div>
                         <h2 class="mb-4 text-xl font-bold text-base-content">{{ __('Heute & anstehend') }}</h2>
+                        <p class="-mt-2 mb-3 text-sm text-base-content/65">{{ __('Besuche von heute sowie Termine bis zu 48 Stunden im Voraus.') }}</p>
                         <p class="mt-1 text-sm text-base-content/70">{{ trans_choice(':count Treffer|:count Treffer', count($results), ['count' => count($results)]) }}</p>
                     </div>
                 </div>

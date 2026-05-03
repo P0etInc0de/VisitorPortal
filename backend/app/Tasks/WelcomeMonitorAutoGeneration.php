@@ -24,18 +24,23 @@ class WelcomeMonitorAutoGeneration implements ShouldQueue
                 continue;
             }
 
-            $monitor->monitorSlides()->delete();
+            $monitor->monitorSlides()
+                ->where('is_auto_generated', true)
+                ->delete();
 
             Log::info('WelcomeMonitorAutoGeneration started', [
                 'monitorID' => $monitor->id,
             ]);
 
+            $windowMinutes = max(1, (int) ($monitor->auto_generation_window_minutes ?: Monitor::DEFAULT_AUTO_GENERATION_WINDOW_MINUTES));
+            $windowStart = Carbon::now()->subMinutes($windowMinutes);
+            $windowEnd = Carbon::now()->addMinutes($windowMinutes);
+
             $currentVisits = Visit::query()
-                ->whereBetween('scheduled_from', [
-                    Carbon::now()->subMinutes(30),
-                    Carbon::now()->addMinutes(30),
-                ])
-                ->where('status', VisitStatusEnum::Planned)
+                ->where('scheduled_from', '<=', $windowEnd)
+                ->where('scheduled_until', '>=', $windowStart)
+                ->where('status', VisitStatusEnum::Planned->value)
+                ->orderBy('scheduled_from')
                 ->with('visitors')
                 ->get();
 
@@ -50,20 +55,28 @@ class WelcomeMonitorAutoGeneration implements ShouldQueue
 
                     $slide = $monitor->monitorSlides()->create([
                         'heading' => __('Herzlich willkommen!'),
+                        'slide_number' => $slidenumber++,
+                        'is_active' => true,
+                        'is_auto_generated' => true,
                         'show_logo' => true,
                         'show_date' => true,
                     ]);
 
                     $payload = $chunk->map(function ($visitor) {
+                        $name = trim(implode(' ', array_filter([
+                            $visitor->title,
+                            $visitor->first_name,
+                            $visitor->name,
+                        ])));
+
                         return [
                             'id' => $visitor->id,
-                            'name' => $visitor->title.' '.$visitor->first_name.' '.$visitor->name,
+                            'name' => $name,
                         ];
                     })->values()->toArray();
 
                     $slide->update([
                         'visitors' => $payload,
-                        'slide_number' => $slidenumber++,
                     ]);
                 }
             }

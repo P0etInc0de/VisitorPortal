@@ -1,9 +1,24 @@
+@php
+    $themePreference = $themePreference ?? \App\Support\UserPreferences::THEME_SYSTEM;
+@endphp
+
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}" data-theme="{{ $theme ?? 'light' }}">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>{{ config('app.name', __('Besucherportal')) }}</title>
+
+    @if ($themePreference === \App\Support\UserPreferences::THEME_SYSTEM)
+        <script>
+            (function () {
+                document.documentElement.setAttribute(
+                    'data-theme',
+                    window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
+                )
+            })()
+        </script>
+    @endif
 
 
     <script>
@@ -22,7 +37,7 @@
 <div class="min-h-screen" x-data="{ navOpen: false }">
     @include('layouts.navigation')
 
-    <div class="min-w-0 xl:ml-72">
+    <div class="min-w-0 lg:ml-72">
         @if (isset($header))
             <header class="relative z-20 border-b border-base-300/70 bg-base-100 [&_.btn]:min-h-11">
                 <div class="w-full max-w-none px-4 py-5 sm:px-6 lg:px-8">
@@ -39,5 +54,19 @@
     </div>
 </div>
 @livewireScripts
+    <script>
+        document.addEventListener('livewire:navigating', () => {
+            window.sidebarScrollPos = document.querySelector('#sidebar-content')?.scrollTop;
+        });
+
+        document.addEventListener('livewire:navigated', () => {
+            if (window.sidebarScrollPos !== undefined) {
+                const sidebar = document.querySelector('#sidebar-content');
+                if (sidebar) {
+                    sidebar.scrollTo({ top: window.sidebarScrollPos, behavior: 'instant' });
+                }
+            }
+        });
+    </script>
 </body>
 </html>

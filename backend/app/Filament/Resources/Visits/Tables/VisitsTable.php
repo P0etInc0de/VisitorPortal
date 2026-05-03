@@ -16,27 +16,42 @@ class VisitsTable
         return $table
             ->columns([
                 TextColumn::make('title')
+                    ->label(__('Titel'))
                     ->searchable()
                     ->sortable(),
                 TextColumn::make('scheduled_from')
+                    ->label(__('Beginn'))
                     ->dateTime()
                     ->sortable(),
                 TextColumn::make('scheduled_until')
+                    ->label(__('Ende'))
                     ->dateTime()
                     ->sortable(),
                 TextColumn::make('status')
+                    ->label(__('Status'))
+                    ->formatStateUsing(fn (string $state): string => match ($state) {
+                        'planned' => __('Geplant'),
+                        'draft' => __('Entwurf'),
+                        'completed' => __('Abgeschlossen'),
+                        'canceled' => __('Abgesagt'),
+                        default => $state,
+                    })
                     ->searchable(),
                 TextColumn::make('canceled_at')
+                    ->label(__('Abgesagt am'))
                     ->dateTime()
                     ->sortable(),
                 TextColumn::make('canceledBy.fullName')
+                    ->label(__('Abgesagt von'))
                     ->searchable(['first_name', 'name'])
                     ->sortable(['first_name', 'name']),
                 TextColumn::make('created_at')
+                    ->label(__('Erstellt am'))
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('updated_at')
+                    ->label(__('Aktualisiert am'))
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),

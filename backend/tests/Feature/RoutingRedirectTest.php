@@ -23,6 +23,6 @@ class RoutingRedirectTest extends TestCase
 
         $response = $this->actingAs($user)->get('/');
 
-        $response->assertRedirect(route('dashboard'));
+        $response->assertRedirect(route('overview'));
     }
 }

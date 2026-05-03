@@ -2,7 +2,7 @@
     <x-slot name="header">
         <div class="flex items-start justify-between gap-4">
             <div>
-                <h1 class="text-4xl font-bold leading-none tracking-tight lg:text-5xl">{{ __('Dashboard') }}</h1>
+                <h1 class="text-4xl font-bold leading-none tracking-tight text-base-content lg:text-5xl">{{ __('Dashboard') }}</h1>
             </div>
         </div>
     </x-slot>
@@ -58,12 +58,15 @@
                                                                 <span class="badge rounded-full px-2 py-2 text-[11px] font-semibold" :class="participant.status_class" x-text="participant.status_label"></span>
                                                             </div>
                                                             <template x-if="participant.company"><div class="mt-1 text-sm text-base-content/65" x-text="participant.company"></div></template>
-                                                        </div>
-                                                        <div class="flex flex-wrap gap-2">
-                                                            <button x-show="participant.can_print_badge" x-cloak type="button" class="btn btn-outline btn-xs rounded-lg" :class="busy ? 'btn-disabled opacity-70' : ''" @click="submitAction(participant.badge_url)">{{ __('Badge') }}</button>
+                                                         </div>
+                                                         <div class="flex flex-wrap gap-2">
+                                                            <form x-show="participant.can_print_badge" x-cloak method="POST" :action="participant.badge_url" target="dashboard-badge-download-frame">
+                                                                @csrf
+                                                                <button type="submit" class="btn btn-outline btn-xs rounded-lg" :class="busy ? 'btn-disabled opacity-70' : ''">{{ __('Badge') }}</button>
+                                                            </form>
                                                             <button x-show="participant.can_check_in" x-cloak type="button" class="btn btn-primary btn-xs rounded-lg" :class="busy ? 'btn-disabled opacity-70' : ''" @click="submitAction(participant.check_in_url)" x-text="participant.check_in_label"></button>
                                                             <button x-show="participant.can_check_out" x-cloak type="button" class="btn btn-primary btn-xs rounded-lg" :class="busy ? 'btn-disabled opacity-70' : ''" @click="submitAction(participant.check_out_url)">{{ __('Check-out') }}</button>
-                                                        </div>
+                                                         </div>
                                                     </div>
                                                 </div>
                                             @endforeach
@@ -82,7 +85,10 @@
                                                                         <template x-if="participant.company"><div class="mt-1 text-sm text-base-content/65" x-text="participant.company"></div></template>
                                                                     </div>
                                                                     <div class="flex flex-wrap gap-2">
-                                                                        <button x-show="participant.can_print_badge" x-cloak type="button" class="btn btn-outline btn-xs rounded-lg" :class="busy ? 'btn-disabled opacity-70' : ''" @click="submitAction(participant.badge_url)">{{ __('Badge') }}</button>
+                                                                        <form x-show="participant.can_print_badge" x-cloak method="POST" :action="participant.badge_url" target="dashboard-badge-download-frame">
+                                                                            @csrf
+                                                                            <button type="submit" class="btn btn-outline btn-xs rounded-lg" :class="busy ? 'btn-disabled opacity-70' : ''">{{ __('Badge') }}</button>
+                                                                        </form>
                                                                         <button x-show="participant.can_check_in" x-cloak type="button" class="btn btn-primary btn-xs rounded-lg" :class="busy ? 'btn-disabled opacity-70' : ''" @click="submitAction(participant.check_in_url)" x-text="participant.check_in_label"></button>
                                                                         <button x-show="participant.can_check_out" x-cloak type="button" class="btn btn-primary btn-xs rounded-lg" :class="busy ? 'btn-disabled opacity-70' : ''" @click="submitAction(participant.check_out_url)">{{ __('Check-out') }}</button>
                                                                     </div>
@@ -103,55 +109,6 @@
         </section>
     </div>
 
-    @once
-        <script>
-            document.addEventListener('alpine:init', () => {
-                window.visitParticipantRow = function (participant) {
-                    return {
-                        participant: participant,
-                        busy: false,
-                        async submitAction(url) {
-                            if (this.busy || !url) {
-                                return;
-                            }
-
-                            this.busy = true;
-
-                            try {
-                                const response = await fetch(url, {
-                                    method: 'POST',
-                                    headers: {
-                                        'Accept': 'application/json',
-                                        'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8',
-                                        'X-Requested-With': 'XMLHttpRequest',
-                                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                                    },
-                                    body: new URLSearchParams({ _token: '{{ csrf_token() }}' }).toString(),
-                                    credentials: 'same-origin',
-                                });
-
-                                if (!response.ok) {
-                                    throw new Error('Request failed');
-                                }
-
-                                const data = await response.json();
-
-                                if (data.participant) {
-                                    this.participant = {
-                                        ...this.participant,
-                                        ...data.participant,
-                                    };
-                                }
-                            } catch (error) {
-                                window.location.reload();
-                            } finally {
-                                this.busy = false;
-                            }
-                        },
-                    };
-                };
-            });
-        </script>
-    @endonce
+    <iframe name="dashboard-badge-download-frame" class="hidden" tabindex="-1" aria-hidden="true"></iframe>
 
 </x-app-layout>

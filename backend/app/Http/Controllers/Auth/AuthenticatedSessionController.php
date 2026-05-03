@@ -4,9 +4,11 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\LoginRequest;
+use App\Support\UserPreferences;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cookie;
 use Illuminate\View\View;
 
 class AuthenticatedSessionController extends Controller
@@ -28,7 +30,19 @@ class AuthenticatedSessionController extends Controller
 
         $request->session()->regenerate();
 
-        return redirect()->intended(route('dashboard', absolute: false));
+        $user = $request->user();
+        $locale = UserPreferences::normalizeLocale($user?->locale)
+            ?? UserPreferences::normalizeLocale($request->cookie(UserPreferences::LOCALE_COOKIE))
+            ?? UserPreferences::browserLocale($request);
+        $themePreference = UserPreferences::normalizeTheme($user?->theme_preference)
+            ?? UserPreferences::normalizeTheme($request->cookie(UserPreferences::THEME_COOKIE))
+            ?? UserPreferences::THEME_SYSTEM;
+
+        $request->session()->put('locale', $locale);
+        Cookie::queue(UserPreferences::LOCALE_COOKIE, $locale, 60 * 24 * 365);
+        Cookie::queue(UserPreferences::THEME_COOKIE, $themePreference, 60 * 24 * 365);
+
+        return redirect()->intended(route('overview', absolute: false));
     }
 
     /**
