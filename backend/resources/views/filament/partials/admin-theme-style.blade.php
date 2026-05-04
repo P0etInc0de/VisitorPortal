@@ -248,6 +248,31 @@
     }
 
     /*
+   Filament table toolbar layout.
+
+   Filament places the first toolbar group on the left and
+   the search/tools group on the right. For this admin panel, align all
+   toolbar groups to the right so create buttons sit directly before the
+   search field.
+*/
+    .fi-ta-header-toolbar,
+    .fi-ta-toolbar {
+        justify-content: flex-end !important;
+        align-items: center !important;
+        gap: 1rem !important;
+    }
+
+    .fi-ta-header-toolbar > *,
+    .fi-ta-toolbar > * {
+        margin-inline-start: 0 !important;
+    }
+
+    .fi-ta-header-toolbar .fi-actions,
+    .fi-ta-toolbar .fi-actions {
+        flex-shrink: 0;
+    }
+
+    /*
        Logo switching for Filament Admin.
     */
     .fi-logo.logo-dark {
