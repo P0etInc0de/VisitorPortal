@@ -228,33 +228,37 @@
     /*
        Filament admin primary action buttons.
 
-       The default primary button uses amber/yellow background with a brownish
-       text color. Use near-black text for better contrast in all admin themes.
+       Use the same amber tone as Filament's warning/edit actions in all themes,
+       while forcing near-black text for contrast. This also fixes light mode,
+       where Filament may otherwise render brown/orange text on amber.
     */
     .fi-btn.fi-color-primary {
+        background-color: rgb(251 191 36 / 1) !important;
+        border-color: rgb(251 191 36 / 1) !important;
         color: rgb(17 24 39 / 1) !important;
     }
 
-    .fi-btn.fi-color-primary :is(.fi-btn-label, .fi-btn-icon, svg) {
+    .fi-btn.fi-color-primary:hover,
+    .fi-btn.fi-color-primary:focus-visible {
+        background-color: rgb(245 158 11 / 1) !important;
+        border-color: rgb(245 158 11 / 1) !important;
         color: rgb(17 24 39 / 1) !important;
     }
 
-    .fi-btn.fi-color-primary:hover {
-        color: rgb(17 24 39 / 1) !important;
-    }
-
-    .fi-btn.fi-color-primary:hover :is(.fi-btn-label, .fi-btn-icon, svg) {
+    .fi-btn.fi-color-primary :is(.fi-btn-label, .fi-btn-icon, svg),
+    .fi-btn.fi-color-primary:hover :is(.fi-btn-label, .fi-btn-icon, svg),
+    .fi-btn.fi-color-primary:focus-visible :is(.fi-btn-label, .fi-btn-icon, svg) {
         color: rgb(17 24 39 / 1) !important;
     }
 
     /*
-   Filament table toolbar layout.
+       Filament table toolbar layout.
 
-   Filament places the first toolbar group on the left and
-   the search/tools group on the right. For this admin panel, align all
-   toolbar groups to the right so create buttons sit directly before the
-   search field.
-*/
+       Filament places the first toolbar group on the left and
+       the search/tools group on the right. For this admin panel, align all
+       toolbar groups to the right so create buttons sit directly before the
+       search field.
+    */
     .fi-ta-header-toolbar,
     .fi-ta-toolbar {
         justify-content: flex-end !important;
