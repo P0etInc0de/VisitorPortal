@@ -168,6 +168,78 @@
     }
 
     /*
+   Filament admin sidebar selected item background.
+
+   only the active/current sidebar navigation item gets a slightly stronger
+   background. Text and icon colors stay controlled by Filament.
+*/
+    .fi-sidebar-nav .fi-sidebar-item.fi-active > :is(a, button),
+    .fi-sidebar-nav .fi-sidebar-item.fi-sidebar-item-active > :is(a, button),
+    .fi-sidebar-nav .fi-sidebar-item > :is(a, button).fi-active,
+    .fi-sidebar-nav .fi-sidebar-item > :is(a, button)[aria-current="page"],
+    .fi-sidebar-nav .fi-sidebar-item > .fi-sidebar-item-button.fi-active,
+    .fi-sidebar-nav .fi-sidebar-item > .fi-sidebar-item-button[aria-current="page"] {
+        background-color: rgb(243 244 246 / 1) !important;
+    }
+
+    .fi-sidebar-nav .fi-sidebar-item.fi-active > :is(a, button):hover,
+    .fi-sidebar-nav .fi-sidebar-item.fi-sidebar-item-active > :is(a, button):hover,
+    .fi-sidebar-nav .fi-sidebar-item > :is(a, button).fi-active:hover,
+    .fi-sidebar-nav .fi-sidebar-item > :is(a, button)[aria-current="page"]:hover,
+    .fi-sidebar-nav .fi-sidebar-item > .fi-sidebar-item-button.fi-active:hover,
+    .fi-sidebar-nav .fi-sidebar-item > .fi-sidebar-item-button[aria-current="page"]:hover {
+        background-color: rgb(229 231 235 / 1) !important;
+    }
+
+    html.dark .fi-sidebar-nav .fi-sidebar-item.fi-active > :is(a, button),
+    html[data-theme="dark"] .fi-sidebar-nav .fi-sidebar-item.fi-active > :is(a, button),
+    html.dark .fi-sidebar-nav .fi-sidebar-item.fi-sidebar-item-active > :is(a, button),
+    html[data-theme="dark"] .fi-sidebar-nav .fi-sidebar-item.fi-sidebar-item-active > :is(a, button),
+    html.dark .fi-sidebar-nav .fi-sidebar-item > :is(a, button).fi-active,
+    html[data-theme="dark"] .fi-sidebar-nav .fi-sidebar-item > :is(a, button).fi-active,
+    html.dark .fi-sidebar-nav .fi-sidebar-item > :is(a, button)[aria-current="page"],
+    html[data-theme="dark"] .fi-sidebar-nav .fi-sidebar-item > :is(a, button)[aria-current="page"],
+    html.dark .fi-sidebar-nav .fi-sidebar-item > .fi-sidebar-item-button.fi-active,
+    html[data-theme="dark"] .fi-sidebar-nav .fi-sidebar-item > .fi-sidebar-item-button.fi-active,
+    html.dark .fi-sidebar-nav .fi-sidebar-item > .fi-sidebar-item-button[aria-current="page"],
+    html[data-theme="dark"] .fi-sidebar-nav .fi-sidebar-item > .fi-sidebar-item-button[aria-current="page"] {
+        background-color: rgb(39 39 42 / 1) !important;
+    }
+
+    html.dark .fi-sidebar-nav .fi-sidebar-item.fi-active > :is(a, button):hover,
+    html[data-theme="dark"] .fi-sidebar-nav .fi-sidebar-item.fi-active > :is(a, button):hover,
+    html.dark .fi-sidebar-nav .fi-sidebar-item.fi-sidebar-item-active > :is(a, button):hover,
+    html[data-theme="dark"] .fi-sidebar-nav .fi-sidebar-item.fi-sidebar-item-active > :is(a, button):hover,
+    html.dark .fi-sidebar-nav .fi-sidebar-item > :is(a, button).fi-active:hover,
+    html[data-theme="dark"] .fi-sidebar-nav .fi-sidebar-item > :is(a, button).fi-active:hover,
+    html.dark .fi-sidebar-nav .fi-sidebar-item > :is(a, button)[aria-current="page"]:hover,
+    html[data-theme="dark"] .fi-sidebar-nav .fi-sidebar-item > :is(a, button)[aria-current="page"]:hover,
+    html.dark .fi-sidebar-nav .fi-sidebar-item > .fi-sidebar-item-button.fi-active:hover,
+    html[data-theme="dark"] .fi-sidebar-nav .fi-sidebar-item > .fi-sidebar-item-button.fi-active:hover,
+    html.dark .fi-sidebar-nav .fi-sidebar-item > .fi-sidebar-item-button[aria-current="page"]:hover,
+    html[data-theme="dark"] .fi-sidebar-nav .fi-sidebar-item > .fi-sidebar-item-button[aria-current="page"]:hover {
+        background-color: rgb(63 63 70 / 1) !important;
+    }
+
+    html[data-theme="true-black"] .fi-sidebar-nav .fi-sidebar-item.fi-active > :is(a, button),
+    html[data-theme="true-black"] .fi-sidebar-nav .fi-sidebar-item.fi-sidebar-item-active > :is(a, button),
+    html[data-theme="true-black"] .fi-sidebar-nav .fi-sidebar-item > :is(a, button).fi-active,
+    html[data-theme="true-black"] .fi-sidebar-nav .fi-sidebar-item > :is(a, button)[aria-current="page"],
+    html[data-theme="true-black"] .fi-sidebar-nav .fi-sidebar-item > .fi-sidebar-item-button.fi-active,
+    html[data-theme="true-black"] .fi-sidebar-nav .fi-sidebar-item > .fi-sidebar-item-button[aria-current="page"] {
+        background-color: rgb(31 31 35 / 1) !important;
+    }
+
+    html[data-theme="true-black"] .fi-sidebar-nav .fi-sidebar-item.fi-active > :is(a, button):hover,
+    html[data-theme="true-black"] .fi-sidebar-nav .fi-sidebar-item.fi-sidebar-item-active > :is(a, button):hover,
+    html[data-theme="true-black"] .fi-sidebar-nav .fi-sidebar-item > :is(a, button).fi-active:hover,
+    html[data-theme="true-black"] .fi-sidebar-nav .fi-sidebar-item > :is(a, button)[aria-current="page"]:hover,
+    html[data-theme="true-black"] .fi-sidebar-nav .fi-sidebar-item > .fi-sidebar-item-button.fi-active:hover,
+    html[data-theme="true-black"] .fi-sidebar-nav .fi-sidebar-item > .fi-sidebar-item-button[aria-current="page"]:hover {
+        background-color: rgb(45 45 50 / 1) !important;
+    }
+
+    /*
        Logo switching for Filament Admin.
     */
     .fi-logo.logo-dark {
