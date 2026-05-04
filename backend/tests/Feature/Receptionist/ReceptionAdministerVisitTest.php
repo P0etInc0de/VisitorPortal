@@ -79,7 +79,7 @@ class ReceptionAdministerVisitTest extends TestCase
                 'participants' => [
                     ['visitor_id' => $participant->id],
                 ],
-                ]);
+            ]);
         $response->assertSessionHasNoErrors();
 
         // check if database has attributes of the just created visit
@@ -128,7 +128,7 @@ class ReceptionAdministerVisitTest extends TestCase
                 'participants' => [
                     ['visitor_id' => $participant->id],
                 ],
-                ]);
+            ]);
 
         $response->assertSessionHasNoErrors();
 
