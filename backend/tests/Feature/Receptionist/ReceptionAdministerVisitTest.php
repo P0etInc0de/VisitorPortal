@@ -76,8 +76,10 @@ class ReceptionAdministerVisitTest extends TestCase
                 'scheduled_until' => '2026-04-29 11:00:00',
                 'status' => VisitStatusEnum::Planned->value,
                 'notes' => 'Test Visit Notes',
-                'participants' => [$participant->id],
-            ]);
+                'participants' => [
+                    ['visitor_id' => $participant->id],
+                ],
+                ]);
         $response->assertSessionHasNoErrors();
 
         // check if database has attributes of the just created visit
@@ -123,8 +125,10 @@ class ReceptionAdministerVisitTest extends TestCase
                 'scheduled_until' => $updatedScheduledUntil,
                 'status' => VisitStatusEnum::Planned->value,
                 'notes' => $updatedVisitNotes,
-                'participants' => [$participant->id],
-            ]);
+                'participants' => [
+                    ['visitor_id' => $participant->id],
+                ],
+                ]);
 
         $response->assertSessionHasNoErrors();
 

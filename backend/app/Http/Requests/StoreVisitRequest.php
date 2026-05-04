@@ -5,6 +5,7 @@ namespace App\Http\Requests;
 use App\Enums\VisitStatusEnum;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\Validator;
 
 class StoreVisitRequest extends FormRequest
 {
@@ -24,13 +25,14 @@ class StoreVisitRequest extends FormRequest
             'status' => ['required', 'string', Rule::in(VisitStatusEnum::values())],
             'notes' => ['nullable', 'string'],
             'participants' => ['required', 'array', 'min:1'],
+            'participants.*' => ['array'],
             'participants.*.visitor_id' => ['nullable', 'integer', 'exists:visitors,id'],
             'participants.*.title' => ['nullable', 'string', 'max:255'],
-            'participants.*.first_name' => ['required', 'string', 'max:255'],
-            'participants.*.name' => ['required', 'string', 'max:255'],
-            'participants.*.email' => ['required', 'email', 'max:255'],
-            'participants.*.phone' => ['required', 'string', 'max:255'],
-            'participants.*.company' => ['required', 'string', 'max:255'],
+            'participants.*.first_name' => ['nullable', 'string', 'max:255'],
+            'participants.*.name' => ['nullable', 'string', 'max:255'],
+            'participants.*.email' => ['nullable', 'email', 'max:255'],
+            'participants.*.phone' => ['nullable', 'string', 'max:255'],
+            'participants.*.company' => ['nullable', 'string', 'max:255'],
         ];
     }
 
@@ -51,6 +53,40 @@ class StoreVisitRequest extends FormRequest
             'participants.*.email' => __('E-Mail der teilnehmenden Person'),
             'participants.*.phone' => __('Telefon der teilnehmenden Person'),
             'participants.*.company' => __('Firma der teilnehmenden Person'),
+        ];
+    }
+
+    public function withValidator(Validator $validator): void
+    {
+        $validator->after(function (Validator $validator) {
+            foreach ($this->input('participants', []) as $index => $participant) {
+                if (! is_array($participant) || filled($participant['visitor_id'] ?? null)) {
+                    continue;
+                }
+
+                foreach ($this->requiredInlineParticipantFields() as $field => $label) {
+                    if (blank($participant[$field] ?? null)) {
+                        $validator->errors()->add(
+                            "participants.{$index}.{$field}",
+                            __(':attribute ist erforderlich.', ['attribute' => $label]),
+                        );
+                    }
+                }
+            }
+        });
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    private function requiredInlineParticipantFields(): array
+    {
+        return [
+            'first_name' => __('Vorname der teilnehmenden Person'),
+            'name' => __('Nachname der teilnehmenden Person'),
+            'email' => __('E-Mail der teilnehmenden Person'),
+            'phone' => __('Telefon der teilnehmenden Person'),
+            'company' => __('Firma der teilnehmenden Person'),
         ];
     }
 }
