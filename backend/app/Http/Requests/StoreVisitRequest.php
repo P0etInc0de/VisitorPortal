@@ -26,11 +26,11 @@ class StoreVisitRequest extends FormRequest
             'participants' => ['required', 'array', 'min:1'],
             'participants.*.visitor_id' => ['nullable', 'integer', 'exists:visitors,id'],
             'participants.*.title' => ['nullable', 'string', 'max:255'],
-            'participants.*.first_name' => ['nullable', 'string', 'max:255'],
-            'participants.*.name' => ['nullable', 'string', 'max:255'],
-            'participants.*.email' => ['nullable', 'email', 'max:255'],
-            'participants.*.phone' => ['nullable', 'string', 'max:255'],
-            'participants.*.company' => ['nullable', 'string', 'max:255'],
+            'participants.*.first_name' => ['required', 'string', 'max:255'],
+            'participants.*.name' => ['required', 'string', 'max:255'],
+            'participants.*.email' => ['required', 'email', 'max:255'],
+            'participants.*.phone' => ['required', 'string', 'max:255'],
+            'participants.*.company' => ['required', 'string', 'max:255'],
         ];
     }
 
@@ -40,6 +40,17 @@ class StoreVisitRequest extends FormRequest
             'scheduled_from.after_or_equal' => __('Das Startdatum muss innerhalb des technisch unterstützten Bereichs liegen.'),
             'scheduled_until.after_or_equal' => __('Das Enddatum muss innerhalb des technisch unterstützten Bereichs liegen.'),
             'scheduled_until.after' => __('Das Ende muss nach dem Beginn liegen.'),
+        ];
+    }
+
+    public function attributes(): array
+    {
+        return [
+            'participants.*.first_name' => __('Vorname der teilnehmenden Person'),
+            'participants.*.name' => __('Nachname der teilnehmenden Person'),
+            'participants.*.email' => __('E-Mail der teilnehmenden Person'),
+            'participants.*.phone' => __('Telefon der teilnehmenden Person'),
+            'participants.*.company' => __('Firma der teilnehmenden Person'),
         ];
     }
 }

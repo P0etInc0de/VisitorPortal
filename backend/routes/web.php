@@ -2,9 +2,9 @@
 
 use App\Http\Controllers\Monitor\MonitorController;
 use App\Http\Controllers\Monitor\MonitorSlidesController;
-use App\Http\Controllers\Portal\OverviewController as PortalDashboardController;
+use App\Http\Controllers\Portal\OverviewController;
 use App\Http\Controllers\Portal\VisitController as PortalVisitController;
-use App\Http\Controllers\Reception\DashboardController as ReceptionDashboardController;
+use App\Http\Controllers\Reception\DashboardController;
 use App\Http\Controllers\Reception\VisitController as ReceptionVisitController;
 use App\Http\Controllers\Reception\VisitParticipantActionController;
 use App\Http\Middleware\CheckMonitorAutoGeneration;
@@ -39,8 +39,7 @@ Route::get('/lang', function (Request $request) {
 });
 
 Route::middleware(['auth', 'verified'])->group(function () {
-    Route::get('/overview', [PortalDashboardController::class, 'index'])->name('overview');
-
+    Route::get('/overview', [OverviewController::class, 'index'])->name('overview');
     Route::prefix('portal')->name('portal.')->group(function () {
         Route::prefix('visits')->name('visits.')->group(function () {
             Route::get('/create', [PortalVisitController::class, 'create'])->name('create');
@@ -73,7 +72,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     });
 
     Route::prefix('reception')->name('reception.')->group(function () {
-        Route::get('/', [ReceptionDashboardController::class, 'index'])->name('dashboard');
+        Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
         Route::get('/all-visits', [ReceptionVisitController::class, 'index'])->name('all-visits');
 
         Route::post('/visits/{visit}/participants/{visitor}/badge', [VisitParticipantActionController::class, 'printBadge'])
