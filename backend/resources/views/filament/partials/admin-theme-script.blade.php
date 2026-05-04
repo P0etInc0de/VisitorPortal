@@ -208,7 +208,51 @@
                 return;
             }
 
+            const switcher = button.closest('.fi-theme-switcher');
+
+            if (!switcher) {
+                return;
+            }
+
+            const nativeButtons = Array.from(
+                switcher.querySelectorAll('.fi-theme-switcher-btn:not([data-app-theme])')
+            );
+
+            const selectedTheme = ['light', 'dark', 'system'][nativeButtons.indexOf(button)];
+
+            if (!selectedTheme) {
+                return;
+            }
+
+            const previousPreference = normalizePreference(
+                root.dataset.themePreference
+                ?? localStorage.getItem(appThemeStorageKey)
+                ?? preference
+            );
+
             lastNativeThemeSwitcherClickAt = Date.now();
+
+            /*
+               Filament only knows light/dark/system. True Black is represented as
+               Filament dark internally. Therefore clicking the native dark button while
+               True Black is active may not emit a theme-changed event. In that case the
+               normal theme-changed handler never runs, so we apply the selected native
+               theme as a fallback after Filament had a chance to handle the click.
+            */
+            window.setTimeout(async () => {
+                const currentPreference = normalizePreference(
+                    root.dataset.themePreference
+                    ?? localStorage.getItem(appThemeStorageKey)
+                    ?? preference
+                );
+
+                if (
+                    previousPreference !== selectedTheme
+                    && currentPreference === previousPreference
+                ) {
+                    await applyAndPersistThemePreference(selectedTheme);
+                }
+            }, 80);
         }, true);
 
         document.addEventListener('theme-changed', async (event) => {
