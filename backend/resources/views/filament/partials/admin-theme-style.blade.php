@@ -226,6 +226,28 @@
     }
 
     /*
+       Filament admin primary action buttons.
+
+       The default primary button uses amber/yellow background with a brownish
+       text color. Use near-black text for better contrast in all admin themes.
+    */
+    .fi-btn.fi-color-primary {
+        color: rgb(17 24 39 / 1) !important;
+    }
+
+    .fi-btn.fi-color-primary :is(.fi-btn-label, .fi-btn-icon, svg) {
+        color: rgb(17 24 39 / 1) !important;
+    }
+
+    .fi-btn.fi-color-primary:hover {
+        color: rgb(17 24 39 / 1) !important;
+    }
+
+    .fi-btn.fi-color-primary:hover :is(.fi-btn-label, .fi-btn-icon, svg) {
+        color: rgb(17 24 39 / 1) !important;
+    }
+
+    /*
        Logo switching for Filament Admin.
     */
     .fi-logo.logo-dark {
