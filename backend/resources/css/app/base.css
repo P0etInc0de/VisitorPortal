@@ -1,8 +1,5 @@
 /* Base document */
-html {
-    background-color: var(--color-base-200, #f3f5f9);
-}
-
+html,
 body {
     background-color: var(--color-base-200, #f3f5f9);
 }
@@ -25,19 +22,25 @@ body {
 }
 
 /*
-   DaisyUI select controls calculate their height through --size.
-   Some native select rendering in Firefox becomes vertically inconsistent when
-   only min-height is changed. Keep the actual DaisyUI control size aligned with
-   the intended visual height.
+   Native select controls:
+   DaisyUI v5 can use base-select/native select rendering. In Firefox, this can
+   render select text vertically off after Livewire navigation. Keep native
+   selects stable by disabling base-select appearance and using a fixed control
+   height/line-height.
 */
-select.select:not(.h-10) {
-    --size: 3rem;
-    min-height: 3rem;
-    line-height: 1.25rem;
+select.select:not([multiple]) {
+    appearance: none !important;
+    -moz-appearance: none !important;
+    -webkit-appearance: none !important;
+    display: block !important;
+    height: 3rem !important;
+    min-height: 3rem !important;
+    padding-block: 0 !important;
+    line-height: 3rem !important;
 }
 
-select.select.h-10 {
-    --size: 2.5rem;
-    min-height: 2.5rem;
-    line-height: 1.25rem;
+select.select.h-10:not([multiple]) {
+    height: 2.5rem !important;
+    min-height: 2.5rem !important;
+    line-height: 2.5rem !important;
 }

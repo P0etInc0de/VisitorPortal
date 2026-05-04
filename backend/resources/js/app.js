@@ -75,6 +75,18 @@ if (!window.__bpUserThemeResolverInstalled) {
         return systemDarkQuery.matches ? 'dark' : 'light';
     };
 
+    const resolveThemeBackground = (effectiveTheme) => {
+        if (effectiveTheme === 'true-black') {
+            return '#000000';
+        }
+
+        if (effectiveTheme === 'dark') {
+            return '#09090b';
+        }
+
+        return '#f3f5f9';
+    };
+
     const applyResolvedThemePreference = () => {
         const root = document.documentElement;
         const themePreference = root.dataset.themePreference || 'system';
@@ -83,6 +95,7 @@ if (!window.__bpUserThemeResolverInstalled) {
         root.setAttribute('data-theme', effectiveTheme);
         root.classList.toggle('dark', effectiveTheme === 'dark' || effectiveTheme === 'true-black');
         root.style.colorScheme = effectiveTheme === 'light' ? 'light' : 'dark';
+        root.style.backgroundColor = resolveThemeBackground(effectiveTheme);
     };
 
     applyResolvedThemePreference();

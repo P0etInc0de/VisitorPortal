@@ -20,27 +20,16 @@
                 ? preference
                 : (systemDark ? 'dark' : 'light');
 
+            const backgroundColor = effectiveTheme === 'true-black'
+                ? '#000000'
+                : (effectiveTheme === 'dark' ? '#09090b' : '#f3f5f9');
+
             root.setAttribute('data-theme', effectiveTheme);
             root.classList.toggle('dark', effectiveTheme === 'dark' || effectiveTheme === 'true-black');
             root.style.colorScheme = effectiveTheme === 'light' ? 'light' : 'dark';
+            root.style.backgroundColor = backgroundColor;
         })();
     </script>
-    <style>
-        html[data-theme="light"],
-        html[data-theme="light"] body {
-            background-color: #f3f5f9;
-        }
-
-        html[data-theme="dark"],
-        html[data-theme="dark"] body {
-            background-color: #09090b;
-        }
-
-        html[data-theme="true-black"],
-        html[data-theme="true-black"] body {
-            background-color: #000000;
-        }
-    </style>
 
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
