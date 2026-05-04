@@ -12,6 +12,7 @@ use BezhanSalleh\FilamentShield\FilamentShieldPlugin;
 use BezhanSalleh\FilamentShield\Support\Utils;
 use BezhanSalleh\FilamentShield\Traits\HasShieldFormComponents;
 use BezhanSalleh\PluginEssentials\Concerns\Resource as Essentials;
+use Filament\Actions\CreateAction;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
@@ -119,6 +120,7 @@ class RoleResource extends Resource
                 DeleteAction::make(),
             ])
             ->toolbarActions([
+                CreateAction::make(),
                 DeleteBulkAction::make(),
             ]);
     }

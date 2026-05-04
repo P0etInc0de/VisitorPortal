@@ -168,6 +168,115 @@
     }
 
     /*
+       Filament admin sidebar navigation states.
+
+       - Active/current item keeps one stable background.
+       - Hover only affects non-active items.
+       - Text and icon colors stay controlled by Filament.
+    */
+
+    .fi-sidebar-nav .fi-sidebar-item.fi-active > :is(a, button),
+    .fi-sidebar-nav .fi-sidebar-item.fi-sidebar-item-active > :is(a, button),
+    .fi-sidebar-nav .fi-sidebar-item > :is(a, button).fi-active,
+    .fi-sidebar-nav .fi-sidebar-item > :is(a, button)[aria-current="page"],
+    .fi-sidebar-nav .fi-sidebar-item > .fi-sidebar-item-button.fi-active,
+    .fi-sidebar-nav .fi-sidebar-item > .fi-sidebar-item-button[aria-current="page"] {
+        background-color: rgb(243 244 246 / 1) !important;
+    }
+
+    .fi-sidebar-nav .fi-sidebar-item:not(.fi-active):not(.fi-sidebar-item-active) > :is(a, button):not(.fi-active):not([aria-current="page"]):hover,
+    .fi-sidebar-nav .fi-sidebar-item:not(.fi-active):not(.fi-sidebar-item-active) > .fi-sidebar-item-button:not(.fi-active):not([aria-current="page"]):hover {
+        background-color: rgb(229 231 235 / 1) !important;
+    }
+
+    html.dark .fi-sidebar-nav .fi-sidebar-item.fi-active > :is(a, button),
+    html[data-theme="dark"] .fi-sidebar-nav .fi-sidebar-item.fi-active > :is(a, button),
+    html.dark .fi-sidebar-nav .fi-sidebar-item.fi-sidebar-item-active > :is(a, button),
+    html[data-theme="dark"] .fi-sidebar-nav .fi-sidebar-item.fi-sidebar-item-active > :is(a, button),
+    html.dark .fi-sidebar-nav .fi-sidebar-item > :is(a, button).fi-active,
+    html[data-theme="dark"] .fi-sidebar-nav .fi-sidebar-item > :is(a, button).fi-active,
+    html.dark .fi-sidebar-nav .fi-sidebar-item > :is(a, button)[aria-current="page"],
+    html[data-theme="dark"] .fi-sidebar-nav .fi-sidebar-item > :is(a, button)[aria-current="page"],
+    html.dark .fi-sidebar-nav .fi-sidebar-item > .fi-sidebar-item-button.fi-active,
+    html[data-theme="dark"] .fi-sidebar-nav .fi-sidebar-item > .fi-sidebar-item-button.fi-active,
+    html.dark .fi-sidebar-nav .fi-sidebar-item > .fi-sidebar-item-button[aria-current="page"],
+    html[data-theme="dark"] .fi-sidebar-nav .fi-sidebar-item > .fi-sidebar-item-button[aria-current="page"] {
+        background-color: rgb(45 45 50 / 1) !important;
+    }
+
+    html.dark .fi-sidebar-nav .fi-sidebar-item:not(.fi-active):not(.fi-sidebar-item-active) > :is(a, button):not(.fi-active):not([aria-current="page"]):hover,
+    html[data-theme="dark"] .fi-sidebar-nav .fi-sidebar-item:not(.fi-active):not(.fi-sidebar-item-active) > :is(a, button):not(.fi-active):not([aria-current="page"]):hover,
+    html.dark .fi-sidebar-nav .fi-sidebar-item:not(.fi-active):not(.fi-sidebar-item-active) > .fi-sidebar-item-button:not(.fi-active):not([aria-current="page"]):hover,
+    html[data-theme="dark"] .fi-sidebar-nav .fi-sidebar-item:not(.fi-active):not(.fi-sidebar-item-active) > .fi-sidebar-item-button:not(.fi-active):not([aria-current="page"]):hover {
+        background-color: rgb(34 34 38 / 1) !important;
+    }
+
+    html[data-theme="true-black"] .fi-sidebar-nav .fi-sidebar-item.fi-active > :is(a, button),
+    html[data-theme="true-black"] .fi-sidebar-nav .fi-sidebar-item.fi-sidebar-item-active > :is(a, button),
+    html[data-theme="true-black"] .fi-sidebar-nav .fi-sidebar-item > :is(a, button).fi-active,
+    html[data-theme="true-black"] .fi-sidebar-nav .fi-sidebar-item > :is(a, button)[aria-current="page"],
+    html[data-theme="true-black"] .fi-sidebar-nav .fi-sidebar-item > .fi-sidebar-item-button.fi-active,
+    html[data-theme="true-black"] .fi-sidebar-nav .fi-sidebar-item > .fi-sidebar-item-button[aria-current="page"] {
+        background-color: rgb(38 38 43 / 1) !important;
+    }
+
+    html[data-theme="true-black"] .fi-sidebar-nav .fi-sidebar-item:not(.fi-active):not(.fi-sidebar-item-active) > :is(a, button):not(.fi-active):not([aria-current="page"]):hover,
+    html[data-theme="true-black"] .fi-sidebar-nav .fi-sidebar-item:not(.fi-active):not(.fi-sidebar-item-active) > .fi-sidebar-item-button:not(.fi-active):not([aria-current="page"]):hover {
+        background-color: rgb(24 24 28 / 1) !important;
+    }
+
+    /*
+       Filament admin primary action buttons.
+
+       Use the same amber tone as Filament's warning/edit actions in all themes,
+       while forcing near-black text for contrast. This also fixes light mode,
+       where Filament may otherwise render brown/orange text on amber.
+    */
+    .fi-btn.fi-color-primary {
+        background-color: rgb(251 191 36 / 1) !important;
+        border-color: rgb(251 191 36 / 1) !important;
+        color: rgb(17 24 39 / 1) !important;
+    }
+
+    .fi-btn.fi-color-primary:hover,
+    .fi-btn.fi-color-primary:focus-visible {
+        background-color: rgb(245 158 11 / 1) !important;
+        border-color: rgb(245 158 11 / 1) !important;
+        color: rgb(17 24 39 / 1) !important;
+    }
+
+    .fi-btn.fi-color-primary :is(.fi-btn-label, .fi-btn-icon, svg),
+    .fi-btn.fi-color-primary:hover :is(.fi-btn-label, .fi-btn-icon, svg),
+    .fi-btn.fi-color-primary:focus-visible :is(.fi-btn-label, .fi-btn-icon, svg) {
+        color: rgb(17 24 39 / 1) !important;
+    }
+
+    /*
+       Filament table toolbar layout.
+
+       Filament places the first toolbar group on the left and
+       the search/tools group on the right. For this admin panel, align all
+       toolbar groups to the right so create buttons sit directly before the
+       search field.
+    */
+    .fi-ta-header-toolbar,
+    .fi-ta-toolbar {
+        justify-content: flex-end !important;
+        align-items: center !important;
+        gap: 1rem !important;
+    }
+
+    .fi-ta-header-toolbar > *,
+    .fi-ta-toolbar > * {
+        margin-inline-start: 0 !important;
+    }
+
+    .fi-ta-header-toolbar .fi-actions,
+    .fi-ta-toolbar .fi-actions {
+        flex-shrink: 0;
+    }
+
+    /*
        Logo switching for Filament Admin.
     */
     .fi-logo.logo-dark {
