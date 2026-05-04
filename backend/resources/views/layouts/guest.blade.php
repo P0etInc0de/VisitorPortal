@@ -3,7 +3,7 @@
     $theme = $theme ?? \App\Support\UserPreferences::initialTheme($themePreference);
 @endphp
 
-    <!DOCTYPE html>
+<!DOCTYPE html>
 <html
     lang="{{ str_replace('_', '-', app()->getLocale()) }}"
     data-theme="{{ $theme }}"
