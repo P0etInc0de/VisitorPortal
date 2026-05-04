@@ -16,6 +16,8 @@ class UserPreferences
 
     public const THEME_COOKIE = 'theme_preference';
 
+    public const THEME_EFFECTIVE_COOKIE = 'theme_effective';
+
     public const LOCALE_COOKIE = 'locale';
 
     public const LOCALE_EN = 'en';
@@ -38,14 +40,44 @@ class UserPreferences
     /**
      * @return list<string>
      */
+    public static function supportedEffectiveThemes(): array
+    {
+        return [
+            self::THEME_LIGHT,
+            self::THEME_DARK,
+        ];
+    }
+
+    /**
+     * @return list<string>
+     */
     public static function supportedLocales(): array
     {
-        return ['de', 'en'];
+        return [
+            self::LOCALE_DE,
+            self::LOCALE_EN,
+        ];
     }
 
     public static function normalizeTheme(?string $theme): ?string
     {
         return in_array($theme, self::supportedThemes(), true) ? $theme : null;
+    }
+
+    public static function normalizeEffectiveTheme(?string $theme): ?string
+    {
+        return in_array($theme, self::supportedEffectiveThemes(), true) ? $theme : null;
+    }
+
+    public static function initialTheme(?string $themePreference, ?string $effectiveTheme = null): string
+    {
+        $normalizedPreference = self::normalizeTheme($themePreference) ?? self::THEME_SYSTEM;
+
+        if ($normalizedPreference === self::THEME_SYSTEM) {
+            return self::normalizeEffectiveTheme($effectiveTheme) ?? self::THEME_LIGHT;
+        }
+
+        return $normalizedPreference;
     }
 
     public static function normalizeLocale(?string $locale): ?string

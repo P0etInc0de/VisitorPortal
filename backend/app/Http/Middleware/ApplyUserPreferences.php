@@ -18,6 +18,7 @@ class ApplyUserPreferences
     {
         $locale = $this->resolveLocale($request);
         $themePreference = $this->resolveThemePreference($request);
+        $effectiveTheme = $this->resolveEffectiveTheme($request);
 
         App::setLocale($locale);
 
@@ -26,11 +27,7 @@ class ApplyUserPreferences
         }
 
         View::share('themePreference', $themePreference);
-        View::share('theme', match ($themePreference) {
-            UserPreferences::THEME_DARK => UserPreferences::THEME_DARK,
-            UserPreferences::THEME_TRUE_BLACK => UserPreferences::THEME_TRUE_BLACK,
-            default => UserPreferences::THEME_LIGHT,
-        });
+        View::share('theme', UserPreferences::initialTheme($themePreference, $effectiveTheme));
 
         return $next($request);
     }
@@ -70,5 +67,31 @@ class ApplyUserPreferences
 
         return UserPreferences::normalizeTheme($request->cookie(UserPreferences::THEME_COOKIE))
             ?? UserPreferences::THEME_SYSTEM;
+    }
+
+    private function resolveEffectiveTheme(Request $request): ?string
+    {
+        return UserPreferences::normalizeEffectiveTheme(
+            $this->rawCookie($request, UserPreferences::THEME_EFFECTIVE_COOKIE)
+        );
+    }
+
+    private function rawCookie(Request $request, string $name): ?string
+    {
+        $cookieHeader = $request->headers->get('cookie');
+
+        if (! $cookieHeader) {
+            return null;
+        }
+
+        foreach (explode(';', $cookieHeader) as $cookie) {
+            [$cookieName, $cookieValue] = array_pad(explode('=', trim($cookie), 2), 2, null);
+
+            if ($cookieName === $name && $cookieValue !== null) {
+                return rawurldecode($cookieValue);
+            }
+        }
+
+        return null;
     }
 }

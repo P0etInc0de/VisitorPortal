@@ -1,34 +1,43 @@
 @php
     $themePreference = $themePreference ?? \App\Support\UserPreferences::THEME_SYSTEM;
+    $theme = $theme ?? \App\Support\UserPreferences::initialTheme($themePreference);
 @endphp
 
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" data-theme="{{ $theme ?? 'light' }}">
+<html
+    lang="{{ str_replace('_', '-', app()->getLocale()) }}"
+    data-theme="{{ $theme }}"
+    data-theme-preference="{{ $themePreference }}"
+>
 <head>
+    <script>
+        (function () {
+            const root = document.documentElement;
+            const preference = root.dataset.themePreference || 'system';
+            const systemDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+            const systemTheme = systemDark ? 'dark' : 'light';
+
+            const effectiveTheme = ['light', 'dark', 'true-black'].includes(preference)
+                ? preference
+                : systemTheme;
+
+            const backgroundColor = effectiveTheme === 'true-black'
+                ? '#000000'
+                : (effectiveTheme === 'dark' ? '#09090b' : '#f3f5f9');
+
+            root.setAttribute('data-theme', effectiveTheme);
+            root.classList.toggle('dark', effectiveTheme === 'dark' || effectiveTheme === 'true-black');
+            root.style.colorScheme = effectiveTheme === 'light' ? 'light' : 'dark';
+            root.style.backgroundColor = backgroundColor;
+
+            document.cookie = 'theme_effective=' + encodeURIComponent(systemTheme)
+                + '; Path=/; Max-Age=31536000; SameSite=Lax';
+        })();
+    </script>
+
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>{{ config('app.name', __('Besucherportal')) }}</title>
-
-    @if ($themePreference === \App\Support\UserPreferences::THEME_SYSTEM)
-        <script>
-            (function () {
-                document.documentElement.setAttribute(
-                    'data-theme',
-                    window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
-                )
-            })()
-        </script>
-    @endif
-
-
-    <script>
-        document.documentElement.classList.add('is-preload');
-
-        window.addEventListener('load', function () {
-            document.documentElement.classList.remove('is-preload');
-            document.documentElement.classList.add('is-ready');
-        });
-    </script>
 
     @livewireStyles
     @vite(['resources/css/app.css', 'resources/js/app.js'])
@@ -54,19 +63,5 @@
     </div>
 </div>
 @livewireScripts
-    <script>
-        document.addEventListener('livewire:navigating', () => {
-            window.sidebarScrollPos = document.querySelector('#sidebar-content')?.scrollTop;
-        });
-
-        document.addEventListener('livewire:navigated', () => {
-            if (window.sidebarScrollPos !== undefined) {
-                const sidebar = document.querySelector('#sidebar-content');
-                if (sidebar) {
-                    sidebar.scrollTo({ top: window.sidebarScrollPos, behavior: 'instant' });
-                }
-            }
-        });
-    </script>
 </body>
 </html>

@@ -1,18 +1,11 @@
 /* Base document */
+html,
 body {
-    transition: opacity 140ms ease;
+    background-color: var(--color-base-200, #f3f5f9);
 }
 
 [x-cloak] {
     display: none !important;
-}
-
-html.is-preload body {
-    opacity: 0;
-}
-
-html.is-ready body {
-    opacity: 1;
 }
 
 /* Selection */
@@ -26,4 +19,26 @@ html.is-ready body {
     outline: none !important;
     border-color: color-mix(in srgb, var(--color-primary) 45%, var(--color-base-300)) !important;
     box-shadow: 0 0 0 1px color-mix(in srgb, var(--color-primary) 16%, transparent) !important;
+}
+
+/*
+   Keep native select text vertically stable after Livewire navigation.
+   This avoids Firefox/native select baseline shifts when DaisyUI variables are
+   re-applied during SPA-like page swaps.
+*/
+select.select:not([multiple]) {
+    appearance: none !important;
+    -moz-appearance: none !important;
+    -webkit-appearance: none !important;
+    height: 3rem !important;
+    min-height: 3rem !important;
+    padding-top: 0 !important;
+    padding-bottom: 0 !important;
+    line-height: 3rem !important;
+}
+
+select.select.h-10:not([multiple]) {
+    height: 2.5rem !important;
+    min-height: 2.5rem !important;
+    line-height: 2.5rem !important;
 }
