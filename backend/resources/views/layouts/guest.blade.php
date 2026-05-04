@@ -15,10 +15,11 @@
             const root = document.documentElement;
             const preference = root.dataset.themePreference || 'system';
             const systemDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+            const systemTheme = systemDark ? 'dark' : 'light';
 
             const effectiveTheme = ['light', 'dark', 'true-black'].includes(preference)
                 ? preference
-                : (systemDark ? 'dark' : 'light');
+                : systemTheme;
 
             const backgroundColor = effectiveTheme === 'true-black'
                 ? '#000000'
@@ -28,6 +29,9 @@
             root.classList.toggle('dark', effectiveTheme === 'dark' || effectiveTheme === 'true-black');
             root.style.colorScheme = effectiveTheme === 'light' ? 'light' : 'dark';
             root.style.backgroundColor = backgroundColor;
+
+            document.cookie = 'theme_effective=' + encodeURIComponent(systemTheme)
+                + '; Path=/; Max-Age=31536000; SameSite=Lax';
         })();
     </script>
 

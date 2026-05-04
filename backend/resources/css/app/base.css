@@ -22,20 +22,18 @@ body {
 }
 
 /*
-   Native select controls:
-   DaisyUI v5 can use base-select/native select rendering. In Firefox, this can
-   render select text vertically off after Livewire navigation. Keep native
-   selects stable by disabling base-select appearance and using a fixed control
-   height/line-height.
+   Keep native select text vertically stable after Livewire navigation.
+   This avoids Firefox/native select baseline shifts when DaisyUI variables are
+   re-applied during SPA-like page swaps.
 */
 select.select:not([multiple]) {
     appearance: none !important;
     -moz-appearance: none !important;
     -webkit-appearance: none !important;
-    display: block !important;
     height: 3rem !important;
     min-height: 3rem !important;
-    padding-block: 0 !important;
+    padding-top: 0 !important;
+    padding-bottom: 0 !important;
     line-height: 3rem !important;
 }
 
