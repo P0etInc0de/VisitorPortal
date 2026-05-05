@@ -43,7 +43,7 @@ class AuthenticatedSessionController extends Controller
         Cookie::queue(UserPreferences::LOCALE_COOKIE, $locale, 60 * 24 * 365);
         Cookie::queue(UserPreferences::THEME_COOKIE, $themePreference, 60 * 24 * 365);
 
-        return redirect()->intended(route('overview', absolute: false));
+        return redirect()->intended($this->redirectRoles($user));
     }
 
 	/**
@@ -53,8 +53,8 @@ class AuthenticatedSessionController extends Controller
 	public function redirectRoles(User $user): string
 	{
 		return match(true) {
-			$user->hasRole('welcome monitor') => route('monitors.index', absolute: false),
-			default => route('dashboard', absolute: false)};
+			$user->hasRole('welcome monitor') => route('monitors.show', \App\Models\Monitor::query()->first(), absolute: false),
+			default => route('overview', absolute: false)};
 	}
 
     /**

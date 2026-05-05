@@ -38,9 +38,9 @@
     };
 
     $canSeeAdmin = $hasAnyRole(['admin']);
-	$canSeeReception = auth()->user()->hasAnyPermission(['ViewAny:Visit', 'ViewDepartment:Visit', 'ViewOwn:Visit']);
+	$canSeeReception = auth()->user()->hasAnyRole(['admin', 'receptionist']);
 	$canSeeMonitor = auth()->user()->hasAnyPermission(['View:Monitor', 'Edit:Monitor']);
-	$canSeeVisits = auth()->user()->hasAnyPermission(['Create:Visit', 'CheckIn:Visit', 'CheckOut:Visit']);
+	$canSeeVisits = auth()->user()->hasAnyPermission(['Create:Visit', 'CheckIn:Visitor', 'CheckOut:Visitor']);
 	$canSeeProfile = auth()->user()->hasAnyPermission(['ViewOwn:User', 'View:Role']);
 @endphp
 
