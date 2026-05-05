@@ -152,8 +152,8 @@ class PermissionHelper
             'EditAny:Visitor',
             'CheckIn:Visitor', 'CheckOut:Visitor', 'Print:Visitor',
             'View:Monitor', 'Edit:Monitor', 'View:MonitorSlide', 'Edit:MonitorSlide',
-			'ViewOwn:User', 'EditOwn:User', 
-			'Create:Visit', 'Create:Visitor',
+            'ViewOwn:User', 'EditOwn:User',
+            'Create:Visit', 'Create:Visitor',
             'ViewOwn:Visit', 'EditOwn:Visit', 'DeleteOwn:Visit',
             'ViewAny:Visitor'];
 
