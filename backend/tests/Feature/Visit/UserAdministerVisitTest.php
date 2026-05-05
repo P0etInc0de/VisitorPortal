@@ -93,8 +93,12 @@ class UserAdministerVisitTest extends TestCase
                 'scheduled_until' => $updatedScheduledUntil,
                 'status' => VisitStatusEnum::Planned->value,
                 'notes' => $updatedVisitNotes,
-                'participants' => [$participant],
+                'participants' => [
+                    ['visitor_id' => $participant->id],
+                ],
             ]);
+
+        $response->assertSessionHasNoErrors();
 
         // check if database contains updated versions
         $this->assertDatabaseHas('visits', [
