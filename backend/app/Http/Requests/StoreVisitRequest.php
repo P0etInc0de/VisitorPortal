@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use App\Enums\VisitStatusEnum;
+use App\Models\Visit;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\Validator;

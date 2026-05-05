@@ -58,7 +58,7 @@ class ReceptionAdministerVisitTest extends TestCase
     {
         $receptionist = (new PermissionHelper)->getReceptionistUser();
 
-        $participant = User::factory()->create();
+        $participant = Visitor::factory()->create();
 
         $visitTitle = 'Test Visit';
 
@@ -97,7 +97,7 @@ class ReceptionAdministerVisitTest extends TestCase
     {
         $receptionist = (new PermissionHelper)->getReceptionistUser();
 
-        $participant = User::factory()->create();
+        $participant = Visitor::factory()->create();
         $employee = User::factory()->create();
         $responsibleUser = User::factory()->create();
 
