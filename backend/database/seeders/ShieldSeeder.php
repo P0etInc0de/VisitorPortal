@@ -145,9 +145,9 @@ class ShieldSeeder extends Seeder
             return;
         }
 
-        /** @var \Illuminate\Database\Eloquent\Model $roleModel */
+        /** @var Model $roleModel */
         $roleModel = Utils::getRoleModel();
-        /** @var \Illuminate\Database\Eloquent\Model $permissionModel */
+        /** @var Model $permissionModel */
         $permissionModel = Utils::getPermissionModel();
 
         $tenancyEnabled = false;

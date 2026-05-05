@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\LoginRequest;
+use App\Models\Monitor;
 use App\Models\User;
 use App\Support\UserPreferences;
 use Illuminate\Http\RedirectResponse;
@@ -52,7 +53,7 @@ class AuthenticatedSessionController extends Controller
     public function redirectRoles(User $user): string
     {
         return match (true) {
-            $user->hasRole('welcome monitor') => route('monitors.show', \App\Models\Monitor::query()->first(), absolute: false),
+            $user->hasRole('welcome monitor') => route('monitors.show', Monitor::query()->first(), absolute: false),
             default => route('overview', absolute: false)
         };
     }
