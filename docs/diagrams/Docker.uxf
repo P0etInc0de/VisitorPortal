@@ -1,38 +1,50 @@
-<diagram program="umletino" version="15.1"><zoom_level>8</zoom_level><element><id>UMLDeployment</id><coordinates><x>392</x><y>328</y><w>200</w><h>88</h></coordinates><panel_attributes>&lt;&lt;container&gt;&gt;
+<diagram program="umletino" version="15.1"><zoom_level>8</zoom_level><help_text>Space for diagram notes</help_text><element><id>UMLDeployment</id><coordinates><x>392</x><y>320</y><w>200</w><h>88</h></coordinates><panel_attributes>&lt;&lt;container&gt;&gt;
 besucherportal-web
 --
 Apache / PHP
-Port: 8080</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLDeployment</id><coordinates><x>264</x><y>480</y><w>200</w><h>88</h></coordinates><panel_attributes>&lt;&lt;container&gt;&gt;
+Port: 8080
+fontsize=16</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLDeployment</id><coordinates><x>264</x><y>472</y><w>200</w><h>88</h></coordinates><panel_attributes>&lt;&lt;container&gt;&gt;
 besucherportal-scheduler
 --
 Cronjobs
-php artisan schedule:work</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLDeployment</id><coordinates><x>520</x><y>480</y><w>200</w><h>88</h></coordinates><panel_attributes>&lt;&lt;container&gt;&gt;
+php artisan schedule:work
+fontsize=16</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLDeployment</id><coordinates><x>520</x><y>472</y><w>200</w><h>88</h></coordinates><panel_attributes>&lt;&lt;container&gt;&gt;
 besucherportal-queue
 --
 Queue Worker
-php artisan queue:work</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLDeployment</id><coordinates><x>504</x><y>728</y><w>200</w><h>88</h></coordinates><panel_attributes>&lt;&lt;container&gt;&gt;
+php artisan queue:work
+fontsize=16</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLDeployment</id><coordinates><x>504</x><y>720</y><w>200</w><h>88</h></coordinates><panel_attributes>&lt;&lt;container&gt;&gt;
 besucherportal-db
 --
 MySQL 8.0
-Port: 3306</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLDeployment</id><coordinates><x>888</x><y>480</y><w>200</w><h>88</h></coordinates><panel_attributes>&lt;&lt;container&gt;&gt;
+Port: 3306
+fontsize=16</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLDeployment</id><coordinates><x>888</x><y>472</y><w>200</w><h>88</h></coordinates><panel_attributes>&lt;&lt;container&gt;&gt;
 besucherportal-mailhog
 --
 SMTP / Web GUI
-Ports: 1025, 8025</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLDeployment</id><coordinates><x>264</x><y>728</y><w>200</w><h>88</h></coordinates><panel_attributes>&lt;&lt;container&gt;&gt;
+Ports: 1025, 8025
+fontsize=16</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLDeployment</id><coordinates><x>264</x><y>720</y><w>200</w><h>88</h></coordinates><panel_attributes>&lt;&lt;container&gt;&gt;
 besucherportal-gotenberg
 --
 PDF-Engine
-Port: 3000</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLDeployment</id><coordinates><x>888</x><y>328</y><w>200</w><h>88</h></coordinates><panel_attributes>&lt;&lt;container&gt;&gt;
+Port: 3000
+fontsize=16</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLDeployment</id><coordinates><x>888</x><y>320</y><w>200</w><h>88</h></coordinates><panel_attributes>&lt;&lt;container&gt;&gt;
 besucherportal-node
 --
 Vite / Node
-Port: 5173</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLDeployment</id><coordinates><x>168</x><y>208</y><w>1032</w><h>696</h></coordinates><panel_attributes>Docker Compose</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>232</x><y>280</y><w>512</w><h>312</h></coordinates><panel_attributes>lt=.
+Port: 5173
+fontsize=16</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLDeployment</id><coordinates><x>168</x><y>200</y><w>1032</w><h>696</h></coordinates><panel_attributes>Docker Compose
+fontsize=16</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>232</x><y>272</y><w>512</w><h>312</h></coordinates><panel_attributes>lt=.
 Laravel Core Applications
-</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>232</x><y>680</y><w>512</w><h>176</h></coordinates><panel_attributes>lt=.
+fontsize=16
+</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>232</x><y>672</y><w>512</w><h>176</h></coordinates><panel_attributes>lt=.
 Infrastructure and Services
-</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>856</x><y>280</y><w>264</w><h>312</h></coordinates><panel_attributes>lt=.
+fontsize=16</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>856</x><y>272</y><w>264</w><h>312</h></coordinates><panel_attributes>lt=.
 Development
+fontsize=16
 
-</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLUseCase</id><coordinates><x>280</x><y>16</y><w>152</w><h>144</h></coordinates><panel_attributes>Nutzer / Besucher
-Browser</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLUseCase</id><coordinates><x>744</x><y>8</y><w>152</w><h>144</h></coordinates><panel_attributes>Entwickler
-Browser</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>344</x><y>152</y><w>64</w><h>208</h></coordinates><panel_attributes></panel_attributes><additional_attributes>60;240;10;240;10;10</additional_attributes></element><element><id>Relation</id><coordinates><x>816</x><y>144</y><w>88</w><h>256</h></coordinates><panel_attributes></panel_attributes><additional_attributes>90;300;10;300;10;120;10;10</additional_attributes></element><element><id>Relation</id><coordinates><x>584</x><y>144</y><w>240</w><h>264</h></coordinates><panel_attributes></panel_attributes><additional_attributes>10;310;280;310;280;10</additional_attributes></element><element><id>Relation</id><coordinates><x>808</x><y>144</y><w>96</w><h>408</h></coordinates><panel_attributes></panel_attributes><additional_attributes>100;490;10;490;10;10</additional_attributes></element><element><id>Relation</id><coordinates><x>352</x><y>408</y><w>152</w><h>88</h></coordinates><panel_attributes></panel_attributes><additional_attributes>10;90;10;50;170;50;170;10</additional_attributes></element><element><id>Relation</id><coordinates><x>504</x><y>408</y><w>136</w><h>88</h></coordinates><panel_attributes></panel_attributes><additional_attributes>150;90;150;50;10;50;10;10</additional_attributes></element><element><id>Relation</id><coordinates><x>496</x><y>408</y><w>120</w><h>336</h></coordinates><panel_attributes></panel_attributes><additional_attributes>130;400;130;280;10;280;10;10</additional_attributes></element><element><id>Relation</id><coordinates><x>624</x><y>560</y><w>24</w><h>184</h></coordinates><panel_attributes></panel_attributes><additional_attributes>10;210;10;10</additional_attributes></element><element><id>Relation</id><coordinates><x>344</x><y>560</y><w>248</w><h>184</h></coordinates><panel_attributes></panel_attributes><additional_attributes>290;210;290;110;10;110;10;10</additional_attributes></element><element><id>Relation</id><coordinates><x>184</x><y>384</y><w>224</w><h>416</h></coordinates><panel_attributes></panel_attributes><additional_attributes>100;500;10;500;10;10;260;10</additional_attributes></element><element><id>Relation</id><coordinates><x>712</x><y>536</y><w>192</w><h>32</h></coordinates><panel_attributes></panel_attributes><additional_attributes>220;20;10;20</additional_attributes></element></diagram>
+</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLUseCase</id><coordinates><x>280</x><y>8</y><w>152</w><h>144</h></coordinates><panel_attributes>Nutzer / Besucher
+Browser
+fontsize=16</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLUseCase</id><coordinates><x>744</x><y>0</y><w>152</w><h>144</h></coordinates><panel_attributes>Entwickler
+Browser
+fontsize=16</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>344</x><y>144</y><w>64</w><h>208</h></coordinates><panel_attributes></panel_attributes><additional_attributes>60;240;10;240;10;10</additional_attributes></element><element><id>Relation</id><coordinates><x>816</x><y>136</y><w>88</w><h>256</h></coordinates><panel_attributes></panel_attributes><additional_attributes>90;300;10;300;10;120;10;10</additional_attributes></element><element><id>Relation</id><coordinates><x>584</x><y>136</y><w>240</w><h>264</h></coordinates><panel_attributes></panel_attributes><additional_attributes>10;310;280;310;280;10</additional_attributes></element><element><id>Relation</id><coordinates><x>808</x><y>136</y><w>96</w><h>408</h></coordinates><panel_attributes></panel_attributes><additional_attributes>100;490;10;490;10;10</additional_attributes></element><element><id>Relation</id><coordinates><x>352</x><y>400</y><w>152</w><h>88</h></coordinates><panel_attributes></panel_attributes><additional_attributes>10;90;10;50;170;50;170;10</additional_attributes></element><element><id>Relation</id><coordinates><x>504</x><y>400</y><w>136</w><h>88</h></coordinates><panel_attributes></panel_attributes><additional_attributes>150;90;150;50;10;50;10;10</additional_attributes></element><element><id>Relation</id><coordinates><x>496</x><y>400</y><w>120</w><h>336</h></coordinates><panel_attributes></panel_attributes><additional_attributes>130;400;130;280;10;280;10;10</additional_attributes></element><element><id>Relation</id><coordinates><x>624</x><y>552</y><w>24</w><h>184</h></coordinates><panel_attributes></panel_attributes><additional_attributes>10;210;10;10</additional_attributes></element><element><id>Relation</id><coordinates><x>344</x><y>552</y><w>248</w><h>184</h></coordinates><panel_attributes></panel_attributes><additional_attributes>290;210;290;110;10;110;10;10</additional_attributes></element><element><id>Relation</id><coordinates><x>184</x><y>376</y><w>224</w><h>416</h></coordinates><panel_attributes></panel_attributes><additional_attributes>100;500;10;500;10;10;260;10</additional_attributes></element><element><id>Relation</id><coordinates><x>712</x><y>528</y><w>192</w><h>32</h></coordinates><panel_attributes></panel_attributes><additional_attributes>220;20;10;20</additional_attributes></element></diagram>
