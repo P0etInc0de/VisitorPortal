@@ -77,19 +77,4 @@ class VisitPolicy
     {
         return $user->can('DeleteOwn:Visit') && ($user->id === $visit->user_id || $user->id === $visit->responsible_user_id);
     }
-
-    public function checkIn(User $user): bool
-    {
-        return $user->can('CheckIn:Visit');
-    }
-
-    public function checkOut(User $user): bool
-    {
-        return $user->can('CheckOut:Visit');
-    }
-
-    public function print(User $user, Visit $visit): bool
-    {
-        return $user->can('Print:Visit');
-    }
 }
