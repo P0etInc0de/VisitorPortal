@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\Support\PermissionHelper;
 use Tests\TestCase;
 
 class ReceptionPagesTest extends TestCase
@@ -12,7 +13,7 @@ class ReceptionPagesTest extends TestCase
 
     public function test_reception_pages_can_be_rendered(): void
     {
-        $user = User::factory()->create();
+        $user = (new PermissionHelper)->getReceptionistUser();
 
         $this->actingAs($user)->get(route('reception.dashboard'))->assertOk();
         $this->actingAs($user)->get(route('reception.all-visits'))->assertOk();

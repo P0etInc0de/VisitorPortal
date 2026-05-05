@@ -637,7 +637,7 @@ class WelcomeMonitorTest extends TestCase
     {
         return (new PermissionHelper)->getIndividualUser([
             'View:Monitor',
-            'Update:Monitor',
+            'Edit:Monitor',
             'Create:MonitorSlide',
             'Update:MonitorSlide',
             'Delete:MonitorSlide',
