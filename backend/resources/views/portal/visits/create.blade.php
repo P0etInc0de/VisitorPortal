@@ -167,18 +167,15 @@
                 this.$nextTick(() => this.$refs.firstNameInput?.focus());
             },
             addDraftParticipant() {
-                const firstName = (this.draftParticipant.first_name ?? '').trim();
-                const lastName = (this.draftParticipant.name ?? '').trim();
-
-                if (!firstName || !lastName) {
+                if (!this.isDraftParticipantComplete()) {
                     return;
                 }
 
                 this.participants.push({
                     visitor_id: null,
                     title: (this.draftParticipant.title ?? '').trim(),
-                    first_name: firstName,
-                    name: lastName,
+                    first_name: (this.draftParticipant.first_name ?? '').trim(),
+                    name: (this.draftParticipant.name ?? '').trim(),
                     email: (this.draftParticipant.email ?? '').trim(),
                     phone: (this.draftParticipant.phone ?? '').trim(),
                     company: (this.draftParticipant.company ?? '').trim(),
@@ -187,6 +184,20 @@
                 });
 
                 this.cancelAddParticipant();
+            },
+            draftParticipantEmailIsValid() {
+                const email = (this.draftParticipant.email ?? '').trim();
+
+                return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+            },
+            isDraftParticipantComplete() {
+                return Boolean(
+                    (this.draftParticipant.first_name ?? '').trim()
+                    && (this.draftParticipant.name ?? '').trim()
+                    && (this.draftParticipant.company ?? '').trim()
+                    && this.draftParticipantEmailIsValid()
+                    && (this.draftParticipant.phone ?? '').trim()
+                );
             },
             removeParticipant(index) {
                 this.participants.splice(index, 1);
@@ -337,7 +348,7 @@
                                         >
                                     </div>
                                     @error('scheduled_from')
-                                        <div class="mt-2 text-sm text-error">{{ $message }}</div>
+                                    <div class="mt-2 text-sm text-error">{{ $message }}</div>
                                     @enderror
                                 </div>
 
@@ -361,7 +372,7 @@
                                         >
                                     </div>
                                     @error('scheduled_until')
-                                        <div class="mt-2 text-sm text-error">{{ $message }}</div>
+                                    <div class="mt-2 text-sm text-error">{{ $message }}</div>
                                     @enderror
                                 </div>
                             </div>
@@ -527,7 +538,7 @@
 
                                         <label class="form-control xl:col-span-4">
                                             <div class="label px-0 pb-2">
-                                                <span class="label-text text-sm font-medium text-base-content">{{ __('Vorname') }}</span>
+                                                <span class="label-text text-sm font-medium text-base-content">{{ __('Vorname') }} <span class="text-error">*</span></span>
                                             </div>
                                             <input
                                                 x-ref="firstNameInput"
@@ -539,7 +550,7 @@
 
                                         <label class="form-control xl:col-span-4">
                                             <div class="label px-0 pb-2">
-                                                <span class="label-text text-sm font-medium text-base-content">{{ __('Nachname') }}</span>
+                                                <span class="label-text text-sm font-medium text-base-content">{{ __('Nachname') }} <span class="text-error">*</span></span>
                                             </div>
                                             <input
                                                 type="text"
@@ -550,7 +561,7 @@
 
                                         <label class="form-control xl:col-span-4">
                                             <div class="label px-0 pb-2">
-                                                <span class="label-text text-sm font-medium text-base-content">{{ __('Firma') }}</span>
+                                                <span class="label-text text-sm font-medium text-base-content">{{ __('Firma') }} <span class="text-error">*</span></span>
                                             </div>
                                             <input
                                                 type="text"
@@ -561,18 +572,25 @@
 
                                         <label class="form-control xl:col-span-6">
                                             <div class="label px-0 pb-2">
-                                                <span class="label-text text-sm font-medium text-base-content">{{ __('E-Mail') }}</span>
+                                                <span class="label-text text-sm font-medium text-base-content">{{ __('E-Mail') }} <span class="text-error">*</span></span>
                                             </div>
                                             <input
                                                 type="email"
                                                 class="input input-bordered w-full"
                                                 x-model="draftParticipant.email"
                                             >
+                                            <div
+                                                x-show="(draftParticipant.email || '').trim() && !draftParticipantEmailIsValid()"
+                                                x-cloak
+                                                class="mt-2 text-sm text-error"
+                                            >
+                                                {{ __('Bitte eine gültige E-Mail-Adresse eintragen.') }}
+                                            </div>
                                         </label>
 
                                         <label class="form-control xl:col-span-6">
                                             <div class="label px-0 pb-2">
-                                                <span class="label-text text-sm font-medium text-base-content">{{ __('Telefon') }}</span>
+                                                <span class="label-text text-sm font-medium text-base-content">{{ __('Telefon') }} <span class="text-error">*</span></span>
                                             </div>
                                             <input
                                                 type="text"
@@ -589,7 +607,7 @@
                                         <button
                                             type="button"
                                             class="btn btn-primary"
-                                            :disabled="!(draftParticipant.first_name || '').trim() || !(draftParticipant.name || '').trim()"
+                                            :disabled="!isDraftParticipantComplete()"
                                             @click="addDraftParticipant()"
                                         >
                                             {{ __('Zur Liste hinzufügen') }}

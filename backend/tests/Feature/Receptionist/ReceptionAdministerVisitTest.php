@@ -58,7 +58,7 @@ class ReceptionAdministerVisitTest extends TestCase
     {
         $receptionist = (new PermissionHelper)->getReceptionistUser();
 
-        $participant = User::factory()->create();
+        $participant = Visitor::factory()->create();
 
         $visitTitle = 'Test Visit';
 
@@ -76,7 +76,9 @@ class ReceptionAdministerVisitTest extends TestCase
                 'scheduled_until' => '2026-04-29 11:00:00',
                 'status' => VisitStatusEnum::Planned->value,
                 'notes' => 'Test Visit Notes',
-                'participants' => [$participant->id],
+                'participants' => [
+                    ['visitor_id' => $participant->id],
+                ],
             ]);
         $response->assertSessionHasNoErrors();
 
@@ -95,7 +97,7 @@ class ReceptionAdministerVisitTest extends TestCase
     {
         $receptionist = (new PermissionHelper)->getReceptionistUser();
 
-        $participant = User::factory()->create();
+        $participant = Visitor::factory()->create();
         $employee = User::factory()->create();
         $responsibleUser = User::factory()->create();
 
@@ -123,7 +125,9 @@ class ReceptionAdministerVisitTest extends TestCase
                 'scheduled_until' => $updatedScheduledUntil,
                 'status' => VisitStatusEnum::Planned->value,
                 'notes' => $updatedVisitNotes,
-                'participants' => [$participant->id],
+                'participants' => [
+                    ['visitor_id' => $participant->id],
+                ],
             ]);
 
         $response->assertSessionHasNoErrors();
