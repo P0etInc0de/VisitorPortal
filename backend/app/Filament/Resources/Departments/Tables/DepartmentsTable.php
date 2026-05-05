@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\Departments\Tables;
 
 use Filament\Actions\BulkActionGroup;
+use Filament\Actions\CreateAction;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Actions\ViewAction;
@@ -42,6 +43,7 @@ class DepartmentsTable
                 EditAction::make(),
             ])
             ->toolbarActions([
+                CreateAction::make(),
                 BulkActionGroup::make([
                     DeleteBulkAction::make(),
                 ]),

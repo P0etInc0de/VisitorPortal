@@ -1,6 +1,6 @@
 <div>
-    <div class="grid gap-6 xl:grid-cols-[minmax(0,1.65fr)_22rem] xl:items-start">
-        <div class="grid gap-6">
+    <div class="grid gap-6 xl:grid-cols-3 xl:items-start">
+        <div class="grid min-w-0 gap-6 xl:col-span-2">
             @if (session('status'))
                 <div class="alert alert-success rounded-2xl shadow-sm">
                     <span>{{ session('status') }}</span>
@@ -8,7 +8,7 @@
             @endif
 
             <section class="rounded-3xl border border-base-300 bg-base-100 p-6 sm:p-7 shadow-sm">
-                <div class="grid gap-5 md:grid-cols-2 xl:grid-cols-4">
+                <div class="grid gap-5 md:grid-cols-2 2xl:grid-cols-[minmax(7rem,0.65fr)_minmax(15rem,1.45fr)_minmax(10rem,1fr)_minmax(10rem,1fr)]">
                     <div>
                         <div class="text-xs font-semibold uppercase tracking-[0.18em] text-base-content/50">{{ __('Status') }}</div>
                         <div class="mt-2">
@@ -18,7 +18,13 @@
 
                     <div>
                         <div class="text-xs font-semibold uppercase tracking-[0.18em] text-base-content/50">{{ __('Zeitfenster') }}</div>
-                        <div class="mt-2 text-base font-medium text-base-content">{{ $visitMeta['timeframe'] }}</div>
+                        <div class="mt-2 flex flex-wrap items-baseline gap-x-2 gap-y-1 text-base font-medium text-base-content">
+                            <span class="whitespace-nowrap">{{ $visitMeta['date'] }}</span>
+                            @if ($visitMeta['timeRange'] !== '–')
+                                <span class="text-base-content/45">|</span>
+                                <span class="whitespace-nowrap">{{ $visitMeta['timeRange'] }}</span>
+                            @endif
+                        </div>
                     </div>
 
                     <div>
@@ -85,7 +91,7 @@
             </section>
         </div>
 
-        <div class="grid gap-6 xl:sticky xl:top-6">
+        <div class="grid min-w-0 gap-6 xl:sticky xl:top-6">
             <section class="rounded-3xl border border-base-300 bg-base-100 p-6 sm:p-7 shadow-sm">
                 <h2 class="mb-4 text-xl font-bold text-base-content">{{ __('Termin verschieben') }}</h2>
 
@@ -94,7 +100,7 @@
                         <label class="label px-0 pb-2"><span class="label-text font-medium">{{ __('Beginn') }}</span></label>
                         <input type="datetime-local" wire:model.defer="scheduledFrom" class="input input-bordered w-full @error('scheduledFrom') input-error @enderror">
                         @error('scheduledFrom')
-                            <div class="mt-2 text-sm text-error">{{ $message }}</div>
+                        <div class="mt-2 text-sm text-error">{{ $message }}</div>
                         @enderror
                     </div>
 
@@ -102,7 +108,7 @@
                         <label class="label px-0 pb-2"><span class="label-text font-medium">{{ __('Ende') }}</span></label>
                         <input type="datetime-local" wire:model.defer="scheduledUntil" class="input input-bordered w-full @error('scheduledUntil') input-error @enderror">
                         @error('scheduledUntil')
-                            <div class="mt-2 text-sm text-error">{{ $message }}</div>
+                        <div class="mt-2 text-sm text-error">{{ $message }}</div>
                         @enderror
                     </div>
 

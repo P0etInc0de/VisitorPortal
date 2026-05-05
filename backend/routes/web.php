@@ -2,37 +2,44 @@
 
 use App\Http\Controllers\Monitor\MonitorController;
 use App\Http\Controllers\Monitor\MonitorSlidesController;
-use App\Http\Controllers\Portal\DashboardController as PortalDashboardController;
+use App\Http\Controllers\Portal\OverviewController;
 use App\Http\Controllers\Portal\VisitController as PortalVisitController;
-use App\Http\Controllers\Reception\DashboardController as ReceptionDashboardController;
+use App\Http\Controllers\Reception\DashboardController;
 use App\Http\Controllers\Reception\VisitController as ReceptionVisitController;
 use App\Http\Controllers\Reception\VisitParticipantActionController;
 use App\Http\Middleware\CheckMonitorAutoGeneration;
 use App\Livewire\Portal\CheckInOutBoard;
 use App\Livewire\Portal\VisitShowPage;
 use App\Livewire\Profile\UserPermissionsPage;
+use App\Support\UserPreferences;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cookie;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
     return auth()->check()
-        ? redirect()->route('dashboard')
+        ? redirect()->route('overview')
         : redirect()->route('login');
 })->name('home');
 
 Route::get('/lang', function (Request $request) {
-    $locale = $request->input('locale');
+    $locale = UserPreferences::normalizeLocale($request->input('locale'));
 
-    if (in_array($locale, ['de', 'en'])) {
+    if ($locale) {
         session(['locale' => $locale]);
+
+        if ($request->user()) {
+            $request->user()->forceFill(['locale' => $locale])->save();
+        }
+
+        Cookie::queue(UserPreferences::LOCALE_COOKIE, $locale, 60 * 24 * 365);
     }
 
     return redirect()->to(url()->previous());
 });
 
 Route::middleware(['auth', 'verified'])->group(function () {
-    Route::get('/dashboard', [PortalDashboardController::class, 'index'])->name('dashboard');
-
+    Route::get('/overview', [OverviewController::class, 'index'])->name('overview');
     Route::prefix('portal')->name('portal.')->group(function () {
         Route::prefix('visits')->name('visits.')->group(function () {
             Route::get('/create', [PortalVisitController::class, 'create'])->name('create');
@@ -59,12 +66,13 @@ Route::middleware(['auth', 'verified'])->group(function () {
                 ->name('reschedule');
         });
 
+        Route::view('/my-visits', 'portal.my-visits')->name('my-visits');
         Route::redirect('/check_in_out', '/portal/check-in-out');
         Route::get('/check-in-out', CheckInOutBoard::class)->name('check_in_out');
     });
 
     Route::prefix('reception')->name('reception.')->group(function () {
-        Route::get('/', [ReceptionDashboardController::class, 'index'])->name('dashboard');
+        Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
         Route::get('/all-visits', [ReceptionVisitController::class, 'index'])->name('all-visits');
 
         Route::post('/visits/{visit}/participants/{visitor}/badge', [VisitParticipantActionController::class, 'printBadge'])

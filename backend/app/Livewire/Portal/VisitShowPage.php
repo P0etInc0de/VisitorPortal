@@ -116,8 +116,9 @@ class VisitShowPage extends Component
     private function visitMeta(): array
     {
         return [
-            'timeframe' => $this->visit->scheduled_from
-                ? $this->visit->scheduled_from->format('d.m.Y H:i').($this->visit->scheduled_until ? ' - '.$this->visit->scheduled_until->format('H:i') : '')
+            'date' => $this->visit->scheduled_from?->format('d.m.Y') ?? '–',
+            'timeRange' => $this->visit->scheduled_from
+                ? $this->visit->scheduled_from->format('H:i').($this->visit->scheduled_until ? ' bis '.$this->visit->scheduled_until->format('H:i') : '')
                 : '–',
             'host' => $this->displayUserName($this->visit->host),
             'reception' => $this->displayUserName($this->visit->responsibleUser),

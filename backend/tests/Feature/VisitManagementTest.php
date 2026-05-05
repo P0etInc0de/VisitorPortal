@@ -95,4 +95,37 @@ class VisitManagementTest extends TestCase
         $this->assertDatabaseCount('visitors', 2);
         $this->assertDatabaseCount('visit_visitor', 2);
     }
+
+    public function test_my_visits_page_shows_only_own_and_substitute_visits(): void
+    {
+        $user = (new PermissionHelper)->getUser();
+        $otherUser = (new PermissionHelper)->getUser();
+
+        Visit::factory()->create([
+            'title' => 'Eigener Host-Besuch',
+            'user_id' => $user->id,
+            'responsible_user_id' => $otherUser->id,
+        ]);
+
+        Visit::factory()->create([
+            'title' => 'Eigener Vertretungs-Besuch',
+            'user_id' => $otherUser->id,
+            'responsible_user_id' => $user->id,
+        ]);
+
+        Visit::factory()->create([
+            'title' => 'Fremder Besuch',
+            'user_id' => $otherUser->id,
+            'responsible_user_id' => $otherUser->id,
+        ]);
+
+        $this
+            ->actingAs($user)
+            ->get(route('portal.my-visits'))
+            ->assertOk()
+            ->assertSee(__('Meine Besuche'))
+            ->assertSee('Eigener Host-Besuch')
+            ->assertSee('Eigener Vertretungs-Besuch')
+            ->assertDontSee('Fremder Besuch');
+    }
 }

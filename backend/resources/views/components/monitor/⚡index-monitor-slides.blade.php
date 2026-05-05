@@ -59,9 +59,9 @@ new class extends Component {
 ?>
 <div wire:poll.5s>
     <div class="space-y-4" id="index-slides-container" wire:key="container-{{ $slides_hash }}">
-        <div class="flex flex-col gap-3 rounded-2xl border border-slate-200 bg-slate-50 p-4 md:flex-row md:items-center md:justify-between">
+        <div class="flex flex-col gap-3 rounded-2xl border border-base-300 bg-base-200 p-4 md:flex-row md:items-center md:justify-between">
             <div>
-                <div class="font-medium text-slate-900">
+                <div class="font-medium text-base-content">
                     {{ $monitor->auto_generation ? __('Automatische Erstellung ist aktiv') : __('Manuelle Seitenbearbeitung ist aktiv') }}
                 </div>
             </div>
@@ -71,17 +71,17 @@ new class extends Component {
             @endif
         </div>
 
-        <div class="rounded-3xl border border-indigo-100 bg-indigo-50/70 px-5 py-5">
+        <div class="rounded-3xl border border-primary/20 bg-primary/8 px-5 py-5">
             <div class="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
                 <div class="min-w-0">
-                    <div class="text-sm font-medium text-indigo-800">{{ __('Allgemeine Begrüßungsseite') }}</div>
-                    <div class="mt-3 text-2xl font-semibold leading-tight tracking-tight text-slate-900">{{ $monitor->fallback_heading }}</div>
+                    <div class="text-sm font-medium text-primary">{{ __('Allgemeine Begrüßungsseite') }}</div>
+                    <div class="mt-3 text-2xl font-semibold leading-tight tracking-tight text-base-content">{{ $monitor->fallback_heading }}</div>
                     @if (filled($monitor->fallback_subheading))
-                        <p class="mt-2 text-sm text-slate-600">{{ $monitor->fallback_subheading }}</p>
+                        <p class="mt-2 text-sm text-base-content/70">{{ $monitor->fallback_subheading }}</p>
                     @endif
 
                     <div class="mt-4">
-                        <span class="inline-flex items-center rounded-full bg-white px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em] text-indigo-700">{{ __('Immer verfügbar') }}</span>
+                        <span class="inline-flex items-center rounded-full bg-base-100 px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em] text-primary">{{ __('Immer verfügbar') }}</span>
                     </div>
                 </div>
 
@@ -103,7 +103,7 @@ new class extends Component {
                             {{ $monitor_slide->heading }}
                         </div>
                         @if($monitor_slide->subheading)
-                            <p class="mt-1 text-sm text-slate-500">
+                            <p class="mt-1 text-sm text-base-content/65">
                                 {{ $monitor_slide->subheading }}
                             </p>
                         @endif
@@ -147,11 +147,11 @@ new class extends Component {
                 </div>
             </article>
         @empty
-            <div class="rounded-3xl border border-dashed border-slate-300 bg-slate-50 px-6 py-12 text-center">
-                <p class="text-base font-medium text-slate-700">{{ $empty_message }}</p>
+            <div class="rounded-3xl border border-dashed border-base-300 bg-base-200 px-6 py-12 text-center">
+                <p class="text-base font-medium text-base-content/80">{{ $empty_message }}</p>
                 @if ($monitor->auto_generation)
-                    <p class="mt-2 text-sm text-slate-500">{{ __('Die Live-Anzeige zeigt in der Zwischenzeit automatisch die allgemeine Begrüßungsseite an.') }}</p>
-                    <p class="mt-1 text-sm text-slate-500">{{ __('Entwürfe werden bei der automatischen Erstellung nicht berücksichtigt.') }}</p>
+                    <p class="mt-2 text-sm text-base-content/65">{{ __('Die Live-Anzeige zeigt in der Zwischenzeit automatisch die allgemeine Begrüßungsseite an.') }}</p>
+                    <p class="mt-1 text-sm text-base-content/65">{{ __('Entwürfe werden bei der automatischen Erstellung nicht berücksichtigt.') }}</p>
                 @endif
             </div>
         @endforelse

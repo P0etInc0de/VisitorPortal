@@ -1,0 +1,27 @@
+[data-theme="true-black"] {
+    color-scheme: dark;
+
+    --radius-selector: 1rem;
+    --radius-field: 1rem;
+    --radius-box: 1rem;
+
+    --color-base-100: #050505;
+    --color-base-200: #000000;
+    --color-base-300: #3f3f46;
+    --color-base-content: #f3f6ff;
+
+    --color-neutral: #1d1d1d;
+    --color-neutral-content: #f8fafc;
+
+    --color-primary: #8b93ff;
+    --color-primary-content: #050505;
+
+    --color-success: #34d399;
+    --color-success-content: #052e16;
+
+    --color-warning: #fbbf24;
+    --color-warning-content: #111827;
+
+    --color-error: #f87171;
+    --color-error-content: #2a0f0f;
+}

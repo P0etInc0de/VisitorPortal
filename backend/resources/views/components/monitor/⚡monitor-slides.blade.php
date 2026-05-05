@@ -81,7 +81,7 @@ new class extends Component {
             }
          }">
         @php
-            $hasLogo = file_exists(public_path('images/logo.png'));
+            $hasLogo = file_exists(public_path('images/logo-light.png'));
             $cardStyle = $monitor->content_card_style ?: \App\Models\Monitor::DEFAULT_CONTENT_CARD_STYLE;
             $headerTextClasses = $monitor->header_text_is_light
                 ? 'text-white drop-shadow-[0_8px_30px_rgba(15,23,42,0.4)]'
@@ -128,7 +128,9 @@ new class extends Component {
                             <div class="w-full max-w-[82rem]">
                                 <div class="flex flex-col items-center justify-center gap-6 text-center sm:flex-row sm:items-center sm:justify-center sm:gap-8 sm:text-left lg:gap-10">
                                     @if ($slide['show_logo'] && $hasLogo)
-                                        <img src="{{ asset('images/logo.png') }}" alt="{{ __('Logo') }}" class="max-h-28 w-auto object-contain sm:max-h-32 lg:max-h-36 {{ $monitor->header_text_is_light ? 'drop-shadow-[0_8px_30px_rgba(15,23,42,0.35)]' : '' }}">
+                                        <img src="{{ asset('images/logo-light.png') }}"
+                                             alt="{{ __('Logo') }}"
+                                             class="max-h-28 w-auto object-contain sm:max-h-32 lg:max-h-36 {{ $monitor->header_text_is_light ? 'drop-shadow-[0_8px_30px_rgba(15,23,42,0.35)]' : '' }}">
                                     @endif
 
                                     <div>

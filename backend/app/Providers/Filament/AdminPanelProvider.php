@@ -3,7 +3,7 @@
 namespace App\Providers\Filament;
 
 use App\Filament\Pages\Dashboard;
-use App\Http\Middleware\SetLocale;
+use App\Http\Middleware\ApplyUserPreferences;
 use BezhanSalleh\FilamentShield\FilamentShieldPlugin;
 use Filament\Enums\GlobalSearchPosition;
 use Filament\Http\Middleware\Authenticate;
@@ -13,13 +13,13 @@ use Filament\Http\Middleware\DispatchServingFilamentEvent;
 use Filament\Panel;
 use Filament\PanelProvider;
 use Filament\View\PanelsRenderHook;
-use Filament\Widgets\AccountWidget;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
 use Illuminate\Cookie\Middleware\EncryptCookies;
 use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
 use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Session\Middleware\StartSession;
 use Illuminate\Support\Facades\Blade;
+use Illuminate\Support\HtmlString;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
 
 class AdminPanelProvider extends PanelProvider
@@ -31,7 +31,10 @@ class AdminPanelProvider extends PanelProvider
             ->id('admin')
             ->path('admin')
             ->globalSearch(position: GlobalSearchPosition::Sidebar)
-            ->brandLogo(asset('images/logo.png'))
+            ->brandLogo(new HtmlString('
+                <img src="'.asset('images/logo-light.png').'" class="fi-logo logo-light h-10 w-auto" alt="Logo">
+                <img src="'.asset('images/logo-dark.png').'" class="fi-logo logo-dark h-10 w-auto" alt="Logo">
+            '))
             ->brandLogoHeight('4rem')
             ->colors([
                 // 'primary' => Color::Amber,
@@ -43,7 +46,6 @@ class AdminPanelProvider extends PanelProvider
             ])
             ->discoverWidgets(in: app_path('Filament/Widgets'), for: 'App\Filament\Widgets')
             ->widgets([
-                AccountWidget::class,
             ])
             ->middleware([
                 EncryptCookies::class,
@@ -55,7 +57,7 @@ class AdminPanelProvider extends PanelProvider
                 SubstituteBindings::class,
                 DisableBladeIconComponents::class,
                 DispatchServingFilamentEvent::class,
-                SetLocale::class,
+                ApplyUserPreferences::class,
             ])
             ->plugins([
                 FilamentShieldPlugin::make(),
@@ -64,12 +66,12 @@ class AdminPanelProvider extends PanelProvider
                 Authenticate::class,
             ])
             ->renderHook(
-                PanelsRenderHook::GLOBAL_SEARCH_AFTER,
-                fn (): string => Blade::render('
-                    <x-filament::button tag="a" href="/dashboard" size="sm">
-                        {{__("User-Bereich")}}
-                    </x-filament::button>
-                ')
+                PanelsRenderHook::HEAD_START,
+                fn (): string => Blade::render('<x-filament.admin-theme-head />')
+            )
+            ->renderHook(
+                PanelsRenderHook::SIDEBAR_NAV_END,
+                fn (): string => Blade::render('filament.sidebar-footer')
             );
     }
 }

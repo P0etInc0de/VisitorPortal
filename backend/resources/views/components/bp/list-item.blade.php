@@ -1,6 +1,6 @@
 @props(['title', 'subtitle' => null, 'index'])
 <div>
-    <article class="rounded-3xl border border-base-300 bg-base-100 px-5 py-5 mb-2">
+    <article class="mb-2 rounded-3xl border border-base-300 bg-base-100 px-5 py-5">
         <div class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
 
             <div class="flex items-center gap-4">
@@ -15,7 +15,7 @@
                         {{$title ?? '' }}
                     </div>
                     @if($subtitle)
-                        <p class="mt-1 text-sm text-slate-500">
+                        <p class="mt-1 text-sm text-base-content/65">
                             {{ $subtitle}}
                         </p>
                     @endif

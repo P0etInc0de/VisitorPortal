@@ -13,14 +13,14 @@
         {{-- LEFT AREA --}}
         <div class="space-y-6" id="monitor-pages">
 
-            <x-bp.card title="{{ __('Monitor Seiten') }}">
+            <x-bp.card title="{{ __('Monitor Seiten') }}" class="!mt-0">
                 <livewire:monitor.index-monitor-slides :monitor="$monitor" />
             </x-bp.card>
 
         </div>
         {{-- RIGHT AREA --}}
         <aside class="space-y-6">
-            <x-bp.card id="monitor-preview" title="{{ __('Vorschau') }}" class="p-4">
+            <x-bp.card id="monitor-preview" title="{{ __('Vorschau') }}" class="!mt-0 p-4">
                 <x-slot:actions>
                     <a
                         href="{{ route('monitors.show', $monitor) }}"
@@ -30,31 +30,36 @@
                 </x-slot:actions>
 
                 <div class="px-1 pb-1">
-                    <div id="preview-container"
-                         x-data="{
-                      scale: 1,
-                     updateScale() {
-                         // Scale = Container Width / Native Content Width
-                         this.scale = this.$el.clientWidth / this.$refs.content.offsetWidth;
-                     }
-                 }"
-                         x-init="
-                     updateScale();
-                     new ResizeObserver(() => updateScale()).observe($el);
-                 "
-                         {{-- Fix hinzugefügt: isolate und transform-gpu erzwingen sauberes Clipping der Ecken --}}
-                         class="relative w-full aspect-video overflow-hidden border border-slate-200 isolate transform-gpu">
+                <div id="preview-container"
+     x-data="{
+          scale: 1,
+          observer: null,
+          updateScale() {
+              if (!this.$refs || !this.$refs.content) return;
+              this.scale = this.$el.clientWidth / this.$refs.content.offsetWidth;
+          },
+          init() {
+              this.updateScale();
+              this.observer = new ResizeObserver(() => this.updateScale());
+              this.observer.observe(this.$el);
+          },
+          destroy() {
+              if (this.observer) {
+                  this.observer.disconnect();
+              }
+          }
+     }"
+     class="relative w-full aspect-video overflow-hidden border border-base-300 isolate transform-gpu">
 
-                        <div id="preview-content"
-                             x-ref="content"
-                             :style="`transform: scale(${scale});`"
-                             {{-- Nutze w-[1920px] h-[1080px] falls w-480/h-270 nicht explizit in deiner Config stehen! --}}
-                             class="absolute left-0 top-0 w-480 h-270 origin-top-left transition-transform duration-75">
+    <div id="preview-content"
+         x-ref="content"
+         :style="`transform: scale(${scale});`"
+         class="absolute left-0 top-0 w-480 h-270 origin-top-left transition-transform duration-75">
 
-                            <livewire:monitor.monitor-slides :monitor="$monitor"/>
+        <livewire:monitor.monitor-slides :monitor="$monitor"/>
 
-                        </div>
-                    </div>
+    </div>
+</div>
                 </div>
             </x-bp.card>
 

@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\Users\Tables;
 
 use Filament\Actions\BulkActionGroup;
+use Filament\Actions\CreateAction;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Actions\ViewAction;
@@ -48,6 +49,7 @@ class UsersTable
                 EditAction::make(),
             ])
             ->toolbarActions([
+                CreateAction::make(),
                 BulkActionGroup::make([
                     DeleteBulkAction::make(),
                 ]),

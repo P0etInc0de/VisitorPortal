@@ -5,6 +5,8 @@ namespace App\Services;
 use App\Models\User;
 use App\Models\Visit;
 use App\Models\Visitor;
+use App\Notifications\Host\GuestCheckedIn;
+use Illuminate\Support\Facades\Notification;
 
 class VisitActionService
 {
@@ -12,6 +14,7 @@ class VisitActionService
     {
         $participant = $this->resolveParticipant($visit, $visitor);
         $pivot = $participant->pivot;
+        $didCheckIn = false;
 
         if (blank($pivot->checked_in_at) || filled($pivot->checked_out_at)) {
             $payload = [
@@ -26,9 +29,16 @@ class VisitActionService
             }
 
             $visit->visitors()->updateExistingPivot($visitor->id, $payload);
+            $didCheckIn = true;
         }
 
-        return $this->resolveParticipant($visit, $visitor);
+        $participant = $this->resolveParticipant($visit, $visitor);
+
+        if ($didCheckIn) {
+            $this->notifyHostAboutCheckIn($visit, $participant);
+        }
+
+        return $participant;
     }
 
     public function checkOutParticipant(Visit $visit, Visitor $visitor, User $actionBy): Visitor
@@ -82,5 +92,16 @@ class VisitActionService
         return $visit->visitors()
             ->where('visitors.id', $visitor->id)
             ->firstOrFail();
+    }
+
+    private function notifyHostAboutCheckIn(Visit $visit, Visitor $visitor): void
+    {
+        $recipient = $visit->loadMissing('host')->host;
+
+        if (! $recipient instanceof User) {
+            return;
+        }
+
+        Notification::send($recipient, (new GuestCheckedIn($visit, $visitor))->afterCommit());
     }
 }

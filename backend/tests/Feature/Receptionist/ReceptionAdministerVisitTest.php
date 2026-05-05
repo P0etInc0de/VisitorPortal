@@ -9,6 +9,7 @@ use App\Models\Visit;
 use App\Models\Visitor;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Carbon;
 use Livewire\Livewire;
 use Tests\Support\PermissionHelper;
 use Tests\Support\VisitHelper;
@@ -57,7 +58,7 @@ class ReceptionAdministerVisitTest extends TestCase
     {
         $receptionist = (new PermissionHelper)->getReceptionistUser();
 
-        $participant = User::factory()->create();
+        $participant = Visitor::factory()->create();
 
         $visitTitle = 'Test Visit';
 
@@ -75,7 +76,9 @@ class ReceptionAdministerVisitTest extends TestCase
                 'scheduled_until' => '2026-04-29 11:00:00',
                 'status' => VisitStatusEnum::Planned->value,
                 'notes' => 'Test Visit Notes',
-                'participants' => [$participant->id],
+                'participants' => [
+                    ['visitor_id' => $participant->id],
+                ],
             ]);
         $response->assertSessionHasNoErrors();
 
@@ -94,7 +97,7 @@ class ReceptionAdministerVisitTest extends TestCase
     {
         $receptionist = (new PermissionHelper)->getReceptionistUser();
 
-        $participant = User::factory()->create();
+        $participant = Visitor::factory()->create();
         $employee = User::factory()->create();
         $responsibleUser = User::factory()->create();
 
@@ -122,7 +125,9 @@ class ReceptionAdministerVisitTest extends TestCase
                 'scheduled_until' => $updatedScheduledUntil,
                 'status' => VisitStatusEnum::Planned->value,
                 'notes' => $updatedVisitNotes,
-                'participants' => [$participant->id],
+                'participants' => [
+                    ['visitor_id' => $participant->id],
+                ],
             ]);
 
         $response->assertSessionHasNoErrors();
@@ -167,85 +172,95 @@ class ReceptionAdministerVisitTest extends TestCase
 
     public function test_receptionist_can_check_in_visitors(): void
     {
-        $receptionist = (new PermissionHelper)->getReceptionistUser();
+        Carbon::setTestNow(Carbon::create(2026, 5, 1, 14, 39, 24, config('app.timezone')));
 
-        $employee = User::factory()->create();
+        try {
+            $receptionist = (new PermissionHelper)->getReceptionistUser();
 
-        $visitors = Visitor::factory()->count(3)->create();
+            $employee = User::factory()->create();
 
-        $this->assertDatabaseHas('visitors', [
-            'email' => $visitors[0]->email,
-        ]);
+            $visitors = Visitor::factory()->count(3)->create();
 
-        $responsibleUser = User::factory()->create();
-        $visitTitle = 'Test Visit';
+            $this->assertDatabaseHas('visitors', [
+                'email' => $visitors[0]->email,
+            ]);
 
-        // create visit with status 'Planned'
-        $visit = (new VisitHelper)->makeVisit(
-            $employee->id,
-            $visitTitle,
-            VisitStatusEnum::Planned,
-            $responsibleUser->id,
-            $visitors
-        );
+            $responsibleUser = User::factory()->create();
+            $visitTitle = 'Test Visit';
 
-        Livewire::actingAs($receptionist)
-            ->test(CheckInOutBoard::class)
-            ->call('checkIn', $visit->id, $visitors[0]->id)
-            ->assertStatus(200);
+            // create visit with status 'Planned'
+            $visit = (new VisitHelper)->makeVisit(
+                $employee->id,
+                $visitTitle,
+                VisitStatusEnum::Planned,
+                $responsibleUser->id,
+                $visitors
+            );
 
-        // check if status is updated in pivot table
-        $this->assertDatabaseHas('visit_visitor', [
-            'visit_id' => $visit->id,
-            'visitor_id' => $visitors[0]->id,
-            'checked_in_at' => now(),
-        ]);
+            Livewire::actingAs($receptionist)
+                ->test(CheckInOutBoard::class)
+                ->call('checkIn', $visit->id, $visitors[0]->id)
+                ->assertStatus(200);
 
+            // check if status is updated in pivot table
+            $this->assertDatabaseHas('visit_visitor', [
+                'visit_id' => $visit->id,
+                'visitor_id' => $visitors[0]->id,
+                'checked_in_at' => now()->format('Y-m-d H:i:s'),
+            ]);
+        } finally {
+            Carbon::setTestNow();
+        }
     }
 
     public function test_receptionist_can_check_out_visitors(): void
     {
-        $receptionist = (new PermissionHelper)->getReceptionistUser();
+        Carbon::setTestNow(Carbon::create(2026, 5, 1, 14, 39, 24, config('app.timezone')));
 
-        $employee = User::factory()->create();
+        try {
+            $receptionist = (new PermissionHelper)->getReceptionistUser();
 
-        $visitors = Visitor::factory()->count(3)->create();
+            $employee = User::factory()->create();
 
-        // all visitors present in database
-        foreach ($visitors as $visitor) {
-            $this->assertDatabaseHas('visitors', [
-                'email' => $visitor->email,
+            $visitors = Visitor::factory()->count(3)->create();
+
+            // all visitors present in database
+            foreach ($visitors as $visitor) {
+                $this->assertDatabaseHas('visitors', [
+                    'email' => $visitor->email,
+                ]);
+            }
+
+            $responsibleUser = User::factory()->create();
+            $visitTitle = 'Test Visit';
+
+            // create visit with status 'Planned'
+            $visit = (new VisitHelper)->makeVisit(
+                $employee->id,
+                $visitTitle,
+                VisitStatusEnum::Completed,
+                $responsibleUser->id,
+                $visitors
+            );
+
+            // visitors have to be checked in to be able the check them out
+            $this->checkInVisitors($visit, $visitors);
+
+            // perform the checkout
+            Livewire::actingAs($receptionist)
+                ->test(CheckInOutBoard::class)
+                ->call('checkOut', $visit->id, $visitors[0]->id)
+                ->assertStatus(200);
+
+            // check if status is updated in pivot table
+            $this->assertDatabaseHas('visit_visitor', [
+                'visit_id' => $visit->id,
+                'visitor_id' => $visitors[0]->id,
+                'checked_out_at' => now()->format('Y-m-d H:i:s'),
             ]);
+        } finally {
+            Carbon::setTestNow();
         }
-
-        $responsibleUser = User::factory()->create();
-        $visitTitle = 'Test Visit';
-
-        // create visit with status 'Planned'
-        $visit = (new VisitHelper)->makeVisit(
-            $employee->id,
-            $visitTitle,
-            VisitStatusEnum::Completed,
-            $responsibleUser->id,
-            $visitors
-        );
-
-        // visitors have to be checked in to be able the check them out
-        $this->checkInVisitors($visit, $visitors);
-
-        // perform the checkout
-        Livewire::actingAs($receptionist)
-            ->test(CheckInOutBoard::class)
-            ->call('checkOut', $visit->id, $visitors[0]->id)
-            ->assertStatus(200);
-
-        // check if status is updated in pivot table
-        $this->assertDatabaseHas('visit_visitor', [
-            'visit_id' => $visit->id,
-            'visitor_id' => $visitors[0]->id,
-            'checked_out_at' => now(),
-        ]);
-
     }
 
     public function test_receptionist_can_create_walk_ins(): void
@@ -320,7 +335,10 @@ class ReceptionAdministerVisitTest extends TestCase
 
     }
 
-    public function test_reception_can_create_badges(): void {}
+    public function test_reception_can_create_badges(): void
+    {
+        $this->markTestSkipped('Badge creation test is not implemented yet.');
+    }
 
     public function test_reception_can_view_own_user_permissions(): void
     {

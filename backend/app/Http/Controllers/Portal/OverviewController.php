@@ -5,16 +5,23 @@ namespace App\Http\Controllers\Portal;
 use App\Enums\VisitStatusEnum;
 use App\Http\Controllers\Controller;
 use App\Models\Monitor;
+use App\Models\User;
 use App\Models\Visit;
 use App\Models\Visitor;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\Request;
+use Illuminate\Support\Collection;
 
-class DashboardController extends Controller
+class OverviewController extends Controller
 {
     public function index(Request $request): View
     {
         $user = $request->user();
+
+        if (! $user instanceof User) {
+            abort(403);
+        }
+
         $now = now();
         $upcomingWindowEnd = now()->copy()->addDays(30);
 
@@ -45,23 +52,15 @@ class DashboardController extends Controller
             ->limit(15)
             ->get();
 
-        $nextVisit = $upcomingVisits->first();
+        $nextVisit = (clone $baseQuery)
+            ->whereNotIn('status', [VisitStatusEnum::Canceled->value, VisitStatusEnum::Completed->value])
+            ->where('scheduled_from', '>', $now)
+            ->where('scheduled_from', '<=', $upcomingWindowEnd)
+            ->first();
 
         $weeklyVisits = (clone $baseQuery)
             ->whereBetween('scheduled_from', [now()->startOfWeek(), now()->endOfWeek()])
             ->get();
-
-        $notes = $upcomingVisits
-            ->flatMap(function (Visit $visit) {
-                return $visit->visitors
-                    ->filter(fn (Visitor $visitor) => blank($visitor->pivot?->badge_printed_at))
-                    ->map(fn (Visitor $visitor) => __('Badge noch offen für :name bei :title', [
-                        'name' => $this->visitorDisplayName($visitor),
-                        'title' => $visit->display_title,
-                    ]));
-            })
-            ->take(3)
-            ->values();
 
         $visitCards = $upcomingVisits
             ->map(function (Visit $visit) {
@@ -90,11 +89,11 @@ class DashboardController extends Controller
             })
             ->values();
 
-        return view('portal.dashboard', [
+        return view('portal.overview', [
             'stats' => [
                 [
                     'label' => __('Meine Besuche heute'),
-                    'value' => (string) $todayVisits->count(),
+                    'value' => $this->formatVisitProgress($todayVisits, $now),
                     'meta' => $todayVisits->contains(
                         fn (Visit $visit) => $visit->scheduled_from && $visit->scheduled_from->between(now(), now()->copy()->addHour())
                     )
@@ -103,7 +102,7 @@ class DashboardController extends Controller
                 ],
                 [
                     'label' => __('Nächster Termin'),
-                    'value' => $nextVisit?->scheduled_from?->format('H:i') ?? '–',
+                    'value' => $this->formatNextVisitValue($nextVisit),
                     'meta' => $nextVisit
                         ? __(':title · :count Teilnehmende', [
                             'title' => $nextVisit->display_title,
@@ -112,8 +111,8 @@ class DashboardController extends Controller
                         : __('Kein Termin geplant'),
                 ],
                 [
-                    'label' => __('Diese Woche'),
-                    'value' => (string) $weeklyVisits->count(),
+                    'label' => __('Meine Besuche diese Woche'),
+                    'value' => $this->formatVisitProgress($weeklyVisits, $now),
                     'meta' => __(':planned geplant · :draft Entwürfe', [
                         'planned' => $weeklyVisits->where('status', 'planned')->count(),
                         'draft' => $weeklyVisits->where('status', 'draft')->count(),
@@ -121,8 +120,41 @@ class DashboardController extends Controller
                 ],
             ],
             'visits' => $visitCards,
-            'notes' => $notes,
         ]);
+    }
+
+    /**
+     * @param  Collection<int, Visit>  $visits
+     */
+    private function formatVisitProgress(Collection $visits, $referenceTime): string
+    {
+        $total = $visits->count();
+        $started = $visits->filter(
+            fn (Visit $visit) => $visit->scheduled_from && $visit->scheduled_from->lte($referenceTime)
+        )->count();
+
+        return $started.'/'.$total;
+    }
+
+    private function formatNextVisitValue(?Visit $visit): string
+    {
+        $scheduledFrom = $visit?->scheduled_from;
+
+        if (! $scheduledFrom) {
+            return '–';
+        }
+
+        $time = $scheduledFrom->format('H:i');
+
+        if ($scheduledFrom->isToday()) {
+            return __('heute').' | '.$time;
+        }
+
+        if ($scheduledFrom->isTomorrow()) {
+            return __('morgen').' | '.$time;
+        }
+
+        return $scheduledFrom->format('d.m.').' | '.$time;
     }
 
     private function visitStatusLabel(string $status): string

@@ -172,6 +172,37 @@ docker compose exec web php artisan view:clear
 docker compose exec web php artisan config:clear
 ```
 
+## Frontend-Assets / Vite
+
+Für aktive CSS-/JavaScript-Entwicklung kann der Vite Dev Server genutzt werden. Dann werden Assets über `localhost:5173` geladen und Hot Reloading ist aktiv.
+
+Für UI-Bewertung, Demos und Präsentationen sollte der Build-Modus genutzt werden, da der Vite Dev Server bei schnellen Reloads leichter abgebrochene Asset-Requests verursachen kann.
+
+Build-Modus aktivieren:
+
+```bash
+cd backend
+rm -f public/hot
+npm run build
+docker compose exec web php artisan optimize:clear
+docker compose exec web php artisan view:clear
+```
+
+Falls der Node/Vite-Service läuft:
+
+```bash
+docker compose stop node
+```
+
+Oder ein direkt gestartetes `npm run dev`-Terminal mit `Ctrl+C` beenden.
+
+Prüfung im Browser-Network-Tab:
+
+* Erwartet: `localhost:8080/build/assets/app-....css` und `localhost:8080/build/assets/app-....js`
+* Nicht erwartet: `localhost:5173/app.css`, `localhost:5173/app.js`, `localhost:5173/client`
+
+Hinweis: Extremes Reload-Spamming kann weiterhin Browser-Requests abbrechen (`NS_BINDING_ABORTED`). Das ist dann kein normales UI-/Theme-Problem, sondern ein abgebrochener Browser-Request.
+
 ## Stolperfallen
 
 * `.env`-Zeilen dürfen nicht auskommentiert sein (kein `# DB_HOST=...`). Sonst greifen Laravel-Defaults (z.B. `127.0.0.1` / `laravel`) und DB-Verbindungen schlagen fehl.

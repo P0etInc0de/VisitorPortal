@@ -23,7 +23,7 @@
     @endforeach
 </x-mail::table>
 
-<x-mail::button :url='route("dashboard")'>
+<x-mail::button :url='route("overview")'>
     {{__('Weitere Informationen')}}
 </x-mail::button>
 
