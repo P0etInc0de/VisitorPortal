@@ -10,6 +10,11 @@ use Illuminate\Validation\Rule;
 
 class ProfileUpdateRequest extends FormRequest
 {
+	public function authorize()
+	{
+		return $this->user()->can('editAny', User::class) || $this->user()->can('editDepartment', $this->user()) || $this->user()->can('editOwn', $this->user());
+	}
+
     /**
      * Get the validation rules that apply to the request.
      *
