@@ -29,17 +29,17 @@ class RoleSeeder extends Seeder
             'EditAny:Visitor',
             'CheckIn:Visitor', 'CheckOut:Visitor', 'Print:Visitor',
             'View:Monitor', 'ViewAny:Monitor', 'Edit:Monitor', 'Create:Monitor',
-			'ViewAny:MonitorSlide', 'View:MonitorSlide', 'Create:MonitorSlide',
-			'Update:MonitorSlide', 'Delete:MonitorSlide', 'Delete:Monitor']);
+            'ViewAny:MonitorSlide', 'View:MonitorSlide', 'Create:MonitorSlide',
+            'Update:MonitorSlide', 'Delete:MonitorSlide', 'Delete:Monitor']);
 
         $roles = [
             'user' => $userPermissions,
             'manager' => $managerPermissions,
             'receptionist' => $receptionistPermissions,
             'welcome monitor' => [
-                'View:Monitor', 'ViewAny:Monitor', 'View:MonitorSlide', 'ViewAny:MonitorSlide'
+                'View:Monitor', 'ViewAny:Monitor', 'View:MonitorSlide', 'ViewAny:MonitorSlide',
             ],
-            //'admin' => Permission::all()->pluck('name')->toArray(),
+            // 'admin' => Permission::all()->pluck('name')->toArray(),
         ];
 
         foreach ($roles as $roleName => $permissions) {

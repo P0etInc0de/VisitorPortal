@@ -56,7 +56,7 @@ class MonitorSlidesController extends Controller
      */
     public function store(StoreMonitorSlideRequest $request, Monitor $monitor)
     {
-		$this->authorize('create', MonitorSlide::class);
+        $this->authorize('create', MonitorSlide::class);
 
         $validated = $request->validated();
         $validated['visitors'] = $this->normalizeVisitors($request->input('visitors'));
@@ -104,8 +104,8 @@ class MonitorSlidesController extends Controller
      */
     public function update(UpdateMonitorSlideRequest $request, Monitor $monitor, MonitorSlide $slide)
     {
-		$this->authorize('update', $monitor);
-		$this->authorize('update', $slide);
+        $this->authorize('update', $monitor);
+        $this->authorize('update', $slide);
 
         $validated = $request->validated();
         $validated['visitors'] = $this->normalizeVisitors($validated['visitors'] ?? null);

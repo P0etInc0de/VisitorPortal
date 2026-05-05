@@ -181,7 +181,7 @@ return [
             ],
             VisitorResource::class => [
                 'delete_any', 'edit_any',
-				'check_in', 'check_out', 'print',
+                'check_in', 'check_out', 'print',
             ],
             UserResource::class => [
                 'delete_any', 'view_own', 'edit_own',

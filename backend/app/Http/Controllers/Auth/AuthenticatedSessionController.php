@@ -4,13 +4,13 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\LoginRequest;
+use App\Models\User;
 use App\Support\UserPreferences;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cookie;
 use Illuminate\View\View;
-use App\Models\User as User;
 
 class AuthenticatedSessionController extends Controller
 {
@@ -46,16 +46,16 @@ class AuthenticatedSessionController extends Controller
         return redirect()->intended($this->redirectRoles($user));
     }
 
-	/**
-	 * Redirect roles to different pages
-	 */
-	
-	public function redirectRoles(User $user): string
-	{
-		return match(true) {
-			$user->hasRole('welcome monitor') => route('monitors.show', \App\Models\Monitor::query()->first(), absolute: false),
-			default => route('overview', absolute: false)};
-	}
+    /**
+     * Redirect roles to different pages
+     */
+    public function redirectRoles(User $user): string
+    {
+        return match (true) {
+            $user->hasRole('welcome monitor') => route('monitors.show', \App\Models\Monitor::query()->first(), absolute: false),
+            default => route('overview', absolute: false)
+        };
+    }
 
     /**
      * Destroy an authenticated session.

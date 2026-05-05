@@ -13,8 +13,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
-use Spatie\Permission\Traits\HasRoles;
 use Illuminate\Support\Facades\Log;
+use Spatie\Permission\Traits\HasRoles;
 
 class User extends Authenticatable implements FilamentUser
 {
@@ -106,18 +106,18 @@ class User extends Authenticatable implements FilamentUser
     {
         // Check if the user has the Superuser or admin role (Shield's default is 'super_admin')
 
-		if($this->hasRole('admin') || $this->hasRole('super_admin')){
-			return true;
-		} else {
-			Log::channel('web')->info('Authorization failed.', [
-                'user_id'   => auth()->id(),
-                'roles'		 => ['admin', 'super_admin'],
-                'url'        => request()->fullUrl(),
-                'ip'         => request()->ip(),
+        if ($this->hasRole('admin') || $this->hasRole('super_admin')) {
+            return true;
+        } else {
+            Log::channel('web')->info('Authorization failed.', [
+                'user_id' => auth()->id(),
+                'roles' => ['admin', 'super_admin'],
+                'url' => request()->fullUrl(),
+                'ip' => request()->ip(),
             ]);
 
-			return false;
-		}
+            return false;
+        }
     }
 
     protected function fullName(): Attribute

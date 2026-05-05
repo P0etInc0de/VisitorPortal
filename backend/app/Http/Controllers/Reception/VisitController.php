@@ -9,7 +9,7 @@ class VisitController extends Controller
 {
     public function index(): View
     {
-		$this->authorize('viewAny', Visit::class);		
+        $this->authorize('viewAny', Visit::class);
 
         return view('reception.all-visits');
     }

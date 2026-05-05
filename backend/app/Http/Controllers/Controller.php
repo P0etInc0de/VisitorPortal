@@ -14,31 +14,31 @@ abstract class Controller extends BaseController
     protected function authorizeAny(array $abilities, mixed $model): void
     {
         foreach ($abilities as $ability) {
-            if (!Gate::allows($ability, $model)) {
-				Log::channel('web')->info('Authorization failed.', [
-                    'user_id'   => auth()->id(),
-                    'ability'   => $ability,
-					'model' 	=> $model,
-                    'url'        => request()->fullUrl(),
-                    'ip'         => request()->ip(),
-                ]);				
+            if (! Gate::allows($ability, $model)) {
+                Log::channel('web')->info('Authorization failed.', [
+                    'user_id' => auth()->id(),
+                    'ability' => $ability,
+                    'model' => $model,
+                    'url' => request()->fullUrl(),
+                    'ip' => request()->ip(),
+                ]);
 
                 abort(403);
             }
         }
     }
-	
-	protected function authorizeDashboard(): void
-	{
-		if (!Gate::any(['ViewAny:Visit', 'ViewDepartment:Visit', 'ViewOwn:Visit'])) {
-			Log::channel('web')->info('Authorization failed.', [
-            	'user_id'   => auth()->id(),
+
+    protected function authorizeDashboard(): void
+    {
+        if (! Gate::any(['ViewAny:Visit', 'ViewDepartment:Visit', 'ViewOwn:Visit'])) {
+            Log::channel('web')->info('Authorization failed.', [
+                'user_id' => auth()->id(),
                 'permissions' => ['ViewOwn:Visit', 'ViewDepartment:Visit', 'ViewAny:Visit'],
-                'url'        => request()->fullUrl(),
-                'ip'         => request()->ip(),
+                'url' => request()->fullUrl(),
+                'ip' => request()->ip(),
             ]);
 
-			abort(403);
-		}
-	}
+            abort(403);
+        }
+    }
 }

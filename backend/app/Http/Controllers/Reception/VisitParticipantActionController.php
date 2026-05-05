@@ -16,7 +16,7 @@ class VisitParticipantActionController extends Controller
 {
     public function printBadge(Visit $visit, Visitor $visitor, VisitActionService $visitActionService)
     {
-		$this->authorize('print', Visitor::class);
+        $this->authorize('print', Visitor::class);
 
         $visit->loadMissing('responsibleUser');
         $participant = $visitActionService->printBadge($visit, $visitor);
@@ -46,7 +46,7 @@ class VisitParticipantActionController extends Controller
             abort(403);
         }
 
-		$this->authorize('checkIn', Visitor::class);
+        $this->authorize('checkIn', Visitor::class);
 
         $visitActionService->checkInParticipant($visit, $visitor, $user);
 
@@ -67,7 +67,7 @@ class VisitParticipantActionController extends Controller
             abort(403);
         }
 
-		$this->authorize('checkOut', Visitor::class);
+        $this->authorize('checkOut', Visitor::class);
 
         $visitActionService->checkOutParticipant($visit, $visitor, $user);
 

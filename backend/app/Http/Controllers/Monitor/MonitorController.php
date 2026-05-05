@@ -74,7 +74,7 @@ class MonitorController extends Controller
 
         $imagePath = $monitor->image_path;
 
-		$this->authorize('update', $monitor);
+        $this->authorize('update', $monitor);
 
         if (! empty($validated['deleteImage'])) {
             Storage::disk('public')->delete($imagePath);
@@ -132,7 +132,7 @@ class MonitorController extends Controller
         $validated = $request->validated();
         $imagePath = $monitor->fallback_image_path;
 
-		$this->authorize('update', $monitor);
+        $this->authorize('update', $monitor);
 
         if (! empty($validated['deleteImage']) || ($validated['background_source'] ?? 'inherit') !== 'upload') {
             if (filled($imagePath)) {

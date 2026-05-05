@@ -98,7 +98,7 @@ class VisitController extends Controller
 
     public function edit(Visit $visit): View
     {
-		$this->authorize('update', $visit);
+        $this->authorize('update', $visit);
 
         return $this->formView($visit, true);
     }
@@ -132,7 +132,7 @@ class VisitController extends Controller
 
     public function cancel(Visit $visit): RedirectResponse
     {
-		$this->authorize('delete', $visit);
+        $this->authorize('delete', $visit);
 
         $visit->update([
             'status' => VisitStatusEnum::Canceled->value,
@@ -150,7 +150,7 @@ class VisitController extends Controller
 
     public function reopen(Visit $visit): RedirectResponse
     {
-		$this->authorize('update', $visit);		
+        $this->authorize('update', $visit);
 
         $visit->update([
             'status' => $visit->status === VisitStatusEnum::Canceled->value ? VisitStatusEnum::Planned->value : $visit->status,
