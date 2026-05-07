@@ -10,6 +10,7 @@
     $recurrenceEndDateValue = old('recurrence_end_date', optional($recurringSeries?->end_date)->format('Y-m-d'));
     $recurrenceOccurrenceCountValue = old('recurrence_occurrence_count', $recurringSeries?->occurrence_count ?? 2);
     $recurrenceUpdateScopeValue = old('recurrence_update_scope', \App\Models\RecurringVisitSeries::UPDATE_SINGLE);
+    $hasInitialParticipants = ! empty($initialParticipants);
 
     $beginDate = $scheduledFromValue ? substr($scheduledFromValue, 0, 10) : '';
     $beginTime = $scheduledFromValue ? substr($scheduledFromValue, 11, 5) : '';
@@ -563,11 +564,13 @@
 
                     <div class="mt-4 rounded-2xl border border-base-300 bg-base-100">
                         <div class="grid gap-4 p-4 sm:p-5">
-                            <template x-if="participants.length === 0">
-                                <div class="rounded-2xl border border-dashed border-base-300 bg-base-100/70 p-4 text-base-content/65">
-                                    {{ __('Noch keine Teilnehmenden hinzugefügt.') }}
-                                </div>
-                            </template>
+                            <div
+                                x-show="participants.length === 0"
+                                @if ($hasInitialParticipants) x-cloak style="display: none;" @endif
+                                class="rounded-2xl border border-dashed border-base-300 bg-base-100/70 p-4 text-base-content/65"
+                            >
+                                {{ __('Noch keine Teilnehmenden hinzugefügt.') }}
+                            </div>
 
                             <div class="grid gap-4">
                                 <template x-for="(participant, index) in participants" :key="`participant-${index}`">
