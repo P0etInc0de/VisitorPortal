@@ -70,6 +70,12 @@
                         {{ $statusBadge['label'] }}
                     </span>
 
+                    @if ($visit->recurring_visit_series_id)
+                        <span class="badge badge-primary badge-outline rounded-full text-sm font-semibold">
+                            {{ __('Wiederkehrender Termin') }}
+                        </span>
+                    @endif
+
                     <span class="{{ $metaChipClass }}">
                         {{ optional($visit->scheduled_from)->format('d.m.Y H:i') ?: '-' }}
                         @if ($visit->scheduled_until)

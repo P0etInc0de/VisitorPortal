@@ -1,9 +1,11 @@
 <?php
 
 use App\Tasks\DailyVisitorReminder;
+use App\Tasks\RecurringVisitSeriesExpansion;
 use App\Tasks\WelcomeMonitorAutoGeneration;
 use Illuminate\Foundation\Inspiring;
 use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\Schedule;
 
 Artisan::command('inspire', function () {
     $this->comment(Inspiring::quote());
@@ -16,3 +18,4 @@ Artisan::command('inspire', function () {
  */
 Schedule::call(new DailyVisitorReminder)->dailyAt('07:00')->description('DailyVisitorReminder');
 Schedule::call(new WelcomeMonitorAutoGeneration)->everyMinute()->description('WelcomeMonitorAutoGeneration');
+Schedule::call(new RecurringVisitSeriesExpansion)->dailyAt('02:30')->description('RecurringVisitSeriesExpansion');

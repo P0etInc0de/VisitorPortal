@@ -14,6 +14,10 @@ class Visit extends Model
 
     protected $fillable = [
         'title',
+        'recurring_visit_series_id',
+        'recurrence_occurrence_number',
+        'recurrence_original_scheduled_from',
+        'recurrence_is_modified',
         'user_id',
         'responsible_user_id',
         'scheduled_from',
@@ -27,6 +31,8 @@ class Visit extends Model
     protected $casts = [
         'scheduled_from' => 'datetime',
         'scheduled_until' => 'datetime',
+        'recurrence_original_scheduled_from' => 'datetime',
+        'recurrence_is_modified' => 'boolean',
         'canceled_at' => 'datetime',
     ];
 
@@ -44,6 +50,11 @@ class Visit extends Model
     public function responsibleUser(): BelongsTo
     {
         return $this->belongsTo(User::class, 'responsible_user_id');
+    }
+
+    public function recurringSeries(): BelongsTo
+    {
+        return $this->belongsTo(RecurringVisitSeries::class, 'recurring_visit_series_id');
     }
 
     public function canceledBy(): BelongsTo
