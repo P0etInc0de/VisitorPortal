@@ -261,7 +261,7 @@ new class extends Component {
     x-on:monitor-settings-saved.window="saved = true; setTimeout(() => saved = false, 2200)"
     class="space-y-5"
 >
-    <div x-show="saved" x-transition.opacity class="rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm font-medium text-emerald-700">
+    <div x-show="saved" x-cloak style="display: none;" x-transition.opacity class="rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm font-medium text-emerald-700">
         {{ __('Monitor Einstellungen gespeichert') }}
     </div>
 

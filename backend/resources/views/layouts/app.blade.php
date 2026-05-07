@@ -1,6 +1,12 @@
 @php
     $themePreference = $themePreference ?? \App\Support\UserPreferences::THEME_SYSTEM;
     $theme = $theme ?? \App\Support\UserPreferences::initialTheme($themePreference);
+    $themeBackground = match ($theme) {
+        \App\Support\UserPreferences::THEME_TRUE_BLACK => '#000000',
+        \App\Support\UserPreferences::THEME_DARK => '#09090b',
+        default => '#f3f5f9',
+    };
+    $themeColorScheme = $theme === \App\Support\UserPreferences::THEME_LIGHT ? 'light' : 'dark';
 @endphp
 
 <!DOCTYPE html>
@@ -8,8 +14,15 @@
     lang="{{ str_replace('_', '-', app()->getLocale()) }}"
     data-theme="{{ $theme }}"
     data-theme-preference="{{ $themePreference }}"
+    style="--bp-theme-background: {{ $themeBackground }}; background-color: var(--bp-theme-background); color-scheme: {{ $themeColorScheme }};"
 >
 <head>
+    <style>
+        [x-cloak] { display: none !important; }
+        html[data-theme="light"], html[data-theme="light"] body { background-color: #f3f5f9; color-scheme: light; }
+        html[data-theme="dark"], html[data-theme="dark"] body { background-color: #09090b; color-scheme: dark; }
+        html[data-theme="true-black"], html[data-theme="true-black"] body { background-color: #000000; color-scheme: dark; }
+    </style>
     <script>
         (function () {
             const root = document.documentElement;
@@ -28,6 +41,7 @@
             root.setAttribute('data-theme', effectiveTheme);
             root.classList.toggle('dark', effectiveTheme === 'dark' || effectiveTheme === 'true-black');
             root.style.colorScheme = effectiveTheme === 'light' ? 'light' : 'dark';
+            root.style.setProperty('--bp-theme-background', backgroundColor);
             root.style.backgroundColor = backgroundColor;
 
             document.cookie = 'theme_effective=' + encodeURIComponent(systemTheme)
@@ -38,11 +52,12 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>{{ config('app.name', __('Besucherportal')) }}</title>
+    {{ $head ?? '' }}
 
     @livewireStyles
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
-<body class="min-h-screen bg-base-200 text-base-content antialiased">
+<body class="min-h-screen bg-base-200 text-base-content antialiased" style="background-color: var(--bp-theme-background);">
 <div class="min-h-screen" x-data="{ navOpen: false }">
     @include('layouts.navigation')
 

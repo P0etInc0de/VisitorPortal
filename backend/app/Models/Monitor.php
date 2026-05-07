@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Collection as EloquentCollection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Facades\Storage;
@@ -102,6 +103,34 @@ class Monitor extends Model
             'show_date' => (bool) $this->fallback_show_date,
             'visitors' => [],
         ];
+    }
+
+    /**
+     * @return EloquentCollection<int, MonitorSlide>
+     */
+    public function displaySlides(): EloquentCollection
+    {
+        $slidesQuery = $this->monitorSlides()
+            ->where('is_active', true);
+
+        if ($this->auto_generation) {
+            $slidesQuery->where('is_auto_generated', true);
+        } else {
+            $slidesQuery->where('is_auto_generated', false);
+        }
+
+        return $slidesQuery
+            ->orderBy('slide_number')
+            ->get();
+    }
+
+    public function firstDisplayBackgroundAssetUrl(): ?string
+    {
+        $slide = $this->displaySlides()->first();
+
+        return $slide
+            ? $slide->backgroundAssetUrl($this)
+            : $this->fallbackBackgroundAssetUrl();
     }
 
     public function fallbackResolvedBackgroundSource(): ?string

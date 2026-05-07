@@ -1,4 +1,28 @@
+@php
+    $preloadBackground = $monitor->firstDisplayBackgroundAssetUrl();
+    $hasMonitorLogo = file_exists(public_path('images/logo-light.png'));
+@endphp
+
 <x-app-layout>
+    <x-slot name="head">
+        @if ($preloadBackground)
+            <link rel="preload" as="image" href="{{ $preloadBackground }}" fetchpriority="high">
+        @endif
+        @if ($hasMonitorLogo)
+            <link rel="preload" as="image" href="{{ asset('images/logo-light.png') }}" fetchpriority="high">
+        @endif
+        <style>
+            .monitor-preview-content {
+                opacity: 0;
+                animation: monitor-preview-content-fallback 180ms steps(1, end) forwards;
+            }
+
+            @keyframes monitor-preview-content-fallback {
+                to { opacity: 1; }
+            }
+        </style>
+    </x-slot>
+
     <x-slot name="header">
                 <h1 class="text-4xl font-bold leading-none tracking-tight text-base-content lg:text-5xl">
                     {{ __('Monitor Editor') }}
@@ -30,36 +54,38 @@
                 </x-slot:actions>
 
                 <div class="px-1 pb-1">
-                <div id="preview-container"
-     x-data="{
-          scale: 1,
-          observer: null,
-          updateScale() {
-              if (!this.$refs || !this.$refs.content) return;
-              this.scale = this.$el.clientWidth / this.$refs.content.offsetWidth;
-          },
-          init() {
-              this.updateScale();
-              this.observer = new ResizeObserver(() => this.updateScale());
-              this.observer.observe(this.$el);
-          },
-          destroy() {
-              if (this.observer) {
-                  this.observer.disconnect();
-              }
-          }
-     }"
-     class="relative w-full aspect-video overflow-hidden border border-base-300 isolate transform-gpu">
-
-    <div id="preview-content"
-         x-ref="content"
-         :style="`transform: scale(${scale});`"
-         class="absolute left-0 top-0 w-480 h-270 origin-top-left transition-transform duration-75">
-
-        <livewire:monitor.monitor-slides :monitor="$monitor"/>
-
-    </div>
-</div>
+                    <div
+                        id="preview-container"
+                        x-data="{
+                            observer: null,
+                            updateScale() {
+                                if (!this.$refs || !this.$refs.content) return;
+                                this.$refs.content.style.setProperty('--monitor-preview-scale', this.$el.clientWidth / 1920);
+                                this.$refs.content.style.opacity = '1';
+                                this.$refs.content.style.animation = 'none';
+                            },
+                            init() {
+                                this.$nextTick(() => this.updateScale());
+                                this.observer = new ResizeObserver(() => this.updateScale());
+                                this.observer.observe(this.$el);
+                            },
+                            destroy() {
+                                if (this.observer) {
+                                    this.observer.disconnect();
+                                }
+                            }
+                        }"
+                        class="relative w-full aspect-video overflow-hidden border border-base-300 bg-[#eef2f8] isolate transform-gpu"
+                    >
+                        <div
+                            id="preview-content"
+                            x-ref="content"
+                            style="width: 1920px; height: 1080px; transform: scale(var(--monitor-preview-scale, 0.44));"
+                            class="monitor-preview-content absolute left-0 top-0 origin-top-left"
+                        >
+                            <livewire:monitor.monitor-slides :monitor="$monitor"/>
+                        </div>
+                    </div>
                 </div>
             </x-bp.card>
 

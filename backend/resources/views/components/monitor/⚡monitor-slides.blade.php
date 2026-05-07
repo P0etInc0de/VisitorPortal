@@ -15,18 +15,7 @@ new class extends Component {
     {
         $this->monitor->refresh();
 
-        $slidesQuery = $this->monitor->monitorSlides()
-            ->where('is_active', true);
-
-        if ($this->monitor->auto_generation) {
-            $slidesQuery->where('is_auto_generated', true);
-        } else {
-            $slidesQuery->where('is_auto_generated', false);
-        }
-
-        $slides = $slidesQuery
-            ->orderBy('slide_number')
-            ->get()
+        $slides = $this->monitor->displaySlides()
             ->map(fn (MonitorSlide $slide): array => [
                 'id' => (string) $slide->id,
                 'heading' => $slide->heading,
@@ -64,11 +53,11 @@ new class extends Component {
             interval: null,
 
             get slideCount() {
-                return document.querySelectorAll('#monitor-slides-container .slide').length;
+                return this.$el.querySelectorAll('.slide').length;
             },
 
             init() {
-                this.current = this.current % this.slideCount;
+                this.current = this.current % Math.max(this.slideCount, 1);
                 if (this.interval) clearInterval(this.interval);
 
                 this.interval = setInterval(() => {
@@ -102,7 +91,7 @@ new class extends Component {
         @endphp
 
         @foreach($slides as $slide)
-            <div wire:key="slide-{{ $slide['id'] }}" class="slide h-full w-full" x-show="current === {{ $loop->index }}">
+            <div wire:key="slide-{{ $slide['id'] }}" class="slide h-full w-full" x-show="current === {{ $loop->index }}" @if (! $loop->first) x-cloak @endif>
                 <main
                     class="relative h-full overflow-hidden bg-[#eef2f8] bg-cover bg-center bg-no-repeat"
                     @if ($slide['background_asset'])
@@ -130,6 +119,12 @@ new class extends Component {
                                     @if ($slide['show_logo'] && $hasLogo)
                                         <img src="{{ asset('images/logo-light.png') }}"
                                              alt="{{ __('Logo') }}"
+                                             width="1920"
+                                             height="1080"
+                                             loading="eager"
+                                             decoding="sync"
+                                             fetchpriority="high"
+                                             style="aspect-ratio: 16 / 9;"
                                              class="max-h-28 w-auto object-contain sm:max-h-32 lg:max-h-36 {{ $monitor->header_text_is_light ? 'drop-shadow-[0_8px_30px_rgba(15,23,42,0.35)]' : '' }}">
                                     @endif
 

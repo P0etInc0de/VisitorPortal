@@ -100,11 +100,17 @@ if (!window.__bpUserThemeResolverInstalled) {
         const root = document.documentElement;
         const themePreference = root.dataset.themePreference || 'system';
         const effectiveTheme = resolveEffectiveTheme(themePreference);
+        const backgroundColor = resolveThemeBackground(effectiveTheme);
 
         root.setAttribute('data-theme', effectiveTheme);
         root.classList.toggle('dark', effectiveTheme === 'dark' || effectiveTheme === 'true-black');
         root.style.colorScheme = effectiveTheme === 'light' ? 'light' : 'dark';
-        root.style.backgroundColor = resolveThemeBackground(effectiveTheme);
+        root.style.setProperty('--bp-theme-background', backgroundColor);
+        root.style.backgroundColor = backgroundColor;
+
+        if (document.body) {
+            document.body.style.backgroundColor = backgroundColor;
+        }
 
         writeEffectiveThemeCookie();
     };
