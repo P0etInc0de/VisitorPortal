@@ -81,6 +81,7 @@
                             id="preview-content"
                             x-ref="content"
                             style="width: 1920px; height: 1080px; transform: scale(var(--monitor-preview-scale, 0.44));"
+
                             class="monitor-preview-content absolute left-0 top-0 origin-top-left"
                         >
                             <livewire:monitor.monitor-slides :monitor="$monitor"/>
