@@ -2,8 +2,11 @@
 
 namespace Tests\Feature;
 
+use App\Models\RecurringVisitSeries;
 use App\Models\Visit;
+use App\Models\Visitor;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Carbon;
 use Tests\Support\PermissionHelper;
 use Tests\TestCase;
 
@@ -94,6 +97,152 @@ class VisitManagementTest extends TestCase
 
         $this->assertDatabaseCount('visitors', 2);
         $this->assertDatabaseCount('visit_visitor', 2);
+    }
+
+    public function test_recurring_visit_can_be_created_with_total_occurrence_count(): void
+    {
+        $user = (new PermissionHelper)->getUser();
+        $participant = Visitor::factory()->create();
+
+        $response = $this
+            ->actingAs($user)
+            ->post(route('portal.visits.store'), [
+                'title' => 'Wöchentliche Sicherheitsrunde',
+                'user_id' => $user->id,
+                'responsible_user_id' => $user->id,
+                'scheduled_from' => '2026-05-01 09:00:00',
+                'scheduled_until' => '2026-05-01 10:00:00',
+                'status' => 'planned',
+                'notes' => 'Serie testen',
+                'recurrence_enabled' => '1',
+                'recurrence_frequency' => RecurringVisitSeries::FREQUENCY_WEEKLY,
+                'recurrence_end_type' => RecurringVisitSeries::END_COUNT,
+                'recurrence_occurrence_count' => 3,
+                'participants' => [
+                    ['visitor_id' => $participant->id],
+                ],
+            ]);
+
+        $firstVisit = Visit::query()->orderBy('scheduled_from')->firstOrFail();
+
+        $response->assertRedirect(route('portal.visits.show', $firstVisit));
+
+        $this->assertDatabaseCount('recurring_visit_series', 1);
+        $this->assertDatabaseCount('visits', 3);
+        $this->assertDatabaseCount('visit_visitor', 3);
+
+        $visits = Visit::query()->orderBy('scheduled_from')->get();
+
+        $this->assertSame(['2026-05-01', '2026-05-08', '2026-05-15'], $visits
+            ->map(fn (Visit $visit) => $visit->scheduled_from->format('Y-m-d'))
+            ->all());
+        $this->assertSame([1, 2, 3], $visits->pluck('recurrence_occurrence_number')->all());
+        $this->assertTrue($visits->every(fn (Visit $visit) => $visit->recurring_visit_series_id === $firstVisit->recurring_visit_series_id));
+    }
+
+    public function test_future_series_update_skips_individually_modified_occurrences(): void
+    {
+        $user = (new PermissionHelper)->getUser();
+        $participant = Visitor::factory()->create();
+
+        $this
+            ->actingAs($user)
+            ->post(route('portal.visits.store'), [
+                'title' => 'Regeltermin',
+                'user_id' => $user->id,
+                'responsible_user_id' => $user->id,
+                'scheduled_from' => '2026-05-01 09:00:00',
+                'scheduled_until' => '2026-05-01 10:00:00',
+                'status' => 'planned',
+                'recurrence_enabled' => '1',
+                'recurrence_frequency' => RecurringVisitSeries::FREQUENCY_WEEKLY,
+                'recurrence_end_type' => RecurringVisitSeries::END_COUNT,
+                'recurrence_occurrence_count' => 4,
+                'participants' => [
+                    ['visitor_id' => $participant->id],
+                ],
+            ]);
+
+        $modifiedVisit = Visit::query()->where('recurrence_occurrence_number', 3)->firstOrFail();
+        $modifiedVisit->update([
+            'title' => 'Individuelle Änderung',
+            'recurrence_is_modified' => true,
+        ]);
+
+        $selectedVisit = Visit::query()->where('recurrence_occurrence_number', 2)->firstOrFail();
+
+        $response = $this
+            ->actingAs($user)
+            ->patch(route('portal.visits.update', $selectedVisit), [
+                'title' => 'Neue Zukunftsserie',
+                'user_id' => $user->id,
+                'responsible_user_id' => $user->id,
+                'scheduled_from' => '2026-05-08 12:00:00',
+                'scheduled_until' => '2026-05-08 13:00:00',
+                'status' => 'planned',
+                'recurrence_enabled' => '1',
+                'recurrence_update_scope' => RecurringVisitSeries::UPDATE_FUTURE,
+                'recurrence_frequency' => RecurringVisitSeries::FREQUENCY_WEEKLY,
+                'recurrence_end_type' => RecurringVisitSeries::END_COUNT,
+                'recurrence_occurrence_count' => 4,
+                'participants' => [
+                    ['visitor_id' => $participant->id],
+                ],
+            ]);
+
+        $response->assertRedirect(route('portal.visits.show', $selectedVisit));
+
+        $this->assertSame('Regeltermin', Visit::query()->where('recurrence_occurrence_number', 1)->firstOrFail()->title);
+        $this->assertSame('Neue Zukunftsserie', Visit::query()->where('recurrence_occurrence_number', 2)->firstOrFail()->title);
+        $this->assertSame('Individuelle Änderung', Visit::query()->where('recurrence_occurrence_number', 3)->firstOrFail()->title);
+        $this->assertSame('Neue Zukunftsserie', Visit::query()->where('recurrence_occurrence_number', 4)->firstOrFail()->title);
+    }
+
+    public function test_forever_series_generates_until_thirty_month_horizon(): void
+    {
+        Carbon::setTestNow('2026-05-01 08:00:00');
+
+        try {
+            $user = (new PermissionHelper)->getUser();
+            $participant = Visitor::factory()->create();
+
+            $this
+                ->actingAs($user)
+                ->post(route('portal.visits.store'), [
+                    'title' => 'Endlose Wartung',
+                    'user_id' => $user->id,
+                    'responsible_user_id' => $user->id,
+                    'scheduled_from' => '2026-05-01 09:00:00',
+                    'scheduled_until' => '2026-05-01 10:00:00',
+                    'status' => 'planned',
+                    'recurrence_enabled' => '1',
+                    'recurrence_frequency' => RecurringVisitSeries::FREQUENCY_WEEKLY,
+                    'recurrence_end_type' => RecurringVisitSeries::END_FOREVER,
+                    'participants' => [
+                        ['visitor_id' => $participant->id],
+                    ],
+                ])
+                ->assertSessionHasNoErrors();
+
+            $series = RecurringVisitSeries::query()->sole();
+
+            $this->assertSame('2028-11-01', $series->generated_until->format('Y-m-d'));
+            $this->assertGreaterThan(100, Visit::query()->count());
+        } finally {
+            Carbon::setTestNow();
+        }
+    }
+
+    public function test_create_visit_page_cloaks_hidden_participant_sections(): void
+    {
+        $user = (new PermissionHelper)->getUser();
+
+        $this
+            ->actingAs($user)
+            ->get(route('portal.visits.create'))
+            ->assertOk()
+            ->assertSee('x-show="addingParticipant" x-cloak style="display: none;"', false)
+            ->assertSee('x-show="addingNewParticipant" x-cloak style="display: none;"', false);
     }
 
     public function test_my_visits_page_shows_only_own_and_substitute_visits(): void

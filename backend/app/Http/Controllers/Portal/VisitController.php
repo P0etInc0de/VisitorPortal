@@ -10,11 +10,9 @@ use App\Http\Requests\UpdateVisitRequest;
 use App\Models\User;
 use App\Models\Visit;
 use App\Models\Visitor;
+use App\Services\RecurringVisitService;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Support\Arr;
-use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
 class VisitController extends Controller
@@ -33,21 +31,7 @@ class VisitController extends Controller
     {
         $payload = $request->validated();
 
-        $visit = DB::transaction(function () use ($payload) {
-            $visit = Visit::query()->create([
-                'title' => $payload['title'],
-                'user_id' => (int) $payload['user_id'],
-                'responsible_user_id' => (int) (($payload['responsible_user_id'] ?? null) ?: $payload['user_id']),
-                'scheduled_from' => $payload['scheduled_from'],
-                'scheduled_until' => $payload['scheduled_until'] ?? null,
-                'status' => $payload['status'],
-                'notes' => $payload['notes'] ?? null,
-            ]);
-
-            $this->syncParticipants($visit, $payload['participants'] ?? []);
-
-            return $visit;
-        });
+        $visit = app(RecurringVisitService::class)->createFromPayload($payload, $request->user());
 
         // Technical log for the current implementation. Visit lifecycle changes may later
         // also be written to a dedicated activity log.
@@ -67,6 +51,7 @@ class VisitController extends Controller
         $visit->load([
             'host:id,name',
             'responsibleUser:id,name',
+            'recurringSeries',
             'visitors' => fn ($query) => $query->orderBy('first_name')->orderBy('name'),
         ]);
 
@@ -107,19 +92,7 @@ class VisitController extends Controller
     {
         $payload = $request->validated();
 
-        DB::transaction(function () use ($visit, $payload) {
-            $visit->update([
-                'title' => $payload['title'],
-                'user_id' => (int) $payload['user_id'],
-                'responsible_user_id' => (int) (($payload['responsible_user_id'] ?? null) ?: $payload['user_id']),
-                'scheduled_from' => $payload['scheduled_from'],
-                'scheduled_until' => $payload['scheduled_until'] ?? null,
-                'status' => $payload['status'],
-                'notes' => $payload['notes'] ?? null,
-            ]);
-
-            $this->syncParticipants($visit, $payload['participants'] ?? []);
-        });
+        $visit = app(RecurringVisitService::class)->updateFromPayload($visit, $payload);
 
         Log::channel('web')->info('Visit updated', [
             'visit_id' => $visit->id,
@@ -138,6 +111,7 @@ class VisitController extends Controller
             'status' => VisitStatusEnum::Canceled->value,
             'canceled_at' => now(),
             'canceled_by_user_id' => auth()->id(),
+            'recurrence_is_modified' => $visit->recurring_visit_series_id ? true : $visit->recurrence_is_modified,
         ]);
 
         Log::channel('web')->info('Visit canceled', [
@@ -156,6 +130,7 @@ class VisitController extends Controller
             'status' => $visit->status === VisitStatusEnum::Canceled->value ? VisitStatusEnum::Planned->value : $visit->status,
             'canceled_at' => null,
             'canceled_by_user_id' => null,
+            'recurrence_is_modified' => $visit->recurring_visit_series_id ? true : $visit->recurrence_is_modified,
         ]);
 
         Log::channel('web')->info('Visit reopened', [
@@ -173,6 +148,7 @@ class VisitController extends Controller
         $visit->update([
             'scheduled_from' => $payload['scheduled_from'],
             'scheduled_until' => $payload['scheduled_until'] ?? null,
+            'recurrence_is_modified' => $visit->recurring_visit_series_id ? true : $visit->recurrence_is_modified,
         ]);
 
         Log::channel('web')->info('Visit rescheduled', [
@@ -190,6 +166,7 @@ class VisitController extends Controller
         $visit->loadMissing([
             'host:id,first_name,name,title',
             'responsibleUser:id,first_name,name,title',
+            'recurringSeries',
             'visitors' => fn ($query) => $query->orderBy('first_name')->orderBy('name'),
         ]);
 
@@ -246,94 +223,6 @@ class VisitController extends Controller
             'existingVisitors' => $existingVisitors,
             'initialParticipants' => $initialParticipants,
         ]);
-    }
-
-    private function syncParticipants(Visit $visit, array $participantRows): void
-    {
-        $syncPayload = [];
-
-        foreach ($this->normalizedParticipants(collect($participantRows)) as $row) {
-            $visitor = $this->resolveVisitor($row);
-            $syncPayload[$visitor->id] = [
-                'notes' => Arr::get($row, 'notes'),
-            ];
-        }
-
-        $visit->visitors()->sync($syncPayload);
-    }
-
-    private function normalizedParticipants(Collection $participantRows): Collection
-    {
-        return $participantRows
-            ->map(function ($row) {
-                return [
-                    'visitor_id' => Arr::get($row, 'visitor_id') ?: null,
-                    'title' => $this->normalizeText(Arr::get($row, 'title')),
-                    'first_name' => $this->normalizeText(Arr::get($row, 'first_name')),
-                    'name' => $this->normalizeText(Arr::get($row, 'name')),
-                    'email' => $this->normalizeText(Arr::get($row, 'email')),
-                    'phone' => $this->normalizeText(Arr::get($row, 'phone')),
-                    'company' => $this->normalizeText(Arr::get($row, 'company')),
-                    'notes' => $this->normalizeText(Arr::get($row, 'notes')),
-                ];
-            })
-            ->filter(function (array $row) {
-                return filled($row['visitor_id'])
-                    || filled($row['title'])
-                    || filled($row['first_name'])
-                    || filled($row['name'])
-                    || filled($row['email'])
-                    || filled($row['phone'])
-                    || filled($row['company']);
-            })
-            ->filter(function (array $row) {
-                if (filled($row['visitor_id'])) {
-                    return true;
-                }
-
-                return filled($row['first_name']) && filled($row['name']);
-            })
-            ->values();
-    }
-
-    private function resolveVisitor(array $row): Visitor
-    {
-        if (filled($row['visitor_id'])) {
-            return Visitor::query()->findOrFail($row['visitor_id']);
-        }
-
-        if (filled($row['email'])) {
-            $existingByEmail = Visitor::query()->where('email', $row['email'])->first();
-
-            if ($existingByEmail) {
-                $existingByEmail->update([
-                    'title' => $row['title'] ?: $existingByEmail->title,
-                    'first_name' => $row['first_name'] ?: $existingByEmail->first_name,
-                    'name' => $row['name'] ?: $existingByEmail->name,
-                    'phone' => $row['phone'] ?: $existingByEmail->phone,
-                    'company' => $row['company'] ?: $existingByEmail->company,
-                ]);
-
-                return $existingByEmail;
-            }
-        }
-
-        return Visitor::query()->create([
-            'title' => $row['title'],
-            'first_name' => $row['first_name'],
-            'name' => $row['name'],
-            'email' => $row['email'],
-            'phone' => $row['phone'],
-            'company' => $row['company'],
-            'notes' => null,
-        ]);
-    }
-
-    private function normalizeText(mixed $value): ?string
-    {
-        $value = trim((string) $value);
-
-        return $value === '' ? null : $value;
     }
 
     private function resolveParticipantStatus(string $visitStatus, object $pivot): array
