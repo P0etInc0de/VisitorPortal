@@ -14,7 +14,8 @@ class DepartmentForm
             ->components([
                 TextInput::make('name')
                     ->label(__('Name'))
-                    ->required(),
+                    ->required()
+                    ->unique(ignoreRecord: true),
                 TextInput::make('location')
                     ->label(__('Standort')),
                 Toggle::make('is_active')
