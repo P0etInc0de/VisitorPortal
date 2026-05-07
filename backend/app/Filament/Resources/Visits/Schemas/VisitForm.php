@@ -32,7 +32,8 @@ class VisitForm
                     ->required(),
                 TextInput::make('title')
                     ->label(__('Titel'))
-                    ->required(),
+                    ->required()
+                    ->maxLength(255),
                 DateTimePicker::make('scheduled_from')
                     ->label(__('Beginn'))
                     ->seconds(false)
