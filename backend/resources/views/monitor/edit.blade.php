@@ -11,16 +11,6 @@
         @if ($hasMonitorLogo)
             <link rel="preload" as="image" href="{{ asset('images/logo-light.png') }}" fetchpriority="high">
         @endif
-        <style>
-            .monitor-preview-content {
-                opacity: 0;
-                animation: monitor-preview-content-fallback 180ms steps(1, end) forwards;
-            }
-
-            @keyframes monitor-preview-content-fallback {
-                to { opacity: 1; }
-            }
-        </style>
     </x-slot>
 
     <x-slot name="header">
@@ -57,14 +47,19 @@
                     <div
                         id="preview-container"
                         x-data="{
+                            scale: 0.44,
+                            ready: false,
                             observer: null,
                             updateScale() {
-                                if (!this.$refs || !this.$refs.content) return;
-                                this.$refs.content.style.setProperty('--monitor-preview-scale', this.$el.clientWidth / 1920);
-                                this.$refs.content.style.opacity = '1';
-                                this.$refs.content.style.animation = 'none';
+                                if (!this.$refs || !this.$refs.content) {
+                                    return;
+                                }
+
+                                this.scale = this.$el.clientWidth / 1920;
+                                this.ready = true;
                             },
                             init() {
+                                this.updateScale();
                                 this.$nextTick(() => this.updateScale());
                                 this.observer = new ResizeObserver(() => this.updateScale());
                                 this.observer.observe(this.$el);
@@ -75,14 +70,15 @@
                                 }
                             }
                         }"
-                        class="relative w-full aspect-video overflow-hidden border border-base-300 bg-[#eef2f8] isolate transform-gpu"
+                        class="relative w-full aspect-video overflow-hidden border border-base-300 bg-base-200 isolate transform-gpu"
                     >
                         <div
                             id="preview-content"
                             x-ref="content"
-                            style="width: 1920px; height: 1080px; transform: scale(var(--monitor-preview-scale, 0.44));"
-
-                            class="monitor-preview-content absolute left-0 top-0 origin-top-left"
+                            x-cloak
+                            x-show="ready"
+                            :style="{ width: '1920px', height: '1080px', transform: `scale(${scale})` }"
+                            class="absolute left-0 top-0 origin-top-left"
                         >
                             <livewire:monitor.monitor-slides :monitor="$monitor"/>
                         </div>
