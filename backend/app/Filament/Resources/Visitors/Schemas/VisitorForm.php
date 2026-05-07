@@ -32,11 +32,13 @@ class VisitorForm
                 TextInput::make('email')
                     ->label(__('E-Mail'))
                     ->email()
-                    ->required(),
+                    ->required()
+                    ->unique(ignoreRecord: true),
                 TextInput::make('phone')
                     ->label(__('Telefon'))
                     ->tel()
-                    ->required(),
+                    ->required()
+                    ->unique(ignoreRecord: true),
                 TextInput::make('company')
                     ->label(__('Firma')),
                 Select::make('status')
