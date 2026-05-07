@@ -41,7 +41,8 @@ class VisitForm
                 DateTimePicker::make('scheduled_until')
                     ->label(__('Ende'))
                     ->seconds(false)
-                    ->required(),
+                    ->required()
+                    ->after('scheduled_from'),
                 Select::make('status')
                     ->label(__('Status'))
                     ->options(VisitStatusEnum::options())
