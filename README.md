@@ -38,3 +38,14 @@ Webbasiertes Besucherportal (Laravel) zur Planung und Abwicklung von Firmenbesuc
 - Enthält Diagramme um die Anwendung besser zu verstehen in Form von Bildern und `.uxf` Dateien. 
 - Die `.uxf` Dateien können mit dem GPLv3 lizenzierten VSCode-Plugin "UMLet" angezeigt und editiert werden.
 
+## Standard Accounts bei initialem Setup
+
+Nachdem alles wie in der [setup.md](docs/setup.md) beschrieben eingerichtet wurde, kann man sich mit folgenden Accounts anmelden:
+
+- admin@demo.local
+- empfang@demo.local
+- mitarbeiter@demo.local
+- manager@demo.local
+- welcomemonitor@demo.local
+
+Das standard Passwort ist: "Passwort123!"

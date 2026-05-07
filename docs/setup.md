@@ -40,6 +40,9 @@ MAIL_ENCRYPTION=null
 MAIL_FROM_ADDRESS=visitorportal@example.test
 MAIL_FROM_NAME="Besucherportal"
 
+# For PDF Badge (Gotenberg in Docker):
+GOTENBERG_URL=http://gotenberg:3000
+
 #GitHub Link
 GITHUB_REPO_URL="https://github.com/P0etInc0de/Besucherportal"
 ```
@@ -78,7 +81,7 @@ docker compose exec web bash -lc "php artisan migrate"
 ## 6.1 Test-Datenbank erstellen
 
 ```bash
-docker-compose exec db mysql -u root -proot_pw -e "CREATE DATABASE IF NOT EXISTS besucherportal_test;"
+docker compose exec db mysql -u root -proot_pw -e "CREATE DATABASE IF NOT EXISTS besucherportal_test;"
 ```
 
 ## 7. Datenbank mit Test-Daten befüllen (Seeding)
@@ -111,6 +114,18 @@ Stoppen und DB-Daten löschen (Achtung: löscht das MySQL-Volume):
 ```bash
 docker compose down -v
 ```
+
+## 9. Login/Standard Accounts
+
+Folgende Accounts existieren:
+
+- admin@demo.local
+- empfang@demo.local
+- mitarbeiter@demo.local
+- manager@demo.local
+- welcomemonitor@demo.local
+
+Das standard Passwort ist: "Passwort123!"
 
 ## Nützliche Standardbefehle
 
