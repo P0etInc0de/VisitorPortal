@@ -198,7 +198,7 @@
                     </div>
 
 					@can('View:Monitor')
-                    <a href="{{ route('monitors.show', $monitor) }}" class="{{ $navLinkClasses(request()->routeIs('monitors.show*')) }}" wire:navigate.hover>
+                    <a href="{{ route('monitors.show', $monitor) }}" class="{{ $navLinkClasses(request()->routeIs('monitors.show*')) }}">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
                             <rect x="3" y="4" width="18" height="12" rx="2" />
                             <path stroke-linecap="round" stroke-linejoin="round" d="M8 20h8M12 16v4" />
@@ -332,7 +332,7 @@
                 @endif
 
                 @if ($canSeeMonitor && ($monitor = \App\Models\Monitor::query()->first()))
-                    <a href="{{ route('monitors.show', $monitor) }}" class="{{ $navLinkClasses(request()->routeIs('monitors.show*')) }}" wire:navigate.hover @click="navOpen = false">{{ __('Live-Anzeige') }}</a>
+                    <a href="{{ route('monitors.show', $monitor) }}" class="{{ $navLinkClasses(request()->routeIs('monitors.show*')) }}" @click="navOpen = false">{{ __('Live-Anzeige') }}</a>
                     <a href="{{ route('monitors.edit', $monitor) }}" class="{{ $navLinkClasses(request()->routeIs('monitors.edit*')) }}" wire:navigate.hover @click="navOpen = false">{{ __('Monitor Editor') }}</a>
                 @endif
 
