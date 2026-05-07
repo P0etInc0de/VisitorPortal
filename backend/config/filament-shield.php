@@ -75,7 +75,7 @@ return [
 
     'super_admin' => [
         'enabled' => true,
-        'name' => 'super_admin',
+        'name' => 'admin',
         'define_via_gate' => false,
         'intercept_gate' => 'before',
     ],
@@ -177,11 +177,11 @@ return [
             VisitResource::class => [
                 'delete_any', 'edit_any',
                 'view_department', 'view_own', 'edit_department', 'edit_own',
-                'delete_department', 'delete_own', 'check_in', 'check_out', 'print',
+                'delete_department', 'delete_own',
             ],
             VisitorResource::class => [
-                'delete_any',
-                'edit_any',
+                'delete_any', 'edit_any',
+                'check_in', 'check_out', 'print',
             ],
             UserResource::class => [
                 'delete_any', 'view_own', 'edit_own',

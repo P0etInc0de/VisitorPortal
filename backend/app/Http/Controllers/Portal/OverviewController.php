@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Portal;
 
 use App\Enums\VisitStatusEnum;
 use App\Http\Controllers\Controller;
-use App\Models\Monitor;
 use App\Models\User;
 use App\Models\Visit;
 use App\Models\Visitor;
@@ -25,7 +24,7 @@ class OverviewController extends Controller
         $now = now();
         $upcomingWindowEnd = now()->copy()->addDays(30);
 
-        $this->authorizeAny(['viewGeneral', 'view'], Monitor::class);
+        $this->authorizeDashboard();
 
         $baseQuery = Visit::query()
             ->with([

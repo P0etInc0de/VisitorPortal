@@ -4,6 +4,8 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\LoginRequest;
+use App\Models\Monitor;
+use App\Models\User;
 use App\Support\UserPreferences;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -42,7 +44,18 @@ class AuthenticatedSessionController extends Controller
         Cookie::queue(UserPreferences::LOCALE_COOKIE, $locale, 60 * 24 * 365);
         Cookie::queue(UserPreferences::THEME_COOKIE, $themePreference, 60 * 24 * 365);
 
-        return redirect()->intended(route('overview', absolute: false));
+        return redirect()->intended($this->redirectRoles($user));
+    }
+
+    /**
+     * Redirect roles to different pages
+     */
+    public function redirectRoles(User $user): string
+    {
+        return match (true) {
+            $user->hasRole('welcome monitor') => route('monitors.show', Monitor::query()->first(), absolute: false),
+            default => route('overview', absolute: false)
+        };
     }
 
     /**

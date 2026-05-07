@@ -150,9 +150,10 @@ class PermissionHelper
         $receptionistPermissions = [
             'ViewAny:Visit', 'EditAny:Visit', 'DeleteAny:Visit',
             'EditAny:Visitor',
-            'CheckIn:Visit', 'CheckOut:Visit', 'Print:Visit',
-            'View:Monitor', 'Edit:Monitor', 'ViewOwn:User',
-            'EditOwn:User', 'Create:Visit', 'Create:Visitor',
+            'CheckIn:Visitor', 'CheckOut:Visitor', 'Print:Visitor',
+            'View:Monitor', 'Edit:Monitor', 'View:MonitorSlide', 'Edit:MonitorSlide',
+            'ViewOwn:User', 'EditOwn:User',
+            'Create:Visit', 'Create:Visitor',
             'ViewOwn:Visit', 'EditOwn:Visit', 'DeleteOwn:Visit',
             'ViewAny:Visitor'];
 

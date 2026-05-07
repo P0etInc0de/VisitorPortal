@@ -10,6 +10,8 @@ class UserPermissionsController extends Controller
     {
         $user = auth()->user();
 
+        $this->authorize('view', Role::class);
+
         $data = [
             'name' => $user->name,
             'roles' => $user->getRoleNames(),

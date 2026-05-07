@@ -16,6 +16,8 @@ class VisitParticipantActionController extends Controller
 {
     public function printBadge(Visit $visit, Visitor $visitor, VisitActionService $visitActionService)
     {
+        $this->authorize('print', Visitor::class);
+
         $visit->loadMissing('responsibleUser');
         $participant = $visitActionService->printBadge($visit, $visitor);
 
@@ -44,6 +46,8 @@ class VisitParticipantActionController extends Controller
             abort(403);
         }
 
+        $this->authorize('checkIn', Visitor::class);
+
         $visitActionService->checkInParticipant($visit, $visitor, $user);
 
         Log::channel('web')->info('Visit participant checked in', [
@@ -62,6 +66,8 @@ class VisitParticipantActionController extends Controller
         if (! $user instanceof User) {
             abort(403);
         }
+
+        $this->authorize('checkOut', Visitor::class);
 
         $visitActionService->checkOutParticipant($visit, $visitor, $user);
 

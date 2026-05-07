@@ -19,7 +19,7 @@ class MonitorPolicy
 
     public function view(User $user): bool
     {
-        return $user->can('View:Monitor');
+        return $user->can('View:Monitor') || $user->can('ViewAny:Monitor');
     }
 
     public function create(User $user): bool
@@ -29,7 +29,7 @@ class MonitorPolicy
 
     public function update(User $user): bool
     {
-        return $user->can('Update:Monitor');
+        return $user->can('Edit:Monitor');
     }
 
     public function delete(User $user): bool

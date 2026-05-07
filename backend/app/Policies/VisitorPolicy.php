@@ -47,4 +47,19 @@ class VisitorPolicy
     {
         return $user->can('EditAny:Visitor');
     }
+
+    public function checkIn(User $user): bool
+    {
+        return $user->can('CheckIn:Visitor');
+    }
+
+    public function ccheckOut(User $user): bool
+    {
+        return $user->can('CheckOut:Visitor');
+    }
+
+    public function print(User $user): bool
+    {
+        return $user->can('Print:Visitor');
+    }
 }

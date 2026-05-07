@@ -27,7 +27,7 @@ class MonitorSlidesController extends Controller
     public function create(Monitor $monitor)
     {
         $this->authorize('create', MonitorSlide::class);
-        $this->authorize('update', $monitor);
+        $this->authorize('update', Monitor::class);
 
         $currentMax = MonitorSlide::query()
             ->where('monitor_id', $monitor->id)
@@ -56,6 +56,8 @@ class MonitorSlidesController extends Controller
      */
     public function store(StoreMonitorSlideRequest $request, Monitor $monitor)
     {
+        $this->authorize('create', MonitorSlide::class);
+
         $validated = $request->validated();
         $validated['visitors'] = $this->normalizeVisitors($request->input('visitors'));
         $validated = $this->prepareBackgroundData($request, $validated);
@@ -79,7 +81,7 @@ class MonitorSlidesController extends Controller
     public function edit(Monitor $monitor, MonitorSlide $slide)
     {
         $this->authorize('update', $slide);
-        $this->authorize('update', $monitor);
+        $this->authorize('update', Monitor::class);
 
         $todayVisits = Visit::query()
             ->whereDate('visits.scheduled_from', '<=', Carbon::today())
@@ -102,6 +104,9 @@ class MonitorSlidesController extends Controller
      */
     public function update(UpdateMonitorSlideRequest $request, Monitor $monitor, MonitorSlide $slide)
     {
+        $this->authorize('update', $monitor);
+        $this->authorize('update', $slide);
+
         $validated = $request->validated();
         $validated['visitors'] = $this->normalizeVisitors($validated['visitors'] ?? null);
         $validated = $this->prepareBackgroundData($request, $validated, $slide);

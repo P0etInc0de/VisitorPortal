@@ -27,17 +27,19 @@ class RoleSeeder extends Seeder
         $receptionistPermissions = array_merge($userPermissions, [
             'ViewAny:Visit', 'EditAny:Visit', 'DeleteAny:Visit',
             'EditAny:Visitor',
-            'CheckIn:Visit', 'CheckOut:Visit', 'Print:Visit',
-            'View:Monitor', 'ViewAny:Monitor', 'Edit:Monitor']);
+            'CheckIn:Visitor', 'CheckOut:Visitor', 'Print:Visitor',
+            'View:Monitor', 'ViewAny:Monitor', 'Edit:Monitor', 'Create:Monitor',
+            'ViewAny:MonitorSlide', 'View:MonitorSlide', 'Create:MonitorSlide',
+            'Update:MonitorSlide', 'Delete:MonitorSlide', 'Delete:Monitor']);
 
         $roles = [
             'user' => $userPermissions,
             'manager' => $managerPermissions,
             'receptionist' => $receptionistPermissions,
             'welcome monitor' => [
-                'View:Monitor', 'ViewAny:Monitor',
+                'View:Monitor', 'ViewAny:Monitor', 'View:MonitorSlide', 'ViewAny:MonitorSlide',
             ],
-            'admin' => Permission::all()->pluck('name')->toArray(),
+            // 'admin' => Permission::all()->pluck('name')->toArray(),
         ];
 
         foreach ($roles as $roleName => $permissions) {
