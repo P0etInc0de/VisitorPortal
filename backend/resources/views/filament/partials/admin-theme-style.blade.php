@@ -27,7 +27,7 @@
     .fi-input-wrp {
         border: 2px solid rgb(209 213 219 / 1) !important;
         box-sizing: border-box;
-        overflow: hidden;
+        overflow: visible;
         --tw-ring-shadow: 0 0 #0000 !important;
     }
 
