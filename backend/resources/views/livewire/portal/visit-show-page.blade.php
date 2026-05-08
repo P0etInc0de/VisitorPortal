@@ -1,5 +1,49 @@
 <div>
-    <div class="grid gap-6 xl:grid-cols-3 xl:items-start">
+    <div
+        x-data="{
+            rescheduleMinHeight: '',
+            alignThreshold: 36,
+            alignTimer: null,
+            init() {
+                const schedule = () => {
+                    if (this.alignTimer) {
+                        window.cancelAnimationFrame(this.alignTimer);
+                    }
+
+                    this.alignTimer = window.requestAnimationFrame(() => this.alignTopCards());
+                };
+
+                this.$nextTick(() => {
+                    if (this.$refs.infoCard && window.ResizeObserver) {
+                        this.alignmentObserver = new ResizeObserver(schedule);
+                        this.alignmentObserver.observe(this.$refs.infoCard);
+                    }
+
+                    window.addEventListener('resize', schedule);
+                    schedule();
+                });
+            },
+            alignTopCards() {
+                if (!window.matchMedia('(min-width: 1280px)').matches || !this.$refs.infoCard || !this.$refs.rescheduleCard) {
+                    this.rescheduleMinHeight = '';
+                    return;
+                }
+
+                this.rescheduleMinHeight = '';
+
+                this.$nextTick(() => {
+                    const infoHeight = this.$refs.infoCard.getBoundingClientRect().height;
+                    const rescheduleHeight = this.$refs.rescheduleCard.getBoundingClientRect().height;
+                    const difference = infoHeight - rescheduleHeight;
+
+                    this.rescheduleMinHeight = difference > 0 && difference <= this.alignThreshold
+                        ? `${Math.ceil(infoHeight)}px`
+                        : '';
+                });
+            },
+        }"
+        class="grid gap-6 xl:grid-cols-3 xl:items-start"
+    >
         @if (session('status'))
             <div class="alert alert-success rounded-2xl shadow-sm xl:col-span-2">
                 <span>{{ session('status') }}</span>
@@ -7,7 +51,7 @@
         @endif
 
         <div class="grid min-w-0 gap-6 xl:col-span-2">
-            <section class="rounded-3xl border border-base-300 bg-base-100 p-6 shadow-sm sm:p-7">
+            <section x-ref="infoCard" class="rounded-3xl border border-base-300 bg-base-100 p-6 shadow-sm sm:p-7">
                 <div @class([
                     'grid gap-5 md:grid-cols-2',
                     '2xl:grid-cols-[minmax(7rem,0.65fr)_minmax(15rem,1.45fr)_minmax(12rem,1fr)]' => $recurrenceMeta,
@@ -119,7 +163,7 @@
         </div>
 
         <div class="grid min-w-0 gap-6 xl:sticky xl:top-6">
-            <section class="rounded-3xl border border-base-300 bg-base-100 p-5 shadow-sm sm:p-6">
+            <section x-ref="rescheduleCard" :style="rescheduleMinHeight ? { minHeight: rescheduleMinHeight } : {}" class="rounded-3xl border border-base-300 bg-base-100 p-5 shadow-sm sm:p-6">
                 <h2 class="mb-3 text-xl font-bold text-base-content">{{ __('Termin verschieben') }}</h2>
 
                 <form wire:submit.prevent="saveSchedule" class="grid gap-3">
