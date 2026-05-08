@@ -8,13 +8,17 @@
             @endif
 
             <section class="rounded-3xl border border-base-300 bg-base-100 p-6 sm:p-7 shadow-sm">
-                <div class="grid gap-5 md:grid-cols-2 2xl:grid-cols-[minmax(7rem,0.65fr)_minmax(15rem,1.45fr)_minmax(10rem,1fr)_minmax(10rem,1fr)]">
+                <div @class([
+                    'grid gap-5 md:grid-cols-2',
+                    '2xl:grid-cols-[minmax(7rem,0.65fr)_minmax(15rem,1.45fr)_minmax(12rem,1fr)]' => $recurrenceMeta,
+                    '2xl:grid-cols-[minmax(7rem,0.65fr)_minmax(15rem,1.45fr)_minmax(10rem,1fr)_minmax(10rem,1fr)]' => ! $recurrenceMeta,
+                ])>
                     <div>
                         <div class="text-xs font-semibold uppercase tracking-[0.18em] text-base-content/50">{{ __('Status') }}</div>
                         <div class="mt-2 flex flex-wrap items-center gap-2">
                             <span class="badge {{ $visitStatus['class'] }} rounded-full text-sm font-semibold">{{ $visitStatus['label'] }}</span>
                             @if ($recurrenceMeta)
-                                <x-recurrence-indicator :badge="true" :modified="$recurrenceMeta['is_modified']" :label="$recurrenceMeta['label']" />
+                                <x-recurrence-indicator :badge="true" :modified="$recurrenceMeta['is_modified']" :label="$recurrenceMeta['badge_label']" />
                             @endif
                         </div>
                     </div>
@@ -39,6 +43,26 @@
                         <div class="text-xs font-semibold uppercase tracking-[0.18em] text-base-content/50">{{ __('Vertretung') }}</div>
                         <div class="mt-2 text-base font-medium text-base-content">{{ $visitMeta['reception'] }}</div>
                     </div>
+
+                    @if ($recurrenceMeta)
+                        <div>
+                            <div class="text-xs font-semibold uppercase tracking-[0.18em] text-base-content/50">{{ __('Wiederholung') }}</div>
+                            <div class="mt-2 text-base font-medium text-base-content">{{ $recurrenceMeta['rule'] }}</div>
+                        </div>
+                    @endif
+
+                    @if ($recurrenceMeta && !empty($recurrenceMeta['progress']))
+                        <div>
+                            <div class="text-xs font-semibold uppercase tracking-[0.18em] text-base-content/50">{{ __('Serie') }}</div>
+                            <div class="mt-2 text-base font-medium text-base-content">{{ $recurrenceMeta['progress'] }}</div>
+                        </div>
+                    @endif
+
+                    @if ($recurrenceMeta && $recurrenceMeta['is_modified'])
+                        <div class="md:col-span-2 2xl:col-span-3 rounded-2xl border border-warning/30 bg-warning/10 px-4 py-3 text-sm font-medium text-warning">
+                            {{ $recurrenceMeta['modified_note'] }}
+                        </div>
+                    @endif
                 </div>
 
                 @if (!empty($visit->notes))
@@ -95,35 +119,6 @@
         </div>
 
         <div class="grid min-w-0 gap-6 xl:sticky xl:top-6">
-            @if ($recurrenceMeta)
-                <section class="rounded-3xl border {{ $recurrenceMeta['is_modified'] ? 'border-warning/40 bg-warning/5' : 'border-base-300 bg-base-100' }} p-6 shadow-sm sm:p-7">
-                    <div class="mb-4 flex items-center justify-between gap-3">
-                        <h2 class="text-xl font-bold text-base-content">{{ __('Wiederholung') }}</h2>
-                        <x-recurrence-indicator :modified="$recurrenceMeta['is_modified']" :label="$recurrenceMeta['label']" />
-                    </div>
-
-                    <div class="grid gap-4">
-                        <div>
-                            <div class="text-xs font-semibold uppercase tracking-[0.18em] text-base-content/50">{{ __('Regel') }}</div>
-                            <div class="mt-1.5 text-base font-medium text-base-content">{{ $recurrenceMeta['rule'] }}</div>
-                        </div>
-
-                        @if (!empty($recurrenceMeta['progress']))
-                            <div>
-                                <div class="text-xs font-semibold uppercase tracking-[0.18em] text-base-content/50">{{ __('Serie') }}</div>
-                                <div class="mt-1.5 text-base font-medium text-base-content">{{ $recurrenceMeta['progress'] }}</div>
-                            </div>
-                        @endif
-
-                        @if ($recurrenceMeta['is_modified'])
-                            <div class="rounded-2xl border border-warning/30 bg-warning/10 px-4 py-3 text-sm font-medium text-warning">
-                                {{ $recurrenceMeta['modified_note'] }}
-                            </div>
-                        @endif
-                    </div>
-                </section>
-            @endif
-
             <section class="rounded-3xl border border-base-300 bg-base-100 p-6 sm:p-7 shadow-sm">
                 <h2 class="mb-4 text-xl font-bold text-base-content">{{ __('Termin verschieben') }}</h2>
 

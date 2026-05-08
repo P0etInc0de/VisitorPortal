@@ -431,6 +431,7 @@
     "Jährlich, am :date": "Yearly, on :date",
     "Monatlich, am :day. Tag": "Monthly, on day :day",
     "Regel": "Rule",
+    "Recurring": "Recurring",
     "Serientermin": "Recurring appointment",
     "Serientermin (manuell angepasst)": "Recurring appointment (manually adjusted)",
     "Dieser Termin wurde manuell angepasst und weicht von der Serienregel ab.": "This appointment was manually adjusted and differs from the series rule.",

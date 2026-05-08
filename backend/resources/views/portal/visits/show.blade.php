@@ -72,7 +72,7 @@
                     </span>
 
                     @if ($recurrenceMeta)
-                        <x-recurrence-indicator :badge="true" :modified="$recurrenceMeta['is_modified']" :label="$recurrenceMeta['label']" />
+                        <x-recurrence-indicator :badge="true" :modified="$recurrenceMeta['is_modified']" :label="$recurrenceMeta['badge_label']" />
                     @endif
 
                     <span class="{{ $metaChipClass }}">

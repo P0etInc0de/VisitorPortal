@@ -240,6 +240,7 @@ class VisitController extends Controller
         return [
             'is_modified' => $isModified,
             'label' => $isModified ? __('Serientermin (manuell angepasst)') : __('Serientermin'),
+            'badge_label' => __('Recurring'),
             'rule' => $this->formatRecurrenceRule($series),
             'progress' => $this->formatRecurrenceProgress($visit, $series),
             'modified_note' => __('Dieser Termin wurde manuell angepasst und weicht von der Serienregel ab.'),
