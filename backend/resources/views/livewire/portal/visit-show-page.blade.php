@@ -6,7 +6,8 @@
             </div>
         @endif
 
-        <section class="rounded-3xl border border-base-300 bg-base-100 p-6 shadow-sm sm:p-7 xl:col-span-2">
+        <div class="grid min-w-0 gap-6 xl:col-span-2">
+            <section class="rounded-3xl border border-base-300 bg-base-100 p-6 shadow-sm sm:p-7">
                 <div @class([
                     'grid gap-5 md:grid-cols-2',
                     '2xl:grid-cols-[minmax(7rem,0.65fr)_minmax(15rem,1.45fr)_minmax(12rem,1fr)]' => $recurrenceMeta,
@@ -70,38 +71,9 @@
                         <p class="mt-2 text-base leading-7 text-base-content/80">{{ $visit->notes }}</p>
                     </div>
                 @endif
-        </section>
+            </section>
 
-        <section @class([
-            'rounded-3xl border border-base-300 bg-base-100 p-5 shadow-sm sm:p-6',
-            'xl:self-stretch' => $recurrenceMeta && $recurrenceMeta['is_modified'],
-        ])>
-            <h2 class="mb-3 text-xl font-bold text-base-content">{{ __('Termin verschieben') }}</h2>
-
-            <form wire:submit.prevent="saveSchedule" class="grid gap-3">
-                <div>
-                    <label class="label px-0 pb-1.5"><span class="label-text font-medium">{{ __('Beginn') }}</span></label>
-                    <input type="datetime-local" wire:model.defer="scheduledFrom" class="input input-bordered w-full @error('scheduledFrom') input-error @enderror">
-                    @error('scheduledFrom')
-                    <div class="mt-2 text-sm text-error">{{ $message }}</div>
-                    @enderror
-                </div>
-
-                <div>
-                    <label class="label px-0 pb-1.5"><span class="label-text font-medium">{{ __('Ende') }}</span></label>
-                    <input type="datetime-local" wire:model.defer="scheduledUntil" class="input input-bordered w-full @error('scheduledUntil') input-error @enderror">
-                    @error('scheduledUntil')
-                    <div class="mt-2 text-sm text-error">{{ $message }}</div>
-                    @enderror
-                </div>
-
-                <button type="submit" class="btn btn-primary w-full rounded-xl" wire:loading.attr="disabled" wire:target="saveSchedule">
-                    {{ __('Termin verschieben') }}
-                </button>
-            </form>
-        </section>
-
-        <section class="rounded-3xl border border-base-300 bg-base-100 p-6 shadow-sm sm:p-7 xl:col-span-2">
+            <section class="rounded-3xl border border-base-300 bg-base-100 p-6 shadow-sm sm:p-7">
                 <div class="mb-6">
                     <h2 class="text-2xl font-bold tracking-tight text-base-content">{{ __('Teilnehmende') }}</h2>
                 </div>
@@ -143,9 +115,37 @@
                         @endforeach
                     </div>
                 @endif
-        </section>
+            </section>
+        </div>
 
-        <section class="rounded-3xl border border-base-300 bg-base-100 p-6 shadow-sm sm:p-7">
+        <div class="grid min-w-0 gap-6 xl:sticky xl:top-6">
+            <section class="rounded-3xl border border-base-300 bg-base-100 p-5 shadow-sm sm:p-6">
+                <h2 class="mb-3 text-xl font-bold text-base-content">{{ __('Termin verschieben') }}</h2>
+
+                <form wire:submit.prevent="saveSchedule" class="grid gap-3">
+                    <div>
+                        <label class="label px-0 pb-1.5"><span class="label-text font-medium">{{ __('Beginn') }}</span></label>
+                        <input type="datetime-local" wire:model.defer="scheduledFrom" class="input input-bordered w-full @error('scheduledFrom') input-error @enderror">
+                        @error('scheduledFrom')
+                        <div class="mt-2 text-sm text-error">{{ $message }}</div>
+                        @enderror
+                    </div>
+
+                    <div>
+                        <label class="label px-0 pb-1.5"><span class="label-text font-medium">{{ __('Ende') }}</span></label>
+                        <input type="datetime-local" wire:model.defer="scheduledUntil" class="input input-bordered w-full @error('scheduledUntil') input-error @enderror">
+                        @error('scheduledUntil')
+                        <div class="mt-2 text-sm text-error">{{ $message }}</div>
+                        @enderror
+                    </div>
+
+                    <button type="submit" class="btn btn-primary w-full rounded-xl" wire:loading.attr="disabled" wire:target="saveSchedule">
+                        {{ __('Termin verschieben') }}
+                    </button>
+                </form>
+            </section>
+
+            <section class="rounded-3xl border border-base-300 bg-base-100 p-6 shadow-sm sm:p-7">
                 <h2 class="mb-4 text-xl font-bold text-base-content">{{ __('Aktionen') }}</h2>
 
                 <div class="grid gap-3">
