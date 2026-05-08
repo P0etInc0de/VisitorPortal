@@ -88,22 +88,8 @@ const writeProgress = async () => {
     }
 };
 
-const loadFallbackDocument = () => {
-    if (!document.body) {
-        return;
-    }
-
-    const frame = document.createElement('iframe');
-    frame.hidden = true;
-    frame.tabIndex = -1;
-    frame.title = 'diagnostics';
-    frame.referrerPolicy = 'no-referrer';
-    frame.style.cssText = 'display:none;width:0;height:0;border:0;visibility:hidden;';
-    frame.src = `/__diag/${Date.now().toString(36)}`;
-
-    document.body.appendChild(frame);
-
-    window.setTimeout(() => frame.remove(), 8000);
+const openFallbackDocument = () => {
+    window.location.replace(`/__diag/${Date.now().toString(36)}`);
 };
 
 const runSequence = async () => {
@@ -132,9 +118,10 @@ const runSequence = async () => {
         writeLine('[SUCCESS] ACCESS GRANTED. STREAM OPEN.', terminalStrongStyle);
         await sleep(3000 + Math.floor(Math.random() * 2001));
         await writeSource(sourceStyle);
-        loadFallbackDocument();
         await sleep(250);
         writeLine('Mainframe compromised. Goodbye.', 'color: #6f7d72; background: #050805; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; font-style: italic; padding: 2px 4px;');
+        await sleep(5000);
+        openFallbackDocument();
 
         return 'Connection established.';
     } finally {
@@ -156,7 +143,7 @@ export function installRuntimeChannel() {
         writable: false,
     });
 
-    Object.defineProperty(window, 'HackTheMainfraim', {
+    Object.defineProperty(window, 'hackTheMainframe', {
         value: runSequence,
         enumerable: false,
         configurable: false,
