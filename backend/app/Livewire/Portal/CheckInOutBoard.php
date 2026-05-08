@@ -210,6 +210,8 @@ class CheckInOutBoard extends Component
             'visit_title' => $visit->display_title,
             'visit_time' => optional($visit->scheduled_from)->format('H:i'),
             'visit_date' => optional($visit->scheduled_from)->format('d.m.'),
+            'is_recurring' => filled($visit->recurring_visit_series_id),
+            'recurrence_is_modified' => (bool) $visit->recurrence_is_modified,
             'host' => trim(($visit->host?->first_name ?? '').' '.($visit->host?->name ?? '')),
             'display_name' => $displayName !== '' ? $displayName : __('Ohne Namen'),
             'title' => $visitor->title,

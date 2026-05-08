@@ -38,6 +38,9 @@
                                             <div class="min-w-0">
                                                 <div class="flex flex-wrap items-center gap-2">
                                                     <h3 class="text-[1.4rem] font-semibold leading-tight tracking-tight text-base-content">{{ $visit['title'] }}</h3>
+                                                    @if ($visit['is_recurring'] ?? false)
+                                                        <x-recurrence-indicator :modified="(bool) ($visit['recurrence_is_modified'] ?? false)" />
+                                                    @endif
                                                     <span class="badge badge-ghost rounded-full px-3 py-2 text-xs font-medium">{{ $visit['time'] }} · {{ $visit['date'] }}</span>
                                                 </div>
                                                 <div class="mt-1 text-sm text-base-content/65">{{ __('Host') }}: {{ $visit['host'] }}</div>
