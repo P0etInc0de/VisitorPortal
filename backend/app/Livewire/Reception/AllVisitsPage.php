@@ -224,6 +224,8 @@ class AllVisitsPage extends Component
                     'scheduled_until' => optional($visit->scheduled_until)->format('d.m.Y H:i'),
                     'date_time_label' => $this->formatVisitDateTimeLabel($scheduledFrom),
                     'year_label' => $scheduledFrom?->format('Y') ?? __('Ohne Jahr'),
+                    'is_recurring' => filled($visit->recurring_visit_series_id),
+                    'recurrence_is_modified' => (bool) $visit->recurrence_is_modified,
                     'host' => $hostDisplay,
                     'host_display' => $hostDisplay,
                     'status' => $status['label'],

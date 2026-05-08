@@ -1,18 +1,69 @@
 <div>
-    <div class="grid gap-6 xl:grid-cols-3 xl:items-start">
-        <div class="grid min-w-0 gap-6 xl:col-span-2">
-            @if (session('status'))
-                <div class="alert alert-success rounded-2xl shadow-sm">
-                    <span>{{ session('status') }}</span>
-                </div>
-            @endif
+    <div
+        x-data="{
+            rescheduleMinHeight: '',
+            alignThreshold: 36,
+            alignTimer: null,
+            init() {
+                const schedule = () => {
+                    if (this.alignTimer) {
+                        window.cancelAnimationFrame(this.alignTimer);
+                    }
 
-            <section class="rounded-3xl border border-base-300 bg-base-100 p-6 sm:p-7 shadow-sm">
-                <div class="grid gap-5 md:grid-cols-2 2xl:grid-cols-[minmax(7rem,0.65fr)_minmax(15rem,1.45fr)_minmax(10rem,1fr)_minmax(10rem,1fr)]">
+                    this.alignTimer = window.requestAnimationFrame(() => this.alignTopCards());
+                };
+
+                this.$nextTick(() => {
+                    if (this.$refs.infoCard && window.ResizeObserver) {
+                        this.alignmentObserver = new ResizeObserver(schedule);
+                        this.alignmentObserver.observe(this.$refs.infoCard);
+                    }
+
+                    window.addEventListener('resize', schedule);
+                    schedule();
+                });
+            },
+            alignTopCards() {
+                if (!window.matchMedia('(min-width: 1280px)').matches || !this.$refs.infoCard || !this.$refs.rescheduleCard) {
+                    this.rescheduleMinHeight = '';
+                    return;
+                }
+
+                this.rescheduleMinHeight = '';
+
+                this.$nextTick(() => {
+                    const infoHeight = this.$refs.infoCard.getBoundingClientRect().height;
+                    const rescheduleHeight = this.$refs.rescheduleCard.getBoundingClientRect().height;
+                    const difference = infoHeight - rescheduleHeight;
+
+                    this.rescheduleMinHeight = difference > 0 && difference <= this.alignThreshold
+                        ? `${Math.ceil(infoHeight)}px`
+                        : '';
+                });
+            },
+        }"
+        class="grid gap-6 xl:grid-cols-3 xl:items-start"
+    >
+        @if (session('status'))
+            <div class="alert alert-success rounded-2xl shadow-sm xl:col-span-2">
+                <span>{{ session('status') }}</span>
+            </div>
+        @endif
+
+        <div class="grid min-w-0 gap-6 xl:col-span-2">
+            <section x-ref="infoCard" class="rounded-3xl border border-base-300 bg-base-100 p-6 shadow-sm sm:p-7">
+                <div @class([
+                    'grid gap-5 md:grid-cols-2',
+                    '2xl:grid-cols-[minmax(7rem,0.65fr)_minmax(15rem,1.45fr)_minmax(12rem,1fr)]' => $recurrenceMeta,
+                    '2xl:grid-cols-[minmax(7rem,0.65fr)_minmax(15rem,1.45fr)_minmax(10rem,1fr)_minmax(10rem,1fr)]' => ! $recurrenceMeta,
+                ])>
                     <div>
                         <div class="text-xs font-semibold uppercase tracking-[0.18em] text-base-content/50">{{ __('Status') }}</div>
-                        <div class="mt-2">
+                        <div class="mt-2 flex flex-wrap items-center gap-2">
                             <span class="badge {{ $visitStatus['class'] }} rounded-full text-sm font-semibold">{{ $visitStatus['label'] }}</span>
+                            @if ($recurrenceMeta)
+                                <x-recurrence-indicator :badge="true" :modified="$recurrenceMeta['is_modified']" :label="$recurrenceMeta['badge_label']" />
+                            @endif
                         </div>
                     </div>
 
@@ -36,6 +87,26 @@
                         <div class="text-xs font-semibold uppercase tracking-[0.18em] text-base-content/50">{{ __('Vertretung') }}</div>
                         <div class="mt-2 text-base font-medium text-base-content">{{ $visitMeta['reception'] }}</div>
                     </div>
+
+                    @if ($recurrenceMeta)
+                        <div>
+                            <div class="text-xs font-semibold uppercase tracking-[0.18em] text-base-content/50">{{ __('Wiederholung') }}</div>
+                            <div class="mt-2 text-base font-medium text-base-content">{{ $recurrenceMeta['rule'] }}</div>
+                        </div>
+                    @endif
+
+                    @if ($recurrenceMeta && !empty($recurrenceMeta['progress']))
+                        <div>
+                            <div class="text-xs font-semibold uppercase tracking-[0.18em] text-base-content/50">{{ __('Serie') }}</div>
+                            <div class="mt-2 text-base font-medium text-base-content">{{ $recurrenceMeta['progress'] }}</div>
+                        </div>
+                    @endif
+
+                    @if ($recurrenceMeta && $recurrenceMeta['is_modified'])
+                        <div class="md:col-span-2 2xl:col-span-3 rounded-2xl border border-warning/30 bg-warning/10 px-4 py-3 text-sm font-medium text-warning">
+                            {{ $recurrenceMeta['modified_note'] }}
+                        </div>
+                    @endif
                 </div>
 
                 @if (!empty($visit->notes))
@@ -46,7 +117,7 @@
                 @endif
             </section>
 
-            <section class="rounded-3xl border border-base-300 bg-base-100 p-6 sm:p-7 shadow-sm">
+            <section class="rounded-3xl border border-base-300 bg-base-100 p-6 shadow-sm sm:p-7">
                 <div class="mb-6">
                     <h2 class="text-2xl font-bold tracking-tight text-base-content">{{ __('Teilnehmende') }}</h2>
                 </div>
@@ -92,12 +163,12 @@
         </div>
 
         <div class="grid min-w-0 gap-6 xl:sticky xl:top-6">
-            <section class="rounded-3xl border border-base-300 bg-base-100 p-6 sm:p-7 shadow-sm">
-                <h2 class="mb-4 text-xl font-bold text-base-content">{{ __('Termin verschieben') }}</h2>
+            <section x-ref="rescheduleCard" :style="rescheduleMinHeight ? { minHeight: rescheduleMinHeight } : {}" class="rounded-3xl border border-base-300 bg-base-100 p-5 shadow-sm sm:p-6">
+                <h2 class="mb-3 text-xl font-bold text-base-content">{{ __('Termin verschieben') }}</h2>
 
-                <form wire:submit.prevent="saveSchedule" class="grid gap-4">
+                <form wire:submit.prevent="saveSchedule" class="grid gap-3">
                     <div>
-                        <label class="label px-0 pb-2"><span class="label-text font-medium">{{ __('Beginn') }}</span></label>
+                        <label class="label px-0 pb-1.5"><span class="label-text font-medium">{{ __('Beginn') }}</span></label>
                         <input type="datetime-local" wire:model.defer="scheduledFrom" class="input input-bordered w-full @error('scheduledFrom') input-error @enderror">
                         @error('scheduledFrom')
                         <div class="mt-2 text-sm text-error">{{ $message }}</div>
@@ -105,7 +176,7 @@
                     </div>
 
                     <div>
-                        <label class="label px-0 pb-2"><span class="label-text font-medium">{{ __('Ende') }}</span></label>
+                        <label class="label px-0 pb-1.5"><span class="label-text font-medium">{{ __('Ende') }}</span></label>
                         <input type="datetime-local" wire:model.defer="scheduledUntil" class="input input-bordered w-full @error('scheduledUntil') input-error @enderror">
                         @error('scheduledUntil')
                         <div class="mt-2 text-sm text-error">{{ $message }}</div>
@@ -118,7 +189,7 @@
                 </form>
             </section>
 
-            <section class="rounded-3xl border border-base-300 bg-base-100 p-6 sm:p-7 shadow-sm">
+            <section class="rounded-3xl border border-base-300 bg-base-100 p-6 shadow-sm sm:p-7">
                 <h2 class="mb-4 text-xl font-bold text-base-content">{{ __('Aktionen') }}</h2>
 
                 <div class="grid gap-3">

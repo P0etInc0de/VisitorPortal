@@ -29,6 +29,7 @@
     }));
 
     $statusBadge = $visitStatus ?? ['label' => __('Geplant'), 'class' => 'badge-warning badge-outline'];
+    $recurrenceMeta = $recurrenceMeta ?? null;
     $metaChipClass = 'inline-flex min-h-[2.15rem] items-center rounded-full border border-base-300 bg-base-100/90 px-3 text-[0.92rem] text-base-content';
     $detailGridClass = 'grid gap-3 sm:grid-cols-2 xl:grid-cols-3';
     $detailCardClass = 'rounded-2xl border border-base-300 bg-base-100/90 px-4 py-3';
@@ -70,10 +71,8 @@
                         {{ $statusBadge['label'] }}
                     </span>
 
-                    @if ($visit->recurring_visit_series_id)
-                        <span class="badge badge-primary badge-outline rounded-full text-sm font-semibold">
-                            {{ __('Wiederkehrender Termin') }}
-                        </span>
+                    @if ($recurrenceMeta)
+                        <x-recurrence-indicator :badge="true" :modified="$recurrenceMeta['is_modified']" :label="$recurrenceMeta['badge_label']" />
                     @endif
 
                     <span class="{{ $metaChipClass }}">
@@ -180,6 +179,35 @@
                     </div>
 
                     <div class="grid gap-4">
+                        @if ($recurrenceMeta)
+                            <div class="rounded-2xl border {{ $recurrenceMeta['is_modified'] ? 'border-warning/40 bg-warning/5' : 'border-base-300 bg-base-100' }} p-4">
+                                <div class="mb-3 flex items-center justify-between gap-3">
+                                    <div class="text-base font-semibold text-base-content">{{ __('Wiederholung') }}</div>
+                                    <x-recurrence-indicator :modified="$recurrenceMeta['is_modified']" :label="$recurrenceMeta['label']" />
+                                </div>
+
+                                <div class="grid gap-3">
+                                    <div class="{{ $detailCardClass }}">
+                                        <div class="{{ $detailLabelClass }}">{{ __('Regel') }}</div>
+                                        <div class="{{ $detailValueClass }}">{{ $recurrenceMeta['rule'] }}</div>
+                                    </div>
+
+                                    @if (!empty($recurrenceMeta['progress']))
+                                        <div class="{{ $detailCardClass }}">
+                                            <div class="{{ $detailLabelClass }}">{{ __('Serie') }}</div>
+                                            <div class="{{ $detailValueClass }}">{{ $recurrenceMeta['progress'] }}</div>
+                                        </div>
+                                    @endif
+
+                                    @if ($recurrenceMeta['is_modified'])
+                                        <div class="rounded-xl border border-warning/30 bg-warning/10 px-3 py-2 text-sm font-medium text-warning">
+                                            {{ $recurrenceMeta['modified_note'] }}
+                                        </div>
+                                    @endif
+                                </div>
+                            </div>
+                        @endif
+
                         <details class="rounded-2xl border border-base-300 bg-base-100" open>
                             <summary class="cursor-pointer list-none px-4 py-3 text-base font-semibold text-base-content">
                                 {{ __('Termin verschieben') }}

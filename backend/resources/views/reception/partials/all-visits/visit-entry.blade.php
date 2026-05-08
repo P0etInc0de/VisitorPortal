@@ -53,8 +53,11 @@
             <input type="checkbox" class="checkbox checkbox-sm h-4 w-4 rounded-[0.35rem]" name="selected_visits[]" value="{{ $visitId }}" aria-label="{{ __('Besuch auswählen') }}">
         </div>
 
-        <div class="flex min-w-0 items-center">
-            <span class="truncate text-[0.9rem] font-bold leading-[1.18] text-base-content">{{ $visit['title'] }}</span>
+        <div class="flex min-w-0 items-center gap-1.5">
+            <span class="min-w-0 truncate text-[0.9rem] font-bold leading-[1.18] text-base-content">{{ $visit['title'] }}</span>
+            @if ($visit['is_recurring'] ?? false)
+                <x-recurrence-indicator :modified="(bool) ($visit['recurrence_is_modified'] ?? false)" />
+            @endif
         </div>
 
         <div class="flex min-w-0 items-center">

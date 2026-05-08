@@ -3,6 +3,7 @@
 namespace App\Livewire\Portal;
 
 use App\Enums\VisitStatusEnum;
+use App\Models\RecurringVisitSeries;
 use App\Models\User;
 use App\Models\Visit;
 use App\Models\Visitor;
@@ -35,6 +36,7 @@ class VisitShowPage extends Component
         $this->visit->update([
             'scheduled_from' => $payload['scheduledFrom'],
             'scheduled_until' => $payload['scheduledUntil'] !== '' ? $payload['scheduledUntil'] : null,
+            'recurrence_is_modified' => $this->visit->recurring_visit_series_id ? true : $this->visit->recurrence_is_modified,
         ]);
 
         $this->refreshVisit();
@@ -49,6 +51,7 @@ class VisitShowPage extends Component
             'status' => VisitStatusEnum::Canceled->value,
             'canceled_at' => now(),
             'canceled_by_user_id' => auth()->id(),
+            'recurrence_is_modified' => $this->visit->recurring_visit_series_id ? true : $this->visit->recurrence_is_modified,
         ]);
 
         $this->refreshVisit();
@@ -62,6 +65,7 @@ class VisitShowPage extends Component
             'status' => VisitStatusEnum::Planned->value,
             'canceled_at' => null,
             'canceled_by_user_id' => null,
+            'recurrence_is_modified' => $this->visit->recurring_visit_series_id ? true : $this->visit->recurrence_is_modified,
         ]);
 
         $this->refreshVisit();
@@ -73,6 +77,7 @@ class VisitShowPage extends Component
     {
         return view('livewire.portal.visit-show-page', [
             'participants' => $this->participantItems(),
+            'recurrenceMeta' => $this->recurrenceMeta(),
             'visitStatus' => $this->resolveVisitStatus(),
             'visitMeta' => $this->visitMeta(),
         ])->layout('layouts.app', [
@@ -126,6 +131,81 @@ class VisitShowPage extends Component
         ];
     }
 
+    private function recurrenceMeta(): ?array
+    {
+        $series = $this->visit->recurringSeries;
+
+        if (! $this->visit->recurring_visit_series_id || ! $series) {
+            return null;
+        }
+
+        $isModified = (bool) $this->visit->recurrence_is_modified;
+
+        return [
+            'is_modified' => $isModified,
+            'label' => $isModified ? __('Serientermin (manuell angepasst)') : __('Serientermin'),
+            'badge_label' => __('Recurring'),
+            'rule' => $this->formatRecurrenceRule($series),
+            'progress' => $this->formatRecurrenceProgress($series),
+            'modified_note' => __('Dieser Termin wurde manuell angepasst und weicht von der Serienregel ab.'),
+        ];
+    }
+
+    private function formatRecurrenceRule(RecurringVisitSeries $series): string
+    {
+        $localizedStart = $series->starts_at?->copy()->locale(app()->getLocale());
+        $weekday = $localizedStart?->translatedFormat('l') ?: '-';
+        $yearlyDateFormat = app()->getLocale() === 'en' ? 'F j' : 'd. F';
+
+        if (app()->getLocale() === 'de' && $weekday !== '-') {
+            $weekday .= 's';
+        }
+
+        return match ($series->frequency) {
+            RecurringVisitSeries::FREQUENCY_DAILY => __('Täglich'),
+            RecurringVisitSeries::FREQUENCY_WEEKLY => __('Wöchentlich, :weekday', [
+                'weekday' => $weekday,
+            ]),
+            RecurringVisitSeries::FREQUENCY_MONTHLY => __('Monatlich, am :day. Tag', [
+                'day' => $series->starts_at?->format('j') ?: '-',
+            ]),
+            RecurringVisitSeries::FREQUENCY_YEARLY => __('Jährlich, am :date', [
+                'date' => $localizedStart?->translatedFormat($yearlyDateFormat) ?: '-',
+            ]),
+            RecurringVisitSeries::FREQUENCY_EVERY_X_DAYS => $this->formatEveryXDaysRule($series),
+            default => __('Wiederkehrender Termin'),
+        };
+    }
+
+    private function formatEveryXDaysRule(RecurringVisitSeries $series): string
+    {
+        $intervalDays = max(1, (int) ($series->interval_days ?: 1));
+
+        return $intervalDays === 1
+            ? __('Täglich')
+            : __('Alle :count Tage', ['count' => $intervalDays]);
+    }
+
+    private function formatRecurrenceProgress(RecurringVisitSeries $series): ?string
+    {
+        if ($series->ends === RecurringVisitSeries::END_COUNT && $series->occurrence_count && $this->visit->recurrence_occurrence_number) {
+            return __('Dies ist Termin :current von :total', [
+                'current' => $this->visit->recurrence_occurrence_number,
+                'total' => $series->occurrence_count,
+            ]);
+        }
+
+        $plannedUntil = $series->ends === RecurringVisitSeries::END_DATE
+            ? $series->end_date
+            : $series->generated_until;
+
+        if (! $plannedUntil) {
+            return null;
+        }
+
+        return __('Geplant bis :date', ['date' => $plannedUntil->format('d.m.Y')]);
+    }
+
     /**
      * @return array{label: string, class: string}
      */
@@ -175,6 +255,7 @@ class VisitShowPage extends Component
         $this->visit->load([
             'host:id,first_name,name',
             'responsibleUser:id,first_name,name',
+            'recurringSeries',
             'visitors' => fn ($query) => $query->orderBy('first_name')->orderBy('name'),
         ]);
     }

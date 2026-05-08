@@ -72,6 +72,8 @@ class DashboardController extends Controller
                 'title' => $visit->title ?: __('Besuch'),
                 'time' => optional($visit->scheduled_from)->format('H:i'),
                 'date' => optional($visit->scheduled_from)->format('d.m.'),
+                'is_recurring' => filled($visit->recurring_visit_series_id),
+                'recurrence_is_modified' => (bool) $visit->recurrence_is_modified,
                 'host' => $visit->host?->name ?: '-',
                 'notes' => $visit->notes,
                 'visible_participants' => $participants->take(3)->values(),

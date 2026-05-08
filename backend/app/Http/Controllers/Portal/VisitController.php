@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\RescheduleVisitRequest;
 use App\Http\Requests\StoreVisitRequest;
 use App\Http\Requests\UpdateVisitRequest;
+use App\Models\RecurringVisitSeries;
 use App\Models\User;
 use App\Models\Visit;
 use App\Models\Visitor;
@@ -77,6 +78,7 @@ class VisitController extends Controller
         return view('portal.visits.show', [
             'visit' => $visit,
             'participants' => $participants,
+            'recurrenceMeta' => $this->recurrenceMeta($visit),
             'visitStatus' => $this->resolveVisitStatus($visit),
         ]);
     }
@@ -223,6 +225,81 @@ class VisitController extends Controller
             'existingVisitors' => $existingVisitors,
             'initialParticipants' => $initialParticipants,
         ]);
+    }
+
+    private function recurrenceMeta(Visit $visit): ?array
+    {
+        $series = $visit->recurringSeries;
+
+        if (! $visit->recurring_visit_series_id || ! $series) {
+            return null;
+        }
+
+        $isModified = (bool) $visit->recurrence_is_modified;
+
+        return [
+            'is_modified' => $isModified,
+            'label' => $isModified ? __('Serientermin (manuell angepasst)') : __('Serientermin'),
+            'badge_label' => __('Recurring'),
+            'rule' => $this->formatRecurrenceRule($series),
+            'progress' => $this->formatRecurrenceProgress($visit, $series),
+            'modified_note' => __('Dieser Termin wurde manuell angepasst und weicht von der Serienregel ab.'),
+        ];
+    }
+
+    private function formatRecurrenceRule(RecurringVisitSeries $series): string
+    {
+        $localizedStart = $series->starts_at?->copy()->locale(app()->getLocale());
+        $weekday = $localizedStart?->translatedFormat('l') ?: '-';
+        $yearlyDateFormat = app()->getLocale() === 'en' ? 'F j' : 'd. F';
+
+        if (app()->getLocale() === 'de' && $weekday !== '-') {
+            $weekday .= 's';
+        }
+
+        return match ($series->frequency) {
+            RecurringVisitSeries::FREQUENCY_DAILY => __('Täglich'),
+            RecurringVisitSeries::FREQUENCY_WEEKLY => __('Wöchentlich, :weekday', [
+                'weekday' => $weekday,
+            ]),
+            RecurringVisitSeries::FREQUENCY_MONTHLY => __('Monatlich, am :day. Tag', [
+                'day' => $series->starts_at?->format('j') ?: '-',
+            ]),
+            RecurringVisitSeries::FREQUENCY_YEARLY => __('Jährlich, am :date', [
+                'date' => $localizedStart?->translatedFormat($yearlyDateFormat) ?: '-',
+            ]),
+            RecurringVisitSeries::FREQUENCY_EVERY_X_DAYS => $this->formatEveryXDaysRule($series),
+            default => __('Wiederkehrender Termin'),
+        };
+    }
+
+    private function formatEveryXDaysRule(RecurringVisitSeries $series): string
+    {
+        $intervalDays = max(1, (int) ($series->interval_days ?: 1));
+
+        return $intervalDays === 1
+            ? __('Täglich')
+            : __('Alle :count Tage', ['count' => $intervalDays]);
+    }
+
+    private function formatRecurrenceProgress(Visit $visit, RecurringVisitSeries $series): ?string
+    {
+        if ($series->ends === RecurringVisitSeries::END_COUNT && $series->occurrence_count && $visit->recurrence_occurrence_number) {
+            return __('Dies ist Termin :current von :total', [
+                'current' => $visit->recurrence_occurrence_number,
+                'total' => $series->occurrence_count,
+            ]);
+        }
+
+        $plannedUntil = $series->ends === RecurringVisitSeries::END_DATE
+            ? $series->end_date
+            : $series->generated_until;
+
+        if (! $plannedUntil) {
+            return null;
+        }
+
+        return __('Geplant bis :date', ['date' => $plannedUntil->format('d.m.Y')]);
     }
 
     private function resolveParticipantStatus(string $visitStatus, object $pivot): array

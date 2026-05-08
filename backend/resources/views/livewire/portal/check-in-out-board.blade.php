@@ -62,7 +62,12 @@
                                         </div>
 
                                         <div class="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-sm text-base-content/70">
-                                            <span>{{ $result['visit_title'] }}</span>
+                                            <span class="inline-flex min-w-0 items-center gap-1.5">
+                                                <span class="min-w-0 truncate">{{ $result['visit_title'] }}</span>
+                                                @if ($result['is_recurring'] ?? false)
+                                                    <x-recurrence-indicator :modified="(bool) ($result['recurrence_is_modified'] ?? false)" />
+                                                @endif
+                                            </span>
                                             <span>{{ $result['visit_time'] }} · {{ $result['visit_date'] }}</span>
                                             @if (!empty($result['host']))
                                                 <span>{{ __('Host') }}: {{ $result['host'] }}</span>
