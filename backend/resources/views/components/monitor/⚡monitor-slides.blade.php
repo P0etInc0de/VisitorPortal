@@ -91,7 +91,7 @@ new class extends Component {
         @endphp
 
         @foreach($slides as $slide)
-            <div wire:key="slide-{{ $slide['id'] }}" class="slide h-full w-full" x-show="current === {{ $loop->index }}" @if (! $loop->first) x-cloak @endif>
+            <div wire:key="slide-{{ $slide['id'] }}" class="slide h-full w-full" data-theme="light" x-show="current === {{ $loop->index }}" @if (! $loop->first) x-cloak @endif>
                 <main
                     class="relative h-full overflow-hidden bg-[#eef2f8] bg-cover bg-center bg-no-repeat"
                     @if ($slide['background_asset'])
