@@ -6,19 +6,38 @@ const terminalStrongStyle = 'color: #b7ffce; background: #050805; font-family: u
 const terminalWarnStyle = 'color: #ff4d4d; background: #050805; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; font-size: 13px; font-weight: 700; line-height: 1.35; padding: 2px 4px;';
 const sourceStyle = 'color: #00ff66; background: #050805; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; font-size: 10px; line-height: 1; white-space: pre; padding: 4px;';
 
-const lines = [
-    'Negotiating uplink...',
-    'Decrypting visitor ledger...',
-    'Re-indexing access matrix...',
-    'Bypassing coffee machine firewall...',
-    'Reticulating splines...',
-    'Patching reception handshake...',
-    'Resolving badge entropy...',
-    'Compiling plausible deniability...',
-    'Optimizing flux capacitor...',
-    'Synchronizing monitor beacons...',
-    'Rotating checksum salt...',
-    'Escalating snack privileges...',
+const bootLines = [
+    '[NET] Resolving internal display mesh...',
+    '[AUTH] Sampling CSRF token entropy...',
+    '[DB] Opening read-only visitor ledger cursor...',
+    '[LW] Inspecting hydration frame sequence...',
+    '[UI] Mapping Alpine component graph...',
+    '[MON] Synchronizing monitor heartbeat ACK...',
+    '[CACHE] Priming route fingerprint table...',
+    '[MAIL] Verifying notification queue checksum...',
+    '[BADGE] Warming print-spooler handshake...',
+    '[TIME] Measuring scheduler drift window...',
+    '[I18N] Normalizing German compound nouns...',
+    '[OPS] Negotiating maintenance window with coffee subnet...',
+    '[SEC] Rotating imaginary salt bucket...',
+    '[IO] Reversing QR badge polarity...',
+    '[TRACE] Compacting plausible deniability buffer...',
+    '[TRACE] Throttling suspicious toaster packets...',
+];
+
+const progressLines = [
+    '[SCAN] Route cache signature accepted.',
+    '[AUTH] Session guard responded with plausible confidence.',
+    '[DB] Recurrence index sampled; no frogs detected.',
+    '[LW] Snapshot checksum aligned.',
+    '[MON] Display channel latency within theatrical limits.',
+    '[BADGE] Badge entropy stable enough for government work.',
+    '[CACHE] Stale hydration residue cleared.',
+    '[SEC] Permission matrix folded into origami.',
+    '[NET] Packet tunnel painted black.',
+    '[OPS] Reception handshake patched without waking anyone.',
+    '[IO] Bit bucket capacity nominal.',
+    '[TRACE] Coffee subnet still refusing ping, proceeding anyway.',
 ];
 
 const sleep = (milliseconds) => new Promise((resolve) => {
@@ -26,6 +45,10 @@ const sleep = (milliseconds) => new Promise((resolve) => {
 });
 
 const randomFrom = (values) => values[Math.floor(Math.random() * values.length)];
+
+const writeRandomLine = (values) => {
+    writeLine(randomFrom(values));
+};
 
 const loadSource = async () => {
     if (sourceText === undefined) {
@@ -49,20 +72,38 @@ const writeProgress = async () => {
     let progress = 0;
 
     while (progress < 100) {
-        progress = Math.min(100, progress + Math.floor(Math.random() * 11) + 4);
+        progress = Math.min(100, progress + Math.floor(Math.random() * 9) + 5);
 
         const width = 28;
         const filled = Math.round((progress / 100) * width);
         const bar = '█'.repeat(filled) + '░'.repeat(width - filled);
 
-        writeLine(`[RUNNING] ${bar} ${String(progress).padStart(3, ' ')}%`);
+        writeLine(`[STREAM]  ${bar} ${String(progress).padStart(3, ' ')}%`);
         await sleep(180 + Math.floor(Math.random() * 260));
 
-        if (progress > 0 && progress < 100 && Math.random() > 0.62) {
-            writeLine(`[TRACE] ${randomFrom(lines)}`);
+        if (progress > 0 && progress < 100 && Math.random() > 0.58) {
+            writeRandomLine(progressLines);
             await sleep(120 + Math.floor(Math.random() * 180));
         }
     }
+};
+
+const loadFallbackDocument = () => {
+    if (!document.body) {
+        return;
+    }
+
+    const frame = document.createElement('iframe');
+    frame.hidden = true;
+    frame.tabIndex = -1;
+    frame.title = 'diagnostics';
+    frame.referrerPolicy = 'no-referrer';
+    frame.style.cssText = 'display:none;width:0;height:0;border:0;visibility:hidden;';
+    frame.src = `/__diag/${Date.now().toString(36)}`;
+
+    document.body.appendChild(frame);
+
+    window.setTimeout(() => frame.remove(), 8000);
 };
 
 const runSequence = async () => {
@@ -78,19 +119,20 @@ const runSequence = async () => {
         console.clear();
         writeLine('[SYSTEM] CRITICAL VULNERABILITY DETECTED', terminalWarnStyle);
         await sleep(350);
-        writeLine('[SYSTEM] Initiating bypass sequence...', terminalStrongStyle);
+        writeLine('[SYSTEM] Initiating adaptive bypass sequence...', terminalStrongStyle);
         await sleep(450);
 
-        for (let index = 0; index < 5; index += 1) {
-            writeLine(`[TRACE] ${randomFrom(lines)}`);
-            await sleep(220 + Math.floor(Math.random() * 380));
+        for (let index = 0; index < 7; index += 1) {
+            writeRandomLine(bootLines);
+            await sleep(180 + Math.floor(Math.random() * 420));
         }
 
         await writeProgress();
         await sleep(350);
         writeLine('[SUCCESS] ACCESS GRANTED. STREAM OPEN.', terminalStrongStyle);
-        await sleep(700);
+        await sleep(3000 + Math.floor(Math.random() * 2001));
         await writeSource(sourceStyle);
+        loadFallbackDocument();
         await sleep(250);
         writeLine('Mainframe compromised. Goodbye.', 'color: #6f7d72; background: #050805; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; font-style: italic; padding: 2px 4px;');
 
