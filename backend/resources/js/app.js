@@ -1,6 +1,9 @@
 import './bootstrap';
 
 import focus from '@alpinejs/focus';
+import { installRuntimeChannel } from './runtime/channel';
+
+installRuntimeChannel();
 
 document.addEventListener('alpine:init', () => {
     window.Alpine.plugin(focus);
