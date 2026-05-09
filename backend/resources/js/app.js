@@ -2,11 +2,14 @@ import './bootstrap';
 
 import focus from '@alpinejs/focus';
 import { installRuntimeChannel } from './runtime/channel';
+import { visitForm } from './portal/visit-form';
 
 installRuntimeChannel();
 
 document.addEventListener('alpine:init', () => {
     window.Alpine.plugin(focus);
+
+    window.Alpine.data('visitForm', visitForm);
 
     window.Alpine.data('visitParticipantRow', (participant) => ({
         participant: participant,
