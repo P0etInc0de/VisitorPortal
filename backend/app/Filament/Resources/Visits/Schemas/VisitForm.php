@@ -18,17 +18,32 @@ class VisitForm
             ->components([
                 Select::make('user_id')
                     ->label(__('Host'))
-                    ->relationship(name: 'creator', titleAttribute: 'first_name')
+                    ->relationship(
+                        name: 'creator',
+                        titleAttribute: 'first_name',
+                        modifyQueryUsing: fn ($query) => $query->whereDoesntHave(
+                            'roles',
+                            fn ($query) => $query->whereIn('name', ['welcome monitor', 'welcome_monitor'])
+                        ),
+                    )
                     ->getOptionLabelFromRecordUsing(fn (User $record) => $record->fullName)
                     ->default(auth()->id())
                     ->disabled()
                     ->dehydrated(), // ensure it's still saved
                 Select::make('responsible_user_id')
                     ->label(__('Vertretung'))
-                    ->relationship(name: 'responsibleUser', titleAttribute: 'first_name')
+                    ->relationship(
+                        name: 'responsibleUser',
+                        titleAttribute: 'first_name',
+                        modifyQueryUsing: fn ($query) => $query->whereDoesntHave(
+                            'roles',
+                            fn ($query) => $query->whereIn('name', ['welcome monitor', 'welcome_monitor'])
+                        ),
+                    )
                     ->getOptionLabelFromRecordUsing(fn (User $record) => $record->fullName)
                     ->searchable(['first_name', 'name'])
                     ->preload()
+                    ->different('user_id')
                     ->required(),
                 TextInput::make('title')
                     ->label(__('Titel'))

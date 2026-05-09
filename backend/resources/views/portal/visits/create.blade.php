@@ -11,6 +11,10 @@
     $recurrenceOccurrenceCountValue = old('recurrence_occurrence_count', $recurringSeries?->occurrence_count ?? 2);
     $recurrenceUpdateScopeValue = old('recurrence_update_scope', \App\Models\RecurringVisitSeries::UPDATE_SINGLE);
     $hasInitialParticipants = ! empty($initialParticipants);
+    $showRequiredMarkers = true;
+    $requiredMarker = $showRequiredMarkers
+        ? new \Illuminate\Support\HtmlString('<span class="bp-required-marker text-error" aria-hidden="true">*</span>')
+        : '';
 
     $beginDate = $scheduledFromValue ? substr($scheduledFromValue, 0, 10) : '';
     $beginTime = $scheduledFromValue ? substr($scheduledFromValue, 11, 5) : '';
@@ -41,6 +45,28 @@
             ];
         })
         ->values();
+
+    $hostUserIdValue = (string) old('user_id', $visit->user_id ?: auth()->id());
+    $responsibleUserIdValue = (string) old('responsible_user_id', $visit->responsible_user_id);
+
+    if (! $users->contains('id', (int) $hostUserIdValue)) {
+        $hostUserIdValue = (string) ($users->first()?->id ?? '');
+    }
+
+    if (! $users->contains('id', (int) $responsibleUserIdValue) || $responsibleUserIdValue === $hostUserIdValue) {
+        $responsibleUserIdValue = '';
+    }
+
+    $userOptions = $users
+        ->map(fn ($user) => [
+            'id' => (string) $user->id,
+            'label' => $user->fullName,
+            'search' => trim(implode(' ', array_filter([
+                $user->fullName,
+                $user->title,
+            ]))),
+        ])
+        ->values();
 @endphp
 
 <x-app-layout>
@@ -64,6 +90,14 @@
             endDateTouched: {{ \Illuminate\Support\Js::from(filled($endDate)) }},
             participants: {{ \Illuminate\Support\Js::from($initialParticipants) }},
             existingVisitors: {{ \Illuminate\Support\Js::from($existingVisitorOptions) }},
+            userOptions: {{ \Illuminate\Support\Js::from($userOptions) }},
+            hostId: {{ \Illuminate\Support\Js::from($hostUserIdValue) }},
+            responsibleUserId: {{ \Illuminate\Support\Js::from($responsibleUserIdValue) }},
+            userDropdownOpen: null,
+            userSearch: {
+                host: '',
+                responsible: '',
+            },
             recurrenceEnabled: {{ \Illuminate\Support\Js::from(filter_var($recurrenceEnabledValue, FILTER_VALIDATE_BOOL)) }},
             recurrenceFrequency: {{ \Illuminate\Support\Js::from($recurrenceFrequencyValue) }},
             recurrenceEndType: {{ \Illuminate\Support\Js::from($recurrenceEndTypeValue) }},
@@ -87,6 +121,65 @@
                 }
 
                 return `${dateValue}T${timeValue}`;
+            },
+            userLabel(field) {
+                const selectedId = field === 'host' ? this.hostId : this.responsibleUserId;
+                const user = this.userOptions.find((option) => String(option.id) === String(selectedId));
+
+                return user?.label ?? '';
+            },
+            openUserDropdown(field) {
+                this.userDropdownOpen = field;
+                this.userSearch[field] = '';
+                this.$nextTick(() => this.$refs[`${field}UserSearch`]?.focus());
+            },
+            toggleUserDropdown(field) {
+                if (this.userDropdownOpen === field) {
+                    this.userDropdownOpen = null;
+
+                    return;
+                }
+
+                this.openUserDropdown(field);
+            },
+            selectUser(field, user) {
+                if (field === 'host') {
+                    this.hostId = String(user.id);
+
+                    if (String(this.responsibleUserId) === String(user.id)) {
+                        this.responsibleUserId = '';
+                    }
+                } else {
+                    this.responsibleUserId = String(user.id);
+                }
+
+                this.userSearch[field] = '';
+                this.userDropdownOpen = null;
+            },
+            clearUserSearch(field) {
+                this.userSearch[field] = '';
+                this.$nextTick(() => this.$refs[`${field}UserSearch`]?.focus());
+            },
+            clearResponsibleUser() {
+                this.responsibleUserId = '';
+                this.userSearch.responsible = '';
+                this.userDropdownOpen = null;
+            },
+            filteredUsers(field) {
+                const term = (this.userSearch[field] ?? '').trim().toLowerCase();
+                const excludedId = field === 'host' ? this.responsibleUserId : this.hostId;
+
+                return this.userOptions
+                    .filter((user) => String(user.id) !== String(excludedId))
+                    .filter((user) => term === '' || String(user.search).toLowerCase().includes(term))
+                    .slice(0, 20);
+            },
+            selectFirstFilteredUser(field) {
+                const firstUser = this.filteredUsers(field)[0];
+
+                if (firstUser) {
+                    this.selectUser(field, firstUser);
+                }
             },
             openAddParticipant() {
                 this.addingParticipant = true;
@@ -273,7 +366,7 @@
                                 <label class="form-control xl:col-span-12">
                                     <div class="label px-0 pb-2">
                                         <span class="label-text text-sm font-medium text-base-content">
-                                            {{ __('Titel_Anlass') }}
+                                            {{ __('Titel_Anlass') }} {{ $requiredMarker }}
                                         </span>
                                     </div>
                                     <input
@@ -285,50 +378,152 @@
                                     >
                                 </label>
 
-                                <label class="form-control xl:col-span-5">
+                                <div class="form-control xl:col-span-5">
                                     <div class="label px-0 pb-2">
-                                        <span class="label-text text-sm font-medium text-base-content">{{ __('Host') }}</span>
+                                        <span class="label-text text-sm font-medium text-base-content">{{ __('Host') }} {{ $requiredMarker }}</span>
                                     </div>
-                                    <select
-                                        name="user_id"
-                                        class="select select-bordered w-full @error('user_id') select-error @enderror"
-                                    >
-                                        @foreach ($users as $user)
-                                            <option
-                                                value="{{ $user->id }}"
-                                                @selected((int) old('user_id', $visit->user_id ?: auth()->id()) === $user->id)
-                                            >
-                                                {{ $user->fullName }}
-                                            </option>
-                                        @endforeach
-                                    </select>
-                                </label>
+                                    <input type="hidden" name="user_id" value="{{ $hostUserIdValue }}" :value="hostId">
+                                    <div class="relative" @click.outside="userDropdownOpen === 'host' && (userDropdownOpen = null)">
+                                        <button
+                                            type="button"
+                                            class="input input-bordered flex w-full items-center justify-between gap-3 text-left font-normal @error('user_id') input-error @enderror"
+                                            :aria-expanded="userDropdownOpen === 'host'"
+                                            @click="toggleUserDropdown('host')"
+                                            @keydown.escape="userDropdownOpen = null"
+                                        >
+                                            <span class="truncate" x-text="userLabel('host') || {{ \Illuminate\Support\Js::from(__('Host auswählen')) }}"></span>
+                                            <svg class="h-4 w-4 shrink-0 text-base-content/60" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                                                <path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 0 1 1.06.02L10 11.17l3.71-3.94a.75.75 0 1 1 1.08 1.04l-4.25 4.5a.75.75 0 0 1-1.08 0l-4.25-4.5a.75.75 0 0 1 .02-1.06Z" clip-rule="evenodd" />
+                                            </svg>
+                                        </button>
 
-                                <label class="form-control xl:col-span-4">
+                                        <div
+                                            class="absolute z-40 mt-2 w-full rounded-2xl border border-base-300 bg-base-100 p-2 shadow-xl"
+                                            x-cloak
+                                            x-show="userDropdownOpen === 'host'"
+                                        >
+                                            <div class="relative">
+                                                <input
+                                                    type="text"
+                                                    class="input input-bordered w-full pr-10"
+                                                    x-ref="hostUserSearch"
+                                                    x-model="userSearch.host"
+                                                    placeholder="{{ __('Namen suchen') }}"
+                                                    @keydown.enter.prevent="selectFirstFilteredUser('host')"
+                                                    @keydown.escape.prevent="userDropdownOpen = null"
+                                                >
+                                                <button
+                                                    type="button"
+                                                    class="absolute inset-y-0 right-3 flex items-center text-base-content/50 hover:text-base-content"
+                                                    x-cloak
+                                                    x-show="userSearch.host.length > 0"
+                                                    @click="clearUserSearch('host')"
+                                                    aria-label="{{ __('Suche leeren') }}"
+                                                >
+                                                    &times;
+                                                </button>
+                                            </div>
+
+                                            <div class="mt-2 max-h-60 overflow-auto">
+                                                <template x-for="user in filteredUsers('host')" :key="user.id">
+                                                    <button
+                                                        type="button"
+                                                        class="w-full rounded-xl px-3 py-2 text-left text-sm hover:bg-base-200"
+                                                        :class="String(hostId) === String(user.id) ? 'bg-base-200 font-semibold' : ''"
+                                                        @click="selectUser('host', user)"
+                                                        x-text="user.label"
+                                                    ></button>
+                                                </template>
+                                                <div class="px-3 py-2 text-sm text-base-content/60" x-show="filteredUsers('host').length === 0">
+                                                    {{ __('Keine Treffer') }}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    @error('user_id')
+                                    <div class="mt-2 text-sm text-error">{{ $message }}</div>
+                                    @enderror
+                                </div>
+
+                                <div class="form-control xl:col-span-4">
                                     <div class="label px-0 pb-2">
                                         <span class="label-text text-sm font-medium text-base-content">
                                             {{ __('Vertretung') }}
                                         </span>
                                     </div>
-                                    <select
-                                        name="responsible_user_id"
-                                        class="select select-bordered w-full @error('responsible_user_id') select-error @enderror"
-                                    >
-                                        <option value="">{{ __('Optional auswählen') }}</option>
-                                        @foreach ($users as $user)
-                                            <option
-                                                value="{{ $user->id }}"
-                                                @selected((int) old('responsible_user_id', $visit->responsible_user_id) === $user->id)
-                                            >
-                                                {{ $user->fullName }}
-                                            </option>
-                                        @endforeach
-                                    </select>
-                                </label>
+                                    <input type="hidden" name="responsible_user_id" value="{{ $responsibleUserIdValue }}" :value="responsibleUserId">
+                                    <div class="relative" @click.outside="userDropdownOpen === 'responsible' && (userDropdownOpen = null)">
+                                        <button
+                                            type="button"
+                                            class="input input-bordered flex w-full items-center justify-between gap-3 text-left font-normal @error('responsible_user_id') input-error @enderror"
+                                            :aria-expanded="userDropdownOpen === 'responsible'"
+                                            @click="toggleUserDropdown('responsible')"
+                                            @keydown.escape="userDropdownOpen = null"
+                                        >
+                                            <span class="truncate" x-text="userLabel('responsible') || '-'"></span>
+                                            <svg class="h-4 w-4 shrink-0 text-base-content/60" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                                                <path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 0 1 1.06.02L10 11.17l3.71-3.94a.75.75 0 1 1 1.08 1.04l-4.25 4.5a.75.75 0 0 1-1.08 0l-4.25-4.5a.75.75 0 0 1 .02-1.06Z" clip-rule="evenodd" />
+                                            </svg>
+                                        </button>
+
+                                        <div
+                                            class="absolute z-40 mt-2 w-full rounded-2xl border border-base-300 bg-base-100 p-2 shadow-xl"
+                                            x-cloak
+                                            x-show="userDropdownOpen === 'responsible'"
+                                        >
+                                            <div class="relative">
+                                                <input
+                                                    type="text"
+                                                    class="input input-bordered w-full pr-10"
+                                                    x-ref="responsibleUserSearch"
+                                                    x-model="userSearch.responsible"
+                                                    placeholder="{{ __('Namen suchen') }}"
+                                                    @keydown.enter.prevent="selectFirstFilteredUser('responsible')"
+                                                    @keydown.escape.prevent="userDropdownOpen = null"
+                                                >
+                                                <button
+                                                    type="button"
+                                                    class="absolute inset-y-0 right-3 flex items-center text-base-content/50 hover:text-base-content"
+                                                    x-cloak
+                                                    x-show="userSearch.responsible.length > 0"
+                                                    @click="clearUserSearch('responsible')"
+                                                    aria-label="{{ __('Suche leeren') }}"
+                                                >
+                                                    &times;
+                                                </button>
+                                            </div>
+
+                                            <div class="mt-2 max-h-60 overflow-auto">
+                                                <button
+                                                    type="button"
+                                                    class="w-full rounded-xl px-3 py-2 text-left text-sm text-base-content/70 hover:bg-base-200"
+                                                    @click="clearResponsibleUser()"
+                                                >
+                                                    -
+                                                </button>
+                                                <template x-for="user in filteredUsers('responsible')" :key="user.id">
+                                                    <button
+                                                        type="button"
+                                                        class="w-full rounded-xl px-3 py-2 text-left text-sm hover:bg-base-200"
+                                                        :class="String(responsibleUserId) === String(user.id) ? 'bg-base-200 font-semibold' : ''"
+                                                        @click="selectUser('responsible', user)"
+                                                        x-text="user.label"
+                                                    ></button>
+                                                </template>
+                                                <div class="px-3 py-2 text-sm text-base-content/60" x-show="filteredUsers('responsible').length === 0">
+                                                    {{ __('Keine Treffer') }}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    @error('responsible_user_id')
+                                    <div class="mt-2 text-sm text-error">{{ $message }}</div>
+                                    @enderror
+                                </div>
 
                                 <label class="form-control xl:col-span-3">
                                     <div class="label px-0 pb-2">
-                                        <span class="label-text text-sm font-medium text-base-content">{{ __('Status') }}</span>
+                                        <span class="label-text text-sm font-medium text-base-content">{{ __('Status') }} {{ $requiredMarker }}</span>
                                     </div>
                                     <select
                                         name="status"
@@ -344,7 +539,7 @@
 
                                 <div class="xl:col-span-6">
                                     <div class="label px-0 pb-2">
-                                        <span class="label-text text-sm font-medium text-base-content">{{ __('Beginn') }}</span>
+                                        <span class="label-text text-sm font-medium text-base-content">{{ __('Beginn') }} {{ $requiredMarker }}</span>
                                     </div>
                                     <div class="grid gap-3 sm:grid-cols-[1fr_9rem]">
                                         <input
@@ -368,7 +563,7 @@
 
                                 <div class="xl:col-span-6">
                                     <div class="label px-0 pb-2">
-                                        <span class="label-text text-sm font-medium text-base-content">{{ __('Ende') }}</span>
+                                        <span class="label-text text-sm font-medium text-base-content">{{ __('Ende') }} {{ $requiredMarker }}</span>
                                     </div>
                                     <div class="grid gap-3 sm:grid-cols-[1fr_9rem]">
                                         <input
@@ -558,7 +753,7 @@
                 <div class="p-5 sm:p-6">
                     <div>
                         <h2 class="text-2xl font-semibold tracking-tight text-base-content">
-                            {{ __('Besucher_Teilnehmende') }}
+                            {{ __('Besucher_Teilnehmende') }} {{ $requiredMarker }}
                         </h2>
                     </div>
 
@@ -700,7 +895,7 @@
 
                                         <label class="form-control xl:col-span-4">
                                             <div class="label px-0 pb-2">
-                                                <span class="label-text text-sm font-medium text-base-content">{{ __('Vorname') }} <span class="text-error">*</span></span>
+                                                <span class="label-text text-sm font-medium text-base-content">{{ __('Vorname') }} {{ $requiredMarker }}</span>
                                             </div>
                                             <input
                                                 x-ref="firstNameInput"
@@ -712,7 +907,7 @@
 
                                         <label class="form-control xl:col-span-4">
                                             <div class="label px-0 pb-2">
-                                                <span class="label-text text-sm font-medium text-base-content">{{ __('Nachname') }} <span class="text-error">*</span></span>
+                                                <span class="label-text text-sm font-medium text-base-content">{{ __('Nachname') }} {{ $requiredMarker }}</span>
                                             </div>
                                             <input
                                                 type="text"
@@ -723,7 +918,7 @@
 
                                         <label class="form-control xl:col-span-4">
                                             <div class="label px-0 pb-2">
-                                                <span class="label-text text-sm font-medium text-base-content">{{ __('Firma') }} <span class="text-error">*</span></span>
+                                                <span class="label-text text-sm font-medium text-base-content">{{ __('Firma') }} {{ $requiredMarker }}</span>
                                             </div>
                                             <input
                                                 type="text"
@@ -734,7 +929,7 @@
 
                                         <label class="form-control xl:col-span-6">
                                             <div class="label px-0 pb-2">
-                                                <span class="label-text text-sm font-medium text-base-content">{{ __('E-Mail') }} <span class="text-error">*</span></span>
+                                                <span class="label-text text-sm font-medium text-base-content">{{ __('E-Mail') }} {{ $requiredMarker }}</span>
                                             </div>
                                             <input
                                                 type="email"
@@ -753,7 +948,7 @@
 
                                         <label class="form-control xl:col-span-6">
                                             <div class="label px-0 pb-2">
-                                                <span class="label-text text-sm font-medium text-base-content">{{ __('Telefon') }} <span class="text-error">*</span></span>
+                                                <span class="label-text text-sm font-medium text-base-content">{{ __('Telefon') }} {{ $requiredMarker }}</span>
                                             </div>
                                             <input
                                                 type="text"

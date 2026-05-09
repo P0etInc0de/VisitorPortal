@@ -20,11 +20,12 @@ class VisitFactory extends Factory
      */
     public function definition(): array
     {
-        $user = User::factory()->create();
+        $host = User::factory()->create();
+        $responsibleUser = User::factory()->create();
 
         return [
-            'responsible_user_id' => $user->id,
-            'user_id' => $user->id,
+            'responsible_user_id' => $responsibleUser->id,
+            'user_id' => $host->id,
             'scheduled_from' => Carbon::now(),
             'scheduled_until' => Carbon::now()->addHour(1),
             'status' => VisitStatusEnum::Planned->value,

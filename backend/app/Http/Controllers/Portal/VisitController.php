@@ -174,6 +174,7 @@ class VisitController extends Controller
 
         $users = User::query()
             ->select('id', 'first_name', 'name', 'title')
+            ->whereDoesntHave('roles', fn ($query) => $query->whereIn('name', ['welcome monitor', 'welcome_monitor']))
             ->orderBy('first_name')
             ->orderBy('name')
             ->get();

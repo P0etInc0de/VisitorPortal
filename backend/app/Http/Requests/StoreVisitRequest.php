@@ -4,6 +4,7 @@ namespace App\Http\Requests;
 
 use App\Enums\VisitStatusEnum;
 use App\Models\RecurringVisitSeries;
+use App\Models\User;
 use App\Models\Visit;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Carbon;
@@ -22,7 +23,7 @@ class StoreVisitRequest extends FormRequest
         return [
             'title' => ['required', 'string', 'max:255'],
             'user_id' => ['required', 'integer', 'exists:users,id'],
-            'responsible_user_id' => ['nullable', 'integer', 'exists:users,id'],
+            'responsible_user_id' => ['nullable', 'integer', 'different:user_id', 'exists:users,id'],
             'scheduled_from' => ['required', 'date', 'after_or_equal:1970-01-01'],
             'scheduled_until' => ['required', 'date', 'after:scheduled_from', 'after_or_equal:1970-01-01'],
             'status' => ['required', 'string', Rule::in(VisitStatusEnum::values())],
@@ -54,6 +55,7 @@ class StoreVisitRequest extends FormRequest
             'scheduled_from.after_or_equal' => __('Das Startdatum muss innerhalb des technisch unterstützten Bereichs liegen.'),
             'scheduled_until.after_or_equal' => __('Das Enddatum muss innerhalb des technisch unterstützten Bereichs liegen.'),
             'scheduled_until.after' => __('Das Ende muss nach dem Beginn liegen.'),
+            'responsible_user_id.different' => __('Host und Vertretung müssen unterschiedlich sein.'),
             'recurrence_occurrence_count.between' => __('Bitte wählen Sie zwischen 1 und 1000 Terminen insgesamt.'),
             'recurrence_interval_days.between' => __('Bitte wählen Sie ein Intervall zwischen 1 und 365 Tagen.'),
         ];
@@ -67,6 +69,8 @@ class StoreVisitRequest extends FormRequest
             'participants.*.email' => __('E-Mail der teilnehmenden Person'),
             'participants.*.phone' => __('Telefon der teilnehmenden Person'),
             'participants.*.company' => __('Firma der teilnehmenden Person'),
+            'user_id' => __('Host'),
+            'responsible_user_id' => __('Vertretung'),
             'recurrence_frequency' => __('Wiederholung'),
             'recurrence_interval_days' => __('Intervall in Tagen'),
             'recurrence_end_type' => __('Ende der Wiederholung'),
@@ -78,6 +82,8 @@ class StoreVisitRequest extends FormRequest
     public function withValidator(Validator $validator): void
     {
         $validator->after(function (Validator $validator) {
+            $this->validateSelectableUsers($validator);
+
             if ($this->recurrenceEnabled()) {
                 $this->validateRecurrence($validator);
             }
@@ -142,6 +148,33 @@ class StoreVisitRequest extends FormRequest
 
         if ($endType === RecurringVisitSeries::END_COUNT && blank($this->input('recurrence_occurrence_count'))) {
             $validator->errors()->add('recurrence_occurrence_count', __('Bitte geben Sie die Anzahl der Termine insgesamt an.'));
+        }
+    }
+
+    private function validateSelectableUsers(Validator $validator): void
+    {
+        $userIds = collect([$this->input('user_id'), $this->input('responsible_user_id')])
+            ->filter(fn ($userId) => filled($userId))
+            ->map(fn ($userId) => (int) $userId)
+            ->unique()
+            ->values();
+
+        if ($userIds->isEmpty()) {
+            return;
+        }
+
+        $welcomeMonitorIds = User::query()
+            ->whereIn('id', $userIds)
+            ->whereHas('roles', fn ($query) => $query->whereIn('name', ['welcome monitor', 'welcome_monitor']))
+            ->pluck('id')
+            ->map(fn ($userId) => (int) $userId);
+
+        if ($welcomeMonitorIds->contains((int) $this->input('user_id'))) {
+            $validator->errors()->add('user_id', __('Der WelcomeMonitor kann nicht als Host ausgewählt werden.'));
+        }
+
+        if ($welcomeMonitorIds->contains((int) $this->input('responsible_user_id'))) {
+            $validator->errors()->add('responsible_user_id', __('Der WelcomeMonitor kann nicht als Vertretung ausgewählt werden.'));
         }
     }
 
