@@ -47,9 +47,51 @@ class VisitManagementTest extends TestCase
             ->assertSee('Clara Bergmann');
 
         $this->assertMatchesRegularExpression(
-            '/<option\s+value="'.$user->id.'"[^>]*selected[^>]*>/i',
+            '/<input[^>]+name="user_id"[^>]+value="'.$user->id.'"/i',
             $response->getContent()
         );
+    }
+
+    public function test_visit_create_page_does_not_show_welcome_monitor_user_in_host_dropdowns(): void
+    {
+        $user = (new PermissionHelper)->getUser();
+        $welcomeMonitor = (new PermissionHelper)->getWelcomeMonitorUser();
+        $welcomeMonitor->update([
+            'first_name' => 'User',
+            'name' => 'WelcomeMonitor',
+        ]);
+
+        $this
+            ->actingAs($user)
+            ->get(route('portal.visits.create'))
+            ->assertOk()
+            ->assertDontSee('User WelcomeMonitor');
+    }
+
+    public function test_visit_requires_different_host_and_substitute(): void
+    {
+        $user = (new PermissionHelper)->getUser();
+
+        $this
+            ->actingAs($user)
+            ->post(route('portal.visits.store'), [
+                'title' => 'Technik-Rundgang',
+                'user_id' => $user->id,
+                'responsible_user_id' => $user->id,
+                'scheduled_from' => now()->addDay()->setTime(9, 0)->format('Y-m-d H:i:s'),
+                'scheduled_until' => now()->addDay()->setTime(10, 0)->format('Y-m-d H:i:s'),
+                'status' => 'planned',
+                'participants' => [
+                    [
+                        'first_name' => 'Anna',
+                        'name' => 'Becker',
+                        'email' => 'anna@example.com',
+                        'phone' => '1234567',
+                        'company' => 'ACME AG',
+                    ],
+                ],
+            ])
+            ->assertSessionHasErrors('responsible_user_id');
     }
 
     public function test_visit_can_be_created_with_multiple_participants(): void
@@ -102,6 +144,7 @@ class VisitManagementTest extends TestCase
     public function test_recurring_visit_can_be_created_with_total_occurrence_count(): void
     {
         $user = (new PermissionHelper)->getUser();
+        $responsible = (new PermissionHelper)->getUser();
         $participant = Visitor::factory()->create();
 
         $response = $this
@@ -109,7 +152,7 @@ class VisitManagementTest extends TestCase
             ->post(route('portal.visits.store'), [
                 'title' => 'Wöchentliche Sicherheitsrunde',
                 'user_id' => $user->id,
-                'responsible_user_id' => $user->id,
+                'responsible_user_id' => $responsible->id,
                 'scheduled_from' => '2026-05-01 09:00:00',
                 'scheduled_until' => '2026-05-01 10:00:00',
                 'status' => 'planned',
@@ -143,6 +186,7 @@ class VisitManagementTest extends TestCase
     public function test_future_series_update_skips_individually_modified_occurrences(): void
     {
         $user = (new PermissionHelper)->getUser();
+        $responsible = (new PermissionHelper)->getUser();
         $participant = Visitor::factory()->create();
 
         $this
@@ -150,7 +194,7 @@ class VisitManagementTest extends TestCase
             ->post(route('portal.visits.store'), [
                 'title' => 'Regeltermin',
                 'user_id' => $user->id,
-                'responsible_user_id' => $user->id,
+                'responsible_user_id' => $responsible->id,
                 'scheduled_from' => '2026-05-01 09:00:00',
                 'scheduled_until' => '2026-05-01 10:00:00',
                 'status' => 'planned',
@@ -176,7 +220,7 @@ class VisitManagementTest extends TestCase
             ->patch(route('portal.visits.update', $selectedVisit), [
                 'title' => 'Neue Zukunftsserie',
                 'user_id' => $user->id,
-                'responsible_user_id' => $user->id,
+                'responsible_user_id' => $responsible->id,
                 'scheduled_from' => '2026-05-08 12:00:00',
                 'scheduled_until' => '2026-05-08 13:00:00',
                 'status' => 'planned',
@@ -204,6 +248,7 @@ class VisitManagementTest extends TestCase
 
         try {
             $user = (new PermissionHelper)->getUser();
+            $responsible = (new PermissionHelper)->getUser();
             $participant = Visitor::factory()->create();
 
             $this
@@ -211,7 +256,7 @@ class VisitManagementTest extends TestCase
                 ->post(route('portal.visits.store'), [
                     'title' => 'Endlose Wartung',
                     'user_id' => $user->id,
-                    'responsible_user_id' => $user->id,
+                    'responsible_user_id' => $responsible->id,
                     'scheduled_from' => '2026-05-01 09:00:00',
                     'scheduled_until' => '2026-05-01 10:00:00',
                     'status' => 'planned',
