@@ -398,10 +398,10 @@
                                             x-cloak
                                             x-show="userDropdownOpen === 'host'"
                                         >
-                                            <div class="input input-bordered flex items-center gap-2">
+                                            <div class="relative">
                                                 <input
                                                     type="text"
-                                                    class="min-w-0 flex-1 bg-transparent outline-none"
+                                                    class="input input-bordered w-full pr-10"
                                                     x-ref="hostUserSearch"
                                                     x-model="userSearch.host"
                                                     placeholder="{{ __('Namen suchen') }}"
@@ -410,7 +410,7 @@
                                                 >
                                                 <button
                                                     type="button"
-                                                    class="text-base-content/50 hover:text-base-content"
+                                                    class="absolute inset-y-0 right-3 flex items-center text-base-content/50 hover:text-base-content"
                                                     x-cloak
                                                     x-show="userSearch.host.length > 0"
                                                     @click="clearUserSearch('host')"
@@ -467,10 +467,10 @@
                                             x-cloak
                                             x-show="userDropdownOpen === 'responsible'"
                                         >
-                                            <div class="input input-bordered flex items-center gap-2">
+                                            <div class="relative">
                                                 <input
                                                     type="text"
-                                                    class="min-w-0 flex-1 bg-transparent outline-none"
+                                                    class="input input-bordered w-full pr-10"
                                                     x-ref="responsibleUserSearch"
                                                     x-model="userSearch.responsible"
                                                     placeholder="{{ __('Namen suchen') }}"
@@ -479,7 +479,7 @@
                                                 >
                                                 <button
                                                     type="button"
-                                                    class="text-base-content/50 hover:text-base-content"
+                                                    class="absolute inset-y-0 right-3 flex items-center text-base-content/50 hover:text-base-content"
                                                     x-cloak
                                                     x-show="userSearch.responsible.length > 0"
                                                     @click="clearUserSearch('responsible')"
