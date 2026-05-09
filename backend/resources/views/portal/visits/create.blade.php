@@ -11,6 +11,10 @@
     $recurrenceOccurrenceCountValue = old('recurrence_occurrence_count', $recurringSeries?->occurrence_count ?? 2);
     $recurrenceUpdateScopeValue = old('recurrence_update_scope', \App\Models\RecurringVisitSeries::UPDATE_SINGLE);
     $hasInitialParticipants = ! empty($initialParticipants);
+    $showRequiredMarkers = true;
+    $requiredMarker = $showRequiredMarkers
+        ? new \Illuminate\Support\HtmlString('<span class="bp-required-marker text-error" aria-hidden="true">*</span>')
+        : '';
 
     $beginDate = $scheduledFromValue ? substr($scheduledFromValue, 0, 10) : '';
     $beginTime = $scheduledFromValue ? substr($scheduledFromValue, 11, 5) : '';
@@ -362,7 +366,7 @@
                                 <label class="form-control xl:col-span-12">
                                     <div class="label px-0 pb-2">
                                         <span class="label-text text-sm font-medium text-base-content">
-                                            {{ __('Titel_Anlass') }}
+                                            {{ __('Titel_Anlass') }} {{ $requiredMarker }}
                                         </span>
                                     </div>
                                     <input
@@ -376,7 +380,7 @@
 
                                 <div class="form-control xl:col-span-5">
                                     <div class="label px-0 pb-2">
-                                        <span class="label-text text-sm font-medium text-base-content">{{ __('Host') }}</span>
+                                        <span class="label-text text-sm font-medium text-base-content">{{ __('Host') }} {{ $requiredMarker }}</span>
                                     </div>
                                     <input type="hidden" name="user_id" value="{{ $hostUserIdValue }}" :value="hostId">
                                     <div class="relative" @click.outside="userDropdownOpen === 'host' && (userDropdownOpen = null)">
@@ -456,7 +460,7 @@
                                             @click="toggleUserDropdown('responsible')"
                                             @keydown.escape="userDropdownOpen = null"
                                         >
-                                            <span class="truncate" x-text="userLabel('responsible') || {{ \Illuminate\Support\Js::from(__('Optional auswählen')) }}"></span>
+                                            <span class="truncate" x-text="userLabel('responsible') || '-'"></span>
                                             <svg class="h-4 w-4 shrink-0 text-base-content/60" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
                                                 <path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 0 1 1.06.02L10 11.17l3.71-3.94a.75.75 0 1 1 1.08 1.04l-4.25 4.5a.75.75 0 0 1-1.08 0l-4.25-4.5a.75.75 0 0 1 .02-1.06Z" clip-rule="evenodd" />
                                             </svg>
@@ -495,7 +499,7 @@
                                                     class="w-full rounded-xl px-3 py-2 text-left text-sm text-base-content/70 hover:bg-base-200"
                                                     @click="clearResponsibleUser()"
                                                 >
-                                                    {{ __('Keine Vertretung') }}
+                                                    -
                                                 </button>
                                                 <template x-for="user in filteredUsers('responsible')" :key="user.id">
                                                     <button
@@ -519,7 +523,7 @@
 
                                 <label class="form-control xl:col-span-3">
                                     <div class="label px-0 pb-2">
-                                        <span class="label-text text-sm font-medium text-base-content">{{ __('Status') }}</span>
+                                        <span class="label-text text-sm font-medium text-base-content">{{ __('Status') }} {{ $requiredMarker }}</span>
                                     </div>
                                     <select
                                         name="status"
@@ -535,7 +539,7 @@
 
                                 <div class="xl:col-span-6">
                                     <div class="label px-0 pb-2">
-                                        <span class="label-text text-sm font-medium text-base-content">{{ __('Beginn') }}</span>
+                                        <span class="label-text text-sm font-medium text-base-content">{{ __('Beginn') }} {{ $requiredMarker }}</span>
                                     </div>
                                     <div class="grid gap-3 sm:grid-cols-[1fr_9rem]">
                                         <input
@@ -559,7 +563,7 @@
 
                                 <div class="xl:col-span-6">
                                     <div class="label px-0 pb-2">
-                                        <span class="label-text text-sm font-medium text-base-content">{{ __('Ende') }}</span>
+                                        <span class="label-text text-sm font-medium text-base-content">{{ __('Ende') }} {{ $requiredMarker }}</span>
                                     </div>
                                     <div class="grid gap-3 sm:grid-cols-[1fr_9rem]">
                                         <input
@@ -749,7 +753,7 @@
                 <div class="p-5 sm:p-6">
                     <div>
                         <h2 class="text-2xl font-semibold tracking-tight text-base-content">
-                            {{ __('Besucher_Teilnehmende') }}
+                            {{ __('Besucher_Teilnehmende') }} {{ $requiredMarker }}
                         </h2>
                     </div>
 
@@ -891,7 +895,7 @@
 
                                         <label class="form-control xl:col-span-4">
                                             <div class="label px-0 pb-2">
-                                                <span class="label-text text-sm font-medium text-base-content">{{ __('Vorname') }} <span class="text-error">*</span></span>
+                                                <span class="label-text text-sm font-medium text-base-content">{{ __('Vorname') }} {{ $requiredMarker }}</span>
                                             </div>
                                             <input
                                                 x-ref="firstNameInput"
@@ -903,7 +907,7 @@
 
                                         <label class="form-control xl:col-span-4">
                                             <div class="label px-0 pb-2">
-                                                <span class="label-text text-sm font-medium text-base-content">{{ __('Nachname') }} <span class="text-error">*</span></span>
+                                                <span class="label-text text-sm font-medium text-base-content">{{ __('Nachname') }} {{ $requiredMarker }}</span>
                                             </div>
                                             <input
                                                 type="text"
@@ -914,7 +918,7 @@
 
                                         <label class="form-control xl:col-span-4">
                                             <div class="label px-0 pb-2">
-                                                <span class="label-text text-sm font-medium text-base-content">{{ __('Firma') }} <span class="text-error">*</span></span>
+                                                <span class="label-text text-sm font-medium text-base-content">{{ __('Firma') }} {{ $requiredMarker }}</span>
                                             </div>
                                             <input
                                                 type="text"
@@ -925,7 +929,7 @@
 
                                         <label class="form-control xl:col-span-6">
                                             <div class="label px-0 pb-2">
-                                                <span class="label-text text-sm font-medium text-base-content">{{ __('E-Mail') }} <span class="text-error">*</span></span>
+                                                <span class="label-text text-sm font-medium text-base-content">{{ __('E-Mail') }} {{ $requiredMarker }}</span>
                                             </div>
                                             <input
                                                 type="email"
@@ -944,7 +948,7 @@
 
                                         <label class="form-control xl:col-span-6">
                                             <div class="label px-0 pb-2">
-                                                <span class="label-text text-sm font-medium text-base-content">{{ __('Telefon') }} <span class="text-error">*</span></span>
+                                                <span class="label-text text-sm font-medium text-base-content">{{ __('Telefon') }} {{ $requiredMarker }}</span>
                                             </div>
                                             <input
                                                 type="text"
