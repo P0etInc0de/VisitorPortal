@@ -351,10 +351,11 @@ class CheckInOutBoardTest extends TestCase
 
             $walkInVisit = Visit::query()
                 ->where('is_walk_in', true)
-                ->where('title', 'Walk-in: Existing Person')
+                ->whereHas('visitors', fn ($query) => $query->where('visitors.id', $existingVisitor->id))
                 ->first();
 
             $this->assertNotNull($walkInVisit);
+            $this->assertStringContainsString('Existing Person', $walkInVisit->title);
             $this->assertDatabaseHas('visit_visitor', [
                 'visit_id' => $walkInVisit->id,
                 'visitor_id' => $existingVisitor->id,
