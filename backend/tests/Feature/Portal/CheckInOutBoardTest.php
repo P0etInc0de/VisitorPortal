@@ -282,4 +282,71 @@ class CheckInOutBoardTest extends TestCase
         $this->assertNotNull($pivot->checked_in_at);
         $this->assertNotNull($pivot->checked_out_at);
     }
+
+    public function test_walk_in_host_selection_renders_search_dropdown(): void
+    {
+        $user = User::factory()->create([
+            'first_name' => 'User',
+            'name' => 'Empfang',
+        ]);
+
+        Livewire::actingAs($user)
+            ->test(CheckInOutBoard::class)
+            ->assertSee(__('Ansprechpartner'))
+            ->assertSee(__('Namen suchen'))
+            ->assertSee(__('Keine Treffer'))
+            ->assertDontSeeHtml('<select class="select select-bordered w-full');
+    }
+
+    public function test_walk_in_creates_separate_visitor_and_marks_visit_as_walk_in(): void
+    {
+        Carbon::setTestNow(Carbon::create(2026, 5, 10, 12, 0, 0, config('app.timezone')));
+
+        try {
+            $user = User::factory()->create();
+            $host = User::factory()->create();
+            $existingVisitor = Visitor::factory()->create([
+                'first_name' => 'Existing',
+                'name' => 'Person',
+                'email' => 'duplicate@example.com',
+                'phone' => '123456789',
+                'company' => 'Existing Company',
+            ]);
+
+            Livewire::actingAs($user)
+                ->test(CheckInOutBoard::class)
+                ->set('walkInHostId', (string) $host->id)
+                ->set('walkIn.first_name', 'Walk')
+                ->set('walkIn.name', 'In')
+                ->set('walkIn.email', 'duplicate@example.com')
+                ->set('walkIn.phone', '123456789')
+                ->set('walkIn.company', 'Walk Company')
+                ->call('registerWalkIn')
+                ->assertHasNoErrors();
+
+            $existingVisitor->refresh();
+
+            $this->assertSame('Existing', $existingVisitor->first_name);
+            $this->assertSame('Person', $existingVisitor->name);
+            $this->assertSame('Existing Company', $existingVisitor->company);
+
+            $walkInVisit = Visit::query()
+                ->where('is_walk_in', true)
+                ->where('title', 'Walk-in: Walk In')
+                ->first();
+
+            $this->assertNotNull($walkInVisit);
+            $this->assertDatabaseHas('visitors', [
+                'first_name' => 'Walk',
+                'name' => 'In',
+                'company' => 'Walk Company',
+            ]);
+            $this->assertDatabaseHas('visit_visitor', [
+                'visit_id' => $walkInVisit->id,
+                'checked_in_at' => now()->format('Y-m-d H:i:s'),
+            ]);
+        } finally {
+            Carbon::setTestNow();
+        }
+    }
 }

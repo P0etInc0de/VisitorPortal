@@ -23,6 +23,7 @@ class Visit extends Model
         'scheduled_from',
         'scheduled_until',
         'status',
+        'is_walk_in',
         'notes',
         'canceled_at',
         'canceled_by_user_id',
@@ -33,6 +34,7 @@ class Visit extends Model
         'scheduled_until' => 'datetime',
         'recurrence_original_scheduled_from' => 'datetime',
         'recurrence_is_modified' => 'boolean',
+        'is_walk_in' => 'boolean',
         'canceled_at' => 'datetime',
     ];
 

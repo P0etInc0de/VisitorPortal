@@ -29,6 +29,7 @@ class VisitFactory extends Factory
             'scheduled_from' => Carbon::now(),
             'scheduled_until' => Carbon::now()->addHour(1),
             'status' => VisitStatusEnum::Planned->value,
+            'is_walk_in' => false,
             'notes' => 'test',
             'title' => 'test',
         ];

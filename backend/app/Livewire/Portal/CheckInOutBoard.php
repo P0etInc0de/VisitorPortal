@@ -72,7 +72,7 @@ class CheckInOutBoard extends Component
         $hostId = (int) $payload['walkInHostId'];
 
         [$visit, $visitor] = DB::transaction(function () use ($payload, $user, $hostId) {
-            $visitor = $this->resolveWalkInVisitor($payload['walkIn']);
+            $visitor = $this->createWalkInVisitor($payload['walkIn']);
             $visit = $this->createWalkInVisit($visitor, $user, $hostId);
 
             $visit->visitors()->syncWithoutDetaching([
@@ -267,40 +267,18 @@ class CheckInOutBoard extends Component
     /**
      * @param  array<string, string|null>  $payload
      */
-    private function resolveWalkInVisitor(array $payload): Visitor
+    private function createWalkInVisitor(array $payload): Visitor
     {
         $email = $this->normalizeText($payload['email'] ?? null);
         $phone = $this->normalizeText($payload['phone'] ?? null);
-
-        $existingVisitor = null;
-
-        if ($email) {
-            $existingVisitor = Visitor::query()->where('email', $email)->first();
-        } elseif ($phone) {
-            $existingVisitor = Visitor::query()->where('phone', $phone)->first();
-        }
-
-        if ($existingVisitor) {
-            $existingVisitor->update([
-                'title' => $this->normalizeText($payload['title'] ?? null) ?: $existingVisitor->title,
-                'first_name' => $payload['first_name'],
-                'name' => $payload['name'],
-                'email' => $email ?: $existingVisitor->email,
-                'phone' => $phone ?: $existingVisitor->phone,
-                'company' => $this->normalizeText($payload['company'] ?? null) ?: $existingVisitor->company,
-            ]);
-
-            return $existingVisitor;
-        }
-
         $token = (string) Str::ulid();
 
         return Visitor::query()->create([
             'title' => $this->normalizeText($payload['title'] ?? null),
             'first_name' => $payload['first_name'],
             'name' => $payload['name'],
-            'email' => $email ?: 'walkin-'.$token.'@local.invalid',
-            'phone' => $phone ?: 'walkin-'.$token,
+            'email' => $this->uniqueWalkInContactValue('email', $email, 'walkin-'.$token.'@local.invalid'),
+            'phone' => $this->uniqueWalkInContactValue('phone', $phone, 'walkin-'.$token),
             'company' => $this->normalizeText($payload['company'] ?? null),
             'status' => VisitorStatusEnum::Planned,
             'notes' => null,
@@ -322,8 +300,18 @@ class CheckInOutBoard extends Component
             'scheduled_from' => now(),
             'scheduled_until' => now()->addHour(),
             'status' => VisitStatusEnum::Planned->value,
+            'is_walk_in' => true,
             'notes' => __('Am Empfang als Walk-in erfasst.'),
         ]);
+    }
+
+    private function uniqueWalkInContactValue(string $column, ?string $value, string $fallback): string
+    {
+        if ($value && ! Visitor::query()->where($column, $value)->exists()) {
+            return $value;
+        }
+
+        return $fallback;
     }
 
     private function resetWalkIn(): void

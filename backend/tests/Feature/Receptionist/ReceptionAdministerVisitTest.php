@@ -394,6 +394,7 @@ class ReceptionAdministerVisitTest extends TestCase
         // check if walk-in is present in visit table
         $this->assertDatabaseHas('visits', [
             'title' => 'Walk-in: '.$walkInTitle.' '.$walkInFirstName.' '.$walkInLastName,
+            'is_walk_in' => true,
         ]);
     }
 
