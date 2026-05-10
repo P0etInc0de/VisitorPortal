@@ -7,73 +7,38 @@ use App\Models\Department;
 use App\Models\User;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
+use Spatie\Permission\Models\Role;
 
 class UserSeeder extends Seeder
 {
-    /**
-     * Seeder for the users table, creates 3 default users (one for each role)
-     */
     public function run(): void
     {
         $defaultPassword = 'Passwort123!';
 
-        // Create all Users
-        $this->createOrUpdateUser(
-            name: 'Admin',
-            first_name: 'User',
-            gender: GenderEnum::Male,
-            title: null,
-            email: 'admin@demo.local',
-            password: $defaultPassword,
-            department: 'IT/Administration',
-            role: 'admin'
-        );
+        $users = [
+            ['User', 'Admin', GenderEnum::Male, null, 'admin@demo.local', 'IT/Administration', 'admin'],
+            ['User', 'Empfang', GenderEnum::Female, null, 'empfang@demo.local', 'Empfang', 'receptionist'],
+            ['User', 'Mitarbeiter', GenderEnum::Male, null, 'mitarbeiter@demo.local', 'Vertrieb', 'user'],
+            ['User', 'Manager', GenderEnum::Male, null, 'manager@demo.local', 'Management', 'manager'],
+            ['User', 'WelcomeMonitor', GenderEnum::Not_Specified, null, 'welcomemonitor@demo.local', 'Empfang', 'welcome monitor'],
+            ['Bilbo', 'Baggins', GenderEnum::Male, null, 'bilbo.baggins@demo.local', 'Management', 'manager'],
+            ['Hermione', 'Granger', GenderEnum::Female, null, 'hermione.granger@demo.local', 'Forschung & Entwicklung', 'user'],
+            ['Matilda', 'Wormwood', GenderEnum::Female, null, 'matilda.wormwood@demo.local', 'Bibliothek', 'user'],
+            ['Atticus', 'Finch', GenderEnum::Male, null, 'atticus.finch@demo.local', 'Management', 'manager'],
+            ['Elizabeth', 'Bennet', GenderEnum::Female, null, 'elizabeth.bennet@demo.local', 'Vertrieb', 'user'],
+            ['Sherlock', 'Holmes', GenderEnum::Male, null, 'sherlock.holmes@demo.local', 'Forschung & Entwicklung', 'user'],
+            ['Anne', 'Shirley', GenderEnum::Female, null, 'anne.shirley@demo.local', 'Küche', 'user'],
+            ['Samwise', 'Gamgee', GenderEnum::Male, null, 'samwise.gamgee@demo.local', 'Facility', 'user'],
+            ['Lucy', 'Pevensie', GenderEnum::Female, null, 'lucy.pevensie@demo.local', 'Empfang', 'receptionist'],
+            ['Arthur', 'Dent', GenderEnum::Male, null, 'arthur.dent@demo.local', 'IT/Administration', 'user'],
+            ['Jo', 'March', GenderEnum::Female, null, 'jo.march@demo.local', 'Bibliothek', 'user'],
+        ];
 
-        $this->createOrUpdateUser(
-            name: 'Empfang',
-            first_name: 'User',
-            gender: GenderEnum::Female,
-            title: null,
-            email: 'empfang@demo.local',
-            password: $defaultPassword,
-            department: 'Empfang',
-            role: 'receptionist',
-        );
+        foreach ($users as [$firstName, $name, $gender, $title, $email, $department, $role]) {
+            $this->createOrUpdateUser($name, $firstName, $gender, $title, $email, $defaultPassword, $department, $role);
+        }
 
-        $this->createOrUpdateUser(
-            name: 'Mitarbeiter',
-            first_name: 'User',
-            gender: GenderEnum::Male,
-            title: null,
-            email: 'mitarbeiter@demo.local',
-            password: $defaultPassword,
-            department: 'Vertrieb',
-            role: 'user',
-        );
-
-        $this->createOrUpdateUser(
-            name: 'Manager',
-            first_name: 'User',
-            gender: GenderEnum::Male,
-            title: null,
-            email: 'Manager@demo.local',
-            password: $defaultPassword,
-            department: 'Vertrieb',
-            role: 'manager',
-        );
-
-        $this->createOrUpdateUser(
-            name: 'WelcomeMonitor',
-            first_name: 'User',
-            gender: GenderEnum::Male,
-            title: null,
-            email: 'WelcomeMonitor@demo.local',
-            password: $defaultPassword,
-            department: 'Vertrieb',
-            role: 'welcome monitor',
-        );
-
-        $this->command?->info('UserSeeder ausgeführt.');
+        $this->command?->info('UserSeeder ausgeführt: 16 Demo-Benutzer angelegt/aktualisiert.');
         $this->command?->info('Demo-Login (alle): Passwort123!');
         $this->command?->line('- admin@demo.local');
         $this->command?->line('- empfang@demo.local');
@@ -82,7 +47,7 @@ class UserSeeder extends Seeder
 
     private function createOrUpdateUser(
         string $name,
-        string $first_name,
+        string $firstName,
         GenderEnum $gender,
         ?string $title,
         string $email,
@@ -90,24 +55,22 @@ class UserSeeder extends Seeder
         string $department,
         ?string $role = null,
     ): void {
-        // Search if department name matches any department in the departments table and get id as foreign key
         $dept = Department::query()->where('name', $department)->first();
-        $data = [
-            'name' => $name,
-            'first_name' => $first_name,
-            'gender' => $gender,
-            'title' => $title,
-            'email_verified_at' => now(),
-            'password' => Hash::make($password),
-            'department_id' => $dept?->id,
-        ];
-
         $user = User::query()->updateOrCreate(
             ['email' => $email],
-            $data
+            [
+                'name' => $name,
+                'first_name' => $firstName,
+                'gender' => $gender,
+                'title' => $title,
+                'email_verified_at' => now(),
+                'password' => Hash::make($password),
+                'department_id' => $dept?->id,
+            ]
         );
 
         if ($role) {
+            Role::firstOrCreate(['name' => $role, 'guard_name' => 'web']);
             $user->syncRoles([$role]);
         }
     }
