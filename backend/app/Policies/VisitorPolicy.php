@@ -53,7 +53,7 @@ class VisitorPolicy
         return $user->can('CheckIn:Visitor');
     }
 
-    public function ccheckOut(User $user): bool
+    public function checkOut(User $user): bool
     {
         return $user->can('CheckOut:Visitor');
     }

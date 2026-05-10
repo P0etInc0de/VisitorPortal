@@ -4,6 +4,7 @@ namespace Tests\Feature\Receptionist;
 
 use App\Enums\VisitStatusEnum;
 use App\Livewire\Portal\CheckInOutBoard;
+use App\Livewire\Reception\DashboardPage;
 use App\Models\User;
 use App\Models\Visit;
 use App\Models\Visitor;
@@ -261,6 +262,107 @@ class ReceptionAdministerVisitTest extends TestCase
         } finally {
             Carbon::setTestNow();
         }
+    }
+
+    public function test_dashboard_check_in_updates_participant_state(): void
+    {
+        Carbon::setTestNow(Carbon::create(2026, 5, 1, 14, 39, 24, config('app.timezone')));
+
+        try {
+            $receptionist = (new PermissionHelper)->getReceptionistUser();
+            $employee = User::factory()->create();
+            $responsibleUser = User::factory()->create();
+            $visitor = Visitor::factory()->create();
+            $visit = (new VisitHelper)->makeVisit(
+                $employee->id,
+                'Dashboard Visit',
+                VisitStatusEnum::Planned,
+                $responsibleUser->id,
+                new Collection([$visitor])
+            );
+
+            Livewire::actingAs($receptionist)
+                ->test(DashboardPage::class)
+                ->call('checkIn', $visit->id, $visitor->id)
+                ->assertSee(__('Eingecheckt'))
+                ->assertSee(__('Check-out'));
+
+            $this->assertDatabaseHas('visit_visitor', [
+                'visit_id' => $visit->id,
+                'visitor_id' => $visitor->id,
+                'checked_in_at' => now()->format('Y-m-d H:i:s'),
+                'checked_out_at' => null,
+            ]);
+        } finally {
+            Carbon::setTestNow();
+        }
+    }
+
+    public function test_dashboard_check_out_updates_participant_state(): void
+    {
+        Carbon::setTestNow(Carbon::create(2026, 5, 1, 14, 39, 24, config('app.timezone')));
+
+        try {
+            $receptionist = (new PermissionHelper)->getReceptionistUser();
+            $employee = User::factory()->create();
+            $responsibleUser = User::factory()->create();
+            $visitor = Visitor::factory()->create();
+            $visit = (new VisitHelper)->makeVisit(
+                $employee->id,
+                'Dashboard Visit',
+                VisitStatusEnum::Planned,
+                $responsibleUser->id,
+                new Collection([$visitor])
+            );
+            $visit->visitors()->updateExistingPivot($visitor->id, [
+                'checked_in_at' => now(),
+                'checked_in_by_user_id' => $receptionist->id,
+            ]);
+
+            Livewire::actingAs($receptionist)
+                ->test(DashboardPage::class)
+                ->call('checkOut', $visit->id, $visitor->id)
+                ->assertSee(__('Ausgecheckt'))
+                ->assertSee(__('Erneut einchecken'));
+
+            $this->assertDatabaseHas('visit_visitor', [
+                'visit_id' => $visit->id,
+                'visitor_id' => $visitor->id,
+                'checked_out_at' => now()->format('Y-m-d H:i:s'),
+            ]);
+        } finally {
+            Carbon::setTestNow();
+        }
+    }
+
+    public function test_receptionist_is_authorized_to_check_out_from_dashboard(): void
+    {
+        $receptionist = (new PermissionHelper)->getReceptionistUser();
+        $employee = User::factory()->create();
+        $responsibleUser = User::factory()->create();
+        $visitor = Visitor::factory()->create();
+        $visit = (new VisitHelper)->makeVisit(
+            $employee->id,
+            'Dashboard Visit',
+            VisitStatusEnum::Planned,
+            $responsibleUser->id,
+            new Collection([$visitor])
+        );
+        $visit->visitors()->updateExistingPivot($visitor->id, [
+            'checked_in_at' => now(),
+            'checked_in_by_user_id' => $receptionist->id,
+        ]);
+
+        Livewire::actingAs($receptionist)
+            ->test(DashboardPage::class)
+            ->call('checkOut', $visit->id, $visitor->id)
+            ->assertStatus(200);
+
+        $this->assertDatabaseHas('visit_visitor', [
+            'visit_id' => $visit->id,
+            'visitor_id' => $visitor->id,
+            'checked_out_by_user_id' => $receptionist->id,
+        ]);
     }
 
     public function test_receptionist_can_create_walk_ins(): void

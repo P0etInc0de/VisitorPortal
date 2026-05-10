@@ -10,54 +10,6 @@ document.addEventListener('alpine:init', () => {
     window.Alpine.plugin(focus);
 
     window.Alpine.data('visitForm', visitForm);
-
-    window.Alpine.data('visitParticipantRow', (participant) => ({
-        participant: participant,
-        busy: false,
-
-        async submitAction(url) {
-            if (this.busy || !url) {
-                return;
-            }
-
-            this.busy = true;
-
-            try {
-                const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content || '';
-
-                const response = await fetch(url, {
-                    method: 'POST',
-                    headers: {
-                        Accept: 'application/json',
-                        'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
-                        'X-Requested-With': 'XMLHttpRequest',
-                        'X-CSRF-TOKEN': csrfToken,
-                    },
-                    body: new URLSearchParams({
-                        _token: csrfToken,
-                    }).toString(),
-                    credentials: 'same-origin',
-                });
-
-                if (!response.ok) {
-                    throw new Error('Request failed');
-                }
-
-                const data = await response.json();
-
-                if (data.participant) {
-                    this.participant = {
-                        ...this.participant,
-                        ...data.participant,
-                    };
-                }
-            } catch (error) {
-                window.location.reload();
-            } finally {
-                this.busy = false;
-            }
-        },
-    }));
 });
 
 if (!window.__bpUserThemeResolverInstalled) {
