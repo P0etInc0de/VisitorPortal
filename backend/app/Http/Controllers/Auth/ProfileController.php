@@ -33,11 +33,6 @@ class ProfileController extends Controller
         $this->authorize('update', $request->user());
 
         $request->user()->fill($request->validated());
-
-        if ($request->user()->isDirty('email')) {
-            $request->user()->email_verified_at = null;
-        }
-
         $request->user()->save();
 
         $locale = UserPreferences::normalizeLocale($request->input('locale'))
