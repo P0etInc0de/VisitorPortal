@@ -335,6 +335,36 @@ class ReceptionAdministerVisitTest extends TestCase
         }
     }
 
+    public function test_receptionist_is_authorized_to_check_out_from_dashboard(): void
+    {
+        $receptionist = (new PermissionHelper)->getReceptionistUser();
+        $employee = User::factory()->create();
+        $responsibleUser = User::factory()->create();
+        $visitor = Visitor::factory()->create();
+        $visit = (new VisitHelper)->makeVisit(
+            $employee->id,
+            'Dashboard Visit',
+            VisitStatusEnum::Planned,
+            $responsibleUser->id,
+            new Collection([$visitor])
+        );
+        $visit->visitors()->updateExistingPivot($visitor->id, [
+            'checked_in_at' => now(),
+            'checked_in_by_user_id' => $receptionist->id,
+        ]);
+
+        Livewire::actingAs($receptionist)
+            ->test(DashboardPage::class)
+            ->call('checkOut', $visit->id, $visitor->id)
+            ->assertStatus(200);
+
+        $this->assertDatabaseHas('visit_visitor', [
+            'visit_id' => $visit->id,
+            'visitor_id' => $visitor->id,
+            'checked_out_by_user_id' => $receptionist->id,
+        ]);
+    }
+
     public function test_receptionist_can_create_walk_ins(): void
     {
         $receptionist = (new PermissionHelper)->getReceptionistUser();
