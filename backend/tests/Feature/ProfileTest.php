@@ -29,15 +29,13 @@ class ProfileTest extends TestCase
             ->assertDontSee(__('Konto löschen'));
     }
 
-    public function test_profile_information_can_be_updated(): void
+    public function test_profile_settings_can_be_updated(): void
     {
         $user = (new PermissionHelper)->getUser();
 
         $response = $this
             ->actingAs($user)
             ->patch('/profile', [
-                'name' => 'Test User',
-                'email' => 'test@example.com',
                 'locale' => 'de',
                 'theme_preference' => 'dark',
             ]);
@@ -50,22 +48,21 @@ class ProfileTest extends TestCase
 
         $user->refresh();
 
-        $this->assertSame('Test User', $user->name);
-        $this->assertSame('test@example.com', $user->email);
         $this->assertSame('de', $user->locale);
         $this->assertSame('dark', $user->theme_preference);
-        $this->assertNull($user->email_verified_at);
     }
 
-    public function test_email_verification_status_is_unchanged_when_the_email_address_is_unchanged(): void
+    public function test_account_fields_cannot_be_updated_from_profile_settings(): void
     {
         $user = (new PermissionHelper)->getUser();
+        $originalName = $user->name;
+        $originalEmail = $user->email;
 
         $response = $this
             ->actingAs($user)
             ->patch('/profile', [
                 'name' => 'Test User',
-                'email' => $user->email,
+                'email' => 'test@example.com',
                 'locale' => 'en',
                 'theme_preference' => 'system',
             ]);
@@ -74,7 +71,11 @@ class ProfileTest extends TestCase
             ->assertSessionHasNoErrors()
             ->assertRedirect('/profile');
 
-        $this->assertNotNull($user->refresh()->email_verified_at);
+        $user->refresh();
+
+        $this->assertSame($originalName, $user->name);
+        $this->assertSame($originalEmail, $user->email);
+        $this->assertNotNull($user->email_verified_at);
     }
 
     public function test_user_locale_from_database_overrides_browser_locale(): void

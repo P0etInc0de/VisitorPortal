@@ -1,47 +1,13 @@
 <section>
     <header>
         <h2 class="text-xl font-semibold tracking-tight text-base-content">
-            {{ __('Profilinformationen') }}
+            {{ __('Profileinstellungen') }}
         </h2>
     </header>
-
-    <form id="send-verification" method="post" action="{{ route('verification.send') }}">
-        @csrf
-    </form>
 
     <form method="post" action="{{ route('profile.update') }}" class="mt-5 grid gap-5">
         @csrf
         @method('patch')
-
-        <div>
-            <x-input-label for="name" :value="__('Name')" />
-            <x-text-input id="name" name="name" type="text" :value="old('name', $user->name)" required autofocus autocomplete="name" />
-            <x-input-error class="mt-2" :messages="$errors->get('name')" />
-        </div>
-
-        <div>
-            <x-input-label for="email" :value="__('E-Mail')" />
-            <x-text-input id="email" name="email" type="email" :value="old('email', $user->email)" required autocomplete="username" />
-            <x-input-error class="mt-2" :messages="$errors->get('email')" />
-
-            @if ($user instanceof \Illuminate\Contracts\Auth\MustVerifyEmail && ! $user->hasVerifiedEmail())
-                <div class="mt-3 rounded-2xl border border-base-300 bg-base-100/80 p-4">
-                    <p class="text-sm text-base-content/80">
-                        {{ __('Ihre E-Mail-Adresse ist noch nicht verifiziert.') }}
-                    </p>
-
-                    <button form="send-verification" class="mt-3 text-sm font-medium text-primary hover:underline">
-                        {{ __('Bestätigungs-E-Mail erneut senden') }}
-                    </button>
-
-                    @if (session('status') === 'verification-link-sent')
-                        <p class="mt-3 text-sm text-success">
-                            {{ __('Ein neuer Bestätigungslink wurde versendet.') }}
-                        </p>
-                    @endif
-                </div>
-            @endif
-        </div>
 
         <div class="grid gap-5 md:grid-cols-2">
             <div>
@@ -66,9 +32,7 @@
         </div>
 
         <div class="flex flex-wrap items-center gap-3">
-            <x-primary-button class="h-12 min-h-12 rounded-xl px-6">
-                {{ __('Speichern') }}
-            </x-primary-button>
+            <x-primary-button>{{ __('Speichern') }}</x-primary-button>
 
             @if (session('status') === 'profile-updated')
                 <p
