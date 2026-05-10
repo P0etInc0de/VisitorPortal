@@ -14,6 +14,7 @@ use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\HtmlString;
 use Illuminate\Support\Str;
+use Illuminate\Validation\ValidationException;
 use Livewire\Component;
 
 class CheckInOutBoard extends Component
@@ -72,7 +73,7 @@ class CheckInOutBoard extends Component
         $hostId = (int) $payload['walkInHostId'];
 
         [$visit, $visitor] = DB::transaction(function () use ($payload, $user, $hostId) {
-            $visitor = $this->createWalkInVisitor($payload['walkIn']);
+            $visitor = $this->resolveWalkInVisitor($payload['walkIn']);
             $visit = $this->createWalkInVisit($visitor, $user, $hostId);
 
             $visit->visitors()->syncWithoutDetaching([
@@ -99,6 +100,7 @@ class CheckInOutBoard extends Component
         return view('livewire.portal.check-in-out-board', [
             'hosts' => User::query()
                 ->select('id', 'first_name', 'name')
+                ->whereDoesntHave('roles', fn ($query) => $query->whereIn('name', ['welcome monitor', 'welcome_monitor']))
                 ->orderBy('first_name')
                 ->orderBy('name')
                 ->get(),
@@ -267,18 +269,31 @@ class CheckInOutBoard extends Component
     /**
      * @param  array<string, string|null>  $payload
      */
-    private function createWalkInVisitor(array $payload): Visitor
+    private function resolveWalkInVisitor(array $payload): Visitor
     {
         $email = $this->normalizeText($payload['email'] ?? null);
         $phone = $this->normalizeText($payload['phone'] ?? null);
+        $emailVisitor = $email ? Visitor::query()->where('email', $email)->first() : null;
+        $phoneVisitor = $phone ? Visitor::query()->where('phone', $phone)->first() : null;
+
+        if ($emailVisitor && $phoneVisitor && ! $emailVisitor->is($phoneVisitor)) {
+            throw ValidationException::withMessages([
+                'walkIn.email' => __('E-Mail und Telefonnummer gehören zu unterschiedlichen Besuchern.'),
+            ]);
+        }
+
+        if ($emailVisitor || $phoneVisitor) {
+            return $emailVisitor ?: $phoneVisitor;
+        }
+
         $token = (string) Str::ulid();
 
         return Visitor::query()->create([
             'title' => $this->normalizeText($payload['title'] ?? null),
             'first_name' => $payload['first_name'],
             'name' => $payload['name'],
-            'email' => $this->uniqueWalkInContactValue('email', $email, 'walkin-'.$token.'@local.invalid'),
-            'phone' => $this->uniqueWalkInContactValue('phone', $phone, 'walkin-'.$token),
+            'email' => $email ?: 'walkin-'.$token.'@local.invalid',
+            'phone' => $phone ?: 'walkin-'.$token,
             'company' => $this->normalizeText($payload['company'] ?? null),
             'status' => VisitorStatusEnum::Planned,
             'notes' => null,
@@ -303,15 +318,6 @@ class CheckInOutBoard extends Component
             'is_walk_in' => true,
             'notes' => __('Am Empfang als Walk-in erfasst.'),
         ]);
-    }
-
-    private function uniqueWalkInContactValue(string $column, ?string $value, string $fallback): string
-    {
-        if ($value && ! Visitor::query()->where($column, $value)->exists()) {
-            return $value;
-        }
-
-        return $fallback;
     }
 
     private function resetWalkIn(): void
