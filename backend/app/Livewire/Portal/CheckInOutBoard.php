@@ -14,6 +14,7 @@ use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\HtmlString;
 use Illuminate\Support\Str;
+use Illuminate\Validation\ValidationException;
 use Livewire\Component;
 
 class CheckInOutBoard extends Component
@@ -99,6 +100,7 @@ class CheckInOutBoard extends Component
         return view('livewire.portal.check-in-out-board', [
             'hosts' => User::query()
                 ->select('id', 'first_name', 'name')
+                ->whereDoesntHave('roles', fn ($query) => $query->whereIn('name', ['welcome monitor', 'welcome_monitor']))
                 ->orderBy('first_name')
                 ->orderBy('name')
                 ->get(),
@@ -271,26 +273,17 @@ class CheckInOutBoard extends Component
     {
         $email = $this->normalizeText($payload['email'] ?? null);
         $phone = $this->normalizeText($payload['phone'] ?? null);
+        $emailVisitor = $email ? Visitor::query()->where('email', $email)->first() : null;
+        $phoneVisitor = $phone ? Visitor::query()->where('phone', $phone)->first() : null;
 
-        $existingVisitor = null;
-
-        if ($email) {
-            $existingVisitor = Visitor::query()->where('email', $email)->first();
-        } elseif ($phone) {
-            $existingVisitor = Visitor::query()->where('phone', $phone)->first();
+        if ($emailVisitor && $phoneVisitor && ! $emailVisitor->is($phoneVisitor)) {
+            throw ValidationException::withMessages([
+                'walkIn.email' => __('E-Mail und Telefonnummer gehören zu unterschiedlichen Besuchern.'),
+            ]);
         }
 
-        if ($existingVisitor) {
-            $existingVisitor->update([
-                'title' => $this->normalizeText($payload['title'] ?? null) ?: $existingVisitor->title,
-                'first_name' => $payload['first_name'],
-                'name' => $payload['name'],
-                'email' => $email ?: $existingVisitor->email,
-                'phone' => $phone ?: $existingVisitor->phone,
-                'company' => $this->normalizeText($payload['company'] ?? null) ?: $existingVisitor->company,
-            ]);
-
-            return $existingVisitor;
+        if ($emailVisitor || $phoneVisitor) {
+            return $emailVisitor ?: $phoneVisitor;
         }
 
         $token = (string) Str::ulid();
@@ -322,6 +315,7 @@ class CheckInOutBoard extends Component
             'scheduled_from' => now(),
             'scheduled_until' => now()->addHour(),
             'status' => VisitStatusEnum::Planned->value,
+            'is_walk_in' => true,
             'notes' => __('Am Empfang als Walk-in erfasst.'),
         ]);
     }

@@ -1,5 +1,19 @@
+@php
+    $hostOptions = $hosts
+        ->map(fn ($host) => [
+            'id' => (string) $host->id,
+            'label' => trim(($host->first_name ?? '').' '.($host->name ?? '')),
+            'search' => trim(($host->first_name ?? '').' '.($host->name ?? '')),
+        ])
+        ->values();
+@endphp
+
 <div
     x-data="{
+        hosts: @js($hostOptions),
+        walkInHostId: @entangle('walkInHostId'),
+        walkInHostOpen: false,
+        walkInHostSearch: '',
         printBadge(url) {
             if (!url) {
                 return;
@@ -7,6 +21,41 @@
 
             this.$refs.badgeActionForm.action = url;
             this.$refs.badgeActionForm.submit();
+        },
+        walkInHostLabel() {
+            return this.hosts.find((host) => String(host.id) === String(this.walkInHostId))?.label || '';
+        },
+        openWalkInHostDropdown() {
+            this.walkInHostOpen = true;
+            this.walkInHostSearch = '';
+            this.$nextTick(() => this.$refs.walkInHostSearch?.focus());
+        },
+        toggleWalkInHostDropdown() {
+            this.walkInHostOpen ? this.walkInHostOpen = false : this.openWalkInHostDropdown();
+        },
+        filteredWalkInHosts() {
+            const term = this.walkInHostSearch.trim().toLowerCase();
+
+            return this.hosts
+                .filter((host) => term === '' || String(host.search).toLowerCase().includes(term))
+                .slice(0, 20);
+        },
+        selectWalkInHost(host) {
+            this.walkInHostId = String(host.id);
+            this.$wire.set('walkInHostId', String(host.id));
+            this.walkInHostSearch = '';
+            this.walkInHostOpen = false;
+        },
+        selectFirstWalkInHost() {
+            const firstHost = this.filteredWalkInHosts()[0];
+
+            if (firstHost) {
+                this.selectWalkInHost(firstHost);
+            }
+        },
+        clearWalkInHostSearch() {
+            this.walkInHostSearch = '';
+            this.$nextTick(() => this.$refs.walkInHostSearch?.focus());
         },
     }"
     x-on:print-badge.window="printBadge($event.detail.url)"
@@ -150,12 +199,64 @@
                     <div class="flex flex-col gap-4">
                         <div>
                             <label class="label px-0 pb-2"><span class="label-text font-medium">{{ __('Ansprechpartner') }} *</span></label>
-                            <select class="select select-bordered w-full @error('walkInHostId') select-error @enderror" wire:model="walkInHostId" required>
-                                <option value="">{{ __('Bitte auswählen') }}</option>
-                                @foreach ($hosts as $host)
-                                    <option value="{{ $host->id }}">{{ trim(($host->first_name ?? '').' '.($host->name ?? '')) }}</option>
-                                @endforeach
-                            </select>
+                            <div class="relative" @click.outside="walkInHostOpen = false">
+                                <button
+                                    type="button"
+                                    class="input input-bordered flex w-full items-center justify-between gap-3 text-left font-normal @error('walkInHostId') input-error @enderror"
+                                    :aria-expanded="walkInHostOpen"
+                                    @click="toggleWalkInHostDropdown()"
+                                    @keydown.escape="walkInHostOpen = false"
+                                >
+                                    <span class="truncate" x-text="walkInHostLabel() || @js(__('Bitte auswählen'))"></span>
+                                    <svg class="h-4 w-4 shrink-0 text-base-content/60" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                                        <path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 0 1 1.06.02L10 11.17l3.71-3.94a.75.75 0 1 1 1.08 1.04l-4.25 4.5a.75.75 0 0 1-1.08 0l-4.25-4.5a.75.75 0 0 1 .02-1.06Z" clip-rule="evenodd" />
+                                    </svg>
+                                </button>
+
+                                <div
+                                    class="absolute z-40 mt-2 w-full rounded-2xl border border-base-300 bg-base-100 p-2 shadow-xl"
+                                    x-cloak
+                                    x-show="walkInHostOpen"
+                                >
+                                    <div class="relative">
+                                        <input
+                                            type="text"
+                                            class="input input-bordered w-full pr-10"
+                                            x-ref="walkInHostSearch"
+                                            x-model="walkInHostSearch"
+                                            placeholder="{{ __('Namen suchen') }}"
+                                            @keydown.enter.prevent="selectFirstWalkInHost()"
+                                            @keydown.escape.prevent="walkInHostOpen = false"
+                                        >
+                                        <button
+                                            type="button"
+                                            class="absolute inset-y-0 right-3 flex items-center text-base-content/50 hover:text-base-content"
+                                            x-cloak
+                                            x-show="walkInHostSearch.length > 0"
+                                            @click="clearWalkInHostSearch()"
+                                            aria-label="{{ __('Suche leeren') }}"
+                                        >
+                                            &times;
+                                        </button>
+                                    </div>
+
+                                    <div class="mt-2 max-h-60 overflow-auto">
+                                        <template x-for="host in filteredWalkInHosts()" :key="host.id">
+                                            <button
+                                                type="button"
+                                                class="w-full rounded-xl px-3 py-2 text-left text-sm hover:bg-base-200"
+                                                :class="String(walkInHostId) === String(host.id) ? 'bg-base-200 font-semibold' : ''"
+                                                @click="selectWalkInHost(host)"
+                                                x-text="host.label"
+                                            ></button>
+                                        </template>
+
+                                        <div class="px-3 py-2 text-sm text-base-content/60" x-show="filteredWalkInHosts().length === 0">
+                                            {{ __('Keine Treffer') }}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                             @error('walkInHostId')
                                 <div class="mt-2 text-sm text-error">{{ $message }}</div>
                             @enderror

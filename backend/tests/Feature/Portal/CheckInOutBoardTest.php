@@ -11,6 +11,7 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Livewire\Livewire;
+use Spatie\Permission\Models\Role;
 use Tests\TestCase;
 
 class CheckInOutBoardTest extends TestCase
@@ -281,5 +282,115 @@ class CheckInOutBoardTest extends TestCase
         $this->assertNotNull($pivot);
         $this->assertNotNull($pivot->checked_in_at);
         $this->assertNotNull($pivot->checked_out_at);
+    }
+
+    public function test_walk_in_host_selection_renders_search_dropdown(): void
+    {
+        $user = User::factory()->create([
+            'first_name' => 'User',
+            'name' => 'Empfang',
+        ]);
+
+        Livewire::actingAs($user)
+            ->test(CheckInOutBoard::class)
+            ->assertSee(__('Ansprechpartner'))
+            ->assertSee(__('Namen suchen'))
+            ->assertSee(__('Keine Treffer'))
+            ->assertDontSeeHtml('<select class="select select-bordered w-full');
+    }
+
+    public function test_walk_in_host_selection_excludes_welcome_monitor_users(): void
+    {
+        $user = User::factory()->create([
+            'first_name' => 'User',
+            'name' => 'Empfang',
+        ]);
+        $welcomeMonitor = User::factory()->create([
+            'first_name' => 'User',
+            'name' => 'WelcomeMonitor',
+        ]);
+        Role::firstOrCreate(['name' => 'welcome_monitor', 'guard_name' => 'web']);
+        $welcomeMonitor->assignRole('welcome_monitor');
+
+        Livewire::actingAs($user)
+            ->test(CheckInOutBoard::class)
+            ->assertDontSee('User WelcomeMonitor');
+    }
+
+    public function test_walk_in_reuses_existing_visitor_without_overwriting_and_marks_visit_as_walk_in(): void
+    {
+        Carbon::setTestNow(Carbon::create(2026, 5, 10, 12, 0, 0, config('app.timezone')));
+
+        try {
+            $user = User::factory()->create();
+            $host = User::factory()->create();
+            $existingVisitor = Visitor::factory()->create([
+                'first_name' => 'Existing',
+                'name' => 'Person',
+                'email' => 'duplicate@example.com',
+                'phone' => '123456789',
+                'company' => 'Existing Company',
+            ]);
+
+            Livewire::actingAs($user)
+                ->test(CheckInOutBoard::class)
+                ->set('walkInHostId', (string) $host->id)
+                ->set('walkIn.first_name', 'Walk')
+                ->set('walkIn.name', 'In')
+                ->set('walkIn.email', 'duplicate@example.com')
+                ->set('walkIn.phone', '123456789')
+                ->set('walkIn.company', 'Walk Company')
+                ->call('registerWalkIn')
+                ->assertHasNoErrors();
+
+            $existingVisitor->refresh();
+
+            $this->assertSame('Existing', $existingVisitor->first_name);
+            $this->assertSame('Person', $existingVisitor->name);
+            $this->assertSame('Existing Company', $existingVisitor->company);
+
+            $walkInVisit = Visit::query()
+                ->where('is_walk_in', true)
+                ->whereHas('visitors', fn ($query) => $query->where('visitors.id', $existingVisitor->id))
+                ->first();
+
+            $this->assertNotNull($walkInVisit);
+            $this->assertStringContainsString('Existing Person', $walkInVisit->title);
+            $this->assertDatabaseHas('visit_visitor', [
+                'visit_id' => $walkInVisit->id,
+                'visitor_id' => $existingVisitor->id,
+                'checked_in_at' => now()->format('Y-m-d H:i:s'),
+            ]);
+        } finally {
+            Carbon::setTestNow();
+        }
+    }
+
+    public function test_walk_in_rejects_conflicting_existing_email_and_phone_matches(): void
+    {
+        $user = User::factory()->create();
+        $host = User::factory()->create();
+        Visitor::factory()->create([
+            'email' => 'email-owner@example.com',
+            'phone' => '111111',
+        ]);
+        Visitor::factory()->create([
+            'email' => 'phone-owner@example.com',
+            'phone' => '222222',
+        ]);
+
+        Livewire::actingAs($user)
+            ->test(CheckInOutBoard::class)
+            ->set('walkInHostId', (string) $host->id)
+            ->set('walkIn.first_name', 'Conflict')
+            ->set('walkIn.name', 'Person')
+            ->set('walkIn.email', 'email-owner@example.com')
+            ->set('walkIn.phone', '222222')
+            ->call('registerWalkIn')
+            ->assertHasErrors(['walkIn.email']);
+
+        $this->assertDatabaseMissing('visits', [
+            'title' => 'Walk-in: Conflict Person',
+        ]);
     }
 }
