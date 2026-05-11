@@ -33,6 +33,31 @@ Webbasiertes Besucherportal (Laravel) zur Planung und Abwicklung von Firmenbesuc
 - [update_workflow.md](docs/update_workflow.md)
 - [welcome_monitor.md](docs/welcome_monitor.md): Anleitung zur Nutzung des Willkommenmonitors
 
+## Schnellstart fuer Demos
+
+Voraussetzung: Docker Desktop ist installiert und gestartet.
+
+Windows:
+
+```bat
+start.bat
+```
+
+macOS/Linux:
+
+```bash
+sh start.sh
+```
+
+Danach:
+
+- App: [http://localhost:8080](http://localhost:8080)
+- Mailhog: [http://localhost:8025](http://localhost:8025)
+
+Falls diese Ports belegt sind, koennen `APP_PORT` und `MAILHOG_PORT` in `.env.demo` angepasst werden.
+
+Der Demo-Start nutzt ein fertiges Docker-Image. Composer, PHP-Extensions und Frontend-Assets sind bereits im Image enthalten.
+
 ### Diagramme `docs/diagrams`
 
 - Enthält Diagramme um die Anwendung besser zu verstehen in Form von Bildern und `.uxf` Dateien. 

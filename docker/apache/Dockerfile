@@ -5,11 +5,11 @@ RUN a2enmod rewrite
 
 # System libs
 RUN apt-get update && apt-get install -y \
-    git unzip libzip-dev libicu-dev libonig-dev \
+    git unzip libzip-dev libicu-dev libonig-dev libxml2-dev \
   && rm -rf /var/lib/apt/lists/*
 
 # PHP Extensions
-RUN docker-php-ext-install -j$(nproc) pdo_mysql mbstring zip intl opcache
+RUN docker-php-ext-install -j$(nproc) pdo_mysql mbstring zip intl opcache dom xml xmlwriter
 
 # Composer
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
