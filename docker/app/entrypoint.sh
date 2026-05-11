@@ -81,6 +81,11 @@ ensure_application_key() {
     php artisan key:generate --force
 }
 
+cache_runtime_configuration() {
+    php artisan config:clear >/dev/null 2>&1 || true
+    php artisan config:cache
+}
+
 cd "$APP_DIR"
 
 step "Preparing writable Laravel directories"
@@ -88,6 +93,9 @@ ensure_writable_paths
 
 step "Checking application key"
 ensure_application_key
+
+step "Caching runtime configuration"
+cache_runtime_configuration
 
 step "Checking database availability"
 wait_for_database
@@ -118,7 +126,6 @@ fi
 
 step "Finalizing Laravel runtime"
 php artisan storage:link >/dev/null 2>&1 || true
-php artisan config:clear >/dev/null 2>&1 || true
 php artisan view:clear >/dev/null 2>&1 || true
 ensure_writable_paths
 
