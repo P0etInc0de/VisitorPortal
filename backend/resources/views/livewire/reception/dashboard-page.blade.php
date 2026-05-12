@@ -47,14 +47,26 @@
                                             @include('livewire.reception.partials.dashboard-participant-row', ['visit' => $visit, 'participant' => $participant])
                                         @endforeach
                                         @if ($visit['hidden_count'] > 0)
-                                            <details class="rounded-xl border border-base-300 bg-base-100">
-                                                <summary class="cursor-pointer list-none px-3 py-3 text-sm font-medium text-base-content/75">+ {{ $visit['hidden_count'] }} {{ __('weitere Teilnehmende') }}</summary>
-                                                <div class="space-y-2 border-t border-base-300 p-3">
-                                                    @foreach ($visit['hidden_participants'] as $participant)
-                                                        @include('livewire.reception.partials.dashboard-participant-row', ['visit' => $visit, 'participant' => $participant])
-                                                    @endforeach
-                                                </div>
-                                            </details>
+                                            @if ($visit['participants_expanded'])
+                                                @foreach ($visit['hidden_participants'] as $participant)
+                                                    @include('livewire.reception.partials.dashboard-participant-row', ['visit' => $visit, 'participant' => $participant])
+                                                @endforeach
+                                            @endif
+
+                                            <button
+                                                type="button"
+                                                class="inline-flex w-fit items-center rounded-lg px-1 py-1 text-sm font-medium text-base-content/70 transition hover:text-base-content focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
+                                                aria-expanded="{{ $visit['participants_expanded'] ? 'true' : 'false' }}"
+                                                wire:click="toggleVisitParticipants({{ $visit['id'] }})"
+                                                wire:loading.attr="disabled"
+                                                wire:target="toggleVisitParticipants({{ $visit['id'] }})"
+                                            >
+                                                @if ($visit['participants_expanded'])
+                                                    {{ __('Weniger anzeigen') }}
+                                                @else
+                                                    + {{ $visit['hidden_count'] }} {{ __('weitere Teilnehmende') }}
+                                                @endif
+                                            </button>
                                         @endif
                                     </div>
                                 </div>

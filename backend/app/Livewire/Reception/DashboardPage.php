@@ -16,6 +16,22 @@ class DashboardPage extends Component
 {
     use AuthorizesRequests;
 
+    public array $expandedParticipantVisitIds = [];
+
+    public function toggleVisitParticipants(int $visitId): void
+    {
+        $expandedVisitIds = array_map('intval', $this->expandedParticipantVisitIds);
+
+        if (in_array($visitId, $expandedVisitIds, true)) {
+            $this->expandedParticipantVisitIds = array_values(array_diff($expandedVisitIds, [$visitId]));
+
+            return;
+        }
+
+        $expandedVisitIds[] = $visitId;
+        $this->expandedParticipantVisitIds = array_values(array_unique($expandedVisitIds));
+    }
+
     public function checkIn(int $visitId, int $visitorId): void
     {
         $this->authorize('checkIn', Visitor::class);
@@ -119,7 +135,9 @@ class DashboardPage extends Component
 
     private function visits($todayVisits)
     {
-        return $todayVisits->map(function (Visit $visit) {
+        $expandedVisitIds = array_map('intval', $this->expandedParticipantVisitIds);
+
+        return $todayVisits->map(function (Visit $visit) use ($expandedVisitIds) {
             $participants = $visit->visitors
                 ->map(function (Visitor $visitor) use ($visit) {
                     return $this->mapParticipant($visit, $visitor);
@@ -138,6 +156,7 @@ class DashboardPage extends Component
                 'visible_participants' => $participants->take(3)->values(),
                 'hidden_participants' => $participants->slice(3)->values(),
                 'hidden_count' => max(0, $participants->count() - 3),
+                'participants_expanded' => in_array((int) $visit->id, $expandedVisitIds, true),
             ];
         });
     }
