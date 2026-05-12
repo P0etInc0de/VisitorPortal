@@ -8,8 +8,11 @@
     $visitStatusClass = trim((string) ($visit['status_class'] ?? ''));
     $visitStatusTextClass = $visitStatusClass !== '' ? $visitStatusClass : 'text-base-content/75';
     $visitDateLabel = $visit['date_time_label'] ?? null;
+    $showParticipantControls = $showParticipantControls ?? true;
     $visitGridColumns = $visitGridColumns ?? 'grid-cols-[1.85rem_minmax(11rem,1.28fr)_minmax(10.4rem,1.02fr)_minmax(6.75rem,0.7fr)_minmax(5.8rem,0.62fr)_3rem_minmax(10rem,1.06fr)]';
-    $participantGridColumns = $participantGridColumns ?? 'grid-cols-[minmax(14rem,1.55fr)_minmax(10rem,1.1fr)_minmax(7rem,0.95fr)_minmax(5.25rem,0.8fr)_minmax(9rem,0.92fr)]';
+    $participantGridTemplateColumns = $participantGridTemplateColumns ?? ($showParticipantControls
+        ? 'minmax(14rem, 1.55fr) minmax(10rem, 1.1fr) minmax(7rem, 0.95fr) minmax(5.25rem, 0.8fr) minmax(9rem, 0.92fr)'
+        : 'minmax(14rem, 1.55fr) minmax(10rem, 1.1fr) minmax(7rem, 0.95fr)');
 @endphp
 
 <article
@@ -87,12 +90,14 @@
 
     <div id="{{ $detailId }}" class="bg-base-200/30 px-3 pb-[0.55rem] pl-[3.05rem]" x-show="open" x-cloak>
         <div class="overflow-hidden rounded-[1rem] border border-base-300 bg-base-100">
-            <div class="grid {{ $participantGridColumns }} items-center gap-[0.55rem] border-b border-base-300 bg-base-200/60 px-[0.65rem] py-[0.34rem] text-[0.7rem] font-bold uppercase tracking-[0.04em] text-base-content/75">
+            <div class="grid items-center gap-[0.55rem] border-b border-base-300 bg-base-200/60 px-[0.65rem] py-[0.34rem] text-[0.7rem] font-bold uppercase tracking-[0.04em] text-base-content/75" style="grid-template-columns: {{ $participantGridTemplateColumns }};">
                 <div>{{ __('Name') }}</div>
                 <div>{{ __('Unternehmen') }}</div>
                 <div>{{ __('Status') }}</div>
-                <div>{{ __('Ausweis') }}</div>
-                <div>{{ __('Aktion') }}</div>
+                @if ($showParticipantControls)
+                    <div>{{ __('Ausweis') }}</div>
+                    <div>{{ __('Aktion') }}</div>
+                @endif
             </div>
 
             @if (count($participants) > 0)
@@ -100,7 +105,8 @@
                     @include('reception.partials.all-visits.participant-row', [
                         'participant' => $participant,
                         'visitId' => $visitId,
-                        'participantGridColumns' => $participantGridColumns,
+                        'participantGridTemplateColumns' => $participantGridTemplateColumns,
+                        'showParticipantControls' => $showParticipantControls,
                     ])
                 @endforeach
             @else

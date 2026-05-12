@@ -322,4 +322,29 @@ class VisitManagementTest extends TestCase
             ->assertSee('Eigener Vertretungs-Besuch')
             ->assertDontSee('Fremder Besuch');
     }
+
+    public function test_my_visits_page_hides_participant_id_card_and_action_columns(): void
+    {
+        $user = (new PermissionHelper)->getUser();
+        $visitor = Visitor::factory()->create();
+        $visit = Visit::factory()->create([
+            'title' => 'Eigener Besuch mit Teilnehmenden',
+            'user_id' => $user->id,
+            'responsible_user_id' => $user->id,
+        ]);
+
+        $visit->visitors()->sync([$visitor->id]);
+
+        $this
+            ->actingAs($user)
+            ->get(route('portal.my-visits'))
+            ->assertOk()
+            ->assertSee('Eigener Besuch mit Teilnehmenden')
+            ->assertSee('grid-template-columns: minmax(14rem, 1.55fr) minmax(10rem, 1.1fr) minmax(7rem, 0.95fr);', false)
+            ->assertSee(__('Name'))
+            ->assertSee(__('Unternehmen'))
+            ->assertSee(__('Status'))
+            ->assertDontSee(__('Ausweis'))
+            ->assertDontSee(__('Aktion'));
+    }
 }
