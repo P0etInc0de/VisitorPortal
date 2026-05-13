@@ -4,6 +4,7 @@ namespace Tests\Feature\Receptionist;
 
 use App\Enums\VisitStatusEnum;
 use App\Livewire\Portal\CheckInOutBoard;
+use App\Livewire\Reception\AllVisitsPage;
 use App\Livewire\Reception\DashboardPage;
 use App\Models\User;
 use App\Models\Visit;
@@ -337,6 +338,43 @@ class ReceptionAdministerVisitTest extends TestCase
                 ->assertSee(__('Ausweis bereit'))
                 ->assertSee(__('Ausweis'));
 
+            $this->assertDatabaseHas('visit_visitor', [
+                'visit_id' => $visit->id,
+                'visitor_id' => $visitor->id,
+                'badge_printed_at' => now()->format('Y-m-d H:i:s'),
+            ]);
+        } finally {
+            Carbon::setTestNow();
+        }
+    }
+
+    public function test_all_visits_id_card_button_updates_status_without_page_reload(): void
+    {
+        Carbon::setTestNow(Carbon::create(2026, 5, 1, 14, 39, 24, config('app.timezone')));
+
+        try {
+            $receptionist = (new PermissionHelper)->getReceptionistUser();
+            $employee = User::factory()->create();
+            $responsibleUser = User::factory()->create();
+            $visitor = Visitor::factory()->create(['first_name' => 'Dorothy', 'name' => 'Gale']);
+            $visit = (new VisitHelper)->makeVisit(
+                $employee->id,
+                'All Visits Ausweis Visit',
+                VisitStatusEnum::Planned,
+                $responsibleUser->id,
+                new Collection([$visitor])
+            );
+
+            $component = Livewire::actingAs($receptionist)
+                ->test(AllVisitsPage::class)
+                ->assertSee('Dorothy Gale')
+                ->assertSee(__('Geplant'))
+                ->assertDontSee(__('Ausweis bereit'))
+                ->call('printBadge', $visit->id, $visitor->id)
+                ->assertSee(__('Ausweis bereit'))
+                ->assertSee(__('Ausweis'));
+
+            $this->assertStringContainsString('text-info', $component->html());
             $this->assertDatabaseHas('visit_visitor', [
                 'visit_id' => $visit->id,
                 'visitor_id' => $visitor->id,

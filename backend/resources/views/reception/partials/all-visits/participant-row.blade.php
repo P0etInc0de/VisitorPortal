@@ -57,8 +57,11 @@
                     x-on:submit="$dispatch('av-capture-scroll')"
                 >
                     @csrf
-                    <button type="submit"
-                            class="btn btn-outline btn-sm w-auto justify-center px-2 text-center">{{ __('Ausweis') }}</button>
+                    <button
+                        type="submit"
+                        class="btn btn-outline btn-sm w-auto justify-center px-2 text-center"
+                        x-on:click="$dispatch('av-capture-scroll'); $wire.printBadge({{ (int) ($participant['visit_id'] ?? $visitId) }}, {{ (int) $participant['visitor_id'] }})"
+                    >{{ __('Ausweis') }}</button>
                 </form>
             @else
                 <span class="text-[0.82rem] leading-[1.24] text-base-content/70">—</span>

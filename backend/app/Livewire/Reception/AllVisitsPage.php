@@ -7,12 +7,15 @@ use App\Models\User;
 use App\Models\Visit;
 use App\Models\Visitor;
 use App\Services\VisitActionService;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Log;
 use Livewire\Component;
 
 class AllVisitsPage extends Component
 {
+    use AuthorizesRequests;
+
     public string $search = '';
 
     public string $activeRange = 'week';
@@ -142,6 +145,28 @@ class AllVisitsPage extends Component
 
             $this->interactionToken++;
         }
+    }
+
+    public function printBadge(int $visitId, int $visitorId): void
+    {
+        $this->authorize('print', Visitor::class);
+
+        $visit = $this->loadVisitParticipantPair($visitId, $visitorId);
+        $participant = $visit->visitors->firstWhere('id', $visitorId);
+
+        if (! $participant) {
+            return;
+        }
+
+        app(VisitActionService::class)->printBadge($visit, $participant);
+
+        Log::channel('web')->info('Visit participant badge marked as printed from all visits page', [
+            'visit_id' => $visitId,
+            'visitor_id' => $visitorId,
+            'user_id' => auth()->id(),
+        ]);
+
+        $this->interactionToken++;
     }
 
     public function render()
@@ -291,7 +316,7 @@ class AllVisitsPage extends Component
         if (filled($pivot->badge_printed_at)) {
             return [
                 'label' => __('Ausweis bereit'),
-                'class' => 'text-success',
+                'class' => 'text-info',
             ];
         }
 
