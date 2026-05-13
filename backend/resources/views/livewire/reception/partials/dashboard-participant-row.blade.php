@@ -13,7 +13,7 @@
             @if ($participant['can_print_badge'])
                 <form method="POST" action="{{ $participant['badge_url'] }}" target="dashboard-badge-download-frame">
                     @csrf
-                    <button type="submit" class="btn btn-outline btn-xs rounded-lg">{{ __('Badge') }}</button>
+                    <button type="submit" class="btn btn-outline btn-xs rounded-lg" data-testid="dashboard-participant-id-card-button">{{ __('Ausweis') }}</button>
                 </form>
             @endif
 

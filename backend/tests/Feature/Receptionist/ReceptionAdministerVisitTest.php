@@ -382,6 +382,47 @@ class ReceptionAdministerVisitTest extends TestCase
         }
     }
 
+    public function test_dashboard_shows_id_card_button_for_all_participant_states(): void
+    {
+        Carbon::setTestNow(Carbon::create(2026, 5, 1, 14, 39, 24, config('app.timezone')));
+
+        try {
+            $receptionist = (new PermissionHelper)->getReceptionistUser();
+            $employee = User::factory()->create();
+            $responsibleUser = User::factory()->create();
+            $visitors = new Collection([
+                Visitor::factory()->create(['first_name' => 'Anna', 'name' => 'Ausweis']),
+                Visitor::factory()->create(['first_name' => 'Berta', 'name' => 'Gedruckt']),
+                Visitor::factory()->create(['first_name' => 'Carla', 'name' => 'Ausgecheckt']),
+            ]);
+            $visit = (new VisitHelper)->makeVisit(
+                $employee->id,
+                'Dashboard Visit',
+                VisitStatusEnum::Planned,
+                $responsibleUser->id,
+                $visitors
+            );
+
+            $visit->visitors()->updateExistingPivot($visitors[1]->id, [
+                'badge_printed_at' => now(),
+            ]);
+            $visit->visitors()->updateExistingPivot($visitors[2]->id, [
+                'checked_in_at' => now()->subMinutes(10),
+                'checked_out_at' => now(),
+            ]);
+
+            $component = Livewire::actingAs($receptionist)
+                ->test(DashboardPage::class)
+                ->assertSee(__('Ausweis'))
+                ->assertSee(__('Ausweis bereit'));
+
+            $this->assertSame(3, substr_count($component->html(), 'data-testid="dashboard-participant-id-card-button"'));
+            $component->assertDontSee('Badge');
+        } finally {
+            Carbon::setTestNow();
+        }
+    }
+
     public function test_receptionist_is_authorized_to_check_out_from_dashboard(): void
     {
         $receptionist = (new PermissionHelper)->getReceptionistUser();
@@ -485,9 +526,9 @@ class ReceptionAdministerVisitTest extends TestCase
 
     }
 
-    public function test_reception_can_create_badges(): void
+    public function test_reception_can_create_id_cards(): void
     {
-        $this->markTestSkipped('Badge creation test is not implemented yet.');
+        $this->markTestSkipped('Ausweis-Erstellung ist noch nicht implementiert.');
     }
 
     public function test_reception_can_view_own_user_permissions(): void

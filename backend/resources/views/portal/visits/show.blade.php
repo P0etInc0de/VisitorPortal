@@ -8,7 +8,7 @@
         } elseif (filled($pivot->checked_in_at)) {
             $status = ['label' => __('Eingecheckt'), 'class' => 'badge-success badge-outline'];
         } elseif (filled($pivot->badge_printed_at)) {
-            $status = ['label' => __('Badge bereit'), 'class' => 'badge-info badge-outline'];
+            $status = ['label' => __('Ausweis bereit'), 'class' => 'badge-info badge-outline'];
         } elseif (($visit->status ?? null) === 'draft') {
             $status = ['label' => __('Entwurf'), 'class' => 'badge-error badge-outline'];
         } elseif (($visit->status ?? null) === 'canceled') {
@@ -95,7 +95,7 @@
                     </span>
 
                     <span class="{{ $metaChipClass }}">
-                        {{ __('Offene Badges') }}: {{ $visit->badge_pending_count }}
+                        {{ __('Offene Ausweise') }}: {{ $visit->badge_pending_count }}
                     </span>
                 </div>
 
@@ -153,7 +153,7 @@
                                                     <div class="{{ $detailValueClass }}">{{ $participant['company'] ?: '–' }}</div>
                                                 </div>
                                                 <div class="{{ $detailCardClass }}">
-                                                    <div class="{{ $detailLabelClass }}">{{ __('Badge') }}</div>
+                                                    <div class="{{ $detailLabelClass }}">{{ __('Ausweis') }}</div>
                                                     <div class="{{ $detailValueClass }}">
                                                         {{ $formatParticipantDateTime($participant['badge_printed_at'], __('offen')) }}
                                                     </div>

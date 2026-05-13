@@ -85,7 +85,7 @@ class VisitSeeder extends Seeder
                 'badge_printed_at' => $now->copy()->subMinutes(35),
                 'checked_in_at' => $now->copy()->subMinutes(25),
                 'checked_in_by_user_id' => $reception->id,
-                'notes' => 'Vier Pfoten, ein Badge.',
+                'notes' => 'Vier Pfoten, ein Ausweis.',
             ],
         ]);
 
@@ -96,7 +96,7 @@ class VisitSeeder extends Seeder
             'from' => $today->copy()->setTime(14, 0),
             'until' => $today->copy()->setTime(16, 0),
             'status' => VisitStatusEnum::Planned,
-            'notes' => 'Großer Termin mit 24 Gästen. Testet Listen, Badges und Dashboard-Zähler.',
+            'notes' => 'Großer Termin mit 24 Gästen. Testet Listen, Ausweise und Dashboard-Zähler.',
         ], $this->firstVisitorEmails(24));
 
         $this->seedVisit([

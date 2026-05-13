@@ -128,7 +128,7 @@ class DashboardPage extends Component
             [
                 'label' => __('Offene Klärungen'),
                 'value' => (string) $openClarifications,
-                'meta' => __('Badge, Entwürfe oder offene Vorbereitung'),
+                'meta' => __('Ausweise, Entwürfe oder offene Vorbereitung'),
             ],
         ];
     }
@@ -175,7 +175,7 @@ class DashboardPage extends Component
             'status_label' => $status['label'],
             'status_class' => $status['class'],
             'badge_ready' => filled($pivot->badge_printed_at),
-            'can_print_badge' => blank($pivot->badge_printed_at),
+            'can_print_badge' => true,
             'can_check_in' => blank($pivot->checked_in_at) || $isCheckedOut,
             'check_in_label' => $isCheckedOut ? __('Erneut einchecken') : __('Check-in'),
             'can_check_out' => filled($pivot->checked_in_at) && blank($pivot->checked_out_at),
@@ -201,7 +201,7 @@ class DashboardPage extends Component
 
         if (filled($pivot->badge_printed_at)) {
             return [
-                'label' => __('Badge bereit'),
+                'label' => __('Ausweis bereit'),
                 'class' => 'badge-info badge-outline',
             ];
         }
