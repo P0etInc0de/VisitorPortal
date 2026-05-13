@@ -5,7 +5,7 @@ Sichtbare UI-Texte direkt mit Laravels Übersetzungsfunktion `__()` kapseln.
 Beispiel:
 
 ```blade
-<h1>{{ __('Besucherportal') }}</h1>
+<h1>{{ config('branding.name', 'VisitorPortal') }}</h1>
 <p>{{ __('Anmeldung für Mitarbeitende') }}</p>
 <label>{{ __('E-Mail') }}</label>
 ```

@@ -70,7 +70,9 @@ new class extends Component {
             }
          }">
         @php
-            $hasLogo = file_exists(public_path('images/logo-light.png'));
+            $brandName = config('branding.name', 'VisitorPortal');
+            $monitorLogoPath = config('branding.logo_light');
+            $hasLogo = is_string($monitorLogoPath) && $monitorLogoPath !== '' && file_exists(public_path($monitorLogoPath));
             $cardStyle = $monitor->content_card_style ?: \App\Models\Monitor::DEFAULT_CONTENT_CARD_STYLE;
             $headerTextClasses = $monitor->header_text_is_light
                 ? 'text-white drop-shadow-[0_8px_30px_rgba(15,23,42,0.4)]'
@@ -117,8 +119,8 @@ new class extends Component {
                             <div class="w-full max-w-[82rem]">
                                 <div class="flex flex-col items-center justify-center gap-6 text-center sm:flex-row sm:items-center sm:justify-center sm:gap-8 sm:text-left lg:gap-10">
                                     @if ($slide['show_logo'] && $hasLogo)
-                                        <img src="{{ asset('images/logo-light.png') }}"
-                                             alt="{{ __('Logo') }}"
+                                        <img src="{{ asset($monitorLogoPath) }}"
+                                             alt="{{ $brandName }}"
                                              width="1920"
                                              height="1080"
                                              loading="eager"

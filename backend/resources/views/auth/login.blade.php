@@ -1,20 +1,28 @@
 @php
-    $hasLogo = file_exists(public_path('images/logo-light.png'));
+    $brandName = config('branding.name', 'VisitorPortal');
+    $logoLightPath = config('branding.logo_light');
+    $logoDarkPath = config('branding.logo_dark');
+    $hasLogoLight = is_string($logoLightPath) && $logoLightPath !== '' && file_exists(public_path($logoLightPath));
+    $hasLogoDark = is_string($logoDarkPath) && $logoDarkPath !== '' && file_exists(public_path($logoDarkPath));
 @endphp
 
 <x-guest-layout>
     <div class="overflow-hidden rounded-3xl border border-base-300 bg-base-100 shadow-sm">
         <div class="grid lg:grid-cols-[1fr_0.88fr]">
             <div class="border-b border-base-300/70 bg-base-100 px-7 pb-7 pt-5 sm:px-9 sm:pb-9 sm:pt-6 lg:border-b-0 lg:border-r">
-                @if ($hasLogo)
+                @if ($hasLogoLight || $hasLogoDark)
                     <div class="mb-2 flex justify-center">
-                        <img src="{{ asset('images/logo-light.png') }}" alt="{{ __('Besucherportal_Logo') }}" class="logo-light max-h-28 w-auto object-contain sm:max-h-32 lg:max-h-36">
-                        <img src="{{ asset('images/logo-dark.png') }}" alt="{{ __('Besucherportal_Logo') }}" class="logo-dark max-h-28 w-auto object-contain sm:max-h-32 lg:max-h-36">
+                        @if ($hasLogoLight)
+                            <img src="{{ asset($logoLightPath) }}" alt="{{ $brandName }}" class="logo-light max-h-28 w-auto object-contain sm:max-h-32 lg:max-h-36">
+                        @endif
+                        @if ($hasLogoDark)
+                            <img src="{{ asset($logoDarkPath) }}" alt="{{ $brandName }}" class="logo-dark max-h-28 w-auto object-contain sm:max-h-32 lg:max-h-36">
+                        @endif
                     </div>
                 @endif
 
                 <h1 class="mt-0 text-3xl font-semibold tracking-tight text-base-content sm:text-4xl">
-                    {{ __('Besucherportal') }}
+                    {{ $brandName }}
                 </h1>
                 <p class="mt-3 max-w-md text-sm leading-7 text-base-content/70 sm:text-base">
                     {{ __('Login_Textbeschreibung') }}

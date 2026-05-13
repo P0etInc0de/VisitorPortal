@@ -17,10 +17,6 @@ class Monitor extends Model
 
     public const DEFAULT_CONTENT_CARD_STYLE = 'transparent';
 
-    public const DEFAULT_FALLBACK_HEADING = 'Herzlich willkommen bei ACD';
-
-    public const DEFAULT_FALLBACK_SUBHEADING = 'Wir wünschen Ihnen einen angenehmen Aufenthalt.';
-
     /**
      * The attributes that are mass assignable.
      *
@@ -83,11 +79,21 @@ class Monitor extends Model
             'background_overlay_enabled' => false,
             'header_text_is_light' => false,
             'content_card_style' => self::DEFAULT_CONTENT_CARD_STYLE,
-            'fallback_heading' => self::DEFAULT_FALLBACK_HEADING,
-            'fallback_subheading' => self::DEFAULT_FALLBACK_SUBHEADING,
+            'fallback_heading' => self::defaultFallbackHeading(),
+            'fallback_subheading' => self::defaultFallbackSubheading(),
             'fallback_show_logo' => true,
             'fallback_show_date' => true,
         ];
+    }
+
+    public static function defaultFallbackHeading(): string
+    {
+        return (string) config('branding.monitor_fallback_heading', 'Welcome to VisitorPortal');
+    }
+
+    public static function defaultFallbackSubheading(): string
+    {
+        return (string) config('branding.monitor_fallback_subheading', "We're glad you're here.");
     }
 
     /**
@@ -97,8 +103,8 @@ class Monitor extends Model
     {
         return [
             'id' => 'fallback',
-            'heading' => $this->fallback_heading ?: self::DEFAULT_FALLBACK_HEADING,
-            'subheading' => $this->fallback_subheading ?: self::DEFAULT_FALLBACK_SUBHEADING,
+            'heading' => $this->fallback_heading ?: self::defaultFallbackHeading(),
+            'subheading' => $this->fallback_subheading ?: self::defaultFallbackSubheading(),
             'show_logo' => (bool) $this->fallback_show_logo,
             'show_date' => (bool) $this->fallback_show_date,
             'visitors' => [],

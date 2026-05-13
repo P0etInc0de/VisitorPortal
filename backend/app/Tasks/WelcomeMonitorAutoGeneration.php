@@ -54,7 +54,7 @@ class WelcomeMonitorAutoGeneration implements ShouldQueue
                 foreach ($chunks as $chunk) {
 
                     $slide = $monitor->monitorSlides()->create([
-                        'heading' => __('Herzlich willkommen!'),
+                        'heading' => config('branding.monitor_slide_heading', 'Welcome!'),
                         'slide_number' => $slidenumber++,
                         'is_active' => true,
                         'is_auto_generated' => true,

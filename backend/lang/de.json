@@ -69,8 +69,6 @@
     "Besucherausweis_": "Besucherausweis_",
     "Besuchen Sie unser Repository": "Besuchen Sie unser Repository",
     "Besuche von heute sowie Termine bis zu 48 Stunden im Voraus.": "Besuche von heute und bis zu 48 Stunden im Voraus.",
-    "Besucherportal": "Besucherportal",
-    "Besucherportal_Logo": "Besucherportal_Logo",
     "Betreuer:": "Betreuer:",
     "Bild entfernen": "Bild entfernen",
     "Bitte geben Sie eine Zahl zwischen 1 und 50 ein.": "Bitte geben Sie eine Zahl zwischen 1 und 50 ein.",
@@ -408,6 +406,7 @@
     "Übergangszeit (ms)": "Übergangszeit (ms)",
     "Überschrift": "Überschrift",
     "Übersicht": "Übersicht",
+    "Visitor portal": "Besucherportal",
     "→ Besuch öffnen": "→ Besuch öffnen",
     "→ Besucher-Details": "→ Besucher-Details"
 }

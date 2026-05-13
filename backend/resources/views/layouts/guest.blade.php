@@ -37,7 +37,7 @@
 
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>{{ $title ?? __('Besucherportal') }}</title>
+    <title>{{ $title ?? config('branding.name', 'VisitorPortal') }}</title>
 
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>

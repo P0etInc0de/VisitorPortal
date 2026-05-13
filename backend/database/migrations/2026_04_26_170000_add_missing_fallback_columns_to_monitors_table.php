@@ -12,15 +12,18 @@ return new class extends Migration
      */
     public function up(): void
     {
+        $fallbackHeading = config('branding.monitor_fallback_heading', 'Welcome to VisitorPortal');
+        $fallbackSubheading = config('branding.monitor_fallback_subheading', "We're glad you're here.");
+
         if (! Schema::hasColumn('monitors', 'fallback_heading')) {
-            Schema::table('monitors', function (Blueprint $table) {
-                $table->string('fallback_heading')->default('Herzlich willkommen bei ACD');
+            Schema::table('monitors', function (Blueprint $table) use ($fallbackHeading) {
+                $table->string('fallback_heading')->default($fallbackHeading);
             });
         }
 
         if (! Schema::hasColumn('monitors', 'fallback_subheading')) {
-            Schema::table('monitors', function (Blueprint $table) {
-                $table->string('fallback_subheading')->default('Wir wünschen Ihnen einen angenehmen Aufenthalt.');
+            Schema::table('monitors', function (Blueprint $table) use ($fallbackSubheading) {
+                $table->string('fallback_subheading')->default($fallbackSubheading);
             });
         }
 
@@ -50,11 +53,11 @@ return new class extends Migration
 
         DB::table('monitors')
             ->whereNull('fallback_heading')
-            ->update(['fallback_heading' => 'Herzlich willkommen bei ACD']);
+            ->update(['fallback_heading' => $fallbackHeading]);
 
         DB::table('monitors')
             ->whereNull('fallback_subheading')
-            ->update(['fallback_subheading' => 'Wir wünschen Ihnen einen angenehmen Aufenthalt.']);
+            ->update(['fallback_subheading' => $fallbackSubheading]);
     }
 
     /**

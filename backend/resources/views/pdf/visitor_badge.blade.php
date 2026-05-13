@@ -1,5 +1,8 @@
 @php
-    $bg = base64_encode(file_get_contents(public_path('images/badge/visitor_badge_background.png')));
+    $backgroundPath = config('branding.badge_background');
+    $backgroundFullPath = is_string($backgroundPath) && $backgroundPath !== '' ? public_path($backgroundPath) : null;
+    $backgroundMime = $backgroundFullPath && str_ends_with($backgroundFullPath, '.svg') ? 'image/svg+xml' : 'image/png';
+    $bg = $backgroundFullPath && file_exists($backgroundFullPath) ? base64_encode(file_get_contents($backgroundFullPath)) : null;
 @endphp
 
     <!DOCTYPE html>
@@ -33,7 +36,11 @@
             width: 85.6mm;
             height: 53.98mm;
 
-            background-image: url("data:image/png;base64,{{ $bg }}");
+            @if ($bg)
+            background-image: url("data:{{ $backgroundMime }};base64,{{ $bg }}");
+            @else
+            background: linear-gradient(135deg, #ffffff, #eef2f8);
+            @endif
             background-size: 100% 100%;
             background-position: center;
             background-repeat: no-repeat;
