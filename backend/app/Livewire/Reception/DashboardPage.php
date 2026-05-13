@@ -74,6 +74,26 @@ class DashboardPage extends Component
         ]);
     }
 
+    public function printBadge(int $visitId, int $visitorId): void
+    {
+        $this->authorize('print', Visitor::class);
+
+        $visit = $this->loadVisitParticipantPair($visitId, $visitorId);
+        $participant = $visit->visitors->firstWhere('id', $visitorId);
+
+        if (! $participant) {
+            return;
+        }
+
+        app(VisitActionService::class)->printBadge($visit, $participant);
+
+        Log::channel('web')->info('Visit participant badge marked as printed from dashboard', [
+            'visit_id' => $visitId,
+            'visitor_id' => $visitorId,
+            'user_id' => auth()->id(),
+        ]);
+    }
+
     public function render(): View
     {
         $this->authorize('viewAny', Visit::class);

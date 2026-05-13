@@ -311,6 +311,42 @@ class ReceptionAdministerVisitTest extends TestCase
         }
     }
 
+    public function test_check_in_out_id_card_button_updates_status_without_page_reload(): void
+    {
+        Carbon::setTestNow(Carbon::create(2026, 5, 1, 14, 39, 24, config('app.timezone')));
+
+        try {
+            $receptionist = (new PermissionHelper)->getReceptionistUser();
+            $employee = User::factory()->create();
+            $responsibleUser = User::factory()->create();
+            $visitor = Visitor::factory()->create(['first_name' => 'Dorothy', 'name' => 'Gale']);
+            $visit = (new VisitHelper)->makeVisit(
+                $employee->id,
+                'Check-In/Out Visit',
+                VisitStatusEnum::Planned,
+                $responsibleUser->id,
+                new Collection([$visitor])
+            );
+
+            Livewire::actingAs($receptionist)
+                ->test(CheckInOutBoard::class)
+                ->assertSee('Dorothy Gale')
+                ->assertSee(__('Geplant'))
+                ->assertDontSee(__('Ausweis bereit'))
+                ->call('printBadge', $visit->id, $visitor->id)
+                ->assertSee(__('Ausweis bereit'))
+                ->assertSee(__('Ausweis'));
+
+            $this->assertDatabaseHas('visit_visitor', [
+                'visit_id' => $visit->id,
+                'visitor_id' => $visitor->id,
+                'badge_printed_at' => now()->format('Y-m-d H:i:s'),
+            ]);
+        } finally {
+            Carbon::setTestNow();
+        }
+    }
+
     public function test_dashboard_check_in_updates_participant_state(): void
     {
         Carbon::setTestNow(Carbon::create(2026, 5, 1, 14, 39, 24, config('app.timezone')));
@@ -417,7 +453,42 @@ class ReceptionAdministerVisitTest extends TestCase
                 ->assertSee(__('Ausweis bereit'));
 
             $this->assertSame(3, substr_count($component->html(), 'data-testid="dashboard-participant-id-card-button"'));
-            $component->assertDontSee('Badge');
+            $this->assertStringNotContainsString('>Badge<', $component->html());
+        } finally {
+            Carbon::setTestNow();
+        }
+    }
+
+    public function test_dashboard_id_card_button_updates_status_without_page_reload(): void
+    {
+        Carbon::setTestNow(Carbon::create(2026, 5, 1, 14, 39, 24, config('app.timezone')));
+
+        try {
+            $receptionist = (new PermissionHelper)->getReceptionistUser();
+            $employee = User::factory()->create();
+            $responsibleUser = User::factory()->create();
+            $visitor = Visitor::factory()->create(['first_name' => 'Anna', 'name' => 'Ausweis']);
+            $visit = (new VisitHelper)->makeVisit(
+                $employee->id,
+                'Dashboard Visit',
+                VisitStatusEnum::Planned,
+                $responsibleUser->id,
+                new Collection([$visitor])
+            );
+
+            Livewire::actingAs($receptionist)
+                ->test(DashboardPage::class)
+                ->assertSee(__('Geplant'))
+                ->assertDontSee(__('Ausweis bereit'))
+                ->call('printBadge', $visit->id, $visitor->id)
+                ->assertSee(__('Ausweis bereit'))
+                ->assertSee(__('Ausweis'));
+
+            $this->assertDatabaseHas('visit_visitor', [
+                'visit_id' => $visit->id,
+                'visitor_id' => $visitor->id,
+                'badge_printed_at' => now()->format('Y-m-d H:i:s'),
+            ]);
         } finally {
             Carbon::setTestNow();
         }
