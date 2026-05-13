@@ -1,8 +1,29 @@
 @php
-    $backgroundPath = config('branding.badge_background');
-    $backgroundFullPath = is_string($backgroundPath) && $backgroundPath !== '' ? public_path($backgroundPath) : null;
-    $backgroundMime = $backgroundFullPath && str_ends_with($backgroundFullPath, '.svg') ? 'image/svg+xml' : 'image/png';
-    $bg = $backgroundFullPath && file_exists($backgroundFullPath) ? base64_encode(file_get_contents($backgroundFullPath)) : null;
+    $inlineAsset = static function ($path): ?string {
+        if (! is_string($path) || $path === '') {
+            return null;
+        }
+
+        $fullPath = public_path($path);
+
+        if (! file_exists($fullPath)) {
+            return null;
+        }
+
+        $extension = strtolower(pathinfo($fullPath, PATHINFO_EXTENSION));
+        $mime = match ($extension) {
+            'svg' => 'image/svg+xml',
+            'jpg', 'jpeg' => 'image/jpeg',
+            'webp' => 'image/webp',
+            default => 'image/png',
+        };
+
+        return 'data:'.$mime.';base64,'.base64_encode(file_get_contents($fullPath));
+    };
+
+    $backgroundDataUri = $inlineAsset(config('branding.badge_background'));
+    $logoDataUri = $inlineAsset(config('branding.badge_logo', config('branding.logo_light')));
+    $brandName = config('branding.name', 'VisitorPortal');
 @endphp
 
     <!DOCTYPE html>
@@ -36,8 +57,8 @@
             width: 85.6mm;
             height: 53.98mm;
 
-            @if ($bg)
-            background-image: url("data:{{ $backgroundMime }};base64,{{ $bg }}");
+            @if ($backgroundDataUri)
+            background-image: url("{{ $backgroundDataUri }}");
             @else
             background: linear-gradient(135deg, #ffffff, #eef2f8);
             @endif
@@ -60,6 +81,16 @@
             font-weight: 600;
             color: #555;
             letter-spacing: 0.2mm;
+        }
+
+        .badge-logo {
+            position: absolute;
+            top: 4.2mm;
+            left: 4.8mm;
+            height: 7.4mm;
+            max-width: 31mm;
+            object-fit: contain;
+            object-position: left center;
         }
 
         .label {
@@ -111,6 +142,10 @@
 
 <div class="page">
     <div class="badge">
+
+        @if ($logoDataUri)
+            <img class="badge-logo" src="{{ $logoDataUri }}" alt="{{ $brandName }}">
+        @endif
 
         <div class="badge-title">
             {{ __('Besucherausweis') }}
