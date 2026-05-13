@@ -22,7 +22,7 @@
                 @endif
 
                 <h1 class="mt-0 text-3xl font-semibold tracking-tight text-base-content sm:text-4xl">
-                    {{ $brandName }}
+                    {{ __('Visitor portal') }}
                 </h1>
                 <p class="mt-3 max-w-md text-sm leading-7 text-base-content/70 sm:text-base">
                     {{ __('Login_Textbeschreibung') }}
