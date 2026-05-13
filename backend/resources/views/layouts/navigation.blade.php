@@ -89,7 +89,7 @@
                     >
                 @endif
 
-                <p class="truncate text-xs font-semibold">{{ $navBrandLabel }}</p>
+                <p class="truncate text-sm font-semibold">{{ $navBrandLabel }}</p>
             </div>
         </div>
     </div>
@@ -124,7 +124,7 @@
             @endif
 
             <div class="min-w-0">
-                <h1 class="truncate text-xs font-semibold tracking-tight">{{ $navBrandLabel }}</h1>
+                <h1 class="truncate text-base font-semibold tracking-tight">{{ $navBrandLabel }}</h1>
             </div>
         </a>
     </div>
@@ -308,7 +308,7 @@
                         fetchpriority="high"
                     >
                 @endif
-                <span class="truncate text-xs font-semibold">{{ $navBrandLabel }}</span>
+                <span class="truncate text-sm font-semibold">{{ $navBrandLabel }}</span>
             </div>
 
             <button
