@@ -316,7 +316,7 @@ class AllVisitsPage extends Component
         if (filled($pivot->badge_printed_at)) {
             return [
                 'label' => __('Ausweis bereit'),
-                'class' => 'text-info',
+                'class' => 'id-card-ready-text',
             ];
         }
 

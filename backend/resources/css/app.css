@@ -41,3 +41,7 @@
     .logo-dark { display: none !important; }
     .logo-light { display: inline-block !important; }
 }
+
+.id-card-ready-text {
+    color: var(--color-info);
+}

@@ -374,7 +374,7 @@ class ReceptionAdministerVisitTest extends TestCase
                 ->assertSee(__('Ausweis bereit'))
                 ->assertSee(__('Ausweis'));
 
-            $this->assertStringContainsString('text-info', $component->html());
+            $this->assertStringContainsString('id-card-ready-text', $component->html());
             $this->assertDatabaseHas('visit_visitor', [
                 'visit_id' => $visit->id,
                 'visitor_id' => $visitor->id,
