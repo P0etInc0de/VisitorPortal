@@ -144,7 +144,7 @@
 
         .badge-logo {
             position: absolute;
-            top: 2.25mm;
+            top: 2.05mm;
             left: 5.45mm;
             z-index: 1;
             height: 7.65mm;
@@ -169,7 +169,7 @@
 
         .content {
             position: absolute;
-            top: 16.25mm;
+            top: 15mm;
             left: 5.2mm;
             right: 5.2mm;
             bottom: 3.8mm;
@@ -244,7 +244,7 @@
         .visit-date {
             position: absolute;
             left: -0.6mm;
-            top: 21.7mm;
+            top: 22.95mm;
             color: #a7a7a7;
             font-size: 5.25mm;
             font-weight: 800;
@@ -255,7 +255,7 @@
         .visit-time {
             position: absolute;
             left: 29mm;
-            top: 22.65mm;
+            top: 23.9mm;
             right: 0;
             color: #a7a7a7;
             font-size: 2.95mm;
@@ -360,7 +360,7 @@
         </defs>
 
         <rect x="-40" y="-40" width="980" height="664" fill="url(#badgeBase)"/>
-        <path d="M305 -40 H980 V108 H430 C398 108 383 103 374 91 L332 -40 Z" fill="url(#badgeAccent)"/>
+        <path d="M305 -40 H980 V108 H438 C407 108 397 101 387 84 L332 -40 Z" fill="url(#badgeAccent)"/>
         <path d="M-50 468 C170 538 560 522 950 398 V630 H-50 Z" fill="#b8bec8"/>
     </svg>
 
