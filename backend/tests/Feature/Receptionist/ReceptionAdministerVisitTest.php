@@ -52,6 +52,53 @@ class ReceptionAdministerVisitTest extends TestCase
         $response->assertStatus(200);
     }
 
+    public function test_dashboard_participant_expansion_uses_bottom_toggle(): void
+    {
+        Carbon::setTestNow(Carbon::create(2026, 5, 1, 14, 39, 24, config('app.timezone')));
+
+        try {
+            $receptionist = (new PermissionHelper)->getReceptionistUser();
+            $employee = User::factory()->create();
+            $responsibleUser = User::factory()->create();
+            $visitors = new Collection([
+                Visitor::factory()->create(['first_name' => 'Alice', 'name' => 'Alpha']),
+                Visitor::factory()->create(['first_name' => 'Bob', 'name' => 'Beta']),
+                Visitor::factory()->create(['first_name' => 'Charlie', 'name' => 'Gamma']),
+                Visitor::factory()->create(['first_name' => 'Diana', 'name' => 'Delta']),
+                Visitor::factory()->create(['first_name' => 'Edgar', 'name' => 'Echo']),
+            ]);
+            $visit = (new VisitHelper)->makeVisit(
+                $employee->id,
+                'Dashboard Visit',
+                VisitStatusEnum::Planned,
+                $responsibleUser->id,
+                $visitors
+            );
+            $moreParticipantsLabel = '+ 2 '.__('weitere Teilnehmende');
+
+            Livewire::actingAs($receptionist)
+                ->test(DashboardPage::class)
+                ->assertSee('Alice Alpha')
+                ->assertSee('Charlie Gamma')
+                ->assertDontSee('Diana Delta')
+                ->assertDontSee('Edgar Echo')
+                ->assertSee($moreParticipantsLabel)
+                ->assertDontSee(__('Weniger anzeigen'))
+                ->call('toggleVisitParticipants', $visit->id)
+                ->assertSee('Diana Delta')
+                ->assertSee('Edgar Echo')
+                ->assertDontSee($moreParticipantsLabel)
+                ->assertSee(__('Weniger anzeigen'))
+                ->call('toggleVisitParticipants', $visit->id)
+                ->assertDontSee('Diana Delta')
+                ->assertDontSee('Edgar Echo')
+                ->assertSee($moreParticipantsLabel)
+                ->assertDontSee(__('Weniger anzeigen'));
+        } finally {
+            Carbon::setTestNow();
+        }
+    }
+
     /**
      * @throws \JsonException
      */
