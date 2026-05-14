@@ -2,13 +2,16 @@
 
 namespace App\Http\Requests;
 
+use App\Models\Visit;
 use Illuminate\Foundation\Http\FormRequest;
 
 class RescheduleVisitRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return $this->user()->can('editAny', Visit::class) || $this->user()->can('editDepartment', Visit::class) || $this->user()->can('editOwn', Visit::class);
+        $visit = $this->route('visit');
+
+        return $visit instanceof Visit && $this->user()?->can('update', $visit);
     }
 
     public function rules(): array

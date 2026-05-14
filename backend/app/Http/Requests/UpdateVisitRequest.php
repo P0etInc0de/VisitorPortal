@@ -2,10 +2,14 @@
 
 namespace App\Http\Requests;
 
+use App\Models\Visit;
+
 class UpdateVisitRequest extends StoreVisitRequest
 {
     public function authorize(): bool
     {
-        return $this->user()->can('EditAny:Visit') || $this->user()->can('EditDepartment:Visit') || $this->user()->can('EditOwn:Visit');
+        $visit = $this->route('visit');
+
+        return $visit instanceof Visit && $this->user()?->can('update', $visit);
     }
 }

@@ -40,6 +40,9 @@ class CheckInOutBoard extends Component
 
     public function checkIn(int $visitId, int $visitorId): void
     {
+        $this->authorize('viewAny', Visit::class);
+        $this->authorize('checkIn', Visitor::class);
+
         [$visit, $visitor, $user] = $this->resolveActionContext($visitId, $visitorId);
 
         $this->visitActionService()->checkInParticipant($visit, $visitor, $user);
@@ -49,6 +52,9 @@ class CheckInOutBoard extends Component
 
     public function checkOut(int $visitId, int $visitorId): void
     {
+        $this->authorize('viewAny', Visit::class);
+        $this->authorize('checkOut', Visitor::class);
+
         [$visit, $visitor, $user] = $this->resolveActionContext($visitId, $visitorId);
 
         $this->visitActionService()->checkOutParticipant($visit, $visitor, $user);
@@ -67,6 +73,10 @@ class CheckInOutBoard extends Component
 
     public function registerWalkIn(bool $printBadge = false)
     {
+        $this->authorize('viewAny', Visit::class);
+        $this->authorize('create', Visit::class);
+        $this->authorize('create', Visitor::class);
+
         $payload = $this->validate([
             ...$this->walkInRules(),
             'walkInHostId' => ['required', 'integer', 'exists:users,id'],
@@ -106,6 +116,8 @@ class CheckInOutBoard extends Component
 
     public function render(): View
     {
+        $this->authorize('viewAny', Visit::class);
+
         return view('livewire.portal.check-in-out-board', [
             'hosts' => User::query()
                 ->select('id', 'first_name', 'name')

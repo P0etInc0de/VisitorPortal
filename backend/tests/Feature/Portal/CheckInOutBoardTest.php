@@ -12,6 +12,7 @@ use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Livewire\Livewire;
 use Spatie\Permission\Models\Role;
+use Tests\Support\PermissionHelper;
 use Tests\TestCase;
 
 class CheckInOutBoardTest extends TestCase
@@ -23,7 +24,7 @@ class CheckInOutBoardTest extends TestCase
         Carbon::setTestNow(Carbon::create(2026, 4, 30, 10, 0, 0, config('app.timezone')));
 
         try {
-            $user = User::factory()->create();
+            $user = (new PermissionHelper)->getReceptionistUser();
 
             $yesterdayVisitor = Visitor::factory()->create([
                 'first_name' => 'Yara',
@@ -99,7 +100,7 @@ class CheckInOutBoardTest extends TestCase
         Carbon::setTestNow(Carbon::create(2026, 4, 30, 10, 0, 0, config('app.timezone')));
 
         try {
-            $user = User::factory()->create();
+            $user = (new PermissionHelper)->getReceptionistUser();
 
             $nearFutureVisitor = Visitor::factory()->create(['first_name' => 'Nora', 'name' => 'Nahe']);
             $recentPastVisitor = Visitor::factory()->create(['first_name' => 'Paul', 'name' => 'Vorbei']);
@@ -151,7 +152,7 @@ class CheckInOutBoardTest extends TestCase
         Carbon::setTestNow(Carbon::create(2026, 4, 30, 10, 0, 0, config('app.timezone')));
 
         try {
-            $user = User::factory()->create();
+            $user = (new PermissionHelper)->getReceptionistUser();
 
             $todayVisitor = Visitor::factory()->create([
                 'first_name' => 'Clara',
@@ -214,7 +215,7 @@ class CheckInOutBoardTest extends TestCase
     {
         Carbon::setTestNow(Carbon::create(2026, 4, 26, 17, 0, 0, config('app.timezone')));
 
-        $user = User::factory()->create();
+        $user = (new PermissionHelper)->getReceptionistUser();
         $visitor = Visitor::factory()->create([
             'first_name' => 'Max',
             'name' => 'Mustermann',
@@ -250,7 +251,7 @@ class CheckInOutBoardTest extends TestCase
 
     public function test_portal_check_out_updates_pivot_and_renders_db_state(): void
     {
-        $user = User::factory()->create();
+        $user = (new PermissionHelper)->getReceptionistUser();
         $visitor = Visitor::factory()->create([
             'first_name' => 'Erika',
             'name' => 'Musterfrau',
@@ -286,7 +287,8 @@ class CheckInOutBoardTest extends TestCase
 
     public function test_walk_in_host_selection_renders_search_dropdown(): void
     {
-        $user = User::factory()->create([
+        $user = (new PermissionHelper)->getReceptionistUser();
+        $user->update([
             'first_name' => 'User',
             'name' => 'Empfang',
         ]);
@@ -301,7 +303,8 @@ class CheckInOutBoardTest extends TestCase
 
     public function test_walk_in_host_selection_excludes_welcome_monitor_users(): void
     {
-        $user = User::factory()->create([
+        $user = (new PermissionHelper)->getReceptionistUser();
+        $user->update([
             'first_name' => 'User',
             'name' => 'Empfang',
         ]);
@@ -322,7 +325,7 @@ class CheckInOutBoardTest extends TestCase
         Carbon::setTestNow(Carbon::create(2026, 5, 10, 12, 0, 0, config('app.timezone')));
 
         try {
-            $user = User::factory()->create();
+            $user = (new PermissionHelper)->getReceptionistUser();
             $host = User::factory()->create();
             $existingVisitor = Visitor::factory()->create([
                 'first_name' => 'Existing',
@@ -368,7 +371,7 @@ class CheckInOutBoardTest extends TestCase
 
     public function test_walk_in_rejects_conflicting_existing_email_and_phone_matches(): void
     {
-        $user = User::factory()->create();
+        $user = (new PermissionHelper)->getReceptionistUser();
         $host = User::factory()->create();
         Visitor::factory()->create([
             'email' => 'email-owner@example.com',
