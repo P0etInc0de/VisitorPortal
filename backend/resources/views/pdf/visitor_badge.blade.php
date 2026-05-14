@@ -42,6 +42,30 @@
         $badgeAccentColor = '#ff8a00';
     }
 
+    $mixHexColor = static function (string $hexColor, string $targetHexColor, float $amount): string {
+        $hexColor = ltrim($hexColor, '#');
+        $targetHexColor = ltrim($targetHexColor, '#');
+
+        $channels = array_map(
+            static fn (int $offset): int => hexdec(substr($hexColor, $offset, 2)),
+            [0, 2, 4]
+        );
+        $targetChannels = array_map(
+            static fn (int $offset): int => hexdec(substr($targetHexColor, $offset, 2)),
+            [0, 2, 4]
+        );
+
+        $mixedChannels = array_map(
+            static fn (int $channel, int $targetChannel): int => (int) round($channel + (($targetChannel - $channel) * $amount)),
+            $channels,
+            $targetChannels
+        );
+
+        return '#'.implode('', array_map(static fn (int $channel): string => str_pad(dechex($channel), 2, '0', STR_PAD_LEFT), $mixedChannels));
+    };
+
+    $badgeAccentStartColor = $mixHexColor($badgeAccentColor, '#ffffff', 0.24);
+
     $visitorFullName = trim(implode(' ', array_filter([$visitor->title ?? null, $visitor->first_name ?? null, $visitor->name ?? null]))) ?: '-';
     $responsibleFullName = trim(($visit->responsibleUser?->first_name ?? '').' '.($visit->responsibleUser?->name ?? ''));
     $visitDate = $visit->scheduled_from->format('d.m.Y');
@@ -120,30 +144,32 @@
 
         .badge-logo {
             position: absolute;
-            top: 3.2mm;
-            left: 5.8mm;
+            top: 2.25mm;
+            left: 5.45mm;
             z-index: 1;
-            height: 6.8mm;
-            max-width: 30mm;
+            height: 7.65mm;
+            max-width: 33mm;
             object-fit: contain;
             object-position: left center;
         }
 
         .badge-title {
             position: absolute;
-            top: 2.65mm;
-            right: 7.2mm;
+            top: 1.85mm;
+            left: 35.5mm;
+            right: 3.2mm;
             z-index: 1;
             color: #000000;
-            font-size: 5.75mm;
+            font-size: 5.05mm;
             font-weight: 800;
             line-height: 1;
             letter-spacing: -0.12mm;
+            text-align: center;
         }
 
         .content {
             position: absolute;
-            top: 17.4mm;
+            top: 16.25mm;
             left: 5.2mm;
             right: 5.2mm;
             bottom: 3.8mm;
@@ -326,10 +352,15 @@
                 <stop offset="0.76" stop-color="#e7edf4"/>
                 <stop offset="1" stop-color="#dce3ec"/>
             </linearGradient>
+            <linearGradient id="badgeAccent" x1="0" x2="1" y1="0" y2="0">
+                <stop offset="0" stop-color="{{ $badgeAccentStartColor }}"/>
+                <stop offset="0.72" stop-color="{{ $badgeAccentColor }}"/>
+                <stop offset="1" stop-color="{{ $badgeAccentColor }}"/>
+            </linearGradient>
         </defs>
 
         <rect x="-40" y="-40" width="980" height="664" fill="url(#badgeBase)"/>
-        <path d="M330 -40 H980 V128 H462 C420 128 394 108 374 66 L342 -40 Z" fill="{{ $badgeAccentColor }}"/>
+        <path d="M305 -40 H980 V108 H430 C398 108 383 103 374 91 L332 -40 Z" fill="url(#badgeAccent)"/>
         <path d="M-50 468 C170 538 560 522 950 398 V630 H-50 Z" fill="#b8bec8"/>
     </svg>
 

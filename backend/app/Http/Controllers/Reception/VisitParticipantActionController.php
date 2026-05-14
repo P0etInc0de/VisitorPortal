@@ -7,6 +7,7 @@ use App\Models\User;
 use App\Models\Visit;
 use App\Models\Visitor;
 use App\Services\VisitActionService;
+use App\Support\BadgePdfDimensions;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
@@ -32,8 +33,9 @@ class VisitParticipantActionController extends Controller
             'visitor' => $participant,
         ])
             ->driver('gotenberg')
-            ->paperSize(85.6, 53.98, 'mm')
-            ->margins(0, 0, 0, 0)
+            ->paperSize(BadgePdfDimensions::REQUEST_WIDTH_PT, BadgePdfDimensions::REQUEST_HEIGHT_PT, 'pt')
+            ->margins(0, 0, 0, 0, 'pt')
+            ->scale(1)
             ->name(__('Besucherausweis_').trim(($participant->first_name ?? '').'_'.($participant->name ?? 'Gast')).'.pdf')
             ->download();
     }

@@ -48,7 +48,7 @@ class VisitorBadgeViewTest extends TestCase
         $html = $this->renderBadge();
 
         $this->assertStringContainsString('--badge-accent: #123456;', $html);
-        $this->assertStringContainsString('fill="#123456"', $html);
+        $this->assertStringContainsString('stop-color="#123456"', $html);
     }
 
     public function test_invalid_badge_accent_color_falls_back_to_default(): void
@@ -59,7 +59,7 @@ class VisitorBadgeViewTest extends TestCase
         $html = $this->renderBadge();
 
         $this->assertStringContainsString('--badge-accent: #ff8a00;', $html);
-        $this->assertStringContainsString('fill="#ff8a00"', $html);
+        $this->assertStringContainsString('stop-color="#ff8a00"', $html);
     }
 
     public function test_badge_html_uses_measured_pdf_media_box_size(): void
