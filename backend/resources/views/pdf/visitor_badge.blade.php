@@ -33,6 +33,9 @@
     $badgeAccentColor = (string) config('branding.badge_accent_color', '#ff8a00');
     $badgePdfWidth = BadgePdfDimensions::cssPt(BadgePdfDimensions::MEDIA_WIDTH_PT);
     $badgePdfHeight = BadgePdfDimensions::cssPt(BadgePdfDimensions::MEDIA_HEIGHT_PT);
+    $badgeSurfaceBleedOffset = BadgePdfDimensions::cssPt(-BadgePdfDimensions::SURFACE_BLEED_PT);
+    $badgeSurfaceWidth = BadgePdfDimensions::cssPt(BadgePdfDimensions::SURFACE_WIDTH_PT);
+    $badgeSurfaceHeight = BadgePdfDimensions::cssPt(BadgePdfDimensions::SURFACE_HEIGHT_PT);
 
     if (! in_array($badgeDesign, ['standard', 'photo_qr'], true)) {
         $badgeDesign = 'standard';
@@ -131,14 +134,18 @@
          * badge width/height in mm here. The HTML size must exactly match the
          * measured PDF MediaBox from App\Support\BadgePdfDimensions, otherwise
          * unpainted page area appears as white strips on the PDF edges.
+         * The background surface intentionally uses fixed point-based bleed values
+         * instead of CSS arithmetic or millimeters, because malformed or rounded
+         * expressions can be dropped by Chromium and expose the page background at
+         * the edges.
          */
         .badge-surface {
             position: fixed;
-            top: -2.2mm;
-            left: -2.2mm;
+            top: {{ $badgeSurfaceBleedOffset }};
+            left: {{ $badgeSurfaceBleedOffset }};
             z-index: 0;
-            width: calc({{ $badgePdfWidth }} +4.4mm);
-            height: calc({{ $badgePdfHeight }} +4.4mm);
+            width: {{ $badgeSurfaceWidth }};
+            height: {{ $badgeSurfaceHeight }};
             display: block;
         }
 
