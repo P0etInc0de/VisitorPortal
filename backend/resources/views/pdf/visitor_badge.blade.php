@@ -137,8 +137,8 @@
             top: -2.2mm;
             left: -2.2mm;
             z-index: 0;
-            width: calc({{ $badgePdfWidth }} + 4.4mm);
-            height: calc({{ $badgePdfHeight }} + 4.4mm);
+            width: calc({{ $badgePdfWidth }} +4.4mm);
+            height: calc({{ $badgePdfHeight }} +4.4mm);
             display: block;
         }
 
@@ -169,7 +169,7 @@
 
         .content {
             position: absolute;
-            top: 13.65mm;
+            top: 14.05mm;
             left: 5.2mm;
             right: 5.2mm;
             bottom: 3.8mm;
@@ -182,13 +182,13 @@
 
         .visitor-name {
             position: absolute;
-            top: 0;
+            top: -0.45mm;
             left: 0;
             right: 0;
             color: #000000;
             font-size: 6.55mm;
             font-weight: 800;
-            line-height: 1;
+            line-height: 1.16;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
@@ -244,7 +244,7 @@
         .visit-date {
             position: absolute;
             left: -0.6mm;
-            top: 21.6mm;
+            top: 22mm;
             color: #a7a7a7;
             font-size: 5.25mm;
             font-weight: 800;
@@ -255,7 +255,7 @@
         .visit-time {
             position: absolute;
             left: 29mm;
-            top: 22.55mm;
+            top: 22.95mm;
             right: 0;
             color: #a7a7a7;
             font-size: 2.95mm;
