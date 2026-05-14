@@ -8,11 +8,14 @@ use App\Models\User;
 use App\Models\Visit;
 use App\Models\Visitor;
 use Illuminate\Contracts\View\View;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Support\HtmlString;
 use Livewire\Component;
 
 class VisitShowPage extends Component
 {
+    use AuthorizesRequests;
+
     public Visit $visit;
 
     public string $scheduledFrom = '';
@@ -21,6 +24,8 @@ class VisitShowPage extends Component
 
     public function mount(Visit $visit): void
     {
+        $this->authorize('view', $visit);
+
         $this->visit = $visit;
         $this->refreshVisit();
         $this->fillScheduleFields();
@@ -28,6 +33,8 @@ class VisitShowPage extends Component
 
     public function saveSchedule(): void
     {
+        $this->authorize('update', $this->visit->fresh());
+
         $payload = $this->validate([
             'scheduledFrom' => ['required', 'date'],
             'scheduledUntil' => ['nullable', 'date', 'after:scheduledFrom'],
@@ -47,6 +54,8 @@ class VisitShowPage extends Component
 
     public function cancelVisit(): void
     {
+        $this->authorize('delete', $this->visit->fresh());
+
         $this->visit->update([
             'status' => VisitStatusEnum::Canceled->value,
             'canceled_at' => now(),
@@ -61,6 +70,8 @@ class VisitShowPage extends Component
 
     public function reopenVisit(): void
     {
+        $this->authorize('update', $this->visit->fresh());
+
         $this->visit->update([
             'status' => VisitStatusEnum::Planned->value,
             'canceled_at' => null,

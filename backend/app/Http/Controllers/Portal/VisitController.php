@@ -92,6 +92,8 @@ class VisitController extends Controller
 
     public function update(UpdateVisitRequest $request, Visit $visit): RedirectResponse
     {
+        $this->authorize('update', $visit);
+
         $payload = $request->validated();
 
         $visit = app(RecurringVisitService::class)->updateFromPayload($visit, $payload);
@@ -145,6 +147,8 @@ class VisitController extends Controller
 
     public function reschedule(RescheduleVisitRequest $request, Visit $visit): RedirectResponse
     {
+        $this->authorize('update', $visit);
+
         $payload = $request->validated();
 
         $visit->update([

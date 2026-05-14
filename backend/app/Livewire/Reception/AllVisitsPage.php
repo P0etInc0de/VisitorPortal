@@ -40,6 +40,8 @@ class AllVisitsPage extends Component
 
     public function mount(): void
     {
+        $this->authorize('viewAny', Visit::class);
+
         $this->search = trim($this->search);
         $this->activeRange = $this->normalizeRange($this->activeRange);
         [$from, $to, $fromValue, $toValue] = $this->resolveRange($this->activeRange, $this->dateFrom, $this->dateTo);
@@ -98,6 +100,9 @@ class AllVisitsPage extends Component
 
     public function checkIn(int $visitId, int $visitorId): void
     {
+        $this->authorize('viewAny', Visit::class);
+        $this->authorize('checkIn', Visitor::class);
+
         $visit = $this->loadVisitParticipantPair($visitId, $visitorId);
         $participant = $visit->visitors->firstWhere('id', $visitorId);
         $user = auth()->user();
@@ -126,6 +131,9 @@ class AllVisitsPage extends Component
 
     public function checkOut(int $visitId, int $visitorId): void
     {
+        $this->authorize('viewAny', Visit::class);
+        $this->authorize('checkOut', Visitor::class);
+
         $visit = $this->loadVisitParticipantPair($visitId, $visitorId);
         $participant = $visit->visitors->firstWhere('id', $visitorId);
         $user = auth()->user();
