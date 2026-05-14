@@ -314,7 +314,7 @@ class VisitController extends Controller
         }
 
         if (filled($pivot->badge_printed_at)) {
-            return ['label' => __('Badge bereit'), 'class' => 'badge-info badge-outline'];
+            return ['label' => __('Ausweis bereit'), 'class' => 'badge-info badge-outline'];
         }
 
         if ($visitStatus === VisitStatusEnum::Draft->value) {

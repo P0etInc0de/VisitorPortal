@@ -242,7 +242,7 @@ class MyVisitsPage extends Component
         }
 
         if (filled($pivot->badge_printed_at)) {
-            return ['label' => __('Badge bereit'), 'class' => 'text-success'];
+            return ['label' => __('Ausweis bereit'), 'class' => 'text-success'];
         }
 
         if ($visitStatus === VisitStatusEnum::Draft->value) {

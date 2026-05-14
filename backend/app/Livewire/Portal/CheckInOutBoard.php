@@ -9,6 +9,7 @@ use App\Models\Visit;
 use App\Models\Visitor;
 use App\Services\VisitActionService;
 use Illuminate\Contracts\View\View;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
@@ -19,6 +20,8 @@ use Livewire\Component;
 
 class CheckInOutBoard extends Component
 {
+    use AuthorizesRequests;
+
     public string $search = '';
 
     public ?string $walkInHostId = null;
@@ -55,7 +58,11 @@ class CheckInOutBoard extends Component
 
     public function printBadge(int $visitId, int $visitorId): void
     {
-        $this->dispatch('print-badge', url: route('reception.participants.badge', [$visitId, $visitorId]));
+        $this->authorize('print', Visitor::class);
+
+        [$visit, $visitor] = $this->resolveActionContext($visitId, $visitorId);
+
+        $this->visitActionService()->printBadge($visit, $visitor);
     }
 
     public function registerWalkIn(bool $printBadge = false)
@@ -91,6 +98,8 @@ class CheckInOutBoard extends Component
         session()->flash('status', __('Walk-in wurde angelegt und eingecheckt.'));
 
         if ($printBadge) {
+            $this->visitActionService()->printBadge($visit, $visitor);
+
             $this->dispatch('print-badge', url: route('reception.participants.badge', [$visit->id, $visitor->id]));
         }
     }
@@ -374,7 +383,7 @@ class CheckInOutBoard extends Component
         }
 
         if (filled($pivot?->badge_printed_at)) {
-            return ['label' => __('Badge bereit'), 'class' => 'badge-info badge-outline'];
+            return ['label' => __('Ausweis bereit'), 'class' => 'badge-info badge-outline'];
         }
 
         if ($visitStatus === VisitStatusEnum::Draft->value) {

@@ -1,4 +1,4 @@
-<div class="grid min-w-0 gap-5">
+<div class="grid min-w-0 gap-5" x-data>
     <section class="grid grid-cols-1 gap-5 lg:grid-cols-3">
         @foreach ($stats as $stat)
             <article class="card rounded-[1.4rem] border border-base-300 bg-base-100 shadow-sm">
