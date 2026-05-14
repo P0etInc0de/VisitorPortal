@@ -67,12 +67,21 @@ class VisitorBadgeViewTest extends TestCase
         config()->set('branding.badge_design', 'standard');
 
         $html = $this->renderBadge();
-        $width = BadgePdfDimensions::cssPt(BadgePdfDimensions::MEDIA_WIDTH_PT);
-        $height = BadgePdfDimensions::cssPt(BadgePdfDimensions::MEDIA_HEIGHT_PT);
+        $width = BadgePdfDimensions::cssMediaWidth();
+        $height = BadgePdfDimensions::cssMediaHeight();
+        $surfaceBleedOffset = BadgePdfDimensions::cssSurfaceBleedOffset();
+        $surfaceWidth = BadgePdfDimensions::cssSurfaceWidth();
+        $surfaceHeight = BadgePdfDimensions::cssSurfaceHeight();
 
         $this->assertStringContainsString("size: {$width} {$height};", $html);
         $this->assertStringContainsString("width: {$width};", $html);
         $this->assertStringContainsString("height: {$height};", $html);
+        $this->assertStringContainsString("top: {$surfaceBleedOffset};", $html);
+        $this->assertStringContainsString("left: {$surfaceBleedOffset};", $html);
+        $this->assertStringContainsString("width: {$surfaceWidth};", $html);
+        $this->assertStringContainsString("height: {$surfaceHeight};", $html);
+        $this->assertStringContainsString('accent-edge-fill', $html);
+        $this->assertStringNotContainsString('calc(', $html);
         $this->assertSame(242.88, BadgePdfDimensions::REQUEST_WIDTH_PT);
         $this->assertSame(153.12, BadgePdfDimensions::REQUEST_HEIGHT_PT);
     }

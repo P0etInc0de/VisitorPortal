@@ -29,8 +29,39 @@ final class BadgePdfDimensions
 
     public const REQUEST_HEIGHT_PT = 153.12;
 
+    public const SURFACE_BLEED_PT = 6.24;
+
+    public const SURFACE_WIDTH_PT = 255.36;
+
+    public const SURFACE_HEIGHT_PT = 166.56;
+
     public static function cssPt(float $value): string
     {
         return number_format($value, 2, '.', '').'pt';
+    }
+
+    public static function cssMediaWidth(): string
+    {
+        return self::cssPt(self::MEDIA_WIDTH_PT);
+    }
+
+    public static function cssMediaHeight(): string
+    {
+        return self::cssPt(self::MEDIA_HEIGHT_PT);
+    }
+
+    public static function cssSurfaceBleedOffset(): string
+    {
+        return self::cssPt(-self::SURFACE_BLEED_PT);
+    }
+
+    public static function cssSurfaceWidth(): string
+    {
+        return self::cssPt(self::SURFACE_WIDTH_PT);
+    }
+
+    public static function cssSurfaceHeight(): string
+    {
+        return self::cssPt(self::SURFACE_HEIGHT_PT);
     }
 }

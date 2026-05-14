@@ -31,11 +31,11 @@
     $logoDataUri = $inlineAsset(config('branding.badge_logo', config('branding.logo_light')));
     $badgeDesign = (string) config('branding.badge_design', 'standard');
     $badgeAccentColor = (string) config('branding.badge_accent_color', '#ff8a00');
-    $badgePdfWidth = BadgePdfDimensions::cssPt(BadgePdfDimensions::MEDIA_WIDTH_PT);
-    $badgePdfHeight = BadgePdfDimensions::cssPt(BadgePdfDimensions::MEDIA_HEIGHT_PT);
-    $badgeSurfaceBleedOffset = BadgePdfDimensions::cssPt(-BadgePdfDimensions::SURFACE_BLEED_PT);
-    $badgeSurfaceWidth = BadgePdfDimensions::cssPt(BadgePdfDimensions::SURFACE_WIDTH_PT);
-    $badgeSurfaceHeight = BadgePdfDimensions::cssPt(BadgePdfDimensions::SURFACE_HEIGHT_PT);
+    $badgePdfWidth = BadgePdfDimensions::cssMediaWidth();
+    $badgePdfHeight = BadgePdfDimensions::cssMediaHeight();
+    $badgeSurfaceBleedOffset = BadgePdfDimensions::cssSurfaceBleedOffset();
+    $badgeSurfaceWidth = BadgePdfDimensions::cssSurfaceWidth();
+    $badgeSurfaceHeight = BadgePdfDimensions::cssSurfaceHeight();
 
     if (! in_array($badgeDesign, ['standard', 'photo_qr'], true)) {
         $badgeDesign = 'standard';
@@ -147,6 +147,16 @@
             width: {{ $badgeSurfaceWidth }};
             height: {{ $badgeSurfaceHeight }};
             display: block;
+        }
+
+        .accent-edge-fill {
+            position: fixed;
+            top: 0;
+            right: -2pt;
+            z-index: 0;
+            width: 10pt;
+            height: 32pt;
+            background: var(--badge-accent);
         }
 
         .badge-logo {
@@ -370,6 +380,7 @@
         <path d="M305 -40 H980 V108 H438 C407 108 397 101 387 84 L332 -40 Z" fill="url(#badgeAccent)"/>
         <path d="M-50 468 C170 538 560 522 950 398 V630 H-50 Z" fill="#b8bec8"/>
     </svg>
+    <div class="accent-edge-fill" aria-hidden="true"></div>
 
     @if ($logoDataUri)
         <img class="badge-logo" src="{{ $logoDataUri }}" alt="{{ $brandName }}">
