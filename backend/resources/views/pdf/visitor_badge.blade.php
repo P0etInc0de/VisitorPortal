@@ -119,7 +119,6 @@
             height: {{ $badgePdfHeight }};
             overflow: hidden;
             background: #f8fafc;
-            --badge-accent: {{ $badgeAccentColor }};
 
             -webkit-print-color-adjust: exact;
             print-color-adjust: exact;
@@ -149,14 +148,24 @@
             display: block;
         }
 
+        .page-edge-fill {
+            position: fixed;
+            top: 0;
+            right: -12pt;
+            z-index: 0;
+            width: 24pt;
+            height: {{ $badgePdfHeight }};
+            background: linear-gradient(to bottom, {{ $badgeAccentColor }} 0 34pt, #dfe5ed 34pt 124pt, #b8bec8 124pt 100%);
+        }
+
         .accent-edge-fill {
             position: fixed;
             top: 0;
-            right: -2pt;
+            right: -12pt;
             z-index: 0;
-            width: 10pt;
-            height: 32pt;
-            background: var(--badge-accent);
+            width: 24pt;
+            height: 40pt;
+            background: {{ $badgeAccentColor }};
         }
 
         .badge-logo {
@@ -361,6 +370,7 @@
 
 <body>
 <div class="badge badge--{{ $badgeDesign }}">
+    <div class="page-edge-fill" aria-hidden="true"></div>
     <svg class="badge-surface" viewBox="0 0 900 584" preserveAspectRatio="none" aria-hidden="true">
         <defs>
             <linearGradient id="badgeBase" x1="0" x2="1" y1="0" y2="1">

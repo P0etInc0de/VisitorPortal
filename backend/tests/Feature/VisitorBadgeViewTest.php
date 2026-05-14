@@ -18,7 +18,7 @@ class VisitorBadgeViewTest extends TestCase
         $html = $this->renderBadge();
 
         $this->assertStringContainsString('badge badge--standard', $html);
-        $this->assertStringContainsString('Besucherausweis', $html);
+        $this->assertStringContainsString(__('Besucherausweis'), $html);
         $this->assertStringContainsString('Dr. Anna Ausweis', $html);
         $this->assertStringContainsString('Unternehmen:', $html);
         $this->assertStringContainsString('VisitorPortal GmbH', $html);
@@ -47,8 +47,9 @@ class VisitorBadgeViewTest extends TestCase
 
         $html = $this->renderBadge();
 
-        $this->assertStringContainsString('--badge-accent: #123456;', $html);
         $this->assertStringContainsString('stop-color="#123456"', $html);
+        $this->assertStringContainsString('background: #123456;', $html);
+        $this->assertStringContainsString('background: linear-gradient(to bottom, #123456 0 34pt', $html);
     }
 
     public function test_invalid_badge_accent_color_falls_back_to_default(): void
@@ -58,8 +59,9 @@ class VisitorBadgeViewTest extends TestCase
 
         $html = $this->renderBadge();
 
-        $this->assertStringContainsString('--badge-accent: #ff8a00;', $html);
         $this->assertStringContainsString('stop-color="#ff8a00"', $html);
+        $this->assertStringContainsString('background: #ff8a00;', $html);
+        $this->assertStringContainsString('background: linear-gradient(to bottom, #ff8a00 0 34pt', $html);
     }
 
     public function test_badge_html_uses_measured_pdf_media_box_size(): void
@@ -80,8 +82,11 @@ class VisitorBadgeViewTest extends TestCase
         $this->assertStringContainsString("left: {$surfaceBleedOffset};", $html);
         $this->assertStringContainsString("width: {$surfaceWidth};", $html);
         $this->assertStringContainsString("height: {$surfaceHeight};", $html);
+        $this->assertStringContainsString('page-edge-fill', $html);
         $this->assertStringContainsString('accent-edge-fill', $html);
         $this->assertStringNotContainsString('calc(', $html);
+        $this->assertStringNotContainsString('var(', $html);
+        $this->assertStringNotContainsString('--badge-accent', $html);
         $this->assertSame(242.88, BadgePdfDimensions::REQUEST_WIDTH_PT);
         $this->assertSame(153.12, BadgePdfDimensions::REQUEST_HEIGHT_PT);
     }
