@@ -148,26 +148,6 @@
             display: block;
         }
 
-        .page-edge-fill {
-            position: fixed;
-            top: 0;
-            right: -12pt;
-            z-index: 0;
-            width: 24pt;
-            height: {{ $badgePdfHeight }};
-            background: linear-gradient(to bottom, {{ $badgeAccentColor }} 0 34pt, #dfe5ed 34pt 124pt, #b8bec8 124pt 100%);
-        }
-
-        .accent-edge-fill {
-            position: fixed;
-            top: 0;
-            right: -12pt;
-            z-index: 0;
-            width: 24pt;
-            height: 40pt;
-            background: {{ $badgeAccentColor }};
-        }
-
         .badge-logo {
             position: absolute;
             top: 0.35mm;
@@ -370,7 +350,6 @@
 
 <body>
 <div class="badge badge--{{ $badgeDesign }}">
-    <div class="page-edge-fill" aria-hidden="true"></div>
     <svg class="badge-surface" viewBox="0 0 900 584" preserveAspectRatio="none" aria-hidden="true">
         <defs>
             <linearGradient id="badgeBase" x1="0" x2="1" y1="0" y2="1">
@@ -390,7 +369,6 @@
         <path d="M305 -40 H980 V108 H438 C407 108 397 101 387 84 L332 -40 Z" fill="url(#badgeAccent)"/>
         <path d="M-50 468 C170 538 560 522 950 398 V630 H-50 Z" fill="#b8bec8"/>
     </svg>
-    <div class="accent-edge-fill" aria-hidden="true"></div>
 
     @if ($logoDataUri)
         <img class="badge-logo" src="{{ $logoDataUri }}" alt="{{ $brandName }}">

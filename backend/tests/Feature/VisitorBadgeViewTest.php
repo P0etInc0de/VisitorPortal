@@ -82,8 +82,8 @@ class VisitorBadgeViewTest extends TestCase
         $this->assertStringContainsString("left: {$surfaceBleedOffset};", $html);
         $this->assertStringContainsString("width: {$surfaceWidth};", $html);
         $this->assertStringContainsString("height: {$surfaceHeight};", $html);
-        $this->assertStringContainsString('page-edge-fill', $html);
-        $this->assertStringContainsString('accent-edge-fill', $html);
+        $this->assertStringNotContainsString('page-edge-fill', $html);
+        $this->assertStringNotContainsString('accent-edge-fill', $html);
         $this->assertStringNotContainsString('calc(', $html);
         $this->assertStringNotContainsString('var(', $html);
         $this->assertStringNotContainsString('--badge-accent', $html);
