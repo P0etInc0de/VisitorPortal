@@ -6,6 +6,7 @@ use App\Models\User;
 use App\Models\Visit;
 use App\Models\Visitor;
 use App\Support\BadgePdfDimensions;
+use App\Support\BadgePdfMediaBoxCropper;
 use Illuminate\Support\Carbon;
 use Tests\TestCase;
 
@@ -67,15 +68,11 @@ class VisitorBadgeViewTest extends TestCase
         $html = $this->renderBadge();
         $width = BadgePdfDimensions::cssMediaWidth();
         $height = BadgePdfDimensions::cssMediaHeight();
-        $rootBackgroundWidth = BadgePdfDimensions::cssRootBackgroundWidth();
-        $rootBackgroundHeight = BadgePdfDimensions::cssRootBackgroundHeight();
 
         $this->assertStringContainsString("size: {$width} {$height};", $html);
         $this->assertStringContainsString("width: {$width};", $html);
         $this->assertStringContainsString("height: {$height};", $html);
-        $this->assertStringContainsString("width: {$rootBackgroundWidth};", $html);
-        $this->assertStringContainsString("height: {$rootBackgroundHeight};", $html);
-        $this->assertStringContainsString("/ {$rootBackgroundWidth} {$rootBackgroundHeight} no-repeat", $html);
+        $this->assertStringContainsString('/ 100% 100% no-repeat', $html);
         $this->assertStringContainsString('background: url("data:image/svg+xml,', $html);
         $this->assertStringContainsString(rawurlencode('viewBox="21.993 21.878 856.014 540.244"'), $html);
         $this->assertStringContainsString('background: transparent;', $html);
@@ -92,7 +89,7 @@ class VisitorBadgeViewTest extends TestCase
         $this->assertStringNotContainsString('--badge-accent', $html);
         $this->assertSame(242.88, BadgePdfDimensions::REQUEST_WIDTH_PT);
         $this->assertSame(153.12, BadgePdfDimensions::REQUEST_HEIGHT_PT);
-        $this->assertSame(0.75, BadgePdfDimensions::ROOT_BACKGROUND_BLEED_PT);
+        $this->assertSame(1.0, BadgePdfDimensions::FINAL_MEDIA_LOWER_Y_PT);
     }
 
     public function test_photo_qr_badge_design_renders_prepared_photo_and_qr_slots(): void
@@ -118,6 +115,17 @@ class VisitorBadgeViewTest extends TestCase
         $this->assertStringContainsString('Dr. Anna Ausweis', $html);
         $this->assertStringNotContainsString('Name:', $html);
         $this->assertStringNotContainsString('class="badge-photo', $html);
+    }
+
+    public function test_badge_pdf_media_box_crop_removes_bottom_renderer_band_without_shifting_offsets(): void
+    {
+        $pdf = "2 0 obj\n<</MediaBox [0 0 242.87999 154.080002]\n/Contents 9 0 R>>\nendobj";
+
+        $cropped = BadgePdfMediaBoxCropper::cropBottomWhitespace($pdf);
+
+        $this->assertSame(strlen($pdf), strlen($cropped));
+        $this->assertStringContainsString('/MediaBox [0 1 242.87999 154.080002]', $cropped);
+        $this->assertStringNotContainsString('/MediaBox [0 0 242.87999 154.080002]', $cropped);
     }
 
     private function renderBadge(): string

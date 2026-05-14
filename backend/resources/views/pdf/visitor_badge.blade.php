@@ -33,8 +33,6 @@
     $badgeAccentColor = (string) config('branding.badge_accent_color', '#ff8a00');
     $badgePdfWidth = BadgePdfDimensions::cssMediaWidth();
     $badgePdfHeight = BadgePdfDimensions::cssMediaHeight();
-    $badgeRootBackgroundWidth = BadgePdfDimensions::cssRootBackgroundWidth();
-    $badgeRootBackgroundHeight = BadgePdfDimensions::cssRootBackgroundHeight();
 
     if (! in_array($badgeDesign, ['standard', 'photo_qr'], true)) {
         $badgeDesign = 'standard';
@@ -125,9 +123,9 @@ SVG;
             inset: 0;
             margin: 0;
             padding: 0;
-            width: {{ $badgeRootBackgroundWidth }};
-            height: {{ $badgeRootBackgroundHeight }};
-            background: url("{{ $badgeBackgroundDataUri }}") 0 0 / {{ $badgeRootBackgroundWidth }} {{ $badgeRootBackgroundHeight }} no-repeat;
+            width: {{ $badgePdfWidth }};
+            height: {{ $badgePdfHeight }};
+            background: url("{{ $badgeBackgroundDataUri }}") 0 0 / 100% 100% no-repeat;
             font-family: "Open Sans", Arial, sans-serif;
             overflow: hidden;
 
@@ -170,8 +168,6 @@ SVG;
          * a fraction inside the MediaBox and exposed a white right-edge strip. Keep
          * the artwork out of child surface nodes, because Chromium also clips those
          * child paint groups before the MediaBox.
-         * The root background uses a one-CSS-pixel bleed because Chromium clips root
-         * background paint to integer CSS-pixel bounds before the PDF MediaBox crop.
          */
         .badge-logo {
             position: absolute;
