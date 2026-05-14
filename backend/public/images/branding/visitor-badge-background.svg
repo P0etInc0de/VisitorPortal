@@ -15,7 +15,7 @@
       <feDropShadow dx="0" dy="6" stdDeviation="5" flood-color="#111827" flood-opacity=".16"/>
     </filter>
   </defs>
-  <rect width="1012" height="638" fill="url(#bg)"/>
-  <path d="M365-8h647v130H430c-37 0-52-25-65-61L342-8h23Z" fill="url(#accent)" filter="url(#shadow)"/>
-  <path d="M0 588c210 48 633 31 1012-66v128H0Z" fill="#111827" opacity=".17"/>
+  <rect x="-24" y="-24" width="1060" height="686" fill="url(#bg)"/>
+  <path d="M360-40h700v176H430c-42 0-62-30-77-76L320-40h40Z" fill="url(#accent)" filter="url(#shadow)"/>
+  <path d="M-24 586c230 52 646 34 1060-78v166H-24Z" fill="#111827" opacity=".17"/>
 </svg>
