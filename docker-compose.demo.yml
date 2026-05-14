@@ -1,0 +1,120 @@
+name: besucherportal-demo
+
+x-app-image: &app-image "${BESUCHERPORTAL_IMAGE:-ghcr.io/p0etinc0de/besucherportal:${BESUCHERPORTAL_VERSION:-latest}}"
+
+x-app-environment: &app-environment
+  APP_NAME: Besucherportal
+  APP_ENV: local
+  APP_DEBUG: "true"
+  APP_URL: http://localhost:8080
+  APP_KEY: "${APP_KEY:-base64:AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=}"
+  APP_TIMEZONE: Europe/Berlin
+  APP_LOCALE: de
+  APP_FALLBACK_LOCALE: en
+  LOG_CHANNEL: stderr
+  DB_CONNECTION: mysql
+  DB_HOST: db
+  DB_PORT: "3306"
+  DB_DATABASE: visitorportal
+  DB_USERNAME: visitor
+  DB_PASSWORD: visitor_pw
+  SESSION_DRIVER: database
+  CACHE_STORE: database
+  QUEUE_CONNECTION: database
+  BROADCAST_CONNECTION: log
+  FILESYSTEM_DISK: local
+  MAIL_MAILER: smtp
+  MAIL_HOST: mailhog
+  MAIL_PORT: "1025"
+  MAIL_FROM_ADDRESS: visitorportal@example.test
+  MAIL_FROM_NAME: Besucherportal
+  GOTENBERG_URL: http://gotenberg:3000
+  GITHUB_REPO_URL: https://github.com/P0etInc0de/Besucherportal
+  AUTO_MIGRATE: "true"
+  AUTO_SEED: "true"
+  FORCE_SEED: "false"
+
+services:
+  app:
+    image: *app-image
+    restart: unless-stopped
+    ports:
+      - "${APP_PORT:-8080}:80"
+    environment:
+      <<: *app-environment
+      RUN_SETUP: "true"
+    volumes:
+      - app_storage:/var/www/html/backend/storage
+    depends_on:
+      db:
+        condition: service_healthy
+      mailhog:
+        condition: service_started
+      gotenberg:
+        condition: service_started
+    healthcheck:
+      test: ["CMD", "php", "-r", "exit(@fsockopen('127.0.0.1', 80) ? 0 : 1);"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+
+  queue:
+    image: *app-image
+    restart: unless-stopped
+    command: php artisan queue:work --sleep=3 --tries=3 --timeout=120
+    environment:
+      <<: *app-environment
+      RUN_SETUP: "false"
+    volumes:
+      - app_storage:/var/www/html/backend/storage
+    depends_on:
+      db:
+        condition: service_healthy
+      app:
+        condition: service_started
+
+  scheduler:
+    image: *app-image
+    restart: unless-stopped
+    command: php artisan schedule:work
+    environment:
+      <<: *app-environment
+      RUN_SETUP: "false"
+    volumes:
+      - app_storage:/var/www/html/backend/storage
+    depends_on:
+      db:
+        condition: service_healthy
+      app:
+        condition: service_started
+
+  db:
+    image: mysql:8.0
+    restart: unless-stopped
+    command: --default-authentication-plugin=mysql_native_password
+    environment:
+      MYSQL_DATABASE: visitorportal
+      MYSQL_USER: visitor
+      MYSQL_PASSWORD: visitor_pw
+      MYSQL_ROOT_PASSWORD: root_pw
+    volumes:
+      - dbdata:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-proot_pw"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+
+  mailhog:
+    image: mailhog/mailhog:latest
+    restart: unless-stopped
+    ports:
+      - "${MAILHOG_PORT:-8025}:8025"
+
+  gotenberg:
+    image: gotenberg/gotenberg:8
+    restart: unless-stopped
+
+volumes:
+  app_storage:
+  dbdata:
