@@ -144,11 +144,11 @@
 
         .badge-logo {
             position: absolute;
-            top: 2.05mm;
+            top: 0.35mm;
             left: 5.45mm;
             z-index: 1;
-            height: 7.65mm;
-            max-width: 33mm;
+            height: 9.8mm;
+            max-width: 38mm;
             object-fit: contain;
             object-position: left center;
         }
@@ -169,7 +169,7 @@
 
         .content {
             position: absolute;
-            top: 15mm;
+            top: 13.65mm;
             left: 5.2mm;
             right: 5.2mm;
             bottom: 3.8mm;
@@ -244,7 +244,7 @@
         .visit-date {
             position: absolute;
             left: -0.6mm;
-            top: 22.95mm;
+            top: 21.6mm;
             color: #a7a7a7;
             font-size: 5.25mm;
             font-weight: 800;
@@ -255,7 +255,7 @@
         .visit-time {
             position: absolute;
             left: 29mm;
-            top: 23.9mm;
+            top: 22.55mm;
             right: 0;
             color: #a7a7a7;
             font-size: 2.95mm;
