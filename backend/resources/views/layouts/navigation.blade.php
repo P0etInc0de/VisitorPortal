@@ -85,10 +85,6 @@
                 <p class="truncate text-sm font-semibold">{{ __('Besucherportal') }}</p>
             </div>
         </div>
-
-        <a href="{{ route('overview') }}" class="btn btn-outline btn-sm rounded-xl" wire:navigate.hover>
-            {{ __('Start') }}
-        </a>
     </div>
 </div>
 
