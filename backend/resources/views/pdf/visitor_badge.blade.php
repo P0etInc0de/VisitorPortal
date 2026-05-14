@@ -63,6 +63,7 @@
             padding: 0;
             width: 85.6mm;
             height: 53.98mm;
+            background: #d6dbe3;
             font-family: "Open Sans", Arial, sans-serif;
             overflow: hidden;
         }
@@ -73,23 +74,22 @@
         }
 
         .page {
+            position: relative;
             width: 85.6mm;
             height: 53.98mm;
+            background: #d6dbe3;
+            overflow: hidden;
         }
 
         .badge {
             position: relative;
             width: 85.6mm;
             height: 53.98mm;
+            background: #d6dbe3;
 
-            @if ($backgroundDataUri)
-            background-image: url("{{ $backgroundDataUri }}");
-            @else
+            @unless ($backgroundDataUri)
             background: linear-gradient(135deg, #ffffff 0%, #f6f8fb 48%, #eef2f8 100%);
-            @endif
-            background-size: 100% 100%;
-            background-position: center;
-            background-repeat: no-repeat;
+            @endunless
 
             overflow: hidden;
 
@@ -97,10 +97,21 @@
             print-color-adjust: exact;
         }
 
+        .badge-background {
+            position: absolute;
+            top: -1mm;
+            left: -1mm;
+            z-index: 0;
+            width: 87.6mm;
+            height: 55.98mm;
+            object-fit: fill;
+        }
+
         .badge-logo {
             position: absolute;
             top: 2.2mm;
             left: 5.1mm;
+            z-index: 1;
             height: 7.7mm;
             max-width: 35mm;
             object-fit: contain;
@@ -111,7 +122,8 @@
             position: absolute;
             top: 2.35mm;
             right: 5mm;
-            color: #4b5563;
+            z-index: 1;
+            color: #000000;
             font-size: 5mm;
             font-weight: 800;
             line-height: 1;
@@ -125,6 +137,7 @@
             left: 5.55mm;
             right: 5.55mm;
             bottom: 4.8mm;
+            z-index: 1;
         }
 
         .badge--photo_qr .content {
@@ -156,7 +169,7 @@
             position: absolute;
             left: 0;
             top: 0;
-            width: 16.7mm;
+            width: 20mm;
             color: #5e5e5e;
             font-size: 3.55mm;
             font-weight: 800;
@@ -165,7 +178,7 @@
 
         .detail-value {
             position: absolute;
-            left: 20.4mm;
+            left: 28.5mm;
             right: 0;
             top: 0;
             color: #050505;
@@ -188,8 +201,8 @@
         .separator {
             position: absolute;
             left: -0.6mm;
-            width: 66.2mm;
-            height: 0.3mm;
+            width: 75mm;
+            height: 0.22mm;
             background: rgba(80, 86, 94, 0.2);
         }
 
@@ -199,8 +212,8 @@
 
         .badge--photo_qr .visitor-name { font-size: 4.85mm; }
         .badge--photo_qr .detail-label,
-        .badge--photo_qr .detail-value { font-size: 2.75mm; }
-        .badge--photo_qr .detail-value { left: 15.8mm; }
+        .badge--photo_qr .detail-value { font-size: 2.35mm; }
+        .badge--photo_qr .detail-value { left: 20mm; }
         .badge--photo_qr .separator { width: 44mm; }
         .badge--photo_qr .row-time .detail-value { font-size: 2.55mm; }
 
@@ -208,6 +221,7 @@
             position: absolute;
             top: 12.2mm;
             right: 5.2mm;
+            z-index: 1;
             width: 23.5mm;
             bottom: 4.7mm;
         }
@@ -225,7 +239,7 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            color: #7a8797;
+            color: #000000;
             font-size: 3.2mm;
             font-weight: 700;
             letter-spacing: 0.2mm;
@@ -242,7 +256,7 @@
         }
 
         .qr-label {
-            color: #6b7280;
+            color: #000000;
             font-size: 2.1mm;
             font-weight: 700;
             line-height: 1.1;
@@ -263,7 +277,7 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            color: #2f3641;
+            color: #000000;
             font-size: 4.2mm;
             font-weight: 800;
             letter-spacing: 0.3mm;
@@ -274,6 +288,10 @@
 <body>
 <div class="page">
     <div class="badge badge--{{ $badgeDesign }}">
+        @if ($backgroundDataUri)
+            <img class="badge-background" src="{{ $backgroundDataUri }}" alt="">
+        @endif
+
         @if ($logoDataUri)
             <img class="badge-logo" src="{{ $logoDataUri }}" alt="{{ $brandName }}">
         @endif
@@ -286,7 +304,7 @@
             <div class="visitor-name">{{ $visitorFullName }}</div>
 
             <div class="detail-row row-company">
-                <div class="detail-label">{{ __('Firma:') }}</div>
+                <div class="detail-label">{{ __('Unternehmen:') }}</div>
                 <div class="detail-value">{{ $visitor->company ?? '-' }}</div>
             </div>
             <div class="separator separator-company"></div>
