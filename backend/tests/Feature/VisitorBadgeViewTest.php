@@ -38,6 +38,28 @@ class VisitorBadgeViewTest extends TestCase
         $this->assertStringNotContainsString('Firma:', $html);
     }
 
+    public function test_badge_accent_color_is_configurable(): void
+    {
+        config()->set('branding.badge_design', 'standard');
+        config()->set('branding.badge_accent_color', '#123456');
+
+        $html = $this->renderBadge();
+
+        $this->assertStringContainsString('--badge-accent: #123456;', $html);
+        $this->assertStringContainsString('fill="#123456"', $html);
+    }
+
+    public function test_invalid_badge_accent_color_falls_back_to_default(): void
+    {
+        config()->set('branding.badge_design', 'standard');
+        config()->set('branding.badge_accent_color', 'not-a-color');
+
+        $html = $this->renderBadge();
+
+        $this->assertStringContainsString('--badge-accent: #ff8a00;', $html);
+        $this->assertStringContainsString('fill="#ff8a00"', $html);
+    }
+
     public function test_photo_qr_badge_design_renders_prepared_photo_and_qr_slots(): void
     {
         config()->set('branding.badge_design', 'photo_qr');

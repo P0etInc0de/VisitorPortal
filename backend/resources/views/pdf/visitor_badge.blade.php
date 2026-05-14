@@ -25,13 +25,17 @@
         return 'data:'.$mime.';base64,'.base64_encode(file_get_contents($fullPath));
     };
 
-    $backgroundDataUri = $inlineAsset(config('branding.badge_background'));
-    $logoDataUri = $inlineAsset(config('branding.badge_logo', config('branding.logo_light')));
     $brandName = config('branding.name', 'VisitorPortal');
+    $logoDataUri = $inlineAsset(config('branding.badge_logo', config('branding.logo_light')));
     $badgeDesign = (string) config('branding.badge_design', 'standard');
+    $badgeAccentColor = (string) config('branding.badge_accent_color', '#ff8a00');
 
     if (! in_array($badgeDesign, ['standard', 'photo_qr'], true)) {
         $badgeDesign = 'standard';
+    }
+
+    if (! preg_match('/^#[0-9a-fA-F]{6}$/', $badgeAccentColor)) {
+        $badgeAccentColor = '#ff8a00';
     }
 
     $visitorFullName = trim(implode(' ', array_filter([$visitor->title ?? null, $visitor->first_name ?? null, $visitor->name ?? null]))) ?: '-';
@@ -58,26 +62,19 @@
     <title>{{ __('Besucherausweis') }}</title>
 
     <style>
-        html, body {
+        @page {
+            size: 85.6mm 53.98mm;
+            margin: 0;
+        }
+
+        html,
+        body {
             margin: 0;
             padding: 0;
             width: 85.6mm;
             height: 53.98mm;
-            background: #d6dbe3;
+            background: #b8bec8;
             font-family: "Open Sans", Arial, sans-serif;
-            overflow: hidden;
-        }
-
-        @page {
-            size: 85.6mm 53.98mm; /* Credit Card Size */
-            margin: 0;
-        }
-
-        .page {
-            position: relative;
-            width: 85.6mm;
-            height: 53.98mm;
-            background: #d6dbe3;
             overflow: hidden;
         }
 
@@ -85,59 +82,74 @@
             position: relative;
             width: 85.6mm;
             height: 53.98mm;
-            background: #d6dbe3;
-
-            @unless ($backgroundDataUri)
-            background: linear-gradient(135deg, #ffffff 0%, #f6f8fb 48%, #eef2f8 100%);
-            @endunless
-
+            background: #b8bec8;
             overflow: hidden;
+            --badge-accent: {{ $badgeAccentColor }};
 
             -webkit-print-color-adjust: exact;
             print-color-adjust: exact;
         }
 
-        .badge-background {
+        .surface-base {
             position: absolute;
-            top: -1mm;
-            left: -1mm;
+            inset: -3mm;
             z-index: 0;
-            width: 87.6mm;
-            height: 55.98mm;
-            object-fit: fill;
+            background: linear-gradient(112deg, #ffffff 0%, #f8fafc 37%, #eef2f7 70%, #dfe5ed 100%);
+        }
+
+        .surface-accent {
+            position: absolute;
+            top: -2mm;
+            right: -2.5mm;
+            z-index: 1;
+            width: 63mm;
+            height: 14.6mm;
+            overflow: visible;
+            filter: drop-shadow(0 1.2mm 1.5mm rgba(17, 24, 39, 0.22));
+        }
+
+        .surface-footer {
+            position: absolute;
+            left: -3mm;
+            right: -3mm;
+            bottom: -3mm;
+            z-index: 1;
+            width: 91.6mm;
+            height: 17mm;
+            overflow: visible;
         }
 
         .badge-logo {
             position: absolute;
-            top: 2.2mm;
-            left: 5.1mm;
-            z-index: 1;
-            height: 7.7mm;
-            max-width: 35mm;
+            top: 3.1mm;
+            left: 5.9mm;
+            z-index: 2;
+            height: 6.6mm;
+            max-width: 29mm;
             object-fit: contain;
             object-position: left center;
         }
 
         .badge-title {
             position: absolute;
-            top: 2.35mm;
-            right: 5mm;
-            z-index: 1;
+            top: 2.6mm;
+            right: 6.8mm;
+            z-index: 2;
             color: #000000;
-            font-size: 5mm;
+            font-size: 5.7mm;
             font-weight: 800;
             line-height: 1;
-            letter-spacing: 0.04mm;
-            text-shadow: 0 0.25mm 0.55mm rgba(17, 24, 39, 0.28);
+            letter-spacing: -0.1mm;
+            text-shadow: 0 0.45mm 0.7mm rgba(17, 24, 39, 0.28);
         }
 
         .content {
             position: absolute;
-            top: 17.2mm;
-            left: 5.55mm;
-            right: 5.55mm;
+            top: 17.1mm;
+            left: 5.4mm;
+            right: 5.4mm;
             bottom: 4.8mm;
-            z-index: 1;
+            z-index: 2;
         }
 
         .badge--photo_qr .content {
@@ -149,8 +161,8 @@
             top: 0;
             left: 0;
             right: 0;
-            color: #050505;
-            font-size: 6.35mm;
+            color: #000000;
+            font-size: 6.5mm;
             font-weight: 800;
             line-height: 1;
             white-space: nowrap;
@@ -169,11 +181,12 @@
             position: absolute;
             left: 0;
             top: 0;
-            width: 20mm;
-            color: #5e5e5e;
-            font-size: 3.55mm;
+            width: 24mm;
+            color: #5f5f5f;
+            font-size: 3.6mm;
             font-weight: 800;
             line-height: 5mm;
+            white-space: nowrap;
         }
 
         .detail-value {
@@ -181,8 +194,8 @@
             left: 28.5mm;
             right: 0;
             top: 0;
-            color: #050505;
-            font-size: 3.55mm;
+            color: #000000;
+            font-size: 3.6mm;
             font-weight: 800;
             line-height: 5mm;
             white-space: nowrap;
@@ -190,38 +203,38 @@
             text-overflow: ellipsis;
         }
 
-        .row-company { top: 9.25mm; }
-        .row-host { top: 15.8mm; }
-        .row-time { top: 22.2mm; }
+        .row-company { top: 9.5mm; }
+        .row-host { top: 15.95mm; }
+        .row-time { top: 22.4mm; }
 
         .row-time .detail-value {
-            font-size: 3.4mm;
+            font-size: 3.35mm;
         }
 
         .separator {
             position: absolute;
-            left: -0.6mm;
-            width: 75mm;
+            left: -0.7mm;
+            width: 75.8mm;
             height: 0.22mm;
-            background: rgba(80, 86, 94, 0.2);
+            background: rgba(95, 101, 110, 0.24);
         }
 
-        .separator-company { top: 14.05mm; }
-        .separator-host { top: 20.55mm; }
-        .separator-time { top: 27.1mm; }
+        .separator-company { top: 14.25mm; }
+        .separator-host { top: 20.72mm; }
+        .separator-time { top: 27.15mm; }
 
         .badge--photo_qr .visitor-name { font-size: 4.85mm; }
         .badge--photo_qr .detail-label,
         .badge--photo_qr .detail-value { font-size: 2.35mm; }
         .badge--photo_qr .detail-value { left: 20mm; }
         .badge--photo_qr .separator { width: 44mm; }
-        .badge--photo_qr .row-time .detail-value { font-size: 2.55mm; }
+        .badge--photo_qr .row-time .detail-value { font-size: 2.35mm; }
 
         .media-column {
             position: absolute;
             top: 12.2mm;
             right: 5.2mm;
-            z-index: 1;
+            z-index: 2;
             width: 23.5mm;
             bottom: 4.7mm;
         }
@@ -286,62 +299,66 @@
 </head>
 
 <body>
-<div class="page">
-    <div class="badge badge--{{ $badgeDesign }}">
-        @if ($backgroundDataUri)
-            <img class="badge-background" src="{{ $backgroundDataUri }}" alt="">
-        @endif
+<div class="badge badge--{{ $badgeDesign }}">
+    <div class="surface-base"></div>
 
-        @if ($logoDataUri)
-            <img class="badge-logo" src="{{ $logoDataUri }}" alt="{{ $brandName }}">
-        @endif
+    <svg class="surface-accent" viewBox="0 0 660 150" preserveAspectRatio="none" aria-hidden="true">
+        <path d="M118 -30 H700 V126 H196 C150 126 132 102 116 58 L82 -30 Z" fill="{{ $badgeAccentColor }}"/>
+    </svg>
 
-        <div class="badge-title">
-            {{ __('Besucherausweis') }}
-        </div>
+    <svg class="surface-footer" viewBox="0 0 1080 210" preserveAspectRatio="none" aria-hidden="true">
+        <path d="M-40 92 C228 160 698 132 1120 22 V240 H-40 Z" fill="#b8bec8"/>
+    </svg>
 
-        <div class="content">
-            <div class="visitor-name">{{ $visitorFullName }}</div>
+    @if ($logoDataUri)
+        <img class="badge-logo" src="{{ $logoDataUri }}" alt="{{ $brandName }}">
+    @endif
 
-            <div class="detail-row row-company">
-                <div class="detail-label">{{ __('Unternehmen:') }}</div>
-                <div class="detail-value">{{ $visitor->company ?? '-' }}</div>
-            </div>
-            <div class="separator separator-company"></div>
-
-            <div class="detail-row row-host">
-                <div class="detail-label">{{ __('Betreuer:') }}</div>
-                <div class="detail-value">{{ $responsibleFullName !== '' ? $responsibleFullName : '-' }}</div>
-            </div>
-            <div class="separator separator-host"></div>
-
-            <div class="detail-row row-time">
-                <div class="detail-label">{{ __('Uhrzeit:') }}</div>
-                <div class="detail-value">{{ $scheduledRange }}</div>
-            </div>
-            <div class="separator separator-time"></div>
-        </div>
-
-        @if ($badgeDesign === 'photo_qr')
-            <div class="media-column">
-                @if ($photoDataUri)
-                    <img class="badge-photo" src="{{ $photoDataUri }}" alt="{{ $visitorFullName }}">
-                @else
-                    <div class="badge-photo badge-photo--placeholder">{{ __('Foto') }}</div>
-                @endif
-
-                <div class="qr-row">
-                    <div class="qr-label">{{ __('Scan') }}</div>
-
-                    @if ($qrCodeDataUri)
-                        <img class="qr-code" src="{{ $qrCodeDataUri }}" alt="{{ __('QR-Code') }}">
-                    @else
-                        <div class="qr-code qr-code--placeholder">QR</div>
-                    @endif
-                </div>
-            </div>
-        @endif
+    <div class="badge-title">
+        {{ __('Besucherausweis') }}
     </div>
+
+    <div class="content">
+        <div class="visitor-name">{{ $visitorFullName }}</div>
+
+        <div class="detail-row row-company">
+            <div class="detail-label">{{ __('Unternehmen:') }}</div>
+            <div class="detail-value">{{ $visitor->company ?? '-' }}</div>
+        </div>
+        <div class="separator separator-company"></div>
+
+        <div class="detail-row row-host">
+            <div class="detail-label">{{ __('Betreuer:') }}</div>
+            <div class="detail-value">{{ $responsibleFullName !== '' ? $responsibleFullName : '-' }}</div>
+        </div>
+        <div class="separator separator-host"></div>
+
+        <div class="detail-row row-time">
+            <div class="detail-label">{{ __('Uhrzeit:') }}</div>
+            <div class="detail-value">{{ $scheduledRange }}</div>
+        </div>
+        <div class="separator separator-time"></div>
+    </div>
+
+    @if ($badgeDesign === 'photo_qr')
+        <div class="media-column">
+            @if ($photoDataUri)
+                <img class="badge-photo" src="{{ $photoDataUri }}" alt="{{ $visitorFullName }}">
+            @else
+                <div class="badge-photo badge-photo--placeholder">{{ __('Foto') }}</div>
+            @endif
+
+            <div class="qr-row">
+                <div class="qr-label">{{ __('Scan') }}</div>
+
+                @if ($qrCodeDataUri)
+                    <img class="qr-code" src="{{ $qrCodeDataUri }}" alt="{{ __('QR-Code') }}">
+                @else
+                    <div class="qr-code qr-code--placeholder">QR</div>
+                @endif
+            </div>
+        </div>
+    @endif
 </div>
 </body>
 </html>
