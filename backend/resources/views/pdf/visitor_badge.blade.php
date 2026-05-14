@@ -156,7 +156,7 @@
         .badge-title {
             position: absolute;
             top: 1.85mm;
-            left: 35.5mm;
+            left: 37.5mm;
             right: 3.2mm;
             z-index: 1;
             color: #000000;
