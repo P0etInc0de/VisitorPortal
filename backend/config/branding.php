@@ -25,6 +25,8 @@ return [
 
     'badge_logo' => env('BRANDING_BADGE_LOGO', env('BRANDING_LOGO_LIGHT', 'images/branding/logo-with-text-light.svg')),
 
+    'badge_design' => env('BRANDING_BADGE_DESIGN', 'standard'),
+
     'monitor_fallback_heading' => env('BRANDING_MONITOR_FALLBACK_HEADING', 'Welcome to VisitorPortal'),
 
     'monitor_fallback_subheading' => env('BRANDING_MONITOR_FALLBACK_SUBHEADING', "We're glad you're here."),
