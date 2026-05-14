@@ -26,15 +26,25 @@ class AdminPanelProvider extends PanelProvider
 {
     public function panel(Panel $panel): Panel
     {
+        $brandName = (string) config('branding.name', 'VisitorPortal');
+        $logoLightPath = config('branding.logo_light');
+        $logoDarkPath = config('branding.logo_dark');
+        $hasLogoLight = is_string($logoLightPath) && $logoLightPath !== '' && file_exists(public_path($logoLightPath));
+        $hasLogoDark = is_string($logoDarkPath) && $logoDarkPath !== '' && file_exists(public_path($logoDarkPath));
+        $brandLogo = $hasLogoLight || $hasLogoDark
+            ? new HtmlString(collect([
+                $hasLogoLight ? '<img src="'.e(asset($logoLightPath)).'" class="fi-logo logo-light h-10 w-auto" alt="'.e($brandName).'">' : null,
+                $hasLogoDark ? '<img src="'.e(asset($logoDarkPath)).'" class="fi-logo logo-dark h-10 w-auto" alt="'.e($brandName).'">' : null,
+            ])->filter()->implode(''))
+            : $brandName;
+
         return $panel
             ->default()
             ->id('admin')
             ->path('admin')
             ->globalSearch(position: GlobalSearchPosition::Sidebar)
-            ->brandLogo(new HtmlString('
-                <img src="'.asset('images/logo-light.png').'" class="fi-logo logo-light h-10 w-auto" alt="Logo">
-                <img src="'.asset('images/logo-dark.png').'" class="fi-logo logo-dark h-10 w-auto" alt="Logo">
-            '))
+            ->brandName($brandName)
+            ->brandLogo($brandLogo)
             ->brandLogoHeight('4rem')
             ->colors([
                 // 'primary' => Color::Amber,

@@ -1,3 +1,8 @@
+@php
+    $defaultHeading = config('branding.monitor_slide_heading', 'Welcome!');
+    $defaultSubheading = config('branding.monitor_fallback_subheading', "We're glad you're here.");
+@endphp
+
 <x-app-layout>
     <x-slot name="header">
         <h1 class="text-4xl font-bold leading-none tracking-tight text-base-content lg:text-5xl">
@@ -8,8 +13,8 @@
             <form id="createMonitorSlide" method="POST" action="{{ route('monitors.slides.store', [$monitor]) }}" enctype="multipart/form-data">
                 @csrf
                 <div class="grid gap-4">
-                    <x-bp.input label="{{ __('Überschrift') }}" name="heading" value="{{ __('Herzlich willkommen!') }}" class="h-11"/>
-                    <x-bp.input label="{{ __('Unterüberschrift') }}" name="subheading" value="{{ __('Schön, dass Sie da sind!') }}" class="h-11"/>
+                    <x-bp.input label="{{ __('Überschrift') }}" name="heading" value="{{ $defaultHeading }}" class="h-11"/>
+                    <x-bp.input label="{{ __('Unterüberschrift') }}" name="subheading" value="{{ $defaultSubheading }}" class="h-11"/>
 
                     @include('monitorSlides.partials.page-settings', [
                         'slideNumber' => $defaultSlideNumber,

@@ -51,7 +51,7 @@
 
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>{{ config('app.name', __('Besucherportal')) }}</title>
+    <title>{{ config('branding.name', config('app.name', 'VisitorPortal')) }}</title>
     {{ $head ?? '' }}
 
     @livewireStyles

@@ -1,6 +1,7 @@
 @php
     $preloadBackground = $monitor->firstDisplayBackgroundAssetUrl();
-    $hasMonitorLogo = file_exists(public_path('images/logo-light.png'));
+    $monitorLogoPath = config('branding.logo_light');
+    $hasMonitorLogo = is_string($monitorLogoPath) && $monitorLogoPath !== '' && file_exists(public_path($monitorLogoPath));
 @endphp
 
 <x-app-layout>
@@ -9,7 +10,7 @@
             <link rel="preload" as="image" href="{{ $preloadBackground }}" fetchpriority="high">
         @endif
         @if ($hasMonitorLogo)
-            <link rel="preload" as="image" href="{{ asset('images/logo-light.png') }}" fetchpriority="high">
+            <link rel="preload" as="image" href="{{ asset($monitorLogoPath) }}" fetchpriority="high">
         @endif
     </x-slot>
 

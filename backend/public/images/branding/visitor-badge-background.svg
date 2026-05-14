@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1012 638" role="img" aria-labelledby="title desc">
+  <title id="title">Visitor badge background</title>
+  <desc id="desc">Generic visitor badge background without embedded logo or customer-specific branding.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" x2="1" y1="0" y2="1">
+      <stop offset="0" stop-color="#ffffff"/>
+      <stop offset=".58" stop-color="#f2f4f8"/>
+      <stop offset="1" stop-color="#d8dde6"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="0" x2="1" y1="0" y2="0">
+      <stop offset="0" stop-color="#f59e0b"/>
+      <stop offset="1" stop-color="#f97316"/>
+    </linearGradient>
+    <filter id="shadow" x="-5%" y="-5%" width="110%" height="120%">
+      <feDropShadow dx="0" dy="6" stdDeviation="5" flood-color="#111827" flood-opacity=".16"/>
+    </filter>
+  </defs>
+  <rect width="1012" height="638" rx="34" fill="url(#bg)"/>
+  <path d="M365 0h647v122H430c-37 0-52-25-65-61L342 0h23Z" fill="url(#accent)" filter="url(#shadow)"/>
+  <path d="M0 588c210 48 633 31 1012-66v82c0 19-15 34-34 34H34c-19 0-34-15-34-34v-16Z" fill="#111827" opacity=".17"/>
+</svg>

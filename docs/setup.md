@@ -106,7 +106,7 @@ Das Demo-Setup liest `.env.demo`.
 Fuer Release-Zips sollte dort ein fester Image-Tag stehen, zum Beispiel:
 
 ```env
-BESUCHERPORTAL_VERSION=v1.0.2
+VISITORPORTAL_VERSION=v1.0.2
 ```
 
 So bleiben Demos reproduzierbar und werden nicht versehentlich durch ein neues `latest`-Image veraendert.

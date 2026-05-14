@@ -1,6 +1,6 @@
 # Architecture Decisions (ADR)
 
-Kurze Architekturentscheidungen und Begründungen für das Projekt **Besucherportal**.
+Kurze Architekturentscheidungen und Begründungen für das Projekt **VisitorPortal**.
 
 ## ADR-001 Projekt- und Sprachkonventionen
 
@@ -36,7 +36,7 @@ Kurze Architekturentscheidungen und Begründungen für das Projekt **Besucherpor
   - aktiv gepflegt und gut dokumentiert
   - gute Integration mit Laravel **Gate**, **Blade-Directives** und **Policies**
   - flexibler und wartbarer als eine selbst entwickelte einfache Rollenlogik
-  - geeignet für eine schlanke, erweiterbare Rechteverwaltung im Besucherportal
+  - geeignet für eine schlanke, erweiterbare Rechteverwaltung in VisitorPortal
 - **Quellen:**
   - Spatie Laravel Permission, Introduction: https://spatie.be/docs/laravel-permission/v7/introduction
   - Spatie Laravel Permission, Blade Directives: https://spatie.be/docs/laravel-permission/v7/basic-usage/blade-directives
@@ -88,7 +88,7 @@ Kurze Architekturentscheidungen und Begründungen für das Projekt **Besucherpor
   - dadurch bleibt die UI-Schicht einfacher, flexibler und wartungsärmer
   - **Mary UI** war ein Favorit, wurde aber nicht gewählt, da es auf **Livewire** ausgerichtet ist und damit eine stärkere Architekturbindung erzeugt
   - Es wurde bewusst **gegen Livewire als Projektstandard** entschieden, um zusätzliche Architekturkomplexität zu vermeiden
-  - Für das Besucherportal ist ein Standard mit Blade + Tailwind + daisyUI ausreichend und für das MVP zweckmäßig
+  - Für VisitorPortal ist ein Standard mit Blade + Tailwind + daisyUI ausreichend und für das MVP zweckmäßig
 - **Quellen:**
   - daisyUI Homepage: https://daisyui.com/
   - daisyUI Laravel Installation: https://daisyui.com/docs/install/laravel/

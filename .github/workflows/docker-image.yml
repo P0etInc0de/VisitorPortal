@@ -53,7 +53,7 @@ jobs:
         run: |
           set -euo pipefail
           TAG="${GITHUB_REF_NAME}"
-          PACKAGE_DIR="dist/Besucherportal-demo-${TAG}"
+          PACKAGE_DIR="dist/VisitorPortal-demo-${TAG}"
           mkdir -p "$PACKAGE_DIR"
 
           cp docker-compose.demo.yml "$PACKAGE_DIR/"
@@ -61,11 +61,11 @@ jobs:
           cp docs/setup.md "$PACKAGE_DIR/README.md"
 
           cat > "$PACKAGE_DIR/.env.demo" <<EOF
-          BESUCHERPORTAL_VERSION=${TAG}
+          VISITORPORTAL_VERSION=${TAG}
           EOF
 
           cd dist
-          zip -r "Besucherportal-demo-${TAG}.zip" "Besucherportal-demo-${TAG}"
+          zip -r "VisitorPortal-demo-${TAG}.zip" "VisitorPortal-demo-${TAG}"
 
       - name: Publish demo release package
         if: startsWith(github.ref, 'refs/tags/')
@@ -74,7 +74,7 @@ jobs:
         run: |
           set -euo pipefail
           TAG="${GITHUB_REF_NAME}"
-          ZIP="dist/Besucherportal-demo-${TAG}.zip"
+          ZIP="dist/VisitorPortal-demo-${TAG}.zip"
 
           if gh release view "$TAG" >/dev/null 2>&1; then
             gh release upload "$TAG" "$ZIP" --clobber

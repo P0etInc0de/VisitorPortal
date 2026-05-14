@@ -64,7 +64,7 @@ class WelcomeMonitorTest extends TestCase
         $response = $this
             ->actingAs($user)
             ->put(route('monitors.fallback.update', $monitor), [
-                'heading' => 'Willkommen bei ACD',
+                'heading' => 'Welcome to VisitorPortal',
                 'subheading' => 'Bitte melden Sie sich am Empfang.',
                 'show_logo' => '0',
                 'show_date' => '1',
@@ -75,7 +75,7 @@ class WelcomeMonitorTest extends TestCase
 
         $monitor->refresh();
 
-        $this->assertSame('Willkommen bei ACD', $monitor->fallback_heading);
+        $this->assertSame('Welcome to VisitorPortal', $monitor->fallback_heading);
         $this->assertSame('Bitte melden Sie sich am Empfang.', $monitor->fallback_subheading);
         $this->assertFalse($monitor->fallback_show_logo);
         $this->assertTrue($monitor->fallback_show_date);
@@ -329,7 +329,7 @@ class WelcomeMonitorTest extends TestCase
 
             $slide = $monitor->monitorSlides()->sole();
 
-            $this->assertSame(__('Herzlich willkommen!'), $slide->heading);
+            $this->assertSame(config('branding.monitor_slide_heading', 'Welcome!'), $slide->heading);
             $this->assertTrue($slide->is_auto_generated);
             $this->assertSame([
                 [
@@ -481,7 +481,7 @@ class WelcomeMonitorTest extends TestCase
             'name' => 'Empfang',
             'transition_time_milliseconds' => 5000,
             'auto_generation' => true,
-            'fallback_heading' => 'Willkommen im Besucherportal',
+            'fallback_heading' => 'Welcome to VisitorPortal',
             'fallback_subheading' => 'Bitte wenden Sie sich an den Empfang.',
         ]);
 
@@ -491,7 +491,7 @@ class WelcomeMonitorTest extends TestCase
 
         $response
             ->assertOk()
-            ->assertSee('Willkommen im Besucherportal')
+            ->assertSee('Welcome to VisitorPortal')
             ->assertSee('Bitte wenden Sie sich an den Empfang.');
     }
 

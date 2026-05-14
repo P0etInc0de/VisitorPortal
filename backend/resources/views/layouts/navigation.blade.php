@@ -1,6 +1,11 @@
 
 @php
-    $hasLogo = file_exists(public_path('images/logo-light.png'));
+    $brandName = config('branding.name', 'VisitorPortal');
+    $logoLightPath = config('branding.logo_light');
+    $logoDarkPath = config('branding.logo_dark');
+    $hasLogoLight = is_string($logoLightPath) && $logoLightPath !== '' && file_exists(public_path($logoLightPath));
+    $hasLogoDark = is_string($logoDarkPath) && $logoDarkPath !== '' && file_exists(public_path($logoDarkPath));
+    $navBrandLabel = __('Visitor portal');
 
     $user = Auth::user();
 
@@ -59,21 +64,23 @@
             </button>
 
             <div class="flex min-w-0 items-center gap-3">
-                @if ($hasLogo)
+                @if ($hasLogoLight)
                     <img
-                        src="{{ asset('images/logo-light.png') }}"
-                        class="logo-light block h-9 w-[6.75rem] shrink-0 object-cover object-center"
-                        alt="{{ __('Logo') }}"
+                        src="{{ asset($logoLightPath) }}"
+                        class="logo-light block h-9 w-auto max-w-[10rem] shrink-0 object-contain object-left"
+                        alt="{{ $brandName }}"
                         width="108"
                         height="36"
                         loading="eager"
                         decoding="async"
                         fetchpriority="high"
                     >
+                @endif
+                @if ($hasLogoDark)
                     <img
-                        src="{{ asset('images/logo-dark.png') }}"
-                        class="logo-dark block h-9 w-[6.75rem] shrink-0 object-cover object-center"
-                        alt="{{ __('Logo') }}"
+                        src="{{ asset($logoDarkPath) }}"
+                        class="logo-dark block h-9 w-auto max-w-[10rem] shrink-0 object-contain object-left"
+                        alt="{{ $brandName }}"
                         width="108"
                         height="36"
                         loading="eager"
@@ -82,7 +89,7 @@
                     >
                 @endif
 
-                <p class="truncate text-sm font-semibold">{{ __('Besucherportal') }}</p>
+                <p class="truncate text-sm font-semibold">{{ $navBrandLabel }}</p>
             </div>
         </div>
     </div>
@@ -90,22 +97,24 @@
 
 <aside id="sidebar" class="hidden w-72 border-r border-base-300/70 bg-base-100 [&_.btn]:min-h-11 lg:fixed lg:inset-y-0 lg:left-0 lg:z-30 lg:flex lg:flex-col lg:min-h-screen lg:px-4 lg:pt-4 lg:pb-4">
     <div class="border-b border-base-300/70 px-4 py-4">
-        <a href="{{ route('overview') }}" class="flex flex-col items-start gap-3" wire:navigate.hover>
-            @if ($hasLogo)
+        <a href="{{ route('overview') }}" class="flex min-w-0 items-center gap-3" wire:navigate.hover>
+            @if ($hasLogoLight)
                 <img
-                    src="{{ asset('images/logo-light.png') }}"
-                    class="logo-light block h-10 w-[7.5rem] shrink-0 object-cover object-center"
-                    alt="{{ __('Logo') }}"
+                    src="{{ asset($logoLightPath) }}"
+                    class="logo-light block h-10 w-auto max-w-[8.75rem] shrink-0 object-contain object-left"
+                    alt="{{ $brandName }}"
                     width="120"
                     height="40"
                     loading="eager"
                     decoding="async"
                     fetchpriority="high"
                 >
+            @endif
+            @if ($hasLogoDark)
                 <img
-                    src="{{ asset('images/logo-dark.png') }}"
-                    class="logo-dark block h-10 w-[7.5rem] shrink-0 object-cover object-center"
-                    alt="{{ __('Logo') }}"
+                    src="{{ asset($logoDarkPath) }}"
+                    class="logo-dark block h-10 w-auto max-w-[8.75rem] shrink-0 object-contain object-left"
+                    alt="{{ $brandName }}"
                     width="120"
                     height="40"
                     loading="eager"
@@ -115,7 +124,7 @@
             @endif
 
             <div class="min-w-0">
-                <h1 class="text-[1.9rem] font-semibold tracking-tight">{{ __('Besucherportal') }}</h1>
+                <h1 class="truncate text-base font-semibold tracking-tight">{{ $navBrandLabel }}</h1>
             </div>
         </a>
     </div>
@@ -275,21 +284,11 @@
     <div class="absolute inset-y-0 left-0 flex w-80 max-w-[88vw] flex-col border-r border-base-300/70 bg-base-100">
         <div class="flex items-center justify-between border-b border-base-300/70 px-5 py-4">
             <div class="flex min-w-0 items-center gap-3">
-                @if ($hasLogo)
+                @if ($hasLogoLight)
                     <img
-                        src="{{ asset('images/logo-light.png') }}"
-                        class="logo-light block h-9 w-[6.75rem] shrink-0 object-cover object-center"
-                        alt="{{ __('Logo') }}"
-                        width="108"
-                        height="36"
-                        loading="eager"
-                        decoding="async"
-                        fetchpriority="high"
-                    >
-                    <img
-                        src="{{ asset('images/logo-dark.png') }}"
-                        class="logo-dark block h-9 w-[6.75rem] shrink-0 object-cover object-center"
-                        alt="{{ __('Logo') }}"
+                        src="{{ asset($logoLightPath) }}"
+                        class="logo-light block h-9 w-auto max-w-[10rem] shrink-0 object-contain object-left"
+                        alt="{{ $brandName }}"
                         width="108"
                         height="36"
                         loading="eager"
@@ -297,7 +296,19 @@
                         fetchpriority="high"
                     >
                 @endif
-                <span class="truncate text-base font-semibold">{{ __('Besucherportal') }}</span>
+                @if ($hasLogoDark)
+                    <img
+                        src="{{ asset($logoDarkPath) }}"
+                        class="logo-dark block h-9 w-auto max-w-[10rem] shrink-0 object-contain object-left"
+                        alt="{{ $brandName }}"
+                        width="108"
+                        height="36"
+                        loading="eager"
+                        decoding="async"
+                        fetchpriority="high"
+                    >
+                @endif
+                <span class="truncate text-sm font-semibold">{{ $navBrandLabel }}</span>
             </div>
 
             <button

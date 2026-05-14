@@ -1,5 +1,29 @@
 @php
-    $bg = base64_encode(file_get_contents(public_path('images/badge/visitor_badge_background.png')));
+    $inlineAsset = static function ($path): ?string {
+        if (! is_string($path) || $path === '') {
+            return null;
+        }
+
+        $fullPath = public_path($path);
+
+        if (! file_exists($fullPath)) {
+            return null;
+        }
+
+        $extension = strtolower(pathinfo($fullPath, PATHINFO_EXTENSION));
+        $mime = match ($extension) {
+            'svg' => 'image/svg+xml',
+            'jpg', 'jpeg' => 'image/jpeg',
+            'webp' => 'image/webp',
+            default => 'image/png',
+        };
+
+        return 'data:'.$mime.';base64,'.base64_encode(file_get_contents($fullPath));
+    };
+
+    $backgroundDataUri = $inlineAsset(config('branding.badge_background'));
+    $logoDataUri = $inlineAsset(config('branding.badge_logo', config('branding.logo_light')));
+    $brandName = config('branding.name', 'VisitorPortal');
 @endphp
 
     <!DOCTYPE html>
@@ -33,7 +57,11 @@
             width: 85.6mm;
             height: 53.98mm;
 
-            background-image: url("data:image/png;base64,{{ $bg }}");
+            @if ($backgroundDataUri)
+            background-image: url("{{ $backgroundDataUri }}");
+            @else
+            background: linear-gradient(135deg, #ffffff, #eef2f8);
+            @endif
             background-size: 100% 100%;
             background-position: center;
             background-repeat: no-repeat;
@@ -53,6 +81,16 @@
             font-weight: 600;
             color: #555;
             letter-spacing: 0.2mm;
+        }
+
+        .badge-logo {
+            position: absolute;
+            top: 4.2mm;
+            left: 4.8mm;
+            height: 7.4mm;
+            max-width: 31mm;
+            object-fit: contain;
+            object-position: left center;
         }
 
         .label {
@@ -104,6 +142,10 @@
 
 <div class="page">
     <div class="badge">
+
+        @if ($logoDataUri)
+            <img class="badge-logo" src="{{ $logoDataUri }}" alt="{{ $brandName }}">
+        @endif
 
         <div class="badge-title">
             {{ __('Besucherausweis') }}

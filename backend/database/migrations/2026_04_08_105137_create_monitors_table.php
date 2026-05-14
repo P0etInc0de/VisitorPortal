@@ -11,19 +11,22 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('monitors', function (Blueprint $table) {
+        $fallbackHeading = config('branding.monitor_fallback_heading', 'Welcome to VisitorPortal');
+        $fallbackSubheading = config('branding.monitor_fallback_subheading', "We're glad you're here.");
+
+        Schema::create('monitors', function (Blueprint $table) use ($fallbackHeading, $fallbackSubheading) {
             $table->id();
             $table->string('image_path')->default(null)->nullable();
             $table->string('background_source')->default('preset-1');
             $table->boolean('background_overlay_enabled')->default(false);
             $table->string('content_card_style')->default('transparent');
-            $table->string('name')->default('Willkommensmonitor Eingang');
+            $table->string('name')->default('Entrance welcome monitor');
             $table->timestamps();
             $table->integer('transition_time_milliseconds')->default(5000);
             $table->boolean('auto_generation')->default(true);
             $table->integer('auto_generation_window_minutes')->default(30);
-            $table->string('fallback_heading')->default('Herzlich willkommen bei ACD');
-            $table->string('fallback_subheading')->default('Wir wünschen Ihnen einen angenehmen Aufenthalt.');
+            $table->string('fallback_heading')->default($fallbackHeading);
+            $table->string('fallback_subheading')->default($fallbackSubheading);
             $table->boolean('fallback_show_logo')->default(true);
             $table->boolean('fallback_show_date')->default(true);
             $table->string('fallback_image_path')->default(null)->nullable();

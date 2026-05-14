@@ -1,6 +1,6 @@
-# Besucherportal
+# VisitorPortal
 
-Webbasiertes Besucherportal (Laravel) zur Planung und Abwicklung von Firmenbesuchen inkl. Check-in, Ausweisausgabe (PDF/Druck), Willkommensmonitor und Benachrichtigungen (THU-Teamprojekt).
+Web-based VisitorPortal application (Laravel) for planning and handling company visits including check-in, visitor badge PDFs/printing, welcome monitor, and notifications (THU team project).
 
 ## Ziel / Umfang (MVP)
 

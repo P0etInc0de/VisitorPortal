@@ -75,8 +75,6 @@
     "Besucherausweis_": "Visitor badge_",
     "Besuchen Sie unser Repository": "Visit our repository",
     "Besuche von heute sowie Termine bis zu 48 Stunden im Voraus.": "Visits from today and up to 48 hours ahead.",
-    "Besucherportal": "Visitor portal",
-    "Besucherportal_Logo": "Visitor portal logo",
     "Betreuer:": "Supervisor:",
     "Bild wird geladen...": "Image is loading...",
     "Bild entfernen": "Remove image",
@@ -460,6 +458,7 @@
     "Übergangszeit (ms)": "Transition time (ms)",
     "Überschrift": "Headline",
     "Übersicht": "Overview",
+    "Visitor portal": "Visitor portal",
     "→ Besuch öffnen": "→ Open visit",
     "→ Besucher-Details": "→ Visitor details"
 }
