@@ -37,8 +37,11 @@
         @include('reception.partials.all-visits.visit-stack', [
             'visits' => $visits,
             'expandedVisitIds' => $expandedVisitIds,
+            'showParticipantControls' => $showParticipantControls ?? true,
         ])
 
-        <iframe name="av-badge-download-frame" class="hidden" tabindex="-1" aria-hidden="true"></iframe>
+        @if ($showParticipantControls ?? true)
+            <iframe name="av-badge-download-frame" class="hidden" tabindex="-1" aria-hidden="true"></iframe>
+        @endif
     </div>
 </div>

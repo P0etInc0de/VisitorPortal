@@ -1,6 +1,9 @@
 @php
+    $showParticipantControls = $showParticipantControls ?? true;
     $visitGridColumns = 'grid-cols-[1.85rem_minmax(11rem,1.28fr)_minmax(10.4rem,1.02fr)_minmax(6.75rem,0.7fr)_minmax(5.8rem,0.62fr)_3rem_minmax(10rem,1.06fr)]';
-    $participantGridColumns = 'grid-cols-[minmax(14rem,1.55fr)_minmax(10rem,1.1fr)_minmax(7rem,0.95fr)_minmax(5.25rem,0.8fr)_minmax(9rem,0.92fr)]';
+    $participantGridTemplateColumns = $showParticipantControls
+        ? 'minmax(14rem, 1.55fr) minmax(10rem, 1.1fr) minmax(7rem, 0.95fr) minmax(5.25rem, 0.8fr) minmax(9rem, 0.92fr)'
+        : 'minmax(14rem, 1.55fr) minmax(10rem, 1.1fr) minmax(7rem, 0.95fr)';
 @endphp
 
 <section class="flex h-full min-h-0 flex-col self-stretch overflow-hidden rounded-[1.35rem] border border-base-300 bg-base-100 shadow-sm">
@@ -35,7 +38,8 @@
                             'index' => $index,
                             'expandedVisitIds' => $expandedVisitIds ?? [],
                             'visitGridColumns' => $visitGridColumns,
-                            'participantGridColumns' => $participantGridColumns,
+                            'participantGridTemplateColumns' => $participantGridTemplateColumns,
+                            'showParticipantControls' => $showParticipantControls,
                         ])
                     @empty
                         <div class="px-3 py-3 text-[0.88rem] text-base-content/70">{{ __('Keine Besuche gefunden.') }}</div>

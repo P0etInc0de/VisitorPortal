@@ -100,6 +100,7 @@ class MyVisitsPage extends Component
         return view('livewire.reception.all-visits-page', [
             'ranges' => $this->ranges(),
             'visits' => $this->visits(),
+            'showParticipantControls' => false,
         ]);
     }
 
