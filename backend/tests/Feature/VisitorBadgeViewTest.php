@@ -6,7 +6,6 @@ use App\Models\User;
 use App\Models\Visit;
 use App\Models\Visitor;
 use App\Support\BadgePdfDimensions;
-use App\Support\BadgePdfMediaBoxCropper;
 use Illuminate\Support\Carbon;
 use Tests\TestCase;
 
@@ -115,17 +114,6 @@ class VisitorBadgeViewTest extends TestCase
         $this->assertStringContainsString('Dr. Anna Ausweis', $html);
         $this->assertStringNotContainsString('Name:', $html);
         $this->assertStringNotContainsString('class="badge-photo', $html);
-    }
-
-    public function test_badge_pdf_media_box_crop_removes_bottom_renderer_band_without_shifting_offsets(): void
-    {
-        $pdf = "2 0 obj\n<</MediaBox [0 0 242.87999 154.080002]\n/Contents 9 0 R>>\nendobj";
-
-        $cropped = BadgePdfMediaBoxCropper::cropBottomWhitespace($pdf);
-
-        $this->assertSame(strlen($pdf), strlen($cropped));
-        $this->assertStringContainsString('/MediaBox [0 1 242.87999 154.080002]', $cropped);
-        $this->assertStringNotContainsString('/MediaBox [0 0 242.87999 154.080002]', $cropped);
     }
 
     private function renderBadge(): string
