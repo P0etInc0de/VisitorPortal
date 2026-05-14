@@ -14,9 +14,12 @@ final class BadgePdfDimensions
      * unpainted PDF page area visible as white stripes on the right/bottom.
      *
      * The stable contract is therefore:
-     * - HTML/CSS uses the actual MediaBox size Chromium emits: 242.88pt x 154.08pt.
+     * - Page content uses the actual MediaBox size Chromium emits: 242.88pt x 154.08pt.
      * - The Gotenberg request uses 242.88pt x 153.12pt because Chromium rounds
      *   that request up to the exact 242.88pt x 154.08pt MediaBox.
+     * - The root background alone bleeds by one CSS pixel. Chromium clips page
+     *   backgrounds to integer CSS-pixel layout bounds before the final PDF
+     *   MediaBox crop, so the background must extend past the crop edge.
      *
      * Do not switch these values back to millimeters unless the generated PDF
      * MediaBox is re-measured and the HTML size is updated to match it exactly.
@@ -29,11 +32,7 @@ final class BadgePdfDimensions
 
     public const REQUEST_HEIGHT_PT = 153.12;
 
-    public const SURFACE_BLEED_PT = 6.24;
-
-    public const SURFACE_WIDTH_PT = 255.36;
-
-    public const SURFACE_HEIGHT_PT = 166.56;
+    public const ROOT_BACKGROUND_BLEED_PT = 0.75;
 
     public static function cssPt(float $value): string
     {
@@ -50,18 +49,13 @@ final class BadgePdfDimensions
         return self::cssPt(self::MEDIA_HEIGHT_PT);
     }
 
-    public static function cssSurfaceBleedOffset(): string
+    public static function cssRootBackgroundWidth(): string
     {
-        return self::cssPt(-self::SURFACE_BLEED_PT);
+        return self::cssPt(self::MEDIA_WIDTH_PT + self::ROOT_BACKGROUND_BLEED_PT);
     }
 
-    public static function cssSurfaceWidth(): string
+    public static function cssRootBackgroundHeight(): string
     {
-        return self::cssPt(self::SURFACE_WIDTH_PT);
-    }
-
-    public static function cssSurfaceHeight(): string
-    {
-        return self::cssPt(self::SURFACE_HEIGHT_PT);
+        return self::cssPt(self::MEDIA_HEIGHT_PT + self::ROOT_BACKGROUND_BLEED_PT);
     }
 }

@@ -47,9 +47,7 @@ class VisitorBadgeViewTest extends TestCase
 
         $html = $this->renderBadge();
 
-        $this->assertStringContainsString('stop-color="#123456"', $html);
-        $this->assertStringContainsString('background: #123456;', $html);
-        $this->assertStringContainsString('background: linear-gradient(to bottom, #123456 0 34pt', $html);
+        $this->assertStringContainsString(rawurlencode('stop-color="#123456"'), $html);
     }
 
     public function test_invalid_badge_accent_color_falls_back_to_default(): void
@@ -59,9 +57,7 @@ class VisitorBadgeViewTest extends TestCase
 
         $html = $this->renderBadge();
 
-        $this->assertStringContainsString('stop-color="#ff8a00"', $html);
-        $this->assertStringContainsString('background: #ff8a00;', $html);
-        $this->assertStringContainsString('background: linear-gradient(to bottom, #ff8a00 0 34pt', $html);
+        $this->assertStringContainsString(rawurlencode('stop-color="#ff8a00"'), $html);
     }
 
     public function test_badge_html_uses_measured_pdf_media_box_size(): void
@@ -71,24 +67,32 @@ class VisitorBadgeViewTest extends TestCase
         $html = $this->renderBadge();
         $width = BadgePdfDimensions::cssMediaWidth();
         $height = BadgePdfDimensions::cssMediaHeight();
-        $surfaceBleedOffset = BadgePdfDimensions::cssSurfaceBleedOffset();
-        $surfaceWidth = BadgePdfDimensions::cssSurfaceWidth();
-        $surfaceHeight = BadgePdfDimensions::cssSurfaceHeight();
+        $rootBackgroundWidth = BadgePdfDimensions::cssRootBackgroundWidth();
+        $rootBackgroundHeight = BadgePdfDimensions::cssRootBackgroundHeight();
 
         $this->assertStringContainsString("size: {$width} {$height};", $html);
         $this->assertStringContainsString("width: {$width};", $html);
         $this->assertStringContainsString("height: {$height};", $html);
-        $this->assertStringContainsString("top: {$surfaceBleedOffset};", $html);
-        $this->assertStringContainsString("left: {$surfaceBleedOffset};", $html);
-        $this->assertStringContainsString("width: {$surfaceWidth};", $html);
-        $this->assertStringContainsString("height: {$surfaceHeight};", $html);
+        $this->assertStringContainsString("width: {$rootBackgroundWidth};", $html);
+        $this->assertStringContainsString("height: {$rootBackgroundHeight};", $html);
+        $this->assertStringContainsString("/ {$rootBackgroundWidth} {$rootBackgroundHeight} no-repeat", $html);
+        $this->assertStringContainsString('background: url("data:image/svg+xml,', $html);
+        $this->assertStringContainsString(rawurlencode('viewBox="21.993 21.878 856.014 540.244"'), $html);
+        $this->assertStringContainsString('background: transparent;', $html);
         $this->assertStringNotContainsString('page-edge-fill', $html);
         $this->assertStringNotContainsString('accent-edge-fill', $html);
+        $this->assertStringNotContainsString('badge-accent-bar', $html);
+        $this->assertStringNotContainsString('badge-accent-slope', $html);
+        $this->assertStringNotContainsString('badge-bottom-wave', $html);
+        $this->assertStringNotContainsString('badge-surface', $html);
+        $this->assertStringNotContainsString('<svg', $html);
+        $this->assertStringNotContainsString('stop-color=', $html);
         $this->assertStringNotContainsString('calc(', $html);
         $this->assertStringNotContainsString('var(', $html);
         $this->assertStringNotContainsString('--badge-accent', $html);
         $this->assertSame(242.88, BadgePdfDimensions::REQUEST_WIDTH_PT);
         $this->assertSame(153.12, BadgePdfDimensions::REQUEST_HEIGHT_PT);
+        $this->assertSame(0.75, BadgePdfDimensions::ROOT_BACKGROUND_BLEED_PT);
     }
 
     public function test_photo_qr_badge_design_renders_prepared_photo_and_qr_slots(): void

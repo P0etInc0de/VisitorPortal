@@ -33,9 +33,8 @@
     $badgeAccentColor = (string) config('branding.badge_accent_color', '#ff8a00');
     $badgePdfWidth = BadgePdfDimensions::cssMediaWidth();
     $badgePdfHeight = BadgePdfDimensions::cssMediaHeight();
-    $badgeSurfaceBleedOffset = BadgePdfDimensions::cssSurfaceBleedOffset();
-    $badgeSurfaceWidth = BadgePdfDimensions::cssSurfaceWidth();
-    $badgeSurfaceHeight = BadgePdfDimensions::cssSurfaceHeight();
+    $badgeRootBackgroundWidth = BadgePdfDimensions::cssRootBackgroundWidth();
+    $badgeRootBackgroundHeight = BadgePdfDimensions::cssRootBackgroundHeight();
 
     if (! in_array($badgeDesign, ['standard', 'photo_qr'], true)) {
         $badgeDesign = 'standard';
@@ -68,6 +67,28 @@
     };
 
     $badgeAccentStartColor = $mixHexColor($badgeAccentColor, '#ffffff', 0.24);
+    $badgeBackgroundSvg = <<<SVG
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="21.993 21.878 856.014 540.244" preserveAspectRatio="none">
+    <defs>
+        <linearGradient id="badgeBase" x1="0" x2="1" y1="0" y2="1">
+            <stop offset="0" stop-color="#ffffff"/>
+            <stop offset="0.44" stop-color="#f8fafc"/>
+            <stop offset="0.76" stop-color="#e7edf4"/>
+            <stop offset="1" stop-color="#dce3ec"/>
+        </linearGradient>
+        <linearGradient id="badgeAccent" x1="0" x2="1" y1="0" y2="0">
+            <stop offset="0" stop-color="{$badgeAccentStartColor}"/>
+            <stop offset="0.72" stop-color="{$badgeAccentColor}"/>
+            <stop offset="1" stop-color="{$badgeAccentColor}"/>
+        </linearGradient>
+    </defs>
+
+    <rect x="-40" y="-40" width="980" height="664" fill="url(#badgeBase)"/>
+    <path d="M305 -40 H980 V108 H438 C407 108 397 101 387 84 L332 -40 Z" fill="url(#badgeAccent)"/>
+    <path d="M-50 468 C170 538 560 522 950 398 V630 H-50 Z" fill="#b8bec8"/>
+</svg>
+SVG;
+    $badgeBackgroundDataUri = 'data:image/svg+xml,'.rawurlencode($badgeBackgroundSvg);
 
     $visitorFullName = trim(implode(' ', array_filter([$visitor->title ?? null, $visitor->first_name ?? null, $visitor->name ?? null]))) ?: '-';
     $responsibleFullName = trim(($visit->responsibleUser?->first_name ?? '').' '.($visit->responsibleUser?->name ?? ''));
@@ -99,15 +120,27 @@
             margin: 0;
         }
 
-        html,
-        body {
+        html {
             position: fixed;
             inset: 0;
             margin: 0;
             padding: 0;
+            width: {{ $badgeRootBackgroundWidth }};
+            height: {{ $badgeRootBackgroundHeight }};
+            background: url("{{ $badgeBackgroundDataUri }}") 0 0 / {{ $badgeRootBackgroundWidth }} {{ $badgeRootBackgroundHeight }} no-repeat;
+            font-family: "Open Sans", Arial, sans-serif;
+            overflow: hidden;
+
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
             width: {{ $badgePdfWidth }};
             height: {{ $badgePdfHeight }};
-            background: #f8fafc;
+            background: transparent;
             font-family: "Open Sans", Arial, sans-serif;
             overflow: hidden;
         }
@@ -118,7 +151,7 @@
             width: {{ $badgePdfWidth }};
             height: {{ $badgePdfHeight }};
             overflow: hidden;
-            background: #f8fafc;
+            background: transparent;
 
             -webkit-print-color-adjust: exact;
             print-color-adjust: exact;
@@ -127,27 +160,19 @@
         /*
          * PDF rendering note: Gotenberg/Chromium can rasterize CSS/SVG filters,
          * drop-shadow, text-shadow and some SVG effects during PDF export. That can
-         * create pixelated edges, blur and anti-aliased page-edge stripes. Keep this
-         * badge background to plain vector shapes without filters or shadows.
+         * create pixelated edges, blur and anti-aliased page-edge stripes. Keep the
+         * badge artwork in one root page background without filters or shadows.
          * Chromium/Gotenberg also quantizes requested paper sizes. Do not hardcode
          * badge width/height in mm here. The HTML size must exactly match the
          * measured PDF MediaBox from App\Support\BadgePdfDimensions, otherwise
          * unpainted page area appears as white strips on the PDF edges.
-         * The background surface intentionally uses fixed point-based bleed values
-         * instead of CSS arithmetic or millimeters, because malformed or rounded
-         * expressions can be dropped by Chromium and expose the page background at
-         * the edges.
+         * Embedded SVG surfaces were removed because Chromium clipped their viewport
+         * a fraction inside the MediaBox and exposed a white right-edge strip. Keep
+         * the artwork out of child surface nodes, because Chromium also clips those
+         * child paint groups before the MediaBox.
+         * The root background uses a one-CSS-pixel bleed because Chromium clips root
+         * background paint to integer CSS-pixel bounds before the PDF MediaBox crop.
          */
-        .badge-surface {
-            position: fixed;
-            top: {{ $badgeSurfaceBleedOffset }};
-            left: {{ $badgeSurfaceBleedOffset }};
-            z-index: 0;
-            width: {{ $badgeSurfaceWidth }};
-            height: {{ $badgeSurfaceHeight }};
-            display: block;
-        }
-
         .badge-logo {
             position: absolute;
             top: 0.35mm;
@@ -350,26 +375,6 @@
 
 <body>
 <div class="badge badge--{{ $badgeDesign }}">
-    <svg class="badge-surface" viewBox="0 0 900 584" preserveAspectRatio="none" aria-hidden="true">
-        <defs>
-            <linearGradient id="badgeBase" x1="0" x2="1" y1="0" y2="1">
-                <stop offset="0" stop-color="#ffffff"/>
-                <stop offset="0.44" stop-color="#f8fafc"/>
-                <stop offset="0.76" stop-color="#e7edf4"/>
-                <stop offset="1" stop-color="#dce3ec"/>
-            </linearGradient>
-            <linearGradient id="badgeAccent" x1="0" x2="1" y1="0" y2="0">
-                <stop offset="0" stop-color="{{ $badgeAccentStartColor }}"/>
-                <stop offset="0.72" stop-color="{{ $badgeAccentColor }}"/>
-                <stop offset="1" stop-color="{{ $badgeAccentColor }}"/>
-            </linearGradient>
-        </defs>
-
-        <rect x="-40" y="-40" width="980" height="664" fill="url(#badgeBase)"/>
-        <path d="M305 -40 H980 V108 H438 C407 108 397 101 387 84 L332 -40 Z" fill="url(#badgeAccent)"/>
-        <path d="M-50 468 C170 538 560 522 950 398 V630 H-50 Z" fill="#b8bec8"/>
-    </svg>
-
     @if ($logoDataUri)
         <img class="badge-logo" src="{{ $logoDataUri }}" alt="{{ $brandName }}">
     @endif
