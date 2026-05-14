@@ -5,6 +5,7 @@ namespace Tests\Feature;
 use App\Models\User;
 use App\Models\Visit;
 use App\Models\Visitor;
+use App\Support\BadgePdfDimensions;
 use Illuminate\Support\Carbon;
 use Tests\TestCase;
 
@@ -21,7 +22,8 @@ class VisitorBadgeViewTest extends TestCase
         $this->assertStringContainsString('Dr. Anna Ausweis', $html);
         $this->assertStringContainsString('Unternehmen:', $html);
         $this->assertStringContainsString('VisitorPortal GmbH', $html);
-        $this->assertStringContainsString('14.05.2026 | 09:00 - 10:00 Uhr', $html);
+        $this->assertStringContainsString('14.05.2026', $html);
+        $this->assertStringContainsString('09:00 bis 10:00 Uhr', $html);
         $this->assertStringNotContainsString('Name:', $html);
         $this->assertStringNotContainsString('Firma:', $html);
         $this->assertStringNotContainsString('class="badge-photo', $html);
@@ -58,6 +60,21 @@ class VisitorBadgeViewTest extends TestCase
 
         $this->assertStringContainsString('--badge-accent: #ff8a00;', $html);
         $this->assertStringContainsString('fill="#ff8a00"', $html);
+    }
+
+    public function test_badge_html_uses_measured_pdf_media_box_size(): void
+    {
+        config()->set('branding.badge_design', 'standard');
+
+        $html = $this->renderBadge();
+        $width = BadgePdfDimensions::cssPt(BadgePdfDimensions::MEDIA_WIDTH_PT);
+        $height = BadgePdfDimensions::cssPt(BadgePdfDimensions::MEDIA_HEIGHT_PT);
+
+        $this->assertStringContainsString("size: {$width} {$height};", $html);
+        $this->assertStringContainsString("width: {$width};", $html);
+        $this->assertStringContainsString("height: {$height};", $html);
+        $this->assertSame(242.88, BadgePdfDimensions::REQUEST_WIDTH_PT);
+        $this->assertSame(153.12, BadgePdfDimensions::REQUEST_HEIGHT_PT);
     }
 
     public function test_photo_qr_badge_design_renders_prepared_photo_and_qr_slots(): void

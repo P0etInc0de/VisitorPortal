@@ -1,4 +1,6 @@
 @php
+    use App\Support\BadgePdfDimensions;
+
     $inlineAsset = static function ($path): ?string {
         if (! is_string($path) || $path === '') {
             return null;
@@ -29,6 +31,8 @@
     $logoDataUri = $inlineAsset(config('branding.badge_logo', config('branding.logo_light')));
     $badgeDesign = (string) config('branding.badge_design', 'standard');
     $badgeAccentColor = (string) config('branding.badge_accent_color', '#ff8a00');
+    $badgePdfWidth = BadgePdfDimensions::cssPt(BadgePdfDimensions::MEDIA_WIDTH_PT);
+    $badgePdfHeight = BadgePdfDimensions::cssPt(BadgePdfDimensions::MEDIA_HEIGHT_PT);
 
     if (! in_array($badgeDesign, ['standard', 'photo_qr'], true)) {
         $badgeDesign = 'standard';
@@ -40,9 +44,10 @@
 
     $visitorFullName = trim(implode(' ', array_filter([$visitor->title ?? null, $visitor->first_name ?? null, $visitor->name ?? null]))) ?: '-';
     $responsibleFullName = trim(($visit->responsibleUser?->first_name ?? '').' '.($visit->responsibleUser?->name ?? ''));
-    $scheduledRange = $visit->scheduled_from->isSameDay($visit->scheduled_until)
-        ? $visit->scheduled_from->format('d.m.Y').' | '.$visit->scheduled_from->format('H:i').' - '.$visit->scheduled_until->format('H:i').' Uhr'
-        : $visit->scheduled_from->format('d.m.Y H:i').' - '.$visit->scheduled_until->format('d.m.Y H:i').' Uhr';
+    $visitDate = $visit->scheduled_from->format('d.m.Y');
+    $visitTimeRange = $visit->scheduled_from->isSameDay($visit->scheduled_until)
+        ? $visit->scheduled_from->format('H:i').' bis '.$visit->scheduled_until->format('H:i').' Uhr'
+        : $visit->scheduled_from->format('d.m.Y H:i').' bis '.$visit->scheduled_until->format('d.m.Y H:i').' Uhr';
     $photoDataUri = $inlineAsset(
         data_get($visitor, 'badge_photo_path')
             ?: data_get($visitor, 'photo_path')
@@ -63,93 +68,86 @@
 
     <style>
         @page {
-            size: 85.6mm 53.98mm;
+            size: {{ $badgePdfWidth }} {{ $badgePdfHeight }};
             margin: 0;
         }
 
         html,
         body {
+            position: fixed;
+            inset: 0;
             margin: 0;
             padding: 0;
-            width: 85.6mm;
-            height: 53.98mm;
-            background: #b8bec8;
+            width: {{ $badgePdfWidth }};
+            height: {{ $badgePdfHeight }};
+            background: #f8fafc;
             font-family: "Open Sans", Arial, sans-serif;
             overflow: hidden;
         }
 
         .badge {
-            position: relative;
-            width: 85.6mm;
-            height: 53.98mm;
-            background: #b8bec8;
+            position: fixed;
+            inset: 0;
+            width: {{ $badgePdfWidth }};
+            height: {{ $badgePdfHeight }};
             overflow: hidden;
+            background: #f8fafc;
             --badge-accent: {{ $badgeAccentColor }};
 
             -webkit-print-color-adjust: exact;
             print-color-adjust: exact;
         }
 
-        .surface-base {
-            position: absolute;
-            inset: -3mm;
+        /*
+         * PDF rendering note: Gotenberg/Chromium can rasterize CSS/SVG filters,
+         * drop-shadow, text-shadow and some SVG effects during PDF export. That can
+         * create pixelated edges, blur and anti-aliased page-edge stripes. Keep this
+         * badge background to plain vector shapes without filters or shadows.
+         * Chromium/Gotenberg also quantizes requested paper sizes. Do not hardcode
+         * badge width/height in mm here. The HTML size must exactly match the
+         * measured PDF MediaBox from App\Support\BadgePdfDimensions, otherwise
+         * unpainted page area appears as white strips on the PDF edges.
+         */
+        .badge-surface {
+            position: fixed;
+            top: -2.2mm;
+            left: -2.2mm;
             z-index: 0;
-            background: linear-gradient(112deg, #ffffff 0%, #f8fafc 37%, #eef2f7 70%, #dfe5ed 100%);
-        }
-
-        .surface-accent {
-            position: absolute;
-            top: -2mm;
-            right: -2.5mm;
-            z-index: 1;
-            width: 63mm;
-            height: 14.6mm;
-            overflow: visible;
-            filter: drop-shadow(0 1.2mm 1.5mm rgba(17, 24, 39, 0.22));
-        }
-
-        .surface-footer {
-            position: absolute;
-            left: -3mm;
-            right: -3mm;
-            bottom: -3mm;
-            z-index: 1;
-            width: 91.6mm;
-            height: 17mm;
-            overflow: visible;
+            width: calc({{ $badgePdfWidth }} + 4.4mm);
+            height: calc({{ $badgePdfHeight }} + 4.4mm);
+            display: block;
         }
 
         .badge-logo {
             position: absolute;
-            top: 3.1mm;
-            left: 5.9mm;
-            z-index: 2;
-            height: 6.6mm;
-            max-width: 29mm;
+            top: 3.2mm;
+            left: 5.8mm;
+            z-index: 1;
+            height: 6.8mm;
+            max-width: 30mm;
             object-fit: contain;
             object-position: left center;
         }
 
         .badge-title {
             position: absolute;
-            top: 2.6mm;
-            right: 6.8mm;
-            z-index: 2;
+            top: 2.65mm;
+            right: 7.2mm;
+            z-index: 1;
             color: #000000;
-            font-size: 5.7mm;
+            font-size: 5.75mm;
             font-weight: 800;
             line-height: 1;
-            letter-spacing: -0.1mm;
-            text-shadow: 0 0.45mm 0.7mm rgba(17, 24, 39, 0.28);
+            letter-spacing: -0.12mm;
         }
 
         .content {
             position: absolute;
-            top: 17.1mm;
-            left: 5.4mm;
-            right: 5.4mm;
-            bottom: 4.8mm;
-            z-index: 2;
+            top: 17.4mm;
+            left: 5.2mm;
+            right: 5.2mm;
+            bottom: 3.8mm;
+            z-index: 1;
         }
 
         .badge--photo_qr .content {
@@ -162,7 +160,7 @@
             left: 0;
             right: 0;
             color: #000000;
-            font-size: 6.5mm;
+            font-size: 6.55mm;
             font-weight: 800;
             line-height: 1;
             white-space: nowrap;
@@ -183,7 +181,7 @@
             top: 0;
             width: 24mm;
             color: #5f5f5f;
-            font-size: 3.6mm;
+            font-size: 3.55mm;
             font-weight: 800;
             line-height: 5mm;
             white-space: nowrap;
@@ -191,11 +189,11 @@
 
         .detail-value {
             position: absolute;
-            left: 28.5mm;
+            left: 28.6mm;
             right: 0;
             top: 0;
             color: #000000;
-            font-size: 3.6mm;
+            font-size: 3.55mm;
             font-weight: 800;
             line-height: 5mm;
             white-space: nowrap;
@@ -203,38 +201,58 @@
             text-overflow: ellipsis;
         }
 
-        .row-company { top: 9.5mm; }
-        .row-host { top: 15.95mm; }
-        .row-time { top: 22.4mm; }
-
-        .row-time .detail-value {
-            font-size: 3.35mm;
-        }
+        .row-company { top: 9.15mm; }
+        .row-host { top: 15.45mm; }
 
         .separator {
             position: absolute;
-            left: -0.7mm;
-            width: 75.8mm;
+            left: -0.5mm;
+            width: 76mm;
             height: 0.22mm;
             background: rgba(95, 101, 110, 0.24);
         }
 
-        .separator-company { top: 14.25mm; }
-        .separator-host { top: 20.72mm; }
-        .separator-time { top: 27.15mm; }
+        .separator-company { top: 13.95mm; }
+        .separator-host { top: 20.25mm; }
+
+        .visit-date {
+            position: absolute;
+            left: -0.6mm;
+            top: 21.7mm;
+            color: #a7a7a7;
+            font-size: 5.25mm;
+            font-weight: 800;
+            line-height: 7.2mm;
+            white-space: nowrap;
+        }
+
+        .visit-time {
+            position: absolute;
+            left: 29mm;
+            top: 22.65mm;
+            right: 0;
+            color: #a7a7a7;
+            font-size: 2.95mm;
+            font-weight: 500;
+            line-height: 5.4mm;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
 
         .badge--photo_qr .visitor-name { font-size: 4.85mm; }
         .badge--photo_qr .detail-label,
         .badge--photo_qr .detail-value { font-size: 2.35mm; }
         .badge--photo_qr .detail-value { left: 20mm; }
         .badge--photo_qr .separator { width: 44mm; }
-        .badge--photo_qr .row-time .detail-value { font-size: 2.35mm; }
+        .badge--photo_qr .visit-date { font-size: 3.3mm; }
+        .badge--photo_qr .visit-time { left: 16mm; font-size: 2.1mm; }
 
         .media-column {
             position: absolute;
             top: 12.2mm;
             right: 5.2mm;
-            z-index: 2;
+            z-index: 1;
             width: 23.5mm;
             bottom: 4.7mm;
         }
@@ -300,14 +318,19 @@
 
 <body>
 <div class="badge badge--{{ $badgeDesign }}">
-    <div class="surface-base"></div>
+    <svg class="badge-surface" viewBox="0 0 900 584" preserveAspectRatio="none" aria-hidden="true">
+        <defs>
+            <linearGradient id="badgeBase" x1="0" x2="1" y1="0" y2="1">
+                <stop offset="0" stop-color="#ffffff"/>
+                <stop offset="0.44" stop-color="#f8fafc"/>
+                <stop offset="0.76" stop-color="#e7edf4"/>
+                <stop offset="1" stop-color="#dce3ec"/>
+            </linearGradient>
+        </defs>
 
-    <svg class="surface-accent" viewBox="0 0 660 150" preserveAspectRatio="none" aria-hidden="true">
-        <path d="M118 -30 H700 V126 H196 C150 126 132 102 116 58 L82 -30 Z" fill="{{ $badgeAccentColor }}"/>
-    </svg>
-
-    <svg class="surface-footer" viewBox="0 0 1080 210" preserveAspectRatio="none" aria-hidden="true">
-        <path d="M-40 92 C228 160 698 132 1120 22 V240 H-40 Z" fill="#b8bec8"/>
+        <rect x="-40" y="-40" width="980" height="664" fill="url(#badgeBase)"/>
+        <path d="M330 -40 H980 V128 H462 C420 128 394 108 374 66 L342 -40 Z" fill="{{ $badgeAccentColor }}"/>
+        <path d="M-50 468 C170 538 560 522 950 398 V630 H-50 Z" fill="#b8bec8"/>
     </svg>
 
     @if ($logoDataUri)
@@ -333,11 +356,8 @@
         </div>
         <div class="separator separator-host"></div>
 
-        <div class="detail-row row-time">
-            <div class="detail-label">{{ __('Uhrzeit:') }}</div>
-            <div class="detail-value">{{ $scheduledRange }}</div>
-        </div>
-        <div class="separator separator-time"></div>
+        <div class="visit-date">{{ $visitDate }}</div>
+        <div class="visit-time">{{ $visitTimeRange }}</div>
     </div>
 
     @if ($badgeDesign === 'photo_qr')
