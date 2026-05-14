@@ -21,9 +21,11 @@ return [
 
     'mail_logo' => env('BRANDING_MAIL_LOGO', env('BRANDING_LOGO_LIGHT', 'images/branding/logo-with-text-light.svg')),
 
-    'badge_background' => env('BRANDING_BADGE_BACKGROUND', 'images/branding/visitor-badge-background.svg'),
-
     'badge_logo' => env('BRANDING_BADGE_LOGO', env('BRANDING_LOGO_LIGHT', 'images/branding/logo-with-text-light.svg')),
+
+    'badge_design' => env('BRANDING_BADGE_DESIGN', 'standard'),
+
+    'badge_accent_color' => env('BRANDING_BADGE_ACCENT_COLOR', '#ff8a00'),
 
     'monitor_fallback_heading' => env('BRANDING_MONITOR_FALLBACK_HEADING', 'Welcome to VisitorPortal'),
 

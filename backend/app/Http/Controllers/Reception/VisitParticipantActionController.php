@@ -7,10 +7,14 @@ use App\Models\User;
 use App\Models\Visit;
 use App\Models\Visitor;
 use App\Services\VisitActionService;
+use App\Support\BadgePdfDimensions;
+use App\Support\BadgePdfMediaBoxCropper;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Spatie\LaravelPdf\Facades\Pdf;
+use Symfony\Component\HttpFoundation\HeaderUtils;
+use Symfony\Component\HttpFoundation\Response;
 
 class VisitParticipantActionController extends Controller
 {
@@ -27,15 +31,23 @@ class VisitParticipantActionController extends Controller
             'user_id' => auth()->id(),
         ]);
 
-        return Pdf::view('pdf.visitor_badge', [
+        $filename = __('Besucherausweis_').trim(($participant->first_name ?? '').'_'.($participant->name ?? 'Gast')).'.pdf';
+        $fallbackFilename = preg_replace('/[^A-Za-z0-9_.-]+/', '_', $filename) ?: 'Besucherausweis.pdf';
+
+        $pdfContent = Pdf::view('pdf.visitor_badge', [
             'visit' => $visit,
             'visitor' => $participant,
         ])
             ->driver('gotenberg')
-            ->paperSize(85.6, 53.98, 'mm')
-            ->margins(0, 0, 0, 0)
-            ->name(__('Besucherausweis_').trim(($participant->first_name ?? '').'_'.($participant->name ?? 'Gast')).'.pdf')
-            ->download();
+            ->paperSize(BadgePdfDimensions::REQUEST_WIDTH_PT, BadgePdfDimensions::REQUEST_HEIGHT_PT, 'pt')
+            ->margins(0, 0, 0, 0, 'pt')
+            ->scale(1)
+            ->generatePdfContent();
+
+        return response(BadgePdfMediaBoxCropper::cropBottomWhitespace($pdfContent), Response::HTTP_OK, [
+            'Content-Disposition' => HeaderUtils::makeDisposition(HeaderUtils::DISPOSITION_ATTACHMENT, $filename, $fallbackFilename),
+            'Content-Type' => 'application/pdf',
+        ]);
     }
 
     public function checkIn(Request $request, Visit $visit, Visitor $visitor, VisitActionService $visitActionService): RedirectResponse
