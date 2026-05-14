@@ -1,9 +1,9 @@
 {
     "$schema": "https://getcomposer.org/schema.json",
-    "name": "laravel/laravel",
+    "name": "p0etinc0de/visitorportal",
     "type": "project",
-    "description": "The skeleton application for the Laravel framework.",
-    "keywords": ["laravel", "framework"],
+    "description": "A web-based visitor management system for registering, managing and checking in company visitors.",
+    "keywords": ["visitor-management", "visitor-portal", "laravel", "livewire"],
     "license": "GPL-3.0-or-later",
     "require": {
         "php": "^8.2",
