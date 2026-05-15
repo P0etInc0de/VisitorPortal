@@ -43,6 +43,10 @@ x-app-environment: &app-environment
   AUTO_MIGRATE: "true"
   AUTO_SEED: "true"
   FORCE_SEED: "false"
+  VISITOR_CONTACT_REQUIREMENT: optional
+  PRIVACY_VISIT_RETENTION_DAYS: "365"
+  PRIVACY_PURGE_ENABLED: "true"
+  PRIVACY_SEARCH_RATE_LIMIT_PER_MINUTE: "60"
 
 services:
   app:

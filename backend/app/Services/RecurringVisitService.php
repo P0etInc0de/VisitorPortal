@@ -10,6 +10,7 @@ use Illuminate\Support\Arr;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\ValidationException;
 
 class RecurringVisitService
 {
@@ -439,20 +440,32 @@ class RecurringVisitService
             return Visitor::query()->findOrFail($row['visitor_id']);
         }
 
-        if (filled($row['email'])) {
-            $existingByEmail = Visitor::query()->where('email', $row['email'])->first();
+        $existingByEmail = filled($row['email'])
+            ? Visitor::query()->where('email', $row['email'])->first()
+            : null;
+        $existingByPhone = filled($row['phone'])
+            ? Visitor::query()->where('phone', $row['phone'])->first()
+            : null;
 
-            if ($existingByEmail) {
-                $existingByEmail->update([
-                    'title' => $row['title'] ?: $existingByEmail->title,
-                    'first_name' => $row['first_name'] ?: $existingByEmail->first_name,
-                    'name' => $row['name'] ?: $existingByEmail->name,
-                    'phone' => $row['phone'] ?: $existingByEmail->phone,
-                    'company' => $row['company'] ?: $existingByEmail->company,
-                ]);
+        if ($existingByEmail && $existingByPhone && ! $existingByEmail->is($existingByPhone)) {
+            throw ValidationException::withMessages([
+                'participants' => __('E-Mail und Telefonnummer gehören zu unterschiedlichen Besuchern.'),
+            ]);
+        }
 
-                return $existingByEmail;
-            }
+        $existingVisitor = $existingByEmail ?: $existingByPhone;
+
+        if ($existingVisitor) {
+            $existingVisitor->update([
+                'title' => $row['title'] ?: $existingVisitor->title,
+                'first_name' => $row['first_name'] ?: $existingVisitor->first_name,
+                'name' => $row['name'] ?: $existingVisitor->name,
+                'email' => $row['email'] ?: $existingVisitor->email,
+                'phone' => $row['phone'] ?: $existingVisitor->phone,
+                'company' => $row['company'] ?: $existingVisitor->company,
+            ]);
+
+            return $existingVisitor;
         }
 
         return Visitor::query()->create([

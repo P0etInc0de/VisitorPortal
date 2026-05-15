@@ -3,6 +3,7 @@
 namespace App\Livewire\Reception;
 
 use App\Enums\VisitStatusEnum;
+use App\Livewire\Concerns\RateLimitsSearch;
 use App\Models\User;
 use App\Models\Visit;
 use App\Models\Visitor;
@@ -15,6 +16,7 @@ use Livewire\Component;
 class AllVisitsPage extends Component
 {
     use AuthorizesRequests;
+    use RateLimitsSearch;
 
     public string $search = '';
 
@@ -205,6 +207,10 @@ class AllVisitsPage extends Component
     {
         [$from, $until] = $this->resolveRange($this->activeRange, $this->dateFrom, $this->dateTo);
         $search = trim($this->search);
+
+        if ($search !== '') {
+            $this->enforceSearchRateLimit('all-visits-page');
+        }
 
         return Visit::query()
             ->with([

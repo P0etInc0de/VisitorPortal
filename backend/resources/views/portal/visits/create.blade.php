@@ -15,6 +15,21 @@
     $requiredMarker = $showRequiredMarkers
         ? new \Illuminate\Support\HtmlString('<span class="bp-required-marker text-error" aria-hidden="true">*</span>')
         : '';
+    $visitorContactRequirement = \App\Support\VisitorContactRequirement::current();
+    $emailRequiredMarker = in_array($visitorContactRequirement, [
+        \App\Support\VisitorContactRequirement::REQUIRE_EMAIL,
+        \App\Support\VisitorContactRequirement::REQUIRE_ONE,
+    ], true) ? $requiredMarker : '';
+    $phoneRequiredMarker = in_array($visitorContactRequirement, [
+        \App\Support\VisitorContactRequirement::REQUIRE_PHONE,
+        \App\Support\VisitorContactRequirement::REQUIRE_ONE,
+    ], true) ? $requiredMarker : '';
+    $visitorContactHint = match ($visitorContactRequirement) {
+        \App\Support\VisitorContactRequirement::REQUIRE_ONE => __('Bitte E-Mail-Adresse oder Telefonnummer angeben.'),
+        \App\Support\VisitorContactRequirement::REQUIRE_EMAIL => __('Bitte E-Mail-Adresse angeben.'),
+        \App\Support\VisitorContactRequirement::REQUIRE_PHONE => __('Bitte Telefonnummer angeben.'),
+        default => null,
+    };
 
     $beginDate = $scheduledFromValue ? substr($scheduledFromValue, 0, 10) : '';
     $beginTime = $scheduledFromValue ? substr($scheduledFromValue, 11, 5) : '';
@@ -83,6 +98,7 @@
         'recurrenceFrequency' => $recurrenceFrequencyValue,
         'recurrenceEndType' => $recurrenceEndTypeValue,
         'emptyParticipantNameLabel' => __('Ohne Namen'),
+        'visitorContactRequirement' => $visitorContactRequirement,
     ];
 @endphp
 

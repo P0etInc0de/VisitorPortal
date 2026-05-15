@@ -69,6 +69,11 @@ ensure_application_key() {
         return 0
     fi
 
+    if [ "${APP_ENV:-}" = "production" ]; then
+        printf '[ERROR] APP_KEY is required in production.\n' >&2
+        exit 1
+    fi
+
     if [ ! -f "$APP_DIR/.env" ]; then
         cp "$APP_DIR/.env.example" "$APP_DIR/.env"
     fi
@@ -102,14 +107,14 @@ wait_for_database
 
 if [ "${RUN_SETUP:-true}" = "true" ]; then
     step "Running database migrations"
-    if [ "${AUTO_MIGRATE:-true}" = "true" ]; then
+    if [ "${AUTO_MIGRATE:-false}" = "true" ]; then
         php artisan migrate --force
     else
         info "AUTO_MIGRATE=false, skipping migrations."
     fi
 
     step "Loading demo data if needed"
-    if [ "${AUTO_SEED:-true}" = "true" ]; then
+    if [ "${AUTO_SEED:-false}" = "true" ]; then
         if [ "${FORCE_SEED:-false}" = "true" ] || [ ! -f "$INSTALL_FLAG" ]; then
             php artisan db:seed --force
             touch "$INSTALL_FLAG"

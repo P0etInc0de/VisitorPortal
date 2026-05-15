@@ -27,6 +27,9 @@ class Visit extends Model
         'notes',
         'canceled_at',
         'canceled_by_user_id',
+        'retention_hold_until',
+        'retention_hold_reason',
+        'retention_hold_by_user_id',
     ];
 
     protected $casts = [
@@ -36,6 +39,7 @@ class Visit extends Model
         'recurrence_is_modified' => 'boolean',
         'is_walk_in' => 'boolean',
         'canceled_at' => 'datetime',
+        'retention_hold_until' => 'datetime',
     ];
 
     protected $appends = [
@@ -62,6 +66,11 @@ class Visit extends Model
     public function canceledBy(): BelongsTo
     {
         return $this->belongsTo(User::class, 'canceled_by_user_id');
+    }
+
+    public function retentionHoldBy(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'retention_hold_by_user_id');
     }
 
     public function creator(): BelongsTo

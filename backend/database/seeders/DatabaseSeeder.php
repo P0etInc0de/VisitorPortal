@@ -14,6 +14,10 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
+        if (app()->environment('production')) {
+            throw new \RuntimeException('Seeding is disabled in production.');
+        }
+
         /*
         * The ShieldSeeder is auto generated:
         * - Scan the app/Filament folder for resources and generate CRUD permissions: `php artisan shield:generate --all`

@@ -2,12 +2,13 @@
 
 namespace App\Livewire\Portal;
 
-use App\Enums\VisitorStatusEnum;
 use App\Enums\VisitStatusEnum;
+use App\Livewire\Concerns\RateLimitsSearch;
 use App\Models\User;
 use App\Models\Visit;
 use App\Models\Visitor;
 use App\Services\VisitActionService;
+use App\Support\VisitorContactRequirement;
 use Illuminate\Contracts\View\View;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Support\Carbon;
@@ -21,6 +22,7 @@ use Livewire\Component;
 class CheckInOutBoard extends Component
 {
     use AuthorizesRequests;
+    use RateLimitsSearch;
 
     public string $search = '';
 
@@ -140,14 +142,31 @@ class CheckInOutBoard extends Component
      */
     protected function walkInRules(): array
     {
-        return [
+        $rules = [
             'walkIn.title' => ['nullable', 'string', 'max:255'],
             'walkIn.first_name' => ['required', 'string', 'max:255'],
             'walkIn.name' => ['required', 'string', 'max:255'],
             'walkIn.email' => ['nullable', 'email', 'max:255'],
-            'walkIn.phone' => ['nullable', 'string', 'max:255'],
+            'walkIn.phone' => ['nullable', 'string', 'max:50'],
             'walkIn.company' => ['nullable', 'string', 'max:255'],
         ];
+
+        $requirement = VisitorContactRequirement::current();
+
+        if (VisitorContactRequirement::requiresEmail($requirement)) {
+            $rules['walkIn.email'][] = 'required';
+        }
+
+        if (VisitorContactRequirement::requiresPhone($requirement)) {
+            $rules['walkIn.phone'][] = 'required';
+        }
+
+        if (VisitorContactRequirement::requiresOne($requirement)) {
+            $rules['walkIn.email'][] = 'required_without:walkIn.phone';
+            $rules['walkIn.phone'][] = 'required_without:walkIn.email';
+        }
+
+        return $rules;
     }
 
     /**
@@ -159,6 +178,10 @@ class CheckInOutBoard extends Component
         $windowEnd = now()->copy()->addHours(48);
         $referenceNow = now();
         $search = trim($this->search);
+
+        if ($search !== '') {
+            $this->enforceSearchRateLimit('check-in-out-board');
+        }
 
         $visits = Visit::query()
             ->with([
@@ -307,16 +330,13 @@ class CheckInOutBoard extends Component
             return $emailVisitor ?: $phoneVisitor;
         }
 
-        $token = (string) Str::ulid();
-
         return Visitor::query()->create([
             'title' => $this->normalizeText($payload['title'] ?? null),
             'first_name' => $payload['first_name'],
             'name' => $payload['name'],
-            'email' => $email ?: 'walkin-'.$token.'@local.invalid',
-            'phone' => $phone ?: 'walkin-'.$token,
+            'email' => $email,
+            'phone' => $phone,
             'company' => $this->normalizeText($payload['company'] ?? null),
-            'status' => VisitorStatusEnum::Planned,
             'notes' => null,
         ]);
     }

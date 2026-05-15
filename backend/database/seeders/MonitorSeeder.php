@@ -12,6 +12,10 @@ class MonitorSeeder extends Seeder
      */
     public function run(): void
     {
+        if (app()->environment('production')) {
+            throw new \RuntimeException('Demo monitors are disabled in production.');
+        }
+
         Monitor::query()->updateOrCreate([
             'name' => 'WillkommensMonitor',
         ], Monitor::defaultSettings());

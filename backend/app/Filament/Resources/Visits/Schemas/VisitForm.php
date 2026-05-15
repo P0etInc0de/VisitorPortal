@@ -70,12 +70,16 @@ class VisitForm
                     ->disabled(fn ($record) => $record?->status === VisitStatusEnum::Canceled->value),
                 Textarea::make('notes')
                     ->label(__('Notizen'))
+                    ->maxLength(1000)
                     ->columnSpanFull(),
                 Select::make('visitors')
                     ->label(__('Besucher'))
                     ->multiple()
                     ->relationship(name: 'visitors')
-                    ->getOptionLabelFromRecordUsing(fn ($record) => "{$record->first_name} {$record->name} ({$record->email})")
+                    ->getOptionLabelFromRecordUsing(fn ($record) => trim(implode(' ', array_filter([
+                        trim("{$record->first_name} {$record->name}"),
+                        $record->email ? "({$record->email})" : null,
+                    ]))))
                     ->searchable(['first_name', 'name'])
                     ->preload(),
 

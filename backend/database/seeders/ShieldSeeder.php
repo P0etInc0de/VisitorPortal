@@ -11,6 +11,10 @@ class ShieldSeeder extends Seeder
 {
     public function run(): void
     {
+        if (app()->environment('production')) {
+            throw new \RuntimeException('Shield demo permissions are disabled in production.');
+        }
+
         app()[PermissionRegistrar::class]->forgetCachedPermissions();
 
         $tenants = '[]';

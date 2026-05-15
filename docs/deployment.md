@@ -25,10 +25,19 @@ composer install --no-dev
 php artisan key:generate
 ```
 
-5. Migrationen ausführen (optional inkl. Seeds, falls vorhanden):
+5. Migrationen ausführen. Seeds sind in Produktion deaktiviert und dürfen nicht verwendet werden:
 
 ```bash
-docker compose exec web php bash -lc "artisan migrate:fresh --seed"
+php artisan migrate --force
 ```
+
+## Docker Produktion
+
+- `docker-compose.prod.yml` ist für produktive Container gedacht.
+- DB und Gotenberg werden nicht nach außen veröffentlicht.
+- Mailhog ist nicht enthalten; SMTP muss über `MAIL_*` konfiguriert werden.
+- `APP_KEY` ist Pflicht und hat keinen Default-Wert.
+- `AUTO_MIGRATE=false` und `AUTO_SEED=false`; Migrationen laufen kontrolliert im Release-Prozess.
+- Demo-Accounts und Demo-Seeds sind in `APP_ENV=production` blockiert.
 
 ## in progress...

@@ -1,0 +1,117 @@
+name: visitorportal-prod
+
+x-app-image: &app-image "${VISITORPORTAL_IMAGE:?VISITORPORTAL_IMAGE is required}"
+
+x-app-environment: &app-environment
+  APP_NAME: "${APP_NAME:-VisitorPortal}"
+  APP_ENV: production
+  APP_DEBUG: "false"
+  APP_KEY: "${APP_KEY:?APP_KEY is required}"
+  APP_URL: "${APP_URL:?APP_URL is required}"
+  APP_TIMEZONE: "${APP_TIMEZONE:-Europe/Berlin}"
+  APP_LOCALE: "${APP_LOCALE:-de}"
+  APP_FALLBACK_LOCALE: "${APP_FALLBACK_LOCALE:-en}"
+  LOG_CHANNEL: "${LOG_CHANNEL:-stderr}"
+  DB_CONNECTION: mysql
+  DB_HOST: db
+  DB_PORT: "3306"
+  DB_DATABASE: "${DB_DATABASE:?DB_DATABASE is required}"
+  DB_USERNAME: "${DB_USERNAME:?DB_USERNAME is required}"
+  DB_PASSWORD: "${DB_PASSWORD:?DB_PASSWORD is required}"
+  SESSION_DRIVER: database
+  CACHE_STORE: database
+  QUEUE_CONNECTION: database
+  BROADCAST_CONNECTION: log
+  FILESYSTEM_DISK: local
+  MAIL_MAILER: smtp
+  MAIL_HOST: "${MAIL_HOST:?MAIL_HOST is required}"
+  MAIL_PORT: "${MAIL_PORT:?MAIL_PORT is required}"
+  MAIL_USERNAME: "${MAIL_USERNAME:-}"
+  MAIL_PASSWORD: "${MAIL_PASSWORD:-}"
+  MAIL_ENCRYPTION: "${MAIL_ENCRYPTION:-tls}"
+  MAIL_FROM_ADDRESS: "${MAIL_FROM_ADDRESS:?MAIL_FROM_ADDRESS is required}"
+  MAIL_FROM_NAME: "${MAIL_FROM_NAME:-VisitorPortal}"
+  GOTENBERG_URL: http://gotenberg:3000
+  VISITOR_CONTACT_REQUIREMENT: "${VISITOR_CONTACT_REQUIREMENT:-optional}"
+  PRIVACY_VISIT_RETENTION_DAYS: "${PRIVACY_VISIT_RETENTION_DAYS:-365}"
+  PRIVACY_PURGE_ENABLED: "${PRIVACY_PURGE_ENABLED:-true}"
+  AUTO_MIGRATE: "false"
+  AUTO_SEED: "false"
+  FORCE_SEED: "false"
+
+services:
+  app:
+    image: *app-image
+    restart: unless-stopped
+    ports:
+      - "${APP_PORT:-8080}:80"
+    environment:
+      <<: *app-environment
+      RUN_SETUP: "true"
+    volumes:
+      - app_storage:/var/www/html/backend/storage
+    depends_on:
+      db:
+        condition: service_healthy
+      gotenberg:
+        condition: service_started
+    healthcheck:
+      test: ["CMD", "php", "-r", "exit(@fsockopen('127.0.0.1', 80) ? 0 : 1);"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+
+  queue:
+    image: *app-image
+    restart: unless-stopped
+    command: php artisan queue:work --sleep=3 --tries=3 --timeout=120
+    environment:
+      <<: *app-environment
+      RUN_SETUP: "false"
+    volumes:
+      - app_storage:/var/www/html/backend/storage
+    depends_on:
+      db:
+        condition: service_healthy
+      app:
+        condition: service_started
+
+  scheduler:
+    image: *app-image
+    restart: unless-stopped
+    command: php artisan schedule:work
+    environment:
+      <<: *app-environment
+      RUN_SETUP: "false"
+    volumes:
+      - app_storage:/var/www/html/backend/storage
+    depends_on:
+      db:
+        condition: service_healthy
+      app:
+        condition: service_started
+
+  db:
+    image: mysql:8.0
+    restart: unless-stopped
+    command: --default-authentication-plugin=mysql_native_password
+    environment:
+      MYSQL_DATABASE: "${DB_DATABASE:?DB_DATABASE is required}"
+      MYSQL_USER: "${DB_USERNAME:?DB_USERNAME is required}"
+      MYSQL_PASSWORD: "${DB_PASSWORD:?DB_PASSWORD is required}"
+      MYSQL_ROOT_PASSWORD: "${DB_ROOT_PASSWORD:?DB_ROOT_PASSWORD is required}"
+    volumes:
+      - dbdata:/var/lib/mysql
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h localhost -p$${MYSQL_ROOT_PASSWORD}"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+
+  gotenberg:
+    image: gotenberg/gotenberg:8
+    restart: unless-stopped
+
+volumes:
+  app_storage:
+  dbdata:

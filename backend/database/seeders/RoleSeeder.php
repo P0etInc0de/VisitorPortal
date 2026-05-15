@@ -11,6 +11,10 @@ class RoleSeeder extends Seeder
 {
     public function run(): void
     {
+        if (app()->environment('production')) {
+            throw new \RuntimeException('Demo roles are disabled in production.');
+        }
+
         // Always reset cached roles and permissions first
         app()[PermissionRegistrar::class]->forgetCachedPermissions();
 

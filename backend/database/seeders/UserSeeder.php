@@ -13,6 +13,11 @@ class UserSeeder extends Seeder
 {
     public function run(): void
     {
+        if (app()->environment('production')) {
+            throw new \RuntimeException('Demo users are disabled in production.');
+        }
+
+        // Demo credentials must never be available in production.
         $defaultPassword = 'Passwort123!';
 
         $users = [

@@ -17,6 +17,7 @@ export const visitForm = (config) => ({
     recurrenceEnabled: Boolean(config.recurrenceEnabled),
     recurrenceFrequency: config.recurrenceFrequency ?? '',
     recurrenceEndType: config.recurrenceEndType ?? '',
+    visitorContactRequirement: config.visitorContactRequirement ?? 'optional',
     addingParticipant: false,
     addingNewParticipant: false,
     search: '',
@@ -229,16 +230,36 @@ export const visitForm = (config) => ({
     draftParticipantEmailIsValid() {
         const email = (this.draftParticipant.email ?? '').trim();
 
+        if (email === '') {
+            return true;
+        }
+
         return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+    },
+
+    draftParticipantContactIsComplete() {
+        const email = (this.draftParticipant.email ?? '').trim();
+        const phone = (this.draftParticipant.phone ?? '').trim();
+
+        // Contact requirements are privacy-configurable and optional by default.
+        switch (this.visitorContactRequirement) {
+            case 'require_email':
+                return email !== '';
+            case 'require_phone':
+                return phone !== '';
+            case 'require_one':
+                return email !== '' || phone !== '';
+            default:
+                return true;
+        }
     },
 
     isDraftParticipantComplete() {
         return Boolean(
             (this.draftParticipant.first_name ?? '').trim()
             && (this.draftParticipant.name ?? '').trim()
-            && (this.draftParticipant.company ?? '').trim()
             && this.draftParticipantEmailIsValid()
-            && (this.draftParticipant.phone ?? '').trim()
+            && this.draftParticipantContactIsComplete()
         );
     },
 

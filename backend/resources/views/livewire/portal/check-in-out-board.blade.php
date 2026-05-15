@@ -6,6 +6,24 @@
             'search' => trim(($host->first_name ?? '').' '.($host->name ?? '')),
         ])
         ->values();
+    $contactRequirement = \App\Support\VisitorContactRequirement::current();
+    $requiredMarker = new \Illuminate\Support\HtmlString('<span class="text-error" aria-hidden="true">*</span>');
+    $walkInEmailMarker = in_array($contactRequirement, [
+        \App\Support\VisitorContactRequirement::REQUIRE_EMAIL,
+        \App\Support\VisitorContactRequirement::REQUIRE_ONE,
+    ], true) ? $requiredMarker : '';
+    $walkInPhoneMarker = in_array($contactRequirement, [
+        \App\Support\VisitorContactRequirement::REQUIRE_PHONE,
+        \App\Support\VisitorContactRequirement::REQUIRE_ONE,
+    ], true) ? $requiredMarker : '';
+    $walkInEmailRequired = \App\Support\VisitorContactRequirement::requiresEmail($contactRequirement);
+    $walkInPhoneRequired = \App\Support\VisitorContactRequirement::requiresPhone($contactRequirement);
+    $walkInContactHint = match ($contactRequirement) {
+        \App\Support\VisitorContactRequirement::REQUIRE_ONE => __('Bitte E-Mail-Adresse oder Telefonnummer angeben.'),
+        \App\Support\VisitorContactRequirement::REQUIRE_EMAIL => __('Bitte E-Mail-Adresse angeben.'),
+        \App\Support\VisitorContactRequirement::REQUIRE_PHONE => __('Bitte Telefonnummer angeben.'),
+        default => null,
+    };
 @endphp
 
 <div
@@ -200,6 +218,10 @@
                 </div>
 
                 <form wire:submit.prevent="registerWalkIn" class="flex flex-col gap-4">
+                    @if ($walkInContactHint)
+                        <p class="rounded-2xl bg-base-200/70 px-4 py-3 text-sm text-base-content/70">{{ $walkInContactHint }}</p>
+                    @endif
+
                     <div class="flex flex-col gap-4">
                         <div>
                             <label class="label px-0 pb-2"><span class="label-text font-medium">{{ __('Ansprechpartner') }} *</span></label>
@@ -287,13 +309,13 @@
                         </div>
 
                         <div>
-                            <label class="label px-0 pb-2"><span class="label-text font-medium">{{ __('E-Mail') }}</span></label>
-                            <input type="email" class="input input-bordered w-full" wire:model="walkIn.email" placeholder="{{ __('optional') }}">
+                            <label class="label px-0 pb-2"><span class="label-text font-medium">{{ __('E-Mail') }} {{ $walkInEmailMarker }}</span></label>
+                            <input type="email" class="input input-bordered w-full" wire:model="walkIn.email" maxlength="255" placeholder="{{ $walkInEmailMarker ? '' : __('optional') }}" @if ($walkInEmailRequired) required @endif>
                         </div>
 
                         <div>
-                            <label class="label px-0 pb-2"><span class="label-text font-medium">{{ __('Telefon') }}</span></label>
-                            <input type="text" class="input input-bordered w-full" wire:model="walkIn.phone" placeholder="{{ __('optional') }}">
+                            <label class="label px-0 pb-2"><span class="label-text font-medium">{{ __('Telefon') }} {{ $walkInPhoneMarker }}</span></label>
+                            <input type="text" class="input input-bordered w-full" wire:model="walkIn.phone" maxlength="50" placeholder="{{ $walkInPhoneMarker ? '' : __('optional') }}" @if ($walkInPhoneRequired) required @endif>
                         </div>
                     </div>
 

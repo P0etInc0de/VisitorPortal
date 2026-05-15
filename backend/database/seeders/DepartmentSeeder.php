@@ -12,6 +12,10 @@ class DepartmentSeeder extends Seeder
      */
     public function run(): void
     {
+        if (app()->environment('production')) {
+            throw new \RuntimeException('Demo departments are disabled in production.');
+        }
+
         $this->createOrUpdateDept('IT/Administration', 'Achstetten', true); // NOTE: is active is true by default, can be changed here if wanted
         $this->createOrUpdateDept('Empfang', 'Achstetten', true);
         $this->createOrUpdateDept('Vertrieb', 'Achstetten', true);

@@ -18,8 +18,8 @@ return new class extends Migration
             $table->string('first_name');
             $table->string('gender')->default(GenderEnum::Not_Specified);
             $table->string('title')->nullable();
-            $table->string('email')->unique();
-            $table->string('phone')->unique();
+            $table->string('email')->nullable()->unique();
+            $table->string('phone', 50)->nullable()->unique();
             $table->string('company')->nullable();
             $table->text('notes')->nullable();
             $table->timestamps();                                               // creates created_at and updated_at automatically
