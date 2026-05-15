@@ -2,7 +2,7 @@
 
 namespace AdminPanel;
 
-use App\Enums\GenderEnum;
+use App\Enums\SalutationEnum;
 use App\Filament\Resources\Visitors\Pages\CreateVisitor;
 use App\Filament\Resources\Visitors\Pages\EditVisitor;
 use App\Models\Visitor;
@@ -30,7 +30,7 @@ class AdminAdministerVisitorTest extends TestCase
                 'first_name' => 'Max',
                 'name' => 'Mustermann',
                 'title' => 'Dr.',
-                'gender' => GenderEnum::Male,
+                'salutation' => SalutationEnum::Mr,
                 'email' => 'max@example.com',
                 'phone' => '+49123456789',
                 'company' => 'Test GmbH',
@@ -43,7 +43,7 @@ class AdminAdministerVisitorTest extends TestCase
             'first_name' => 'Max',
             'name' => 'Mustermann',
             'title' => 'Dr.',
-            'gender' => GenderEnum::Male,
+            'salutation' => SalutationEnum::Mr,
             'email' => 'max@example.com',
             'phone' => '+49123456789',
             'company' => 'Test GmbH',
@@ -63,7 +63,7 @@ class AdminAdministerVisitorTest extends TestCase
                 'first_name' => 'Max',
                 'name' => 'Mustermann',
                 'title' => 'Dr.',
-                'gender' => GenderEnum::Male,
+                'salutation' => SalutationEnum::Mr,
                 'email' => 'max@example.com',
                 'phone' => '+49123456789',
                 'company' => 'Test GmbH',
@@ -76,7 +76,7 @@ class AdminAdministerVisitorTest extends TestCase
             'first_name' => 'Max',
             'name' => 'Mustermann',
             'title' => 'Dr.',
-            'gender' => GenderEnum::Male,
+            'salutation' => SalutationEnum::Mr,
             'email' => 'max@example.com',
             'phone' => '+49123456789',
             'company' => 'Test GmbH',
@@ -92,7 +92,7 @@ class AdminAdministerVisitorTest extends TestCase
                 'first_name' => 'Erika',
                 'name' => 'Mustermann',
                 'title' => 'Prof.',
-                'gender' => GenderEnum::Female,
+                'salutation' => SalutationEnum::Ms,
                 'email' => 'erika@example.com',
                 'phone' => '+49987654321',
                 'company' => 'Neue Firma GmbH',
@@ -105,7 +105,7 @@ class AdminAdministerVisitorTest extends TestCase
             'first_name' => 'Erika',
             'name' => 'Mustermann',
             'title' => 'Prof.',
-            'gender' => GenderEnum::Female,
+            'salutation' => SalutationEnum::Ms,
             'email' => 'erika@example.com',
             'phone' => '+49987654321',
             'company' => 'Neue Firma GmbH',
@@ -125,7 +125,7 @@ class AdminAdministerVisitorTest extends TestCase
                 'first_name' => 'Max',
                 'name' => 'Mustermann',
                 'title' => 'Dr.',
-                'gender' => GenderEnum::Male,
+                'salutation' => SalutationEnum::Mr,
                 'email' => 'max@example.com',
                 'phone' => '+49123456789',
                 'company' => 'Test GmbH',
@@ -138,7 +138,7 @@ class AdminAdministerVisitorTest extends TestCase
             'first_name' => 'Max',
             'name' => 'Mustermann',
             'title' => 'Dr.',
-            'gender' => GenderEnum::Male,
+            'salutation' => SalutationEnum::Mr,
             'email' => 'max@example.com',
             'phone' => '+49123456789',
             'company' => 'Test GmbH',
@@ -156,7 +156,7 @@ class AdminAdministerVisitorTest extends TestCase
             'first_name' => 'Erika',
             'name' => 'Mustermann',
             'title' => 'Prof.',
-            'gender' => GenderEnum::Female,
+            'salutation' => SalutationEnum::Ms,
             'email' => 'erika@example.com',
             'phone' => '+49987654321',
             'company' => 'Neue Firma GmbH',

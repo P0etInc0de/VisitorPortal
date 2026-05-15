@@ -2,7 +2,7 @@
 
 namespace App\Filament\Resources\Visitors\Schemas;
 
-use App\Enums\GenderEnum;
+use App\Enums\SalutationEnum;
 use App\Support\VisitorContactRequirement;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
@@ -23,12 +23,11 @@ class VisitorForm
                     ->required(),
                 TextInput::make('title')
                     ->label(__('Titel')),
-                Select::make('gender')
-                    ->label(__('Geschlecht'))
+                Select::make('salutation')
+                    ->label(__('Anrede'))
                     ->preload()
-                    ->options(GenderEnum::class)
-                    ->required()
-                    ->default(GenderEnum::Not_Specified),
+                    ->options(SalutationEnum::class)
+                    ->default(SalutationEnum::NotSpecified),
                 TextInput::make('email')
                     ->label(__('E-Mail'))
                     ->email()

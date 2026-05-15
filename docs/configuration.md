@@ -28,6 +28,7 @@ Docker-Hinweis:
 - Wenn fachlich erforderlich, kann genau ein Kontaktweg oder ein bestimmtes Feld erzwungen werden.
 - Abgelaufene Besuche werden nach `PRIVACY_VISIT_RETENTION_DAYS` Tagen durch `visits:purge-expired` bereinigt, sofern kein Legal Hold gesetzt ist.
 - Der Retention-Lauf unterstützt `--dry-run` für auditierbare Probeläufe ohne Datenänderung.
+- Weitere Betreiberpflichten und eine Vorlage für Besucherinformationen stehen in `PRIVACY.md`.
 
 ## Cache-Hinweise
 - In der Entwicklung `config:cache` möglichst nicht verwenden.

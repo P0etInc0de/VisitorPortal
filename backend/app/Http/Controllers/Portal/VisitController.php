@@ -96,7 +96,7 @@ class VisitController extends Controller
 
         $payload = $request->validated();
 
-        $visit = app(RecurringVisitService::class)->updateFromPayload($visit, $payload);
+        $visit = app(RecurringVisitService::class)->updateFromPayload($visit, $payload, $request->user());
 
         Log::channel('web')->info('Visit updated', [
             'visit_id' => $visit->id,
@@ -176,16 +176,18 @@ class VisitController extends Controller
             'visitors' => fn ($query) => $query->orderBy('first_name')->orderBy('name'),
         ]);
 
-        $users = User::query()
-            ->select('id', 'first_name', 'name', 'title')
-            ->whereDoesntHave('roles', fn ($query) => $query->whereIn('name', ['welcome monitor', 'welcome_monitor']))
-            ->orderBy('first_name')
-            ->orderBy('name')
-            ->get();
+        $actor = auth()->user();
+        abort_unless($actor instanceof User, 403);
+
+        $hostUsers = $this->selectableHostUsers($actor);
+        $responsibleUsers = $this->selectableResponsibleUsers();
+
         $existingVisitors = Visitor::query()
-            ->select('id', 'title', 'first_name', 'name', 'company', 'email', 'phone')
+            ->visibleTo($actor)
+            ->select('id', 'title', 'first_name', 'name', 'company')
             ->orderBy('first_name')
             ->orderBy('name')
+            ->limit(50)
             ->get();
 
         $initialParticipants = old('participants');
@@ -226,10 +228,40 @@ class VisitController extends Controller
             'isEdit' => $isEdit,
             'formAction' => $isEdit ? route('portal.visits.update', $visit) : route('portal.visits.store'),
             'formMethod' => $isEdit ? 'PATCH' : 'POST',
-            'users' => $users,
+            'hostUsers' => $hostUsers,
+            'responsibleUsers' => $responsibleUsers,
             'existingVisitors' => $existingVisitors,
             'initialParticipants' => $initialParticipants,
         ]);
+    }
+
+    private function selectableHostUsers(User $actor)
+    {
+        $query = $this->selectableUsersQuery();
+
+        if ($actor->can('ViewAny:Visit') || $actor->can('EditAny:Visit') || $actor->can('DeleteAny:Visit')) {
+            return $query->get();
+        }
+
+        if ($actor->department_id !== null && ($actor->can('ViewDepartment:Visit') || $actor->can('EditDepartment:Visit') || $actor->can('DeleteDepartment:Visit'))) {
+            return $query->where('department_id', $actor->department_id)->get();
+        }
+
+        return $query->whereKey($actor->id)->get();
+    }
+
+    private function selectableResponsibleUsers()
+    {
+        return $this->selectableUsersQuery()->get();
+    }
+
+    private function selectableUsersQuery()
+    {
+        return User::query()
+            ->select('id', 'first_name', 'name', 'title', 'department_id')
+            ->whereDoesntHave('roles', fn ($query) => $query->whereIn('name', ['welcome monitor', 'welcome_monitor']))
+            ->orderBy('first_name')
+            ->orderBy('name');
     }
 
     private function recurrenceMeta(Visit $visit): ?array

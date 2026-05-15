@@ -6,7 +6,8 @@ export const visitForm = (config) => ({
     endDateTouched: Boolean(config.endDateTouched),
     participants: config.participants ?? [],
     existingVisitors: config.existingVisitors ?? [],
-    userOptions: config.userOptions ?? [],
+    hostUserOptions: config.hostUserOptions ?? config.userOptions ?? [],
+    responsibleUserOptions: config.responsibleUserOptions ?? config.userOptions ?? [],
     hostId: config.hostId ?? '',
     responsibleUserId: config.responsibleUserId ?? '',
     userDropdownOpen: null,
@@ -44,9 +45,13 @@ export const visitForm = (config) => ({
 
     userLabel(field) {
         const selectedId = field === 'host' ? this.hostId : this.responsibleUserId;
-        const user = this.userOptions.find((option) => String(option.id) === String(selectedId));
+        const user = this.userOptionsForField(field).find((option) => String(option.id) === String(selectedId));
 
         return user?.label ?? '';
+    },
+
+    userOptionsForField(field) {
+        return field === 'host' ? this.hostUserOptions : this.responsibleUserOptions;
     },
 
     openUserDropdown(field) {
@@ -95,7 +100,7 @@ export const visitForm = (config) => ({
         const term = (this.userSearch[field] ?? '').trim().toLowerCase();
         const excludedId = field === 'host' ? this.responsibleUserId : this.hostId;
 
-        return this.userOptions
+        return this.userOptionsForField(field)
             .filter((user) => String(user.id) !== String(excludedId))
             .filter((user) => term === '' || String(user.search).toLowerCase().includes(term))
             .slice(0, 20);
@@ -151,8 +156,6 @@ export const visitForm = (config) => ({
                     visitor.full_name,
                     visitor.title,
                     visitor.company,
-                    visitor.email,
-                    visitor.phone,
                 ]
                     .filter(Boolean)
                     .join(' ')
@@ -177,8 +180,8 @@ export const visitForm = (config) => ({
             title: visitor.title ?? '',
             first_name: visitor.first_name ?? '',
             name: visitor.name ?? '',
-            email: visitor.email ?? '',
-            phone: visitor.phone ?? '',
+            email: '',
+            phone: '',
             company: visitor.company ?? '',
             is_existing: true,
             is_open: false,

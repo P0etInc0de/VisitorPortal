@@ -1,6 +1,6 @@
 <?php
 
-use App\Enums\GenderEnum;
+use App\Enums\SalutationEnum;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -16,12 +16,13 @@ return new class extends Migration
             $table->id();                                                       // primary key
             $table->string('name');
             $table->string('first_name');
-            $table->string('gender')->default(GenderEnum::Not_Specified);
+            $table->string('salutation')->default(SalutationEnum::NotSpecified->value);
             $table->string('title')->nullable();
             $table->string('email')->nullable()->unique();
             $table->string('phone', 50)->nullable()->unique();
             $table->string('company')->nullable();
             $table->text('notes')->nullable();
+            $table->foreignId('created_by_user_id')->nullable()->constrained('users')->nullOnDelete();
             $table->timestamps();                                               // creates created_at and updated_at automatically
         });
     }

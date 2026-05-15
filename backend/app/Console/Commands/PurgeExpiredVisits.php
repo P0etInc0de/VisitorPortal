@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 
 use App\Models\DataRetentionRun;
+use App\Models\MonitorSlide;
 use App\Models\Visit;
 use App\Models\Visitor;
 use Illuminate\Console\Command;
@@ -48,12 +49,25 @@ class PurgeExpiredVisits extends Command
             $visitorQuery = $dryRun
                 ? $this->potentialOrphanVisitorsQuery($cutoff, $expiredVisitIds)
                 : $this->orphanVisitorsQuery($cutoff);
-            $visitorsMatched = (clone $visitorQuery)->count();
+            $expiredVisitorIds = (clone $visitorQuery)->pluck('id');
+            $visitorsMatched = $expiredVisitorIds->count();
             $visitorsDeleted = $dryRun ? 0 : $this->deleteByChunks($visitorQuery, Visitor::class, $chunkSize);
 
             $notificationQuery = $this->expiredNotificationsQuery();
             $notificationsMatched = (clone $notificationQuery)->count();
             $notificationsDeleted = $dryRun ? 0 : $this->deleteByChunks($notificationQuery, DatabaseNotification::class, $chunkSize);
+
+            $expiredAutoMonitorSlides = $this->expiredAutoMonitorSlidesQuery($cutoff);
+            $autoMonitorSlidesMatched = (clone $expiredAutoMonitorSlides)->count();
+            $autoMonitorSlidesDeleted = $dryRun ? 0 : $this->deleteByChunks($expiredAutoMonitorSlides, MonitorSlide::class, $chunkSize);
+
+            $expiredManualMonitorSlides = $this->expiredManualMonitorSlidesQuery($cutoff);
+            $manualMonitorSlidesMatched = (clone $expiredManualMonitorSlides)->count();
+            $manualMonitorSlidesAnonymized = $dryRun ? 0 : $this->anonymizeMonitorSlidesByQuery($expiredManualMonitorSlides, $chunkSize);
+
+            $visitorReferenceSlidesMatched = $this->anonymizeMonitorSlideVisitorReferences($expiredVisitorIds, $chunkSize, true);
+            $visitorReferenceSlidesAnonymized = $dryRun ? 0 : $this->anonymizeMonitorSlideVisitorReferences($expiredVisitorIds, $chunkSize, false);
+            $indefiniteLegalHoldsMatched = (clone $this->indefiniteLegalHoldsQuery())->count();
 
             $run->update([
                 'visits_matched' => $visitsMatched,
@@ -62,16 +76,22 @@ class PurgeExpiredVisits extends Command
                 'visitors_deleted' => $visitorsDeleted,
                 'notifications_matched' => $notificationsMatched,
                 'notifications_deleted' => $notificationsDeleted,
+                'monitor_slides_matched' => $autoMonitorSlidesMatched + $manualMonitorSlidesMatched + $visitorReferenceSlidesMatched,
+                'monitor_slides_deleted' => $autoMonitorSlidesDeleted,
+                'monitor_slides_anonymized' => $manualMonitorSlidesAnonymized + $visitorReferenceSlidesAnonymized,
+                'indefinite_legal_holds_matched' => $indefiniteLegalHoldsMatched,
                 'status' => 'completed',
                 'finished_at' => now(),
             ]);
 
             $this->info(sprintf(
-                'Retention run completed%s: %d visits, %d visitors, %d notifications matched.',
+                'Retention run completed%s: %d visits, %d visitors, %d notifications, %d monitor slides matched. %d indefinite legal holds remain.',
                 $dryRun ? ' (dry-run)' : '',
                 $visitsMatched,
                 $visitorsMatched,
                 $notificationsMatched,
+                $autoMonitorSlidesMatched + $manualMonitorSlidesMatched + $visitorReferenceSlidesMatched,
+                $indefiniteLegalHoldsMatched,
             ));
 
             return self::SUCCESS;
@@ -143,6 +163,81 @@ class PurgeExpiredVisits extends Command
 
         return DatabaseNotification::query()
             ->where('created_at', '<', now()->subDays($days));
+    }
+
+    private function expiredAutoMonitorSlidesQuery(Carbon $cutoff): Builder
+    {
+        return MonitorSlide::query()
+            ->where('is_auto_generated', true)
+            ->where('updated_at', '<', $cutoff);
+    }
+
+    private function expiredManualMonitorSlidesQuery(Carbon $cutoff): Builder
+    {
+        return MonitorSlide::query()
+            ->where('is_auto_generated', false)
+            ->where('updated_at', '<', $cutoff)
+            ->whereNotNull('visitors');
+    }
+
+    private function indefiniteLegalHoldsQuery(): Builder
+    {
+        return Visit::query()
+            ->whereNotNull('retention_hold_reason')
+            ->whereNull('retention_hold_until');
+    }
+
+    private function anonymizeMonitorSlidesByQuery(Builder $query, int $chunkSize): int
+    {
+        $anonymized = 0;
+
+        (clone $query)
+            ->select('id')
+            ->chunkById($chunkSize, function (Collection $records) use (&$anonymized): void {
+                $anonymized += MonitorSlide::query()
+                    ->whereKey($records->pluck('id'))
+                    ->update(['visitors' => null]);
+            });
+
+        return $anonymized;
+    }
+
+    /**
+     * @param  Collection<int, int>  $visitorIds
+     */
+    private function anonymizeMonitorSlideVisitorReferences(Collection $visitorIds, int $chunkSize, bool $dryRun): int
+    {
+        if ($visitorIds->isEmpty()) {
+            return 0;
+        }
+
+        $visitorIdSet = array_flip($visitorIds->map(fn ($id) => (int) $id)->all());
+        $changedSlides = 0;
+
+        MonitorSlide::query()
+            ->whereNotNull('visitors')
+            ->select(['id', 'visitors'])
+            ->chunkById($chunkSize, function (Collection $slides) use ($visitorIdSet, $dryRun, &$changedSlides): void {
+                foreach ($slides as $slide) {
+                    $visitors = is_array($slide->visitors) ? $slide->visitors : [];
+                    $filteredVisitors = collect($visitors)
+                        ->reject(fn ($visitor) => is_array($visitor) && isset($visitorIdSet[(int) ($visitor['id'] ?? 0)]))
+                        ->values()
+                        ->all();
+
+                    if (count($filteredVisitors) === count($visitors)) {
+                        continue;
+                    }
+
+                    $changedSlides++;
+
+                    if (! $dryRun) {
+                        $slide->forceFill(['visitors' => $filteredVisitors === [] ? null : $filteredVisitors])->save();
+                    }
+                }
+            });
+
+        return $changedSlides;
     }
 
     /**

@@ -20,6 +20,10 @@ return new class extends Migration
             $table->unsignedInteger('visitors_deleted')->default(0);
             $table->unsignedInteger('notifications_matched')->default(0);
             $table->unsignedInteger('notifications_deleted')->default(0);
+            $table->unsignedInteger('monitor_slides_matched')->default(0);
+            $table->unsignedInteger('monitor_slides_deleted')->default(0);
+            $table->unsignedInteger('monitor_slides_anonymized')->default(0);
+            $table->unsignedInteger('indefinite_legal_holds_matched')->default(0);
             $table->string('status')->default('running');
             $table->text('error_message')->nullable();
             $table->timestamp('started_at')->nullable();

@@ -50,7 +50,7 @@
                             name="status"
                             class="select select-bordered w-full @error('status') select-error @enderror"
                         >
-                            @foreach (\App\Enums\VisitStatusEnum::options() as $value => $label)
+                            @foreach ($statusOptions as $value => $label)
                                 <option value="{{ $value }}" @selected(old('status', $visit->status ?: \App\Enums\VisitStatusEnum::Planned->value) === $value)>
                                     {{ $label }}
                                 </option>

@@ -103,7 +103,7 @@ class CheckInOutBoard extends Component
         $hostId = (int) $payload['walkInHostId'];
 
         [$visit, $visitor] = DB::transaction(function () use ($payload, $user, $hostId) {
-            $visitor = $this->resolveWalkInVisitor($payload['walkIn']);
+            $visitor = $this->resolveWalkInVisitor($payload['walkIn'], $user);
             $visit = $this->createWalkInVisit($visitor, $user, $hostId);
 
             $visit->visitors()->syncWithoutDetaching([
@@ -324,7 +324,7 @@ class CheckInOutBoard extends Component
     /**
      * @param  array<string, string|null>  $payload
      */
-    private function resolveWalkInVisitor(array $payload): Visitor
+    private function resolveWalkInVisitor(array $payload, User $actor): Visitor
     {
         $email = $this->normalizeText($payload['email'] ?? null);
         $phone = $this->normalizeText($payload['phone'] ?? null);
@@ -349,6 +349,7 @@ class CheckInOutBoard extends Component
             'phone' => $phone,
             'company' => $this->normalizeText($payload['company'] ?? null),
             'notes' => null,
+            'created_by_user_id' => $actor->id,
         ]);
     }
 

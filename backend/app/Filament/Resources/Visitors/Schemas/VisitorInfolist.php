@@ -17,8 +17,8 @@ class VisitorInfolist
                     ->label(__('Nachname')),
                 TextEntry::make('title')
                     ->label(__('Titel')),
-                TextEntry::make('gender')
-                    ->label(__('Geschlecht')),
+                TextEntry::make('salutation')
+                    ->label(__('Anrede')),
                 TextEntry::make('email')
                     ->label(__('E-Mail')),
                 TextEntry::make('phone')

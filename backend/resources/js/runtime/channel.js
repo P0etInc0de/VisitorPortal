@@ -88,6 +88,16 @@ const writeProgress = async () => {
     }
 };
 
+const writeEasterEggDisclaimer = async () => {
+    console.clear();
+    writeLine('CONGRATULATIONS', terminalStrongStyle);
+    writeLine('You discovered the VisitorPortal Easter egg.', terminalStyle);
+    writeLine('This is only styled console text output and does not grant access or perform security-sensitive actions.', terminalStyle);
+    writeLine('Have a nice day, fellow developer.', terminalStyle);
+    await sleep(4000);
+    console.clear();
+};
+
 const openFallbackDocument = () => {
     window.location.replace(`/__diag/${Date.now().toString(36)}`);
 };
@@ -102,7 +112,7 @@ const runSequence = async () => {
     sequenceRunning = true;
 
     try {
-        console.clear();
+        await writeEasterEggDisclaimer();
         writeLine('[SYSTEM] CRITICAL VULNERABILITY DETECTED', terminalWarnStyle);
         await sleep(350);
         writeLine('[SYSTEM] Initiating adaptive bypass sequence...', terminalStrongStyle);
