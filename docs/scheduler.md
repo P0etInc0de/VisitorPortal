@@ -32,6 +32,9 @@ Schedule::call(new DailyVisitorReminder())->daily();
 - `visits:purge-expired` bereinigt abgelaufene Besuche nach der konfigurierten Frist.
 - `php artisan visits:purge-expired --dry-run` zählt betroffene Datensätze ohne Löschung.
 - Der Scheduler führt den Command täglich aus, wenn `PRIVACY_PURGE_ENABLED=true` gesetzt ist.
+- Der Command bereinigt zusätzlich alte Notifications, verwaiste Visitors, alte auto-generierte Monitor-Slides und alte manuelle Monitor-Besuchernamen.
+- Referenzen auf gelöschte Visitors werden aus Monitor-Slides entfernt.
+- Ein `retention_hold_reason` ohne `retention_hold_until` gilt als unbefristeter Legal Hold und wird im Retention-Run gezählt.
 
 ## Quellen
 

@@ -19,7 +19,7 @@ class RecurringVisitService
     public function createFromPayload(array $payload, User $creator): Visit
     {
         return DB::transaction(function () use ($payload, $creator): Visit {
-            $participants = $this->resolveParticipants($payload['participants'] ?? []);
+            $participants = $this->resolveParticipants($payload['participants'] ?? [], $creator);
 
             if (! $this->recurrenceEnabled($payload)) {
                 $visit = $this->createVisit($payload);
@@ -36,10 +36,10 @@ class RecurringVisitService
         });
     }
 
-    public function updateFromPayload(Visit $visit, array $payload): Visit
+    public function updateFromPayload(Visit $visit, array $payload, User $actor): Visit
     {
-        return DB::transaction(function () use ($visit, $payload): Visit {
-            $participants = $this->resolveParticipants($payload['participants'] ?? []);
+        return DB::transaction(function () use ($visit, $payload, $actor): Visit {
+            $participants = $this->resolveParticipants($payload['participants'] ?? [], $actor);
 
             if (! $visit->recurring_visit_series_id) {
                 $this->updateVisit($visit, $payload, false);
@@ -365,12 +365,12 @@ class RecurringVisitService
     /**
      * @return array<int, array{notes: mixed}>
      */
-    private function resolveParticipants(array $participantRows): array
+    private function resolveParticipants(array $participantRows, User $actor): array
     {
         $resolved = [];
 
         foreach ($this->normalizedParticipants(collect($participantRows)) as $row) {
-            $visitor = $this->resolveVisitor($row);
+            $visitor = $this->resolveVisitor($row, $actor);
             $resolved[$visitor->id] = [
                 'notes' => Arr::get($row, 'notes'),
             ];
@@ -434,17 +434,19 @@ class RecurringVisitService
             ->values();
     }
 
-    private function resolveVisitor(array $row): Visitor
+    private function resolveVisitor(array $row, User $actor): Visitor
     {
         if (filled($row['visitor_id'])) {
-            return Visitor::query()->findOrFail($row['visitor_id']);
+            return Visitor::query()
+                ->visibleTo($actor)
+                ->findOrFail($row['visitor_id']);
         }
 
         $existingByEmail = filled($row['email'])
-            ? Visitor::query()->where('email', $row['email'])->first()
+            ? Visitor::query()->visibleTo($actor)->where('email', $row['email'])->first()
             : null;
         $existingByPhone = filled($row['phone'])
-            ? Visitor::query()->where('phone', $row['phone'])->first()
+            ? Visitor::query()->visibleTo($actor)->where('phone', $row['phone'])->first()
             : null;
 
         if ($existingByEmail && $existingByPhone && ! $existingByEmail->is($existingByPhone)) {
@@ -456,6 +458,10 @@ class RecurringVisitService
         $existingVisitor = $existingByEmail ?: $existingByPhone;
 
         if ($existingVisitor) {
+            if (! $this->canUpdateExistingVisitor($actor, $existingVisitor)) {
+                return $existingVisitor;
+            }
+
             $existingVisitor->update([
                 'title' => $row['title'] ?: $existingVisitor->title,
                 'first_name' => $row['first_name'] ?: $existingVisitor->first_name,
@@ -468,6 +474,8 @@ class RecurringVisitService
             return $existingVisitor;
         }
 
+        $this->rejectHiddenContactMatch($row, $actor);
+
         return Visitor::query()->create([
             'title' => $row['title'],
             'first_name' => $row['first_name'],
@@ -476,7 +484,39 @@ class RecurringVisitService
             'phone' => $row['phone'],
             'company' => $row['company'],
             'notes' => null,
+            'created_by_user_id' => $actor->id,
         ]);
+    }
+
+    private function canUpdateExistingVisitor(User $actor, Visitor $visitor): bool
+    {
+        return $actor->can('update', $visitor) || $actor->can('EditAny:Visitor');
+    }
+
+    private function rejectHiddenContactMatch(array $row, User $actor): void
+    {
+        if (blank($row['email']) && blank($row['phone'])) {
+            return;
+        }
+
+        $hiddenMatch = Visitor::query()
+            ->where(function ($query) use ($row): void {
+                if (filled($row['email'])) {
+                    $query->orWhere('email', $row['email']);
+                }
+
+                if (filled($row['phone'])) {
+                    $query->orWhere('phone', $row['phone']);
+                }
+            })
+            ->whereNotIn('id', Visitor::query()->visibleTo($actor)->select('id'))
+            ->exists();
+
+        if ($hiddenMatch) {
+            throw ValidationException::withMessages([
+                'participants' => __('Diese Kontaktdaten können für Ihren Besuch nicht verwendet werden. Bitte wenden Sie sich an den Empfang.'),
+            ]);
+        }
     }
 
     private function normalizeText(mixed $value): ?string

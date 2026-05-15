@@ -2,7 +2,7 @@
 
 namespace Database\Factories;
 
-use App\Enums\GenderEnum;
+use App\Enums\SalutationEnum;
 use App\Models\Visitor;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
@@ -27,7 +27,7 @@ class VisitorFactory extends Factory
             'phone' => fake()->phoneNumber(),
             'company' => fake()->company(),
             'notes' => null,
-            'gender' => GenderEnum::Male,
+            'salutation' => SalutationEnum::Mr,
             'title' => 'Dr.',
         ];
     }

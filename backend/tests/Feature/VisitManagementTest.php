@@ -145,7 +145,7 @@ class VisitManagementTest extends TestCase
     {
         $user = (new PermissionHelper)->getUser();
         $responsible = (new PermissionHelper)->getUser();
-        $participant = Visitor::factory()->create();
+        $participant = Visitor::factory()->create(['created_by_user_id' => $user->id]);
 
         $response = $this
             ->actingAs($user)
@@ -187,7 +187,7 @@ class VisitManagementTest extends TestCase
     {
         $user = (new PermissionHelper)->getUser();
         $responsible = (new PermissionHelper)->getUser();
-        $participant = Visitor::factory()->create();
+        $participant = Visitor::factory()->create(['created_by_user_id' => $user->id]);
 
         $this
             ->actingAs($user)
@@ -249,7 +249,7 @@ class VisitManagementTest extends TestCase
         try {
             $user = (new PermissionHelper)->getUser();
             $responsible = (new PermissionHelper)->getUser();
-            $participant = Visitor::factory()->create();
+            $participant = Visitor::factory()->create(['created_by_user_id' => $user->id]);
 
             $this
                 ->actingAs($user)

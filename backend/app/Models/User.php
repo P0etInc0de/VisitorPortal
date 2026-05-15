@@ -77,7 +77,7 @@ class User extends Authenticatable implements FilamentUser
 
     public function canceledVisits(): HasMany
     {
-        return $this->hasMany(Visit::class, 'canceled_user_id'); // Relationship to visits table canceled_user_id
+        return $this->hasMany(Visit::class, 'canceled_by_user_id');
     }
 
     public function performedCheckIns(): HasMany

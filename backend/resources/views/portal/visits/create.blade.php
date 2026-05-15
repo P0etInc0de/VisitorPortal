@@ -30,6 +30,13 @@
         \App\Support\VisitorContactRequirement::REQUIRE_PHONE => __('Bitte Telefonnummer angeben.'),
         default => null,
     };
+    $canSetAnyVisitStatus = auth()->user()?->can('ViewAny:Visit') || auth()->user()?->can('EditAny:Visit');
+    $statusOptions = collect(\App\Enums\VisitStatusEnum::options())
+        ->when(! $canSetAnyVisitStatus, fn ($options) => $options->only([
+            \App\Enums\VisitStatusEnum::Planned->value,
+            \App\Enums\VisitStatusEnum::Draft->value,
+        ]))
+        ->all();
 
     $beginDate = $scheduledFromValue ? substr($scheduledFromValue, 0, 10) : '';
     $beginTime = $scheduledFromValue ? substr($scheduledFromValue, 11, 5) : '';
@@ -55,8 +62,6 @@
                     $visitor->name,
                 ]))) . (filled($visitor->title) ? ', '.$visitor->title : ''),
                 'company' => $visitor->company,
-                'email' => $visitor->email,
-                'phone' => $visitor->phone,
             ];
         })
         ->values();
@@ -64,15 +69,26 @@
     $hostUserIdValue = (string) old('user_id', $visit->user_id ?: auth()->id());
     $responsibleUserIdValue = (string) old('responsible_user_id', $visit->responsible_user_id);
 
-    if (! $users->contains('id', (int) $hostUserIdValue)) {
-        $hostUserIdValue = (string) ($users->first()?->id ?? '');
+    if (! $hostUsers->contains('id', (int) $hostUserIdValue)) {
+        $hostUserIdValue = (string) ($hostUsers->first()?->id ?? '');
     }
 
-    if (! $users->contains('id', (int) $responsibleUserIdValue) || $responsibleUserIdValue === $hostUserIdValue) {
+    if (! $responsibleUsers->contains('id', (int) $responsibleUserIdValue) || $responsibleUserIdValue === $hostUserIdValue) {
         $responsibleUserIdValue = '';
     }
 
-    $userOptions = $users
+    $hostUserOptions = $hostUsers
+        ->map(fn ($user) => [
+            'id' => (string) $user->id,
+            'label' => $user->fullName,
+            'search' => trim(implode(' ', array_filter([
+                $user->fullName,
+                $user->title,
+            ]))),
+        ])
+        ->values();
+
+    $responsibleUserOptions = $responsibleUsers
         ->map(fn ($user) => [
             'id' => (string) $user->id,
             'label' => $user->fullName,
@@ -91,7 +107,8 @@
         'endDateTouched' => filled($endDate),
         'participants' => $initialParticipants,
         'existingVisitors' => $existingVisitorOptions,
-        'userOptions' => $userOptions,
+        'hostUserOptions' => $hostUserOptions,
+        'responsibleUserOptions' => $responsibleUserOptions,
         'hostId' => $hostUserIdValue,
         'responsibleUserId' => $responsibleUserIdValue,
         'recurrenceEnabled' => filter_var($recurrenceEnabledValue, FILTER_VALIDATE_BOOL),

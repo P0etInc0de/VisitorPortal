@@ -98,7 +98,7 @@
                             type="text"
                             class="input input-bordered w-full"
                             x-model="search"
-                            placeholder="{{ __('Name, Firma oder E-Mail eingeben') }}"
+                            placeholder="{{ __('Name oder Firma eingeben') }}"
                         >
                     </label>
 
@@ -114,7 +114,7 @@
                                     >
                                         <div>
                                             <div class="font-medium text-base-content" x-text="visitor.full_name"></div>
-                                            <div class="mt-1 text-sm text-base-content/65" x-text="[visitor.company, visitor.email].filter(Boolean).join(' · ')"></div>
+                                            <div class="mt-1 text-sm text-base-content/65" x-text="visitor.company || ''"></div>
                                         </div>
                                         <div class="text-xs font-medium uppercase tracking-wide text-base-content/45" x-text="hasParticipant(visitor.id) ? '{{ __('Bereits hinzugefügt') }}' : '{{ __('Auswählen') }}'"></div>
                                     </button>

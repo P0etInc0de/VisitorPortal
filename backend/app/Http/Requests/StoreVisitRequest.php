@@ -86,6 +86,8 @@ class StoreVisitRequest extends FormRequest
     {
         $validator->after(function (Validator $validator) {
             $this->validateSelectableUsers($validator);
+            $this->validateStatusSelection($validator);
+            $this->validateParticipantVisibility($validator);
             $this->validateParticipantContactRequirement($validator);
 
             if ($this->recurrenceEnabled()) {
@@ -157,6 +159,14 @@ class StoreVisitRequest extends FormRequest
 
     private function validateSelectableUsers(Validator $validator): void
     {
+        $user = $this->user();
+
+        if (! $user instanceof User) {
+            $validator->errors()->add('user_id', __('Bitte melden Sie sich erneut an.'));
+
+            return;
+        }
+
         $userIds = collect([$this->input('user_id'), $this->input('responsible_user_id')])
             ->filter(fn ($userId) => filled($userId))
             ->map(fn ($userId) => (int) $userId)
@@ -180,6 +190,77 @@ class StoreVisitRequest extends FormRequest
         if ($welcomeMonitorIds->contains((int) $this->input('responsible_user_id'))) {
             $validator->errors()->add('responsible_user_id', __('Der WelcomeMonitor kann nicht als Vertretung ausgewählt werden.'));
         }
+
+        $hostId = (int) $this->input('user_id');
+
+        if ($this->canSelectAnyHost($user)) {
+            return;
+        }
+
+        if ($this->canSelectDepartmentHost($user)) {
+            $hostIsInDepartment = User::query()
+                ->whereKey($hostId)
+                ->where('department_id', $user->department_id)
+                ->exists();
+
+            if (! $hostIsInDepartment) {
+                $validator->errors()->add('user_id', __('Sie können nur Hosts aus Ihrer Abteilung auswählen.'));
+            }
+
+            return;
+        }
+
+        if ($hostId !== $user->id) {
+            $validator->errors()->add('user_id', __('Sie können Besuche nur für sich selbst anlegen oder bearbeiten.'));
+        }
+    }
+
+    private function validateStatusSelection(Validator $validator): void
+    {
+        $user = $this->user();
+
+        if ($user instanceof User && ($user->can('ViewAny:Visit') || $user->can('EditAny:Visit'))) {
+            return;
+        }
+
+        if (! in_array($this->input('status'), [VisitStatusEnum::Planned->value, VisitStatusEnum::Draft->value], true)) {
+            $validator->errors()->add('status', __('Dieser Status darf nur über die vorgesehenen Aktionen gesetzt werden.'));
+        }
+    }
+
+    private function validateParticipantVisibility(Validator $validator): void
+    {
+        $user = $this->user();
+
+        if (! $user instanceof User) {
+            return;
+        }
+
+        foreach ($this->input('participants', []) as $index => $participant) {
+            if (! is_array($participant) || blank($participant['visitor_id'] ?? null)) {
+                continue;
+            }
+
+            $isVisible = Visitor::query()
+                ->visibleTo($user)
+                ->whereKey((int) $participant['visitor_id'])
+                ->exists();
+
+            if (! $isVisible) {
+                $validator->errors()->add("participants.{$index}.visitor_id", __('Dieser Besucher kann für Ihren Besuch nicht verwendet werden.'));
+            }
+        }
+    }
+
+    private function canSelectAnyHost(User $user): bool
+    {
+        return $user->can('ViewAny:Visit') || $user->can('EditAny:Visit') || $user->can('DeleteAny:Visit');
+    }
+
+    private function canSelectDepartmentHost(User $user): bool
+    {
+        return $user->department_id !== null
+            && ($user->can('ViewDepartment:Visit') || $user->can('EditDepartment:Visit') || $user->can('DeleteDepartment:Visit'));
     }
 
     private function validateParticipantContactRequirement(Validator $validator): void
@@ -221,9 +302,13 @@ class StoreVisitRequest extends FormRequest
 
         // Existing participants may provide contact data through the stored visitor record.
         if (filled($participant['visitor_id'] ?? null)) {
-            $visitor = Visitor::query()
-                ->select('id', 'email', 'phone')
-                ->find((int) $participant['visitor_id']);
+            $user = $this->user();
+            $visitor = $user instanceof User
+                ? Visitor::query()
+                    ->visibleTo($user)
+                    ->select('id', 'email', 'phone')
+                    ->find((int) $participant['visitor_id'])
+                : null;
 
             $email ??= $visitor?->email;
             $phone ??= $visitor?->phone;

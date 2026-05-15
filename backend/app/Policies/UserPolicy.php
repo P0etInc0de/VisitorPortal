@@ -57,17 +57,23 @@ class UserPolicy
 
     public function viewDepartment(User $user, User $requested_user): bool
     {
-        return $user->can('ViewDepartment:User') && $user->department_id === $requested_user->department_id;
+        return $user->can('ViewDepartment:User')
+            && $user->department_id !== null
+            && $user->department_id === $requested_user->department_id;
     }
 
     public function editDepartment(User $user, User $requested_user): bool
     {
-        return $user->can('EditDepartment:User') && $user->department_id === $requested_user->department_id;
+        return $user->can('EditDepartment:User')
+            && $user->department_id !== null
+            && $user->department_id === $requested_user->department_id;
     }
 
     public function deleteDepartment(User $user, User $requested_user): bool
     {
-        return $user->can('DeleteDepartment:User') && $user->department_id === $requested_user->department_id;
+        return $user->can('DeleteDepartment:User')
+            && $user->department_id !== null
+            && $user->department_id === $requested_user->department_id;
     }
 
     public function deactivateAny(User $user): bool
@@ -77,7 +83,9 @@ class UserPolicy
 
     public function deactivateDepartment(User $user, User $requested_user): bool
     {
-        return $user->can('DeactivateDepartment:User') && $user->department_id === $requested_user->department_id;
+        return $user->can('DeactivateDepartment:User')
+            && $user->department_id !== null
+            && $user->department_id === $requested_user->department_id;
     }
 
     public function editAny(User $user): bool

@@ -68,9 +68,8 @@ class UserAdministerVisitTest extends TestCase
         // create necessary instances
         $visitTitle = 'Test Visit';
 
-        $participant = Visitor::Factory()->create();
-
         $user = (new PermissionHelper)->getUser();
+        $participant = Visitor::Factory()->create(['created_by_user_id' => $user->id]);
 
         $responsibleUser = (new PermissionHelper)->getUser();
 
