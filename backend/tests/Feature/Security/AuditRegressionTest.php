@@ -186,6 +186,16 @@ class AuditRegressionTest extends TestCase
             ->assertForbidden();
     }
 
+    public function test_security_headers_keep_livewire_compatible_csp(): void
+    {
+        $response = $this->get(route('login'))->assertOk();
+        $csp = (string) $response->headers->get('Content-Security-Policy');
+
+        $this->assertStringContainsString("script-src 'self' 'unsafe-inline' 'unsafe-eval'", $csp);
+        $this->assertStringContainsString("object-src 'none'", $csp);
+        $this->assertStringContainsString("frame-ancestors 'self'", $csp);
+    }
+
     public function test_regular_user_cannot_call_reception_check_in_route(): void
     {
         $user = (new PermissionHelper)->getUserUser();

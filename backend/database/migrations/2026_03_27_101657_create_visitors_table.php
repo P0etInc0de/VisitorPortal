@@ -1,6 +1,5 @@
 <?php
 
-use App\Enums\SalutationEnum;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -16,7 +15,7 @@ return new class extends Migration
             $table->id();                                                       // primary key
             $table->string('name');
             $table->string('first_name');
-            $table->string('salutation')->default(SalutationEnum::NotSpecified->value);
+            $table->string('salutation')->default('not_specified');
             $table->string('title')->nullable();
             $table->string('email')->nullable()->unique();
             $table->string('phone', 50)->nullable()->unique();
