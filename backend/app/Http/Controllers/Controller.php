@@ -14,12 +14,10 @@ abstract class Controller extends BaseController
 
     protected function authorizeAny(array $abilities, mixed $model): void
     {
-        foreach ($abilities as $ability) {
-            if (! Gate::allows($ability, $model)) {
-                Log::channel('web')->info('Authorization failed.', SafeLogContext::authorization(auth()->user(), $ability, $model));
+        if (! Gate::any($abilities, $model)) {
+            Log::channel('web')->info('Authorization failed.', SafeLogContext::authorization(auth()->user(), implode('|', $abilities), $model));
 
-                abort(403);
-            }
+            abort(403);
         }
     }
 

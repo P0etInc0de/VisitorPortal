@@ -3,7 +3,6 @@
 namespace App\Filament\Resources\Visitors\Schemas;
 
 use App\Enums\GenderEnum;
-use App\Enums\VisitorStatusEnum;
 use App\Support\VisitorContactRequirement;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
@@ -46,11 +45,6 @@ class VisitorForm
                     ->unique(ignoreRecord: true),
                 TextInput::make('company')
                     ->label(__('Firma')),
-                Select::make('status')
-                    ->label(__('Status'))
-                    ->options(VisitorStatusEnum::class)
-                    ->default(VisitorStatusEnum::Planned)
-                    ->preload(),
                 Textarea::make('notes')
                     ->label(__('Notizen'))
                     ->maxLength(1000)

@@ -40,6 +40,11 @@ class CheckInOutBoard extends Component
         'company' => '',
     ];
 
+    public function mount(): void
+    {
+        $this->authorize('viewAny', Visit::class);
+    }
+
     public function checkIn(int $visitId, int $visitorId): void
     {
         $this->authorize('viewAny', Visit::class);
@@ -66,6 +71,7 @@ class CheckInOutBoard extends Component
 
     public function printBadge(int $visitId, int $visitorId): void
     {
+        $this->authorize('viewAny', Visit::class);
         $this->authorize('print', Visitor::class);
 
         [$visit, $visitor] = $this->resolveActionContext($visitId, $visitorId);
@@ -78,6 +84,11 @@ class CheckInOutBoard extends Component
         $this->authorize('viewAny', Visit::class);
         $this->authorize('create', Visit::class);
         $this->authorize('create', Visitor::class);
+        $this->authorize('checkIn', Visitor::class);
+
+        if ($printBadge) {
+            $this->authorize('print', Visitor::class);
+        }
 
         $payload = $this->validate([
             ...$this->walkInRules(),

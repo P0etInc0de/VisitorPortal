@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('visits', function (Blueprint $table) {
             $table->id(); // primary key
             $table->foreignId('user_id')->constrained('users')->restrictOnDelete(); // foreign key, user cannot be deleted if visit exists
-            $table->foreignId('responsible_user_id')->constrained('users')->restrictOnDelete(); // foreign key, user cannot be deleted if visit exists
+            $table->foreignId('responsible_user_id')->nullable()->constrained('users')->nullOnDelete();
             $table->string('title')->nullable();
             $table->datetime('scheduled_from');
             $table->datetime('scheduled_until');

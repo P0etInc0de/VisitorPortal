@@ -159,6 +159,7 @@ class AllVisitsPage extends Component
 
     public function printBadge(int $visitId, int $visitorId): void
     {
+        $this->authorize('viewAny', Visit::class);
         $this->authorize('print', Visitor::class);
 
         $visit = $this->loadVisitParticipantPair($visitId, $visitorId);

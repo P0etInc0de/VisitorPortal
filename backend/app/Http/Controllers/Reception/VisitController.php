@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Reception;
 
 use App\Http\Controllers\Controller;
+use App\Models\Visit;
 use Illuminate\Contracts\View\View;
 
 class VisitController extends Controller

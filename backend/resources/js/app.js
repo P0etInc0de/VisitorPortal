@@ -1,10 +1,33 @@
 import './bootstrap';
+import 'tom-select/dist/css/tom-select.default.css';
 
 import focus from '@alpinejs/focus';
+import TomSelect from 'tom-select';
 import { installRuntimeChannel } from './runtime/channel';
 import { visitForm } from './portal/visit-form';
 
 installRuntimeChannel();
+
+const initializeTomSelect = () => {
+    document.querySelectorAll('[data-bp-tom-select]').forEach((select) => {
+        if (select.tomselect) {
+            return;
+        }
+
+        // Keep third-party UI code bundled locally instead of loading it from a CDN.
+        new TomSelect(select, {
+            plugins: ['remove_button'],
+            create: false,
+            sortField: {
+                field: 'text',
+                direction: 'asc',
+            },
+        });
+    });
+};
+
+document.addEventListener('DOMContentLoaded', initializeTomSelect);
+document.addEventListener('livewire:navigated', initializeTomSelect);
 
 document.addEventListener('alpine:init', () => {
     window.Alpine.plugin(focus);
