@@ -153,3 +153,47 @@ Kurze Architekturentscheidungen und Begründungen für das Projekt **VisitorPort
   - GitHub Repository Spatie Laravel PDF: https://github.com/spatie/laravel-pdf
   - Gotenberg: https://gotenberg.dev/
   - GitHub Repository Gotenberg: https://github.com/gotenberg/gotenberg
+
+  ## ADR-007 Optionale Kontaktdaten für Besucher
+
+- **Datum:** 2026-05-15
+- **Status:** Accepted
+- **Entscheidung:**
+  - Das System erzwingt standardmäßig **keine E-Mail-Adresse** und **keine Telefonnummer** für Besucher.
+  - Beide Felder werden im Besucherdatensatz als **optional** geführt.
+  - Die eindeutige technische Identifikation von Besuchern erfolgt über interne technische IDs, nicht über E-Mail-Adresse oder Telefonnummer.
+  - Eine automatische Deduplizierung über E-Mail oder Telefonnummer wird nicht vorausgesetzt.
+  - Die Suche nach bestehenden Besuchern kann unterstützend über Name, Firma und weitere vorhandene Angaben erfolgen.
+  - Potenzielle Dubletten werden fachlich akzeptiert, sofern die Zuordnung zum konkreten Besuch weiterhin eindeutig ist.
+  - Für Betreiber, Standorte oder Einsatzszenarien mit dokumentierter fachlicher Notwendigkeit kann konfiguriert werden, dass mindestens eine Kontaktmöglichkeit erforderlich ist.
+  - Standardkonfiguration:
+    - E-Mail: optional
+    - Telefon: optional
+    - Kontaktpflicht: deaktiviert
+
+- **Begründung:**
+  - Nicht jeder Besuchsfall erfordert eine direkte Kontaktaufnahme mit dem Besucher.
+  - Besonders bei Walk-ins, Handwerkern, Lieferanten oder Begleitpersonen ist es in der Empfangspraxis nicht immer realistisch oder erforderlich, eine E-Mail-Adresse oder Telefonnummer zu erfassen.
+  - Werden Kontaktfelder ohne zwingenden fachlichen Zweck verpflichtend gemacht, besteht das Risiko, dass am Empfang Platzhalterwerte oder erfundene Daten eingetragen werden, z. B. `keine@mail.de` oder `000000`.
+  - Dadurch würde die Datenqualität sinken und der DSGVO-Grundsatz der Richtigkeit personenbezogener Daten beeinträchtigt.
+  - Die DSGVO fordert, dass personenbezogene Daten dem Zweck angemessen und auf das notwendige Maß beschränkt sind. Eine verpflichtende Erhebung von Kontaktdaten allein zur technischen Deduplizierung ist daher nicht ausreichend begründet.
+  - Die technische Eindeutigkeit wird bereits über interne Datenbank-IDs sichergestellt.
+  - Für das Besuchermanagement ist eine perfekte automatische Deduplizierung nicht zwingend erforderlich, solange der konkrete Besuch, der Host, der Check-in-Status und der Besuchszeitraum korrekt dokumentiert werden.
+  - Eine datenschutzfreundliche Standardkonfiguration entspricht dem Prinzip Privacy by Default.
+  - Wenn ein Betreiber aus Sicherheits-, Organisations- oder Prozessgründen eine Kontaktmöglichkeit benötigt, kann diese Anforderung bewusst aktiviert und in der Datenschutzinformation entsprechend beschrieben werden.
+
+- **Konfiguration:**
+  - Die Kontaktpflicht wird konfigurierbar umgesetzt.
+  - Für das MVP kann die Konfiguration über eine Umgebungsvariable oder zentrale Konfigurationsdatei erfolgen.
+  - Für einen produktiven oder mandantenfähigen Betrieb sollte die Einstellung später über den Adminbereich pro Betreiber oder Standort verwaltbar sein.
+
+  Beispiel für eine einfache Konfiguration:
+
+  ```env
+  VISITOR_CONTACT_REQUIREMENT=optional
+
+  Mögliche Werte:
+  - optional
+  - require_one
+  - require_email
+  - require_phone
