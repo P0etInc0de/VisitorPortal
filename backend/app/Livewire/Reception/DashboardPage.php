@@ -34,6 +34,7 @@ class DashboardPage extends Component
 
     public function checkIn(int $visitId, int $visitorId): void
     {
+        $this->authorize('viewAny', Visit::class);
         $this->authorize('checkIn', Visitor::class);
 
         $visit = $this->loadVisitParticipantPair($visitId, $visitorId);
@@ -55,6 +56,7 @@ class DashboardPage extends Component
 
     public function checkOut(int $visitId, int $visitorId): void
     {
+        $this->authorize('viewAny', Visit::class);
         $this->authorize('checkOut', Visitor::class);
 
         $visit = $this->loadVisitParticipantPair($visitId, $visitorId);
@@ -76,6 +78,7 @@ class DashboardPage extends Component
 
     public function printBadge(int $visitId, int $visitorId): void
     {
+        $this->authorize('viewAny', Visit::class);
         $this->authorize('print', Visitor::class);
 
         $visit = $this->loadVisitParticipantPair($visitId, $visitorId);

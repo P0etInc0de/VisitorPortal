@@ -4,6 +4,9 @@
             <h2 class="text-2xl font-semibold tracking-tight text-base-content">
                 {{ __('Besucher_Teilnehmende') }} {{ $requiredMarker }}
             </h2>
+            @if ($visitorContactHint)
+                <p class="mt-2 text-sm text-base-content/65">{{ $visitorContactHint }}</p>
+            @endif
         </div>
 
         <div class="mt-4 rounded-2xl border border-base-300 bg-base-100">
@@ -167,7 +170,7 @@
 
                             <label class="form-control xl:col-span-4">
                                 <div class="label px-0 pb-2">
-                                    <span class="label-text text-sm font-medium text-base-content">{{ __('Firma') }} {{ $requiredMarker }}</span>
+                                    <span class="label-text text-sm font-medium text-base-content">{{ __('Firma') }}</span>
                                 </div>
                                 <input
                                     type="text"
@@ -178,12 +181,13 @@
 
                             <label class="form-control xl:col-span-6">
                                 <div class="label px-0 pb-2">
-                                    <span class="label-text text-sm font-medium text-base-content">{{ __('E-Mail') }} {{ $requiredMarker }}</span>
+                                    <span class="label-text text-sm font-medium text-base-content">{{ __('E-Mail') }} {{ $emailRequiredMarker }}</span>
                                 </div>
                                 <input
                                     type="email"
                                     class="input input-bordered w-full"
                                     x-model="draftParticipant.email"
+                                    maxlength="255"
                                 >
                                 <div
                                     x-show="(draftParticipant.email || '').trim() && !draftParticipantEmailIsValid()"
@@ -197,12 +201,13 @@
 
                             <label class="form-control xl:col-span-6">
                                 <div class="label px-0 pb-2">
-                                    <span class="label-text text-sm font-medium text-base-content">{{ __('Telefon') }} {{ $requiredMarker }}</span>
+                                    <span class="label-text text-sm font-medium text-base-content">{{ __('Telefon') }} {{ $phoneRequiredMarker }}</span>
                                 </div>
                                 <input
                                     type="text"
                                     class="input input-bordered w-full"
                                     x-model="draftParticipant.phone"
+                                    maxlength="50"
                                 >
                             </label>
                         </div>

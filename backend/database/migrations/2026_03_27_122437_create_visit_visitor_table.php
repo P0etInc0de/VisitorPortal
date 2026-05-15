@@ -21,6 +21,7 @@ return new class extends Migration
             $table->foreignId('checked_out_by_user_id')->nullable()->constrained('users')->onDelete('set null');
             $table->text('notes')->nullable();
             $table->timestamps();
+            $table->unique(['visit_id', 'visitor_id']);
         });
     }
 

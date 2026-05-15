@@ -50,7 +50,9 @@ class VisitPolicy
 
     public function viewDepartment(User $user, Visit $visit): bool
     {
-        return $user->can('ViewDepartment:Visit') && ($user->department_id === $visit->host->department_id || $user->department_id === $visit->responsibleUser->department_id);
+        return $user->can('ViewDepartment:Visit')
+            && $user->department_id !== null
+            && ($user->department_id === $visit->host?->department_id || $user->department_id === $visit->responsibleUser?->department_id);
     }
 
     public function viewOwn(User $user, Visit $visit): bool
@@ -60,7 +62,9 @@ class VisitPolicy
 
     public function editDepartment(User $user, Visit $visit): bool
     {
-        return $user->can('EditDepartment:Visit') && ($user->department_id === $visit->host->department_id || $user->department_id === $visit->responsibleUser->department_id);
+        return $user->can('EditDepartment:Visit')
+            && $user->department_id !== null
+            && ($user->department_id === $visit->host?->department_id || $user->department_id === $visit->responsibleUser?->department_id);
     }
 
     public function editOwn(User $user, Visit $visit): bool
@@ -70,7 +74,9 @@ class VisitPolicy
 
     public function deleteDepartment(User $user, Visit $visit): bool
     {
-        return $user->can('DeleteDepartment:Visit') && ($user->department_id === $visit->host->department_id || $user->department_id === $visit->responsibleUser->department_id);
+        return $user->can('DeleteDepartment:Visit')
+            && $user->department_id !== null
+            && ($user->department_id === $visit->host?->department_id || $user->department_id === $visit->responsibleUser?->department_id);
     }
 
     public function deleteOwn(User $user, Visit $visit): bool

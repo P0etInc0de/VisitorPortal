@@ -19,3 +19,10 @@ Artisan::command('inspire', function () {
 Schedule::call(new DailyVisitorReminder)->dailyAt('07:00')->description('DailyVisitorReminder');
 Schedule::call(new WelcomeMonitorAutoGeneration)->everyMinute()->description('WelcomeMonitorAutoGeneration');
 Schedule::call(new RecurringVisitSeriesExpansion)->dailyAt('02:30')->description('RecurringVisitSeriesExpansion');
+
+if (config('privacy.purge_enabled')) {
+    Schedule::command('visits:purge-expired')
+        ->dailyAt('03:15')
+        ->withoutOverlapping()
+        ->description('PurgeExpiredVisits');
+}

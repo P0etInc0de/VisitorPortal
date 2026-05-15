@@ -33,16 +33,6 @@ class VisitorsTable
                 TextColumn::make('company')
                     ->label(__('Firma'))
                     ->searchable(),
-                TextColumn::make('status')
-                    ->label(__('Status'))
-                    ->formatStateUsing(fn (string $state): string => match ($state) {
-                        'planned' => __('Geplant'),
-                        'canceled' => __('Abgesagt'),
-                        'checked_in' => __('Eingecheckt'),
-                        'checked_out' => __('Ausgecheckt'),
-                        default => $state,
-                    })
-                    ->searchable(),
                 TextColumn::make('created_at')
                     ->label(__('Erstellt am'))
                     ->dateTime()

@@ -175,7 +175,6 @@ class AdminAdministerVisitorTest extends TestCase
             ->assertHasFormErrors([
                 'first_name',
                 'name',
-                'email',
             ]);
     }
 
@@ -203,8 +202,6 @@ class AdminAdministerVisitorTest extends TestCase
             ->fillForm([
                 'first_name' => 'Max',
                 'name' => 'Mustermann',
-                'email' => 'minimal@example.com',
-                'phone' => '+49987654321',
             ])
             ->call('create')
             ->assertHasNoFormErrors();
@@ -212,8 +209,8 @@ class AdminAdministerVisitorTest extends TestCase
         $this->assertDatabaseHas('visitors', [
             'first_name' => 'Max',
             'name' => 'Mustermann',
-            'email' => 'minimal@example.com',
-            'phone' => '+49987654321',
+            'email' => null,
+            'phone' => null,
         ]);
     }
 

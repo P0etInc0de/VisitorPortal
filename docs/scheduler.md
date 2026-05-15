@@ -27,6 +27,12 @@ Schedule::call(new DailyVisitorReminder())->daily();
 - `php artisan schedule:test`
   - Ausführen eines Schedulers
 
+## Retention
+
+- `visits:purge-expired` bereinigt abgelaufene Besuche nach der konfigurierten Frist.
+- `php artisan visits:purge-expired --dry-run` zählt betroffene Datensätze ohne Löschung.
+- Der Scheduler führt den Command täglich aus, wenn `PRIVACY_PURGE_ENABLED=true` gesetzt ist.
+
 ## Quellen
 
 - Laravel Scheduler: https://laravel.com/docs/12.x/scheduling#introduction

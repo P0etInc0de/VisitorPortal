@@ -26,15 +26,6 @@ class VisitorInfolist
                 TextEntry::make('company')
                     ->label(__('Firma'))
                     ->placeholder('-'),
-                TextEntry::make('status')
-                    ->label(__('Status'))
-                    ->formatStateUsing(fn (string $state): string => match ($state) {
-                        'planned' => __('Geplant'),
-                        'canceled' => __('Abgesagt'),
-                        'checked_in' => __('Eingecheckt'),
-                        'checked_out' => __('Ausgecheckt'),
-                        default => $state,
-                    }),
                 TextEntry::make('notes')
                     ->label(__('Notizen'))
                     ->placeholder('-')

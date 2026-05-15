@@ -13,6 +13,10 @@ class VisitSeeder extends Seeder
 {
     public function run(): void
     {
+        if (app()->environment('production')) {
+            throw new \RuntimeException('Demo visits are disabled in production.');
+        }
+
         $now = Carbon::now()->setSecond(0);
         $today = $now->copy()->startOfDay();
         $reception = $this->user('empfang@demo.local');

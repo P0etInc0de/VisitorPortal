@@ -80,6 +80,8 @@ class MonitorSlidesController extends Controller
      */
     public function edit(Monitor $monitor, MonitorSlide $slide)
     {
+        $this->ensureSlideBelongsToMonitor($monitor, $slide);
+
         $this->authorize('update', $slide);
         $this->authorize('update', Monitor::class);
 
@@ -104,6 +106,8 @@ class MonitorSlidesController extends Controller
      */
     public function update(UpdateMonitorSlideRequest $request, Monitor $monitor, MonitorSlide $slide)
     {
+        $this->ensureSlideBelongsToMonitor($monitor, $slide);
+
         $this->authorize('update', $monitor);
         $this->authorize('update', $slide);
 
@@ -125,6 +129,8 @@ class MonitorSlidesController extends Controller
      */
     public function destroy(Monitor $monitor, MonitorSlide $slide)
     {
+        $this->ensureSlideBelongsToMonitor($monitor, $slide);
+
         $this->authorize('delete', $slide);
 
         if (filled($slide->image_path)) {
@@ -136,6 +142,12 @@ class MonitorSlidesController extends Controller
         Log::info('User ID '.auth()->id()." deleted Monitor-Slide with ID: {$slide->id}");
 
         return redirect(route('monitors.edit', $monitor).'#monitor-pages')->with('success', __('Seite gelöscht'));
+    }
+
+    private function ensureSlideBelongsToMonitor(Monitor $monitor, MonitorSlide $slide): void
+    {
+        // Nested monitor routes must not allow cross-parent slide access.
+        abort_unless((int) $slide->monitor_id === (int) $monitor->id, 404);
     }
 
     private function normalizeVisitors(?string $encodedVisitors): array

@@ -101,6 +101,16 @@ return [
         ],
     ],
 
+    'login' => [
+        'max_attempts' => (int) env('AUTH_LOGIN_MAX_ATTEMPTS', 5),
+        'decay_seconds' => (int) env('AUTH_LOGIN_DECAY_SECONDS', 60),
+    ],
+
+    'password_reset_rate_limit' => [
+        'max_attempts' => (int) env('AUTH_PASSWORD_RESET_MAX_ATTEMPTS', 6),
+        'decay_seconds' => (int) env('AUTH_PASSWORD_RESET_DECAY_SECONDS', 60),
+    ],
+
     /*
     |--------------------------------------------------------------------------
     | Password Confirmation Timeout

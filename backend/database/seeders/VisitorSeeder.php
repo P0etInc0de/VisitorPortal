@@ -10,6 +10,10 @@ class VisitorSeeder extends Seeder
 {
     public function run(): void
     {
+        if (app()->environment('production')) {
+            throw new \RuntimeException('Demo visitors are disabled in production.');
+        }
+
         $visitors = [
             ['Sherlock', 'Holmes', null, GenderEnum::Male, 'sherlock.holmes@baker.example', '+49 7300 100001', 'Baker Street Consulting', 'Bringt eine Lupe mit.'],
             ['John', 'Watson', 'Dr.', GenderEnum::Male, 'john.watson@baker.example', '+49 7300 100002', 'Baker Street Consulting', 'Medizinischer Blick auf jeden Kaffee.'],

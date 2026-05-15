@@ -4,6 +4,7 @@ namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use App\Enums\GenderEnum;
+use App\Support\SafeLogContext;
 use Database\Factories\UserFactory;
 use Filament\Models\Contracts\FilamentUser;
 use Filament\Panel;
@@ -110,10 +111,9 @@ class User extends Authenticatable implements FilamentUser
             return true;
         } else {
             Log::channel('web')->info('Authorization failed.', [
-                'user_id' => auth()->id(),
-                'roles' => ['admin', 'super_admin'],
-                'url' => request()->fullUrl(),
-                'ip' => request()->ip(),
+                ...SafeLogContext::authorization($this, 'accessPanel'),
+                'resource_type' => 'FilamentPanel',
+                'resource_id' => $panel->getId(),
             ]);
 
             return false;

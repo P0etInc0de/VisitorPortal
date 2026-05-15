@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Support\SafeLogContext;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Routing\Controller as BaseController;
 use Illuminate\Support\Facades\Gate;
@@ -13,18 +14,10 @@ abstract class Controller extends BaseController
 
     protected function authorizeAny(array $abilities, mixed $model): void
     {
-        foreach ($abilities as $ability) {
-            if (! Gate::allows($ability, $model)) {
-                Log::channel('web')->info('Authorization failed.', [
-                    'user_id' => auth()->id(),
-                    'ability' => $ability,
-                    'model' => $model,
-                    'url' => request()->fullUrl(),
-                    'ip' => request()->ip(),
-                ]);
+        if (! Gate::any($abilities, $model)) {
+            Log::channel('web')->info('Authorization failed.', SafeLogContext::authorization(auth()->user(), implode('|', $abilities), $model));
 
-                abort(403);
-            }
+            abort(403);
         }
     }
 
@@ -33,9 +26,9 @@ abstract class Controller extends BaseController
         if (! Gate::any(['ViewAny:Visit', 'ViewDepartment:Visit', 'ViewOwn:Visit'])) {
             Log::channel('web')->info('Authorization failed.', [
                 'user_id' => auth()->id(),
-                'permissions' => ['ViewOwn:Visit', 'ViewDepartment:Visit', 'ViewAny:Visit'],
-                'url' => request()->fullUrl(),
-                'ip' => request()->ip(),
+                'ability' => 'viewDashboard',
+                'resource_type' => 'Visit',
+                'resource_id' => null,
             ]);
 
             abort(403);

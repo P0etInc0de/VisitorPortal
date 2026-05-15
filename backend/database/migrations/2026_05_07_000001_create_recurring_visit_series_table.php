@@ -11,7 +11,7 @@ return new class extends Migration
         Schema::create('recurring_visit_series', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained('users')->restrictOnDelete();
-            $table->foreignId('responsible_user_id')->constrained('users')->restrictOnDelete();
+            $table->foreignId('responsible_user_id')->nullable()->constrained('users')->nullOnDelete();
             $table->foreignId('created_by_user_id')->nullable()->constrained('users')->nullOnDelete();
             $table->string('title')->nullable();
             $table->string('status')->default('planned');

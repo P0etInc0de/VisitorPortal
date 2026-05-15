@@ -6,6 +6,8 @@ use App\Enums\VisitStatusEnum;
 use App\Models\RecurringVisitSeries;
 use App\Models\User;
 use App\Models\Visit;
+use App\Models\Visitor;
+use App\Support\VisitorContactRequirement;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Carbon;
 use Illuminate\Validation\Rule;
@@ -27,7 +29,7 @@ class StoreVisitRequest extends FormRequest
             'scheduled_from' => ['required', 'date', 'after_or_equal:1970-01-01'],
             'scheduled_until' => ['required', 'date', 'after:scheduled_from', 'after_or_equal:1970-01-01'],
             'status' => ['required', 'string', Rule::in(VisitStatusEnum::values())],
-            'notes' => ['nullable', 'string'],
+            'notes' => ['nullable', 'string', 'max:1000'],
             'recurrence_enabled' => ['nullable', 'boolean'],
             'recurrence_frequency' => ['nullable', 'string', Rule::in(RecurringVisitSeries::frequencies())],
             'recurrence_interval_days' => ['nullable', 'integer', 'between:1,365'],
@@ -44,8 +46,9 @@ class StoreVisitRequest extends FormRequest
             'participants.*.first_name' => ['nullable', 'string', 'max:255'],
             'participants.*.name' => ['nullable', 'string', 'max:255'],
             'participants.*.email' => ['nullable', 'email', 'max:255'],
-            'participants.*.phone' => ['nullable', 'string', 'max:255'],
+            'participants.*.phone' => ['nullable', 'string', 'max:50'],
             'participants.*.company' => ['nullable', 'string', 'max:255'],
+            'participants.*.notes' => ['nullable', 'string', 'max:1000'],
         ];
     }
 
@@ -83,6 +86,7 @@ class StoreVisitRequest extends FormRequest
     {
         $validator->after(function (Validator $validator) {
             $this->validateSelectableUsers($validator);
+            $this->validateParticipantContactRequirement($validator);
 
             if ($this->recurrenceEnabled()) {
                 $this->validateRecurrence($validator);
@@ -178,6 +182,63 @@ class StoreVisitRequest extends FormRequest
         }
     }
 
+    private function validateParticipantContactRequirement(Validator $validator): void
+    {
+        $requirement = VisitorContactRequirement::current();
+
+        if ($requirement === VisitorContactRequirement::OPTIONAL) {
+            return;
+        }
+
+        foreach ($this->input('participants', []) as $index => $participant) {
+            if (! is_array($participant)) {
+                continue;
+            }
+
+            [$email, $phone] = $this->participantContactValues($participant);
+
+            if (VisitorContactRequirement::requiresEmail($requirement) && blank($email)) {
+                $validator->errors()->add("participants.{$index}.email", __('Bitte geben Sie eine E-Mail-Adresse an.'));
+            }
+
+            if (VisitorContactRequirement::requiresPhone($requirement) && blank($phone)) {
+                $validator->errors()->add("participants.{$index}.phone", __('Bitte geben Sie eine Telefonnummer an.'));
+            }
+
+            if (VisitorContactRequirement::requiresOne($requirement) && blank($email) && blank($phone)) {
+                $validator->errors()->add("participants.{$index}.email", __('Bitte geben Sie eine E-Mail-Adresse oder Telefonnummer an.'));
+            }
+        }
+    }
+
+    /**
+     * @return array{0: string|null, 1: string|null}
+     */
+    private function participantContactValues(array $participant): array
+    {
+        $email = $this->normalizeInput($participant['email'] ?? null);
+        $phone = $this->normalizeInput($participant['phone'] ?? null);
+
+        // Existing participants may provide contact data through the stored visitor record.
+        if (filled($participant['visitor_id'] ?? null)) {
+            $visitor = Visitor::query()
+                ->select('id', 'email', 'phone')
+                ->find((int) $participant['visitor_id']);
+
+            $email ??= $visitor?->email;
+            $phone ??= $visitor?->phone;
+        }
+
+        return [$email, $phone];
+    }
+
+    private function normalizeInput(mixed $value): ?string
+    {
+        $value = trim((string) $value);
+
+        return $value === '' ? null : $value;
+    }
+
     /**
      * @return array<string, string>
      */
@@ -186,9 +247,6 @@ class StoreVisitRequest extends FormRequest
         return [
             'first_name' => __('Vorname der teilnehmenden Person'),
             'name' => __('Nachname der teilnehmenden Person'),
-            'email' => __('E-Mail der teilnehmenden Person'),
-            'phone' => __('Telefon der teilnehmenden Person'),
-            'company' => __('Firma der teilnehmenden Person'),
         ];
     }
 }

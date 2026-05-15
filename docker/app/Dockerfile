@@ -64,8 +64,8 @@ ENV APP_ENV=production \
     APP_DEBUG=false \
     LOG_CHANNEL=stderr \
     RUN_SETUP=true \
-    AUTO_MIGRATE=true \
-    AUTO_SEED=true \
+    AUTO_MIGRATE=false \
+    AUTO_SEED=false \
     FORCE_SEED=false
 
 COPY backend ./
