@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Collection as EloquentCollection;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Facades\Storage;
 
@@ -23,6 +24,7 @@ class Monitor extends Model
      * @var list<string>
      */
     protected $fillable = [
+        'site_id',
         'name',
         'transition_time_milliseconds',
         'image_path',
@@ -53,6 +55,10 @@ class Monitor extends Model
     protected static function booted(): void
     {
         static::creating(function (self $monitor) {
+            if (blank($monitor->site_id)) {
+                $monitor->site_id = Site::default()->id;
+            }
+
             foreach (self::defaultSettings() as $attribute => $value) {
                 if ($monitor->{$attribute} === null) {
                     $monitor->{$attribute} = $value;
@@ -64,6 +70,11 @@ class Monitor extends Model
     public function monitorSlides(): HasMany
     {
         return $this->hasMany(MonitorSlide::class);
+    }
+
+    public function site(): BelongsTo
+    {
+        return $this->belongsTo(Site::class);
     }
 
     /**

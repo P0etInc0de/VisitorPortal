@@ -38,6 +38,7 @@ class DashboardPage extends Component
         $this->authorize('checkIn', Visitor::class);
 
         $visit = $this->loadVisitParticipantPair($visitId, $visitorId);
+        $this->authorize('view', $visit);
         $participant = $visit->visitors->firstWhere('id', $visitorId);
         $user = auth()->user();
 
@@ -60,6 +61,7 @@ class DashboardPage extends Component
         $this->authorize('checkOut', Visitor::class);
 
         $visit = $this->loadVisitParticipantPair($visitId, $visitorId);
+        $this->authorize('view', $visit);
         $participant = $visit->visitors->firstWhere('id', $visitorId);
         $user = auth()->user();
 
@@ -82,6 +84,7 @@ class DashboardPage extends Component
         $this->authorize('print', Visitor::class);
 
         $visit = $this->loadVisitParticipantPair($visitId, $visitorId);
+        $this->authorize('view', $visit);
         $participant = $visit->visitors->firstWhere('id', $visitorId);
 
         if (! $participant) {
@@ -111,7 +114,11 @@ class DashboardPage extends Component
 
     private function todayVisits()
     {
+        $user = auth()->user();
+        abort_unless($user instanceof User, 403);
+
         return Visit::query()
+            ->visibleTo($user)
             ->with([
                 'host:id,name',
                 'visitors' => function ($query) {

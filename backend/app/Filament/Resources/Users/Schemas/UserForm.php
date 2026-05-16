@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\Users\Schemas;
 
 use App\Enums\GenderEnum;
+use App\Models\Site;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
@@ -14,6 +15,12 @@ class UserForm
     {
         return $schema
             ->components([
+                Select::make('site_id')
+                    ->label(__('Standort'))
+                    ->relationship('site', 'name')
+                    ->default(fn () => Site::default()->id)
+                    ->required()
+                    ->preload(),
                 Select::make('department_id')
                     ->label(__('Abteilung'))
                     ->relationship('department', 'name')

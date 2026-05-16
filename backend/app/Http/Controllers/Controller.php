@@ -23,7 +23,7 @@ abstract class Controller extends BaseController
 
     protected function authorizeDashboard(): void
     {
-        if (! Gate::any(['ViewAny:Visit', 'ViewDepartment:Visit', 'ViewOwn:Visit'])) {
+        if (! Gate::any(['ViewAny:Visit', 'ViewSite:Visit', 'ViewDepartment:Visit', 'ViewOwn:Visit'])) {
             Log::channel('web')->info('Authorization failed.', [
                 'user_id' => auth()->id(),
                 'ability' => 'viewDashboard',

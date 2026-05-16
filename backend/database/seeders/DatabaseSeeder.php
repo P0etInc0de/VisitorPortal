@@ -24,6 +24,7 @@ class DatabaseSeeder extends Seeder
         * - Auto-Generate a Seeder for the current shield database: `php artisan shield:seeder`
         */
         $this->call([
+            SiteSeeder::class,
             ShieldSeeder::class,
             RoleSeeder::class,
             DepartmentSeeder::class,

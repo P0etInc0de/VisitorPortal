@@ -15,3 +15,6 @@
 - The auto generating task will be executed via the queue worker
 - Wait 5 seconds until the preview and slides have updated (via livewire)
 - The auto generation is scheduled to run every 5 minutes and creates slides for every visit from now +/- 30 minutes
+- Auto generation only uses visits from the monitor's own site.
+- Confidential visits are always hidden from welcome monitors.
+- Visit `monitor_display_mode` controls the amount of visitor data shown; the default is company-only.

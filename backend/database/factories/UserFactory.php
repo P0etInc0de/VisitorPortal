@@ -3,6 +3,7 @@
 namespace Database\Factories;
 
 use App\Enums\GenderEnum;
+use App\Models\Site;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Facades\Hash;
@@ -26,6 +27,7 @@ class UserFactory extends Factory
     public function definition(): array
     {
         return [
+            'site_id' => Site::default()->id,
             'first_name' => $this->faker->firstName(),
             'name' => $this->faker->lastName(),
             'email' => fake()->unique()->safeEmail(),

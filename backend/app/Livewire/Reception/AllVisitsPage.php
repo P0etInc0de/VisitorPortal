@@ -106,6 +106,7 @@ class AllVisitsPage extends Component
         $this->authorize('checkIn', Visitor::class);
 
         $visit = $this->loadVisitParticipantPair($visitId, $visitorId);
+        $this->authorize('view', $visit);
         $participant = $visit->visitors->firstWhere('id', $visitorId);
         $user = auth()->user();
 
@@ -137,6 +138,7 @@ class AllVisitsPage extends Component
         $this->authorize('checkOut', Visitor::class);
 
         $visit = $this->loadVisitParticipantPair($visitId, $visitorId);
+        $this->authorize('view', $visit);
         $participant = $visit->visitors->firstWhere('id', $visitorId);
         $user = auth()->user();
 
@@ -163,6 +165,7 @@ class AllVisitsPage extends Component
         $this->authorize('print', Visitor::class);
 
         $visit = $this->loadVisitParticipantPair($visitId, $visitorId);
+        $this->authorize('view', $visit);
         $participant = $visit->visitors->firstWhere('id', $visitorId);
 
         if (! $participant) {
@@ -214,7 +217,11 @@ class AllVisitsPage extends Component
             $this->enforceSearchRateLimit('all-visits-page');
         }
 
+        $user = auth()->user();
+        abort_unless($user instanceof User, 403);
+
         return Visit::query()
+            ->visibleTo($user)
             ->with([
                 'host:id,first_name,name',
                 'visitors' => function ($query) {

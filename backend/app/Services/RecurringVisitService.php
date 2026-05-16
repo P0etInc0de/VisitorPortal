@@ -88,10 +88,13 @@ class RecurringVisitService
 
         return RecurringVisitSeries::query()->create([
             'title' => $payload['title'],
+            'site_id' => $this->siteIdForHost((int) $payload['user_id']),
             'user_id' => (int) $payload['user_id'],
             'responsible_user_id' => (int) (($payload['responsible_user_id'] ?? null) ?: $payload['user_id']),
             'created_by_user_id' => $creator->id,
             'status' => $payload['status'],
+            'is_confidential' => (bool) ($payload['is_confidential'] ?? false),
+            'monitor_display_mode' => $payload['monitor_display_mode'] ?? Visit::MONITOR_DISPLAY_COMPANY_ONLY,
             'notes' => $payload['notes'] ?? null,
             'starts_at' => $scheduledFrom,
             'duration_minutes' => max(1, $scheduledFrom->diffInMinutes($scheduledUntil)),
@@ -168,9 +171,12 @@ class RecurringVisitService
             'title' => $series->title,
             'user_id' => $series->user_id,
             'responsible_user_id' => $series->responsible_user_id,
+            'site_id' => $series->site_id,
             'scheduled_from' => $occurrenceStart,
             'scheduled_until' => $occurrenceStart->copy()->addMinutes($series->duration_minutes),
             'status' => $series->status,
+            'is_confidential' => (bool) $series->is_confidential,
+            'monitor_display_mode' => $series->monitor_display_mode ?: Visit::MONITOR_DISPLAY_COMPANY_ONLY,
             'notes' => $series->notes,
         ]);
 
@@ -183,11 +189,14 @@ class RecurringVisitService
     {
         return Visit::query()->create([
             'title' => $payload['title'],
+            'site_id' => $this->siteIdForHost((int) $payload['user_id']),
             'user_id' => (int) $payload['user_id'],
             'responsible_user_id' => (int) (($payload['responsible_user_id'] ?? null) ?: $payload['user_id']),
             'scheduled_from' => $payload['scheduled_from'],
             'scheduled_until' => $payload['scheduled_until'] ?? null,
             'status' => $payload['status'],
+            'is_confidential' => (bool) ($payload['is_confidential'] ?? false),
+            'monitor_display_mode' => $payload['monitor_display_mode'] ?? Visit::MONITOR_DISPLAY_COMPANY_ONLY,
             'notes' => $payload['notes'] ?? null,
         ]);
     }
@@ -196,11 +205,14 @@ class RecurringVisitService
     {
         $visit->update([
             'title' => $payload['title'],
+            'site_id' => $this->siteIdForHost((int) $payload['user_id']),
             'user_id' => (int) $payload['user_id'],
             'responsible_user_id' => (int) (($payload['responsible_user_id'] ?? null) ?: $payload['user_id']),
             'scheduled_from' => $payload['scheduled_from'],
             'scheduled_until' => $payload['scheduled_until'] ?? null,
             'status' => $payload['status'],
+            'is_confidential' => (bool) ($payload['is_confidential'] ?? false),
+            'monitor_display_mode' => $payload['monitor_display_mode'] ?? Visit::MONITOR_DISPLAY_COMPANY_ONLY,
             'notes' => $payload['notes'] ?? null,
             'recurrence_is_modified' => $markModified ? true : $visit->recurrence_is_modified,
         ]);
@@ -225,9 +237,12 @@ class RecurringVisitService
 
         $series->update([
             'title' => $payload['title'],
+            'site_id' => $this->siteIdForHost((int) $payload['user_id']),
             'user_id' => (int) $payload['user_id'],
             'responsible_user_id' => (int) (($payload['responsible_user_id'] ?? null) ?: $payload['user_id']),
             'status' => $payload['status'],
+            'is_confidential' => (bool) ($payload['is_confidential'] ?? false),
+            'monitor_display_mode' => $payload['monitor_display_mode'] ?? Visit::MONITOR_DISPLAY_COMPANY_ONLY,
             'notes' => $payload['notes'] ?? null,
             'starts_at' => $baseStart,
             'duration_minutes' => $durationMinutes,
@@ -264,11 +279,14 @@ class RecurringVisitService
 
                 $targetVisit->update([
                     'title' => $payload['title'],
+                    'site_id' => $series->site_id,
                     'user_id' => (int) $payload['user_id'],
                     'responsible_user_id' => (int) (($payload['responsible_user_id'] ?? null) ?: $payload['user_id']),
                     'scheduled_from' => $occurrenceStart,
                     'scheduled_until' => $occurrenceStart->copy()->addMinutes($series->duration_minutes),
                     'status' => $payload['status'],
+                    'is_confidential' => (bool) ($payload['is_confidential'] ?? false),
+                    'monitor_display_mode' => $payload['monitor_display_mode'] ?? Visit::MONITOR_DISPLAY_COMPANY_ONLY,
                     'notes' => $payload['notes'] ?? null,
                     'recurrence_original_scheduled_from' => $occurrenceStart,
                     'recurrence_is_modified' => false,
@@ -286,6 +304,11 @@ class RecurringVisitService
     private function recurrenceEnabled(array $payload): bool
     {
         return filter_var($payload['recurrence_enabled'] ?? false, FILTER_VALIDATE_BOOL);
+    }
+
+    private function siteIdForHost(int $hostId): int
+    {
+        return (int) (User::query()->whereKey($hostId)->value('site_id') ?: \App\Models\Site::default()->id);
     }
 
     private function generationTarget(RecurringVisitSeries $series): ?Carbon

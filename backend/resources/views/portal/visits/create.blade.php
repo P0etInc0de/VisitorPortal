@@ -30,7 +30,10 @@
         \App\Support\VisitorContactRequirement::REQUIRE_PHONE => __('Bitte Telefonnummer angeben.'),
         default => null,
     };
-    $canSetAnyVisitStatus = auth()->user()?->can('ViewAny:Visit') || auth()->user()?->can('EditAny:Visit');
+    $canSetAnyVisitStatus = auth()->user()?->can('ViewAny:Visit')
+        || auth()->user()?->can('EditAny:Visit')
+        || auth()->user()?->can('ViewSite:Visit')
+        || auth()->user()?->can('EditSite:Visit');
     $statusOptions = collect(\App\Enums\VisitStatusEnum::options())
         ->when(! $canSetAnyVisitStatus, fn ($options) => $options->only([
             \App\Enums\VisitStatusEnum::Planned->value,
@@ -68,6 +71,8 @@
 
     $hostUserIdValue = (string) old('user_id', $visit->user_id ?: auth()->id());
     $responsibleUserIdValue = (string) old('responsible_user_id', $visit->responsible_user_id);
+    $isConfidentialValue = filter_var(old('is_confidential', $visit->is_confidential), FILTER_VALIDATE_BOOL);
+    $monitorDisplayModeValue = old('monitor_display_mode', $visit->monitor_display_mode ?: \App\Models\Visit::MONITOR_DISPLAY_COMPANY_ONLY);
 
     if (! $hostUsers->contains('id', (int) $hostUserIdValue)) {
         $hostUserIdValue = (string) ($hostUsers->first()?->id ?? '');

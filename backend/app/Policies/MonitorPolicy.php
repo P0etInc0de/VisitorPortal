@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Policies;
 
+use App\Models\Monitor;
 use App\Models\User;
 // use Illuminate\Foundation\Auth\User as AuthUser;
 use Illuminate\Auth\Access\HandlesAuthorization;
@@ -14,31 +15,61 @@ class MonitorPolicy
 
     public function viewAny(User $user): bool
     {
-        return $user->can('ViewAny:Monitor');
+        return $user->can('ViewAny:Monitor') || $user->can('ViewSite:Monitor');
     }
 
-    public function view(User $user): bool
+    public function view(User $user, ?Monitor $monitor = null): bool
     {
-        return $user->can('View:Monitor') || $user->can('ViewAny:Monitor');
+        if ($user->can('ViewAny:Monitor') || $user->can('ManageAny:Monitor')) {
+            return true;
+        }
+
+        if (! $monitor) {
+            return $user->can('View:Monitor') || $user->can('ViewSite:Monitor');
+        }
+
+        return ($user->can('View:Monitor') || $user->can('ViewSite:Monitor') || $user->can('ManageSite:Monitor'))
+            && $user->site_id !== null
+            && (int) $user->site_id === (int) $monitor->site_id;
     }
 
     public function create(User $user): bool
     {
-        return $user->can('Create:Monitor');
+        return $user->can('Create:Monitor') || $user->can('ManageAny:Monitor') || $user->can('ManageSite:Monitor');
     }
 
-    public function update(User $user): bool
+    public function update(User $user, ?Monitor $monitor = null): bool
     {
-        return $user->can('Edit:Monitor');
+        if ($user->can('ManageAny:Monitor')) {
+            return true;
+        }
+
+        if (! $monitor) {
+            return $user->can('Edit:Monitor') || $user->can('ManageSite:Monitor');
+        }
+
+        return ($user->can('Edit:Monitor') || $user->can('ManageSite:Monitor'))
+            && $user->site_id !== null
+            && (int) $user->site_id === (int) $monitor->site_id;
     }
 
-    public function delete(User $user): bool
+    public function delete(User $user, ?Monitor $monitor = null): bool
     {
-        return $user->can('Delete:Monitor');
+        if ($user->can('ManageAny:Monitor')) {
+            return true;
+        }
+
+        if (! $monitor) {
+            return $user->can('Delete:Monitor') || $user->can('ManageSite:Monitor');
+        }
+
+        return ($user->can('Delete:Monitor') || $user->can('ManageSite:Monitor'))
+            && $user->site_id !== null
+            && (int) $user->site_id === (int) $monitor->site_id;
     }
 
-    public function edit(User $user): bool
+    public function edit(User $user, ?Monitor $monitor = null): bool
     {
-        return $user->can('Edit:Monitor');
+        return $this->update($user, $monitor);
     }
 }

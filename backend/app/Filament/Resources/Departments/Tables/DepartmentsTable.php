@@ -17,11 +17,15 @@ class DepartmentsTable
     {
         return $table
             ->columns([
+                TextColumn::make('site.name')
+                    ->label(__('Standort'))
+                    ->searchable()
+                    ->sortable(),
                 TextColumn::make('name')
                     ->label(__('Name'))
                     ->searchable(),
                 TextColumn::make('location')
-                    ->label(__('Standort'))
+                    ->label(__('Bereich/Ort'))
                     ->searchable(),
                 IconColumn::make('is_active')
                     ->label(__('Aktiv'))

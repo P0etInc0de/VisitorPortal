@@ -4,6 +4,7 @@ namespace Tests\Feature\Monitor;
 
 use App\Enums\VisitStatusEnum;
 use App\Models\Monitor;
+use App\Models\Site;
 use App\Models\Visit;
 use App\Models\Visitor;
 use App\Tasks\WelcomeMonitorAutoGeneration;
@@ -302,12 +303,14 @@ class WelcomeMonitorTest extends TestCase
                 'scheduled_from' => now()->addMinutes(5),
                 'scheduled_until' => now()->addMinutes(65),
                 'status' => VisitStatusEnum::Planned->value,
+                'monitor_display_mode' => Visit::MONITOR_DISPLAY_FULL_NAME,
             ]);
 
             $outsideVisit = Visit::factory()->create([
                 'scheduled_from' => now()->addMinutes(25),
                 'scheduled_until' => now()->addMinutes(85),
                 'status' => VisitStatusEnum::Planned->value,
+                'monitor_display_mode' => Visit::MONITOR_DISPLAY_FULL_NAME,
             ]);
 
             $insideVisitor = Visitor::factory()->create([
@@ -358,12 +361,14 @@ class WelcomeMonitorTest extends TestCase
                 'scheduled_from' => now()->subMinutes(45),
                 'scheduled_until' => now()->addMinutes(15),
                 'status' => VisitStatusEnum::Planned->value,
+                'monitor_display_mode' => Visit::MONITOR_DISPLAY_FULL_NAME,
             ]);
 
             $draftVisit = Visit::factory()->create([
                 'scheduled_from' => now()->addMinutes(5),
                 'scheduled_until' => now()->addMinutes(35),
                 'status' => VisitStatusEnum::Draft->value,
+                'monitor_display_mode' => Visit::MONITOR_DISPLAY_FULL_NAME,
             ]);
 
             $plannedVisitor = Visitor::factory()->create([
@@ -437,6 +442,7 @@ class WelcomeMonitorTest extends TestCase
                 'scheduled_from' => now()->addMinutes(5),
                 'scheduled_until' => now()->addMinutes(65),
                 'status' => VisitStatusEnum::Planned->value,
+                'monitor_display_mode' => Visit::MONITOR_DISPLAY_FULL_NAME,
             ]);
 
             $visitor = Visitor::factory()->create([
@@ -631,6 +637,65 @@ class WelcomeMonitorTest extends TestCase
             ->assertSee('Fallback aktiv')
             ->assertDontSee('Nicht sichtbar')
             ->assertDontSee('Versteckt');
+    }
+
+    public function test_auto_generation_is_site_scoped_and_hides_confidential_visits(): void
+    {
+        Carbon::setTestNow('2026-04-24 10:00:00');
+
+        try {
+            $site = Site::factory()->create(['name' => 'Standort Ulm']);
+            $otherSite = Site::factory()->create(['name' => 'Standort Neu-Ulm']);
+            $monitor = Monitor::query()->create([
+                'site_id' => $site->id,
+                'name' => 'Empfang Ulm',
+                'transition_time_milliseconds' => 5000,
+                'auto_generation' => true,
+                'auto_generation_window_minutes' => 30,
+            ]);
+
+            $visibleVisit = Visit::factory()->create([
+                'site_id' => $site->id,
+                'scheduled_from' => now()->addMinutes(5),
+                'scheduled_until' => now()->addMinutes(65),
+                'status' => VisitStatusEnum::Planned->value,
+            ]);
+            $otherSiteVisit = Visit::factory()->create([
+                'site_id' => $otherSite->id,
+                'scheduled_from' => now()->addMinutes(5),
+                'scheduled_until' => now()->addMinutes(65),
+                'status' => VisitStatusEnum::Planned->value,
+            ]);
+            $confidentialVisit = Visit::factory()->create([
+                'site_id' => $site->id,
+                'scheduled_from' => now()->addMinutes(5),
+                'scheduled_until' => now()->addMinutes(65),
+                'status' => VisitStatusEnum::Planned->value,
+                'is_confidential' => true,
+                'monitor_display_mode' => Visit::MONITOR_DISPLAY_FULL_NAME,
+            ]);
+
+            $visibleVisitor = Visitor::factory()->create(['company' => 'Acme GmbH']);
+            $otherSiteVisitor = Visitor::factory()->create(['company' => 'Other GmbH']);
+            $confidentialVisitor = Visitor::factory()->create(['first_name' => 'Secret', 'name' => 'Guest', 'company' => 'Secret GmbH']);
+
+            $visibleVisit->visitors()->attach($visibleVisitor);
+            $otherSiteVisit->visitors()->attach($otherSiteVisitor);
+            $confidentialVisit->visitors()->attach($confidentialVisitor);
+
+            (new WelcomeMonitorAutoGeneration)($monitor);
+
+            $slide = $monitor->monitorSlides()->sole();
+
+            $this->assertSame([
+                [
+                    'id' => $visibleVisitor->id,
+                    'name' => 'Acme GmbH',
+                ],
+            ], $slide->visitors);
+        } finally {
+            Carbon::setTestNow();
+        }
     }
 
     private function monitorUser()

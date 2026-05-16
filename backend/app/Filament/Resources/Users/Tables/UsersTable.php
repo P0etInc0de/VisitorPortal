@@ -16,6 +16,10 @@ class UsersTable
     {
         return $table
             ->columns([
+                TextColumn::make('site.name')
+                    ->label(__('Standort'))
+                    ->searchable()
+                    ->sortable(),
                 TextColumn::make('department.name')
                     ->label(__('Abteilung'))
                     ->searchable(),

@@ -4,6 +4,7 @@ namespace Database\Seeders;
 
 use App\Enums\GenderEnum;
 use App\Models\Department;
+use App\Models\Site;
 use App\Models\User;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
@@ -60,10 +61,15 @@ class UserSeeder extends Seeder
         string $department,
         ?string $role = null,
     ): void {
-        $dept = Department::query()->where('name', $department)->first();
+        $site = Site::default();
+        $dept = Department::query()
+            ->where('site_id', $site->id)
+            ->where('name', $department)
+            ->first();
         $user = User::query()->updateOrCreate(
             ['email' => $email],
             [
+                'site_id' => $site->id,
                 'name' => $name,
                 'first_name' => $firstName,
                 'gender' => $gender,

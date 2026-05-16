@@ -49,6 +49,11 @@ class PermissionHelper
             'Reorder:Role',
 
             // Department
+            'ViewAny:Site',
+            'Create:Site',
+            'Update:Site',
+            'Delete:Site',
+            'ManageAny:Site',
             'ViewAny:Department',
             'View:Department',
             'Create:Department',
@@ -62,10 +67,16 @@ class PermissionHelper
             'Reorder:Department',
 
             // Visitor
+            'ViewKnown:Visitor',
+            'ViewDepartment:Visitor',
+            'ViewSite:Visitor',
+            'ViewContactDetails:Visitor',
             'ViewAny:Visitor',
             'View:Visitor',
             'Create:Visitor',
             'Update:Visitor',
+            'UpdateKnown:Visitor',
+            'UpdateAny:Visitor',
             'EditAny:Visitor',
             'Delete:Visitor',
             'DeleteAny:Visitor',
@@ -79,16 +90,22 @@ class PermissionHelper
             // Visit
             'View:Visit',
             'ViewAny:Visit',
+            'ViewSite:Visit',
             'ViewDepartment:Visit',
             'ViewOwn:Visit',
             'ViewArchive:Visit',
             'Create:Visit',
+            'CreateForDepartment:Visit',
+            'CreateForSite:Visit',
+            'CreateForAny:Visit',
             'Update:Visit',
             'EditAny:Visit',
+            'EditSite:Visit',
             'EditDepartment:Visit',
             'EditOwn:Visit',
             'Delete:Visit',
             'DeleteAny:Visit',
+            'DeleteSite:Visit',
             'DeleteDepartment:Visit',
             'DeleteOwn:Visit',
             'Restore:Visit',
@@ -106,10 +123,13 @@ class PermissionHelper
 
             // Monitor
             'ViewAny:Monitor',
+            'ViewSite:Monitor',
             'View:Monitor',
             'Create:Monitor',
             'Update:Monitor',
             'Edit:Monitor',
+            'ManageSite:Monitor',
+            'ManageAny:Monitor',
             'Delete:Monitor',
             'Test:Monitor',
 
@@ -126,7 +146,7 @@ class PermissionHelper
     {
         $userPermissions = [
             'ViewOwn:User', 'EditOwn:User', 'Create:Visit', 'Create:Visitor',
-            'ViewOwn:Visit', 'EditOwn:Visit', 'DeleteOwn:Visit',
+            'ViewKnown:Visitor', 'ViewOwn:Visit', 'EditOwn:Visit', 'DeleteOwn:Visit',
         ];
 
         return $this->getIndividualUser($userPermissions, 'user');
@@ -138,9 +158,9 @@ class PermissionHelper
         $managerPermissions = [
             'ViewDepartment:User', 'EditDepartment:User',
             'ViewDepartment:Visit', 'EditDepartment:Visit',
-            'DeleteDepartment:Visit', 'ViewOwn:User',
+            'DeleteDepartment:Visit', 'CreateForDepartment:Visit', 'ViewDepartment:Visitor', 'ViewOwn:User',
             'EditOwn:User', 'Create:Visit', 'Create:Visitor',
-            'ViewOwn:Visit', 'EditOwn:Visit', 'DeleteOwn:Visit'];
+            'ViewKnown:Visitor', 'ViewOwn:Visit', 'EditOwn:Visit', 'DeleteOwn:Visit'];
 
         return $this->getIndividualUser($managerPermissions, 'manager');
     }
@@ -148,14 +168,13 @@ class PermissionHelper
     public function getReceptionistUser(): User
     {
         $receptionistPermissions = [
-            'ViewAny:Visit', 'EditAny:Visit', 'DeleteAny:Visit',
-            'ViewAny:Visitor',
-            'EditAny:Visitor',
+            'ViewSite:Visit', 'EditSite:Visit', 'DeleteSite:Visit', 'CreateForSite:Visit',
+            'ViewSite:Visitor', 'ViewContactDetails:Visitor', 'UpdateKnown:Visitor',
             'CheckIn:Visitor', 'CheckOut:Visitor', 'Print:Visitor',
-            'View:Monitor', 'Edit:Monitor', 'View:MonitorSlide', 'Edit:MonitorSlide',
+            'View:Monitor', 'ViewSite:Monitor', 'ManageSite:Monitor', 'Edit:Monitor', 'View:MonitorSlide', 'Edit:MonitorSlide',
             'ViewOwn:User', 'EditOwn:User',
             'Create:Visit', 'Create:Visitor',
-            'ViewOwn:Visit', 'EditOwn:Visit', 'DeleteOwn:Visit'];
+            'ViewKnown:Visitor', 'ViewOwn:Visit', 'EditOwn:Visit', 'DeleteOwn:Visit'];
 
         return $this->getIndividualUser($receptionistPermissions, 'receptionist');
     }
@@ -164,6 +183,7 @@ class PermissionHelper
     {
         $welcomeMonitorPermissions = [
             'View:Monitor',
+            'ViewSite:Monitor',
         ];
 
         return $this->getIndividualUser($welcomeMonitorPermissions, 'welcome_monitor');
@@ -193,7 +213,7 @@ class PermissionHelper
     {
         $userPermissions = [
             'ViewOwn:User', 'EditOwn:User', 'Create:Visit', 'Create:Visitor',
-            'ViewOwn:Visit', 'EditOwn:Visit', 'DeleteOwn:Visit',
+            'ViewKnown:Visitor', 'ViewOwn:Visit', 'EditOwn:Visit', 'DeleteOwn:Visit',
             'View:Role', 'DeleteAny:User'];
 
         return $this->getIndividualUser($userPermissions, 'user');

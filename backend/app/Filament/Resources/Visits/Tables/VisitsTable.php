@@ -16,6 +16,10 @@ class VisitsTable
     {
         return $table
             ->columns([
+                TextColumn::make('site.name')
+                    ->label(__('Standort'))
+                    ->searchable()
+                    ->sortable(),
                 TextColumn::make('title')
                     ->label(__('Titel'))
                     ->searchable()

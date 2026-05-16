@@ -15,7 +15,7 @@ class VisitorPolicy
 
     public function viewAny(User $user): bool
     {
-        return $user->can('ViewAny:Visitor');
+        return $user->can('ViewAny:Visitor') || $user->can('ViewSite:Visitor') || $user->can('ViewDepartment:Visitor') || $user->can('ViewKnown:Visitor');
     }
 
     public function view(User $user, Visitor $visitor): bool
@@ -33,7 +33,7 @@ class VisitorPolicy
 
     public function update(User $user, Visitor $visitor): bool
     {
-        return ($user->can('Update:Visitor') || $user->can('EditAny:Visitor'))
+        return ($user->can('Update:Visitor') || $user->can('UpdateKnown:Visitor') || $user->can('UpdateAny:Visitor') || $user->can('EditAny:Visitor'))
             && Visitor::query()
                 ->visibleTo($user)
                 ->whereKey($visitor->id)

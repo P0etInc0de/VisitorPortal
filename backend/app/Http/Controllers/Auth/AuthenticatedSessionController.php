@@ -52,8 +52,12 @@ class AuthenticatedSessionController extends Controller
      */
     public function redirectRoles(User $user): string
     {
+        $siteMonitor = Monitor::query()
+            ->where('site_id', $user->site_id)
+            ->first() ?? Monitor::query()->first();
+
         return match (true) {
-            $user->hasRole('welcome monitor') => route('monitors.show', Monitor::query()->first(), absolute: false),
+            $user->hasRole('welcome monitor') && $siteMonitor !== null => route('monitors.show', $siteMonitor, absolute: false),
             default => route('overview', absolute: false)
         };
     }

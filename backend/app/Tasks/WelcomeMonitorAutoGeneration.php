@@ -16,9 +16,11 @@ class WelcomeMonitorAutoGeneration implements ShouldQueue
      * Shall run every 5 min
      *
      * */
-    public function __invoke(): void
+    public function __invoke(?Monitor $onlyMonitor = null): void
     {
-        foreach (Monitor::all() as $monitor) {
+        $monitors = $onlyMonitor ? collect([$onlyMonitor]) : Monitor::all();
+
+        foreach ($monitors as $monitor) {
 
             if (! $monitor->auto_generation) {
                 continue;
@@ -37,6 +39,9 @@ class WelcomeMonitorAutoGeneration implements ShouldQueue
             $windowEnd = Carbon::now()->addMinutes($windowMinutes);
 
             $currentVisits = Visit::query()
+                ->where('site_id', $monitor->site_id)
+                ->where('is_confidential', false)
+                ->where('monitor_display_mode', '!=', Visit::MONITOR_DISPLAY_HIDDEN)
                 ->where('scheduled_from', '<=', $windowEnd)
                 ->where('scheduled_until', '>=', $windowStart)
                 ->where('status', VisitStatusEnum::Planned->value)
@@ -62,12 +67,8 @@ class WelcomeMonitorAutoGeneration implements ShouldQueue
                         'show_date' => true,
                     ]);
 
-                    $payload = $chunk->map(function ($visitor) {
-                        $name = trim(implode(' ', array_filter([
-                            $visitor->title,
-                            $visitor->first_name,
-                            $visitor->name,
-                        ])));
+                    $payload = $chunk->map(function ($visitor) use ($currentVisit) {
+                        $name = $this->monitorDisplayName($currentVisit, $visitor);
 
                         return [
                             'id' => $visitor->id,
@@ -81,5 +82,24 @@ class WelcomeMonitorAutoGeneration implements ShouldQueue
                 }
             }
         }
+    }
+
+    private function monitorDisplayName(Visit $visit, mixed $visitor): string
+    {
+        $company = trim((string) $visitor->company);
+        $firstName = trim((string) $visitor->first_name);
+        $lastName = trim((string) $visitor->name);
+        $fullName = trim(implode(' ', array_filter([$visitor->title, $firstName, $lastName])));
+        $initials = trim(implode(' ', array_filter([
+            $firstName !== '' ? mb_substr($firstName, 0, 1).'.' : null,
+            $lastName !== '' ? mb_substr($lastName, 0, 1).'.' : null,
+        ])));
+
+        return match ($visit->monitor_display_mode) {
+            Visit::MONITOR_DISPLAY_FULL_NAME => $fullName !== '' ? $fullName : ($company ?: __('Gast')),
+            Visit::MONITOR_DISPLAY_FIRST_NAME_COMPANY => trim(implode(' - ', array_filter([$firstName, $company]))) ?: __('Gast'),
+            Visit::MONITOR_DISPLAY_INITIALS_COMPANY => trim(implode(' - ', array_filter([$initials, $company]))) ?: __('Gast'),
+            default => $company !== '' ? $company : __('Gast'),
+        };
     }
 }

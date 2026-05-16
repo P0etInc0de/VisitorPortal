@@ -6,6 +6,7 @@ use App\Enums\VisitStatusEnum;
 use App\Livewire\Portal\CheckInOutBoard;
 use App\Models\Monitor;
 use App\Models\RecurringVisitSeries;
+use App\Models\Site;
 use App\Models\Visit;
 use App\Models\Visitor;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -235,6 +236,49 @@ class AuditRegressionTest extends TestCase
 
         Livewire::actingAs($user)
             ->test(CheckInOutBoard::class)
+            ->assertForbidden();
+    }
+
+    public function test_site_reception_cannot_search_or_operate_on_other_site_visits(): void
+    {
+        $site = Site::factory()->create(['name' => 'Standort Ulm']);
+        $otherSite = Site::factory()->create(['name' => 'Standort Neu-Ulm']);
+        $receptionist = (new PermissionHelper)->getReceptionistUser();
+        $host = (new PermissionHelper)->getUserUser();
+        $otherHost = (new PermissionHelper)->getUserUser();
+
+        $receptionist->forceFill(['site_id' => $site->id])->save();
+        $host->forceFill(['site_id' => $site->id])->save();
+        $otherHost->forceFill(['site_id' => $otherSite->id])->save();
+
+        $visibleVisitor = Visitor::factory()->create(['first_name' => 'Visible', 'name' => 'Guest']);
+        $hiddenVisitor = Visitor::factory()->create(['first_name' => 'Hidden', 'name' => 'Guest']);
+        $visibleVisit = Visit::factory()->create([
+            'site_id' => $site->id,
+            'user_id' => $host->id,
+            'responsible_user_id' => $receptionist->id,
+            'scheduled_from' => now()->addHour(),
+            'scheduled_until' => now()->addHours(2),
+            'status' => VisitStatusEnum::Planned->value,
+        ]);
+        $hiddenVisit = Visit::factory()->create([
+            'site_id' => $otherSite->id,
+            'user_id' => $otherHost->id,
+            'responsible_user_id' => $otherHost->id,
+            'scheduled_from' => now()->addHour(),
+            'scheduled_until' => now()->addHours(2),
+            'status' => VisitStatusEnum::Planned->value,
+        ]);
+
+        $visibleVisit->visitors()->attach($visibleVisitor);
+        $hiddenVisit->visitors()->attach($hiddenVisitor);
+
+        Livewire::actingAs($receptionist)
+            ->test(CheckInOutBoard::class)
+            ->set('search', 'Guest')
+            ->assertSee('Visible Guest')
+            ->assertDontSee('Hidden Guest')
+            ->call('checkIn', $hiddenVisit->id, $hiddenVisitor->id)
             ->assertForbidden();
     }
 

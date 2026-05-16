@@ -146,7 +146,7 @@ new class extends Component {
         Log::info('User ID '.auth()->id()." updated settings for Monitor ID: {$this->monitor->id}");
 
         if ($this->monitor->auto_generation) {
-            app(WelcomeMonitorAutoGeneration::class)();
+            app(WelcomeMonitorAutoGeneration::class)($this->monitor);
         } else {
             $this->monitor->monitorSlides()
                 ->where('is_auto_generated', true)

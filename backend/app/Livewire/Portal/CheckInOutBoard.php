@@ -103,6 +103,12 @@ class CheckInOutBoard extends Component
 
         $hostId = (int) $payload['walkInHostId'];
 
+        if (! $this->hostOptions()->contains('id', $hostId)) {
+            throw ValidationException::withMessages([
+                'walkInHostId' => __('Sie können nur Hosts aus Ihrem Standort auswählen.'),
+            ]);
+        }
+
         [$visit, $visitor] = DB::transaction(function () use ($payload, $user, $hostId) {
             $visitor = $this->resolveWalkInVisitor($payload['walkIn'], $user);
             $visit = $this->createWalkInVisit($visitor, $user, $hostId);
@@ -133,13 +139,7 @@ class CheckInOutBoard extends Component
         $this->authorize('viewAny', Visit::class);
 
         return view('livewire.portal.check-in-out-board', [
-            'hosts' => User::query()
-                ->select('id', 'first_name', 'name')
-                ->where('is_active', true)
-                ->whereDoesntHave('roles', fn ($query) => $query->whereIn('name', ['welcome monitor', 'welcome_monitor']))
-                ->orderBy('first_name')
-                ->orderBy('name')
-                ->get(),
+            'hosts' => $this->hostOptions(),
             'results' => $this->searchResults(),
         ])->layout('layouts.app', [
             'header' => new HtmlString(
@@ -197,6 +197,7 @@ class CheckInOutBoard extends Component
         }
 
         $visits = Visit::query()
+            ->visibleTo($this->actor())
             ->with([
                 'host:id,first_name,name',
                 'responsibleUser:id,first_name,name',
@@ -318,6 +319,7 @@ class CheckInOutBoard extends Component
         }
 
         $visit = Visit::query()->findOrFail($visitId);
+        $this->authorize('view', $visit);
         $visitor = Visitor::query()->findOrFail($visitorId);
 
         return [$visit, $visitor, $user];
@@ -365,14 +367,42 @@ class CheckInOutBoard extends Component
 
         return Visit::query()->create([
             'title' => __('Walk-in: :name', ['name' => $displayName !== '' ? $displayName : __('Gast')]),
+            'site_id' => User::query()->whereKey($hostId)->value('site_id') ?: $user->site_id,
             'user_id' => $hostId,
             'responsible_user_id' => $user->id,
             'scheduled_from' => now(),
             'scheduled_until' => now()->addHour(),
             'status' => VisitStatusEnum::Planned->value,
             'is_walk_in' => true,
+            'is_confidential' => false,
+            'monitor_display_mode' => Visit::MONITOR_DISPLAY_COMPANY_ONLY,
             'notes' => __('Am Empfang als Walk-in erfasst.'),
         ]);
+    }
+
+    private function hostOptions()
+    {
+        $actor = $this->actor();
+        $query = User::query()
+            ->select('id', 'first_name', 'name', 'site_id')
+            ->where('is_active', true)
+            ->whereDoesntHave('roles', fn ($query) => $query->whereIn('name', ['welcome monitor', 'welcome_monitor']))
+            ->orderBy('first_name')
+            ->orderBy('name');
+
+        if (! ($actor->can('ViewAny:Visit') || $actor->can('EditAny:Visit') || $actor->can('DeleteAny:Visit'))) {
+            $query->where('site_id', $actor->site_id);
+        }
+
+        return $query->get();
+    }
+
+    private function actor(): User
+    {
+        $user = auth()->user();
+        abort_unless($user instanceof User, 403);
+
+        return $user;
     }
 
     private function resetWalkIn(): void

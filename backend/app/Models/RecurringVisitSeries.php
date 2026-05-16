@@ -37,10 +37,13 @@ class RecurringVisitSeries extends Model
 
     protected $fillable = [
         'title',
+        'site_id',
         'user_id',
         'responsible_user_id',
         'created_by_user_id',
         'status',
+        'is_confidential',
+        'monitor_display_mode',
         'notes',
         'starts_at',
         'duration_minutes',
@@ -58,6 +61,7 @@ class RecurringVisitSeries extends Model
         'end_date' => 'date',
         'generated_until' => 'datetime',
         'exclusion_dates' => 'array',
+        'is_confidential' => 'boolean',
         'duration_minutes' => 'integer',
         'interval_days' => 'integer',
         'occurrence_count' => 'integer',
@@ -118,6 +122,11 @@ class RecurringVisitSeries extends Model
         return $this->belongsTo(User::class, 'user_id');
     }
 
+    public function site(): BelongsTo
+    {
+        return $this->belongsTo(Site::class);
+    }
+
     public function responsibleUser(): BelongsTo
     {
         return $this->belongsTo(User::class, 'responsible_user_id');
@@ -138,5 +147,18 @@ class RecurringVisitSeries extends Model
         return $this->belongsToMany(Visitor::class, 'recurring_visit_series_visitor')
             ->withPivot('notes')
             ->withTimestamps();
+    }
+
+    protected static function booted(): void
+    {
+        static::saving(function (self $series): void {
+            if (($series->isDirty('user_id') && ! $series->isDirty('site_id')) || blank($series->site_id)) {
+                $series->site_id = User::query()->whereKey($series->user_id)->value('site_id') ?: Site::default()->id;
+            }
+
+            if (blank($series->monitor_display_mode)) {
+                $series->monitor_display_mode = Visit::MONITOR_DISPLAY_COMPANY_ONLY;
+            }
+        });
     }
 }

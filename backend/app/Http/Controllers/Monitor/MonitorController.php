@@ -39,7 +39,7 @@ class MonitorController extends Controller
      */
     public function show(Monitor $monitor)
     {
-        $this->authorize('View:Monitor');
+        $this->authorize('view', $monitor);
 
         return view('monitor.show')
             ->with('monitor', $monitor);
@@ -51,7 +51,7 @@ class MonitorController extends Controller
      */
     public function edit(Monitor $monitor)
     {
-        $this->authorize('update', Monitor::class);
+        $this->authorize('update', $monitor);
 
         $monitor_slides = MonitorSlide::query()->where('monitor_id', $monitor->id)->orderBy('monitor_slides.slide_number')->get();
 
@@ -109,7 +109,7 @@ class MonitorController extends Controller
         ]));
 
         if ($monitor->auto_generation) {
-            app(WelcomeMonitorAutoGeneration::class)();
+            app(WelcomeMonitorAutoGeneration::class)($monitor);
         }
 
         Log::info('User ID '.auth()->id()." updated settings for Monitor ID: {$monitor->id}");
