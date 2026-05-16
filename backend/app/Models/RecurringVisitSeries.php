@@ -150,11 +150,10 @@ class RecurringVisitSeries extends Model
 
     protected static function booted(): void
     {
-        static::saving(function (self $series): void {
-            if (($series->isDirty('user_id') && ! $series->isDirty('site_id')) || blank($series->site_id)) {
-                $series->site_id = User::query()->whereKey($series->user_id)->value('site_id') ?: Site::default()->id;
+        static::creating(function (self $series): void {
+            if (blank($series->site_id)) {
+                $series->site_id = Site::default()->id;
             }
-
         });
     }
 }

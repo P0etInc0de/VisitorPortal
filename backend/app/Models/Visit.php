@@ -104,11 +104,10 @@ class Visit extends Model
 
     protected static function booted(): void
     {
-        static::saving(function (self $visit): void {
-            if (($visit->isDirty('user_id') && ! $visit->isDirty('site_id')) || blank($visit->site_id)) {
-                $visit->site_id = User::query()->whereKey($visit->user_id)->value('site_id') ?: Site::default()->id;
+        static::creating(function (self $visit): void {
+            if (blank($visit->site_id)) {
+                $visit->site_id = Site::default()->id;
             }
-
         });
     }
 

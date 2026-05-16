@@ -2,16 +2,20 @@
 
 namespace App\Services;
 
+use App\Enums\VisitStatusEnum;
 use App\Models\User;
 use App\Models\Visit;
 use App\Models\Visitor;
 use App\Notifications\Host\GuestCheckedIn;
 use Illuminate\Support\Facades\Notification;
+use Illuminate\Validation\ValidationException;
 
 class VisitActionService
 {
     public function checkInParticipant(Visit $visit, Visitor $visitor, User $actionBy): Visitor
     {
+        $this->ensureVisitCanBeOperated($visit);
+
         $participant = $this->resolveParticipant($visit, $visitor);
         $pivot = $participant->pivot;
         $didCheckIn = false;
@@ -43,6 +47,8 @@ class VisitActionService
 
     public function checkOutParticipant(Visit $visit, Visitor $visitor, User $actionBy): Visitor
     {
+        $this->ensureVisitCanBeOperated($visit);
+
         $participant = $this->resolveParticipant($visit, $visitor);
 
         if (filled($participant->pivot->checked_in_at) && blank($participant->pivot->checked_out_at)) {
@@ -58,6 +64,8 @@ class VisitActionService
 
     public function printBadge(Visit $visit, Visitor $visitor): Visitor
     {
+        $this->ensureVisitCanBeOperated($visit);
+
         $participant = $this->resolveParticipant($visit, $visitor);
 
         if (blank($participant->pivot->badge_printed_at)) {
@@ -94,11 +102,27 @@ class VisitActionService
             ->firstOrFail();
     }
 
+    public function canOperate(Visit $visit): bool
+    {
+        return $visit->status === VisitStatusEnum::Planned->value;
+    }
+
+    private function ensureVisitCanBeOperated(Visit $visit): void
+    {
+        if ($this->canOperate($visit)) {
+            return;
+        }
+
+        throw ValidationException::withMessages([
+            'visit' => __('Dieser Besuch kann operativ nicht mehr bearbeitet werden.'),
+        ]);
+    }
+
     private function notifyHostAboutCheckIn(Visit $visit, Visitor $visitor): void
     {
         $recipient = $visit->loadMissing('host')->host;
 
-        if (! $recipient instanceof User) {
+        if (! $recipient instanceof User || ! $recipient->is_active) {
             return;
         }
 

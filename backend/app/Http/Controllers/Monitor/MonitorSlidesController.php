@@ -8,6 +8,7 @@ use App\Http\Requests\Monitor\UpdateMonitorSlideRequest;
 use App\Models\Monitor;
 use App\Models\MonitorSlide;
 use App\Models\Visit;
+use App\Models\Visitor;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
@@ -62,7 +63,7 @@ class MonitorSlidesController extends Controller
         $this->authorize('update', $monitor);
 
         $validated = $request->validated();
-        $validated['visitors'] = $this->normalizeVisitors($request->input('visitors'));
+        $validated['visitors'] = $this->normalizeVisitors($request->input('visitors'), $monitor);
         $validated = $this->prepareBackgroundData($request, $validated);
 
         $monitor_slide = $monitor->monitorSlides()->create($validated);
@@ -117,7 +118,7 @@ class MonitorSlidesController extends Controller
         $this->authorize('update', $slide);
 
         $validated = $request->validated();
-        $validated['visitors'] = $this->normalizeVisitors($validated['visitors'] ?? null);
+        $validated['visitors'] = $this->normalizeVisitors($validated['visitors'] ?? null, $monitor);
         $validated = $this->prepareBackgroundData($request, $validated, $slide);
 
         $slide->update($validated);
@@ -156,7 +157,7 @@ class MonitorSlidesController extends Controller
         abort_unless((int) $slide->monitor_id === (int) $monitor->id, 404);
     }
 
-    private function normalizeVisitors(?string $encodedVisitors): array
+    private function normalizeVisitors(?string $encodedVisitors, Monitor $monitor): array
     {
         $decoded = json_decode($encodedVisitors ?? '[]', true);
 
@@ -179,6 +180,12 @@ class MonitorSlidesController extends Controller
             }
 
             $numericId = is_numeric($visitor['id'] ?? null) ? (int) $visitor['id'] : null;
+
+            if ($numericId !== null && ! $this->visitorCanBeShownOnMonitor($numericId, $monitor)) {
+                throw ValidationException::withMessages([
+                    'visitors' => __('Dieser Besucher kann für diesen Monitor nicht ausgewählt werden.'),
+                ]);
+            }
 
             if ($numericId === null && mb_strlen($name) > 50) {
                 throw ValidationException::withMessages([
@@ -206,6 +213,16 @@ class MonitorSlidesController extends Controller
         }
 
         return $normalized;
+    }
+
+    private function visitorCanBeShownOnMonitor(int $visitorId, Monitor $monitor): bool
+    {
+        return Visitor::query()
+            ->whereKey($visitorId)
+            ->whereHas('visits', fn ($query) => $query
+                ->where('visits.site_id', $monitor->site_id)
+                ->where('visits.is_confidential', false))
+            ->exists();
     }
 
     /**

@@ -269,6 +269,7 @@ class CheckInOutBoard extends Component
     {
         $pivot = $visit->visitors->firstWhere('id', $visitor->id)?->pivot;
         $status = $this->resolveParticipantStatus((string) $visit->status, $pivot);
+        $canOperate = $this->visitActionService()->canOperate($visit);
         $displayName = trim(implode(' ', array_filter([
             $visitor->title,
             $visitor->first_name,
@@ -304,9 +305,10 @@ class CheckInOutBoard extends Component
             'checked_in_label' => $this->formatActionTimestamp($pivot?->checked_in_at),
             'checked_out_label' => $this->formatActionTimestamp($pivot?->checked_out_at),
             'badge_ready' => filled($pivot?->badge_printed_at),
-            'can_check_in' => blank($pivot?->checked_in_at) || filled($pivot?->checked_out_at),
+            'can_print_badge' => $canOperate,
+            'can_check_in' => $canOperate && (blank($pivot?->checked_in_at) || filled($pivot?->checked_out_at)),
             'check_in_label' => filled($pivot?->checked_out_at) ? __('Erneut einchecken') : __('Check-in'),
-            'can_check_out' => filled($pivot?->checked_in_at) && blank($pivot?->checked_out_at),
+            'can_check_out' => $canOperate && filled($pivot?->checked_in_at) && blank($pivot?->checked_out_at),
         ];
     }
 

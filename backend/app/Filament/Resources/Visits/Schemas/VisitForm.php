@@ -36,8 +36,10 @@ class VisitForm
                     ->label(__('Host'))
                     ->options(fn (callable $get): array => self::userOptionsForSite((int) ($get('site_id') ?: self::defaultActiveSiteId())))
                     ->default(auth()->id())
-                    ->disabled()
                     ->dehydrated()
+                    ->searchable()
+                    ->preload()
+                    ->required()
                     ->rules(fn (callable $get): array => [
                         new UserCanAccessSite((int) ($get('site_id') ?: self::defaultActiveSiteId()), __('Der Host ist dem ausgewählten Standort nicht zugeordnet.')),
                     ]),

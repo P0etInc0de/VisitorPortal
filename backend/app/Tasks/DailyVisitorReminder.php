@@ -33,6 +33,10 @@ class DailyVisitorReminder
         $visitsOfToday->groupBy('responsible_user_id')->each(function ($visitCollection) {
             $user = $visitCollection->first()->responsibleUser;
 
+            if (! $user?->is_active) {
+                return;
+            }
+
             // Map visits to their visitors keyed by visit ID
             $visitorCollection = $visitCollection->pluck('visitors', 'id');
 

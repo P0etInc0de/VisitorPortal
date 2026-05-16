@@ -196,6 +196,7 @@ class DashboardPage extends Component
         $pivot = $visitor->pivot;
         $status = $this->resolveParticipantStatus($visit->status, $pivot);
         $isCheckedOut = filled($pivot->checked_out_at);
+        $canOperate = app(VisitActionService::class)->canOperate($visit);
 
         return [
             'row_key' => 'visit-'.$visit->id.'-visitor-'.$visitor->id,
@@ -205,10 +206,10 @@ class DashboardPage extends Component
             'status_label' => $status['label'],
             'status_class' => $status['class'],
             'badge_ready' => filled($pivot->badge_printed_at),
-            'can_print_badge' => true,
-            'can_check_in' => blank($pivot->checked_in_at) || $isCheckedOut,
+            'can_print_badge' => $canOperate,
+            'can_check_in' => $canOperate && (blank($pivot->checked_in_at) || $isCheckedOut),
             'check_in_label' => $isCheckedOut ? __('Erneut einchecken') : __('Check-in'),
-            'can_check_out' => filled($pivot->checked_in_at) && blank($pivot->checked_out_at),
+            'can_check_out' => $canOperate && filled($pivot->checked_in_at) && blank($pivot->checked_out_at),
             'badge_url' => route('reception.participants.badge', [$visit->id, $visitor->id]),
         ];
     }
