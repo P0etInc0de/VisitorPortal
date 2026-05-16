@@ -91,9 +91,11 @@ SVG;
     $visitorFullName = trim(implode(' ', array_filter([$visitor->title ?? null, $visitor->first_name ?? null, $visitor->name ?? null]))) ?: '-';
     $responsibleFullName = trim(($visit->responsibleUser?->first_name ?? '').' '.($visit->responsibleUser?->name ?? ''));
     $visitDate = $visit->scheduled_from->format('d.m.Y');
+    $visitTimeSeparator = __('bis');
+    $visitTimeSuffix = __('Uhr');
     $visitTimeRange = $visit->scheduled_from->isSameDay($visit->scheduled_until)
-        ? $visit->scheduled_from->format('H:i').' bis '.$visit->scheduled_until->format('H:i').' Uhr'
-        : $visit->scheduled_from->format('d.m.Y H:i').' bis '.$visit->scheduled_until->format('d.m.Y H:i').' Uhr';
+        ? $visit->scheduled_from->format('H:i').' '.$visitTimeSeparator.' '.$visit->scheduled_until->format('H:i').' '.$visitTimeSuffix
+        : $visit->scheduled_from->format('d.m.Y H:i').' '.$visitTimeSeparator.' '.$visit->scheduled_until->format('d.m.Y H:i').' '.$visitTimeSuffix;
     $photoDataUri = $inlineAsset(
         data_get($visitor, 'badge_photo_path')
             ?: data_get($visitor, 'photo_path')
@@ -107,7 +109,7 @@ SVG;
 @endphp
 
 <!DOCTYPE html>
-<html lang="de">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 <head>
     <meta charset="UTF-8">
     <title>{{ __('Besucherausweis') }}</title>

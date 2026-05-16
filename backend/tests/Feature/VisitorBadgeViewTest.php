@@ -25,7 +25,7 @@ class VisitorBadgeViewTest extends TestCase
         $this->assertStringContainsString('14.05.2026', $html);
         $this->assertStringContainsString('09:00 '.__('bis').' 10:00 '.__('Uhr'), $html);
         $this->assertStringNotContainsString(__('Name:'), $html);
-        $this->assertStringNotContainsString(__('Firma:'), $html);
+        $this->assertStringNotContainsString('Firma:', $html);
         $this->assertStringNotContainsString('class="badge-photo', $html);
         $this->assertStringNotContainsString('class="qr-code', $html);
     }
@@ -37,7 +37,7 @@ class VisitorBadgeViewTest extends TestCase
         $html = $this->renderBadge();
 
         $this->assertStringContainsString(__('Unternehmen:'), $html);
-        $this->assertStringNotContainsString(__('Firma:'), $html);
+        $this->assertStringNotContainsString('Firma:', $html);
     }
 
     public function test_badge_accent_color_is_configurable(): void
