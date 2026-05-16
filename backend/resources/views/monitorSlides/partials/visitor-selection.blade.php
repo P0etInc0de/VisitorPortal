@@ -85,12 +85,26 @@
                                 @if ($visit->visitors->isNotEmpty())
                                     <div class="mt-2 flex flex-wrap gap-2 pl-[4.5rem]">
                                         @foreach ($visit->visitors as $visitor)
+                                            @php
+                                                $visitorDisplayName = trim($visitor->title.' '.$visitor->first_name.' '.$visitor->name);
+                                                $visitorPayload = [
+                                                    'key' => "visit-{$visitor->id}",
+                                                    'id' => $visitor->id,
+                                                    'name' => $visitorDisplayName,
+                                                    'source' => [
+                                                        'title' => $visitor->title,
+                                                        'first_name' => $visitor->first_name,
+                                                        'name' => $visitor->name,
+                                                        'company' => $visitor->company,
+                                                    ],
+                                                ];
+                                            @endphp
                                             <button
                                                 type="button"
                                                 class="btn btn-xs btn-outline rounded-full"
-                                                onclick='addVisitor(@json(["key" => "visit-{$visitor->id}", "id" => $visitor->id, "name" => trim($visitor->title." ".$visitor->first_name." ".$visitor->name)]))'
+                                                onclick="addVisitor(@js($visitorPayload))"
                                             >
-                                                + {{ trim($visitor->title.' '.$visitor->first_name.' '.$visitor->name) }}
+                                                + {{ $visitorDisplayName }}
                                             </button>
                                         @endforeach
                                     </div>

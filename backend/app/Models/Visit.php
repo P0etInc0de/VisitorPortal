@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -14,6 +15,7 @@ class Visit extends Model
 
     protected $fillable = [
         'title',
+        'site_id',
         'recurring_visit_series_id',
         'recurrence_occurrence_number',
         'recurrence_original_scheduled_from',
@@ -23,6 +25,7 @@ class Visit extends Model
         'scheduled_from',
         'scheduled_until',
         'status',
+        'is_confidential',
         'is_walk_in',
         'notes',
         'canceled_at',
@@ -37,6 +40,7 @@ class Visit extends Model
         'scheduled_until' => 'datetime',
         'recurrence_original_scheduled_from' => 'datetime',
         'recurrence_is_modified' => 'boolean',
+        'is_confidential' => 'boolean',
         'is_walk_in' => 'boolean',
         'canceled_at' => 'datetime',
         'retention_hold_until' => 'datetime',
@@ -51,6 +55,11 @@ class Visit extends Model
     public function host(): BelongsTo
     {
         return $this->belongsTo(User::class, 'user_id');
+    }
+
+    public function site(): BelongsTo
+    {
+        return $this->belongsTo(Site::class);
     }
 
     public function responsibleUser(): BelongsTo
@@ -91,6 +100,49 @@ class Visit extends Model
                 'notes',
             ])
             ->withTimestamps();
+    }
+
+    protected static function booted(): void
+    {
+        static::saving(function (self $visit): void {
+            if (($visit->isDirty('user_id') && ! $visit->isDirty('site_id')) || blank($visit->site_id)) {
+                $visit->site_id = User::query()->whereKey($visit->user_id)->value('site_id') ?: Site::default()->id;
+            }
+
+        });
+    }
+
+    public function scopeVisibleTo(Builder $query, User $user): Builder
+    {
+        if ($user->can('ViewAny:Visit') || $user->can('EditAny:Visit') || $user->can('DeleteAny:Visit')) {
+            return $query;
+        }
+
+        $canSeeSite = $user->site_id !== null
+            && ($user->can('ViewSite:Visit') || $user->can('EditSite:Visit') || $user->can('DeleteSite:Visit'));
+        $canSeeDepartment = $user->department_id !== null
+            && ($user->can('ViewDepartment:Visit') || $user->can('EditDepartment:Visit') || $user->can('DeleteDepartment:Visit'));
+        $canSeeOwn = $user->can('ViewOwn:Visit') || $user->can('EditOwn:Visit') || $user->can('DeleteOwn:Visit');
+
+        if (! $canSeeSite && ! $canSeeDepartment && ! $canSeeOwn) {
+            return $query->whereRaw('1 = 0');
+        }
+
+        return $query->where(function (Builder $query) use ($user, $canSeeSite, $canSeeDepartment, $canSeeOwn): void {
+            if ($canSeeSite) {
+                $query->orWhere('site_id', $user->site_id);
+            }
+
+            if ($canSeeDepartment) {
+                $query->orWhereHas('host', fn (Builder $query) => $query->where('department_id', $user->department_id))
+                    ->orWhereHas('responsibleUser', fn (Builder $query) => $query->where('department_id', $user->department_id));
+            }
+
+            if ($canSeeOwn) {
+                $query->orWhere('user_id', $user->id)
+                    ->orWhere('responsible_user_id', $user->id);
+            }
+        });
     }
 
     public function getDisplayTitleAttribute(): string

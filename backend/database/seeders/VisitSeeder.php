@@ -177,6 +177,7 @@ class VisitSeeder extends Seeder
         $visit = Visit::query()->updateOrCreate(
             ['title' => $visitData['title']],
             [
+                'site_id' => $host->site_id,
                 'user_id' => $host->id,
                 'responsible_user_id' => $responsible->id,
                 'scheduled_from' => $visitData['from'],

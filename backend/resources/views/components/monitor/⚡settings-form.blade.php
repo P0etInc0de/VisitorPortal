@@ -26,6 +26,8 @@ new class extends Component {
 
     public string $contentCardStyle = Monitor::DEFAULT_CONTENT_CARD_STYLE;
 
+    public string $monitorDisplayMode = Monitor::DEFAULT_MONITOR_DISPLAY_MODE;
+
     public $image = null;
 
     public ?string $existingImagePath = null;
@@ -90,6 +92,7 @@ new class extends Component {
         $this->backgroundOverlayEnabled = (bool) $defaults['background_overlay_enabled'];
         $this->headerTextIsLight = (bool) $defaults['header_text_is_light'];
         $this->contentCardStyle = (string) $defaults['content_card_style'];
+        $this->monitorDisplayMode = (string) $defaults['monitor_display_mode'];
         $this->image = null;
         $this->removeExistingImage = filled($this->existingImagePath);
         $this->resetErrorBag();
@@ -140,13 +143,14 @@ new class extends Component {
             'background_overlay_enabled' => $validated['backgroundOverlayEnabled'],
             'header_text_is_light' => $validated['headerTextIsLight'],
             'content_card_style' => $validated['contentCardStyle'],
+            'monitor_display_mode' => $validated['monitorDisplayMode'],
             'image_path' => $imagePath,
         ]);
 
         Log::info('User ID '.auth()->id()." updated settings for Monitor ID: {$this->monitor->id}");
 
         if ($this->monitor->auto_generation) {
-            app(WelcomeMonitorAutoGeneration::class)();
+            app(WelcomeMonitorAutoGeneration::class)($this->monitor);
         } else {
             $this->monitor->monitorSlides()
                 ->where('is_auto_generated', true)
@@ -170,6 +174,7 @@ new class extends Component {
         $this->backgroundOverlayEnabled = (bool) $this->monitor->background_overlay_enabled;
         $this->headerTextIsLight = (bool) $this->monitor->header_text_is_light;
         $this->contentCardStyle = $this->monitor->content_card_style ?: Monitor::DEFAULT_CONTENT_CARD_STYLE;
+        $this->monitorDisplayMode = $this->monitor->monitor_display_mode ?: Monitor::DEFAULT_MONITOR_DISPLAY_MODE;
         $this->existingImagePath = $this->monitor->image_path;
         $this->image = null;
         $this->removeExistingImage = false;
@@ -200,6 +205,7 @@ new class extends Component {
             'backgroundOverlayEnabled' => $this->backgroundOverlayEnabled,
             'headerTextIsLight' => $this->headerTextIsLight,
             'contentCardStyle' => $this->contentCardStyle,
+            'monitorDisplayMode' => $this->monitorDisplayMode,
             'hasPendingUpload' => $this->image !== null,
             'removeExistingImage' => $this->removeExistingImage,
         ];
@@ -215,6 +221,7 @@ new class extends Component {
             'backgroundOverlayEnabled' => ['boolean'],
             'headerTextIsLight' => ['boolean'],
             'contentCardStyle' => ['required', 'in:solid,transparent,none'],
+            'monitorDisplayMode' => ['required', 'in:'.implode(',', Monitor::displayModes())],
             'image' => ['nullable', 'image', 'mimes:jpeg,jpg,png,webp', 'max:20000'],
         ];
     }
@@ -236,6 +243,7 @@ new class extends Component {
 @php
     $backgroundPresets = Monitor::backgroundPresets();
     $contentCardStyles = Monitor::contentCardStyles();
+    $displayModes = Monitor::displayModeOptions();
     $hasStoredUpload = filled($existingImagePath) && Storage::disk('public')->exists($existingImagePath);
     $resolvedSource = $backgroundSource === 'upload' && ($image !== null || $hasStoredUpload)
         ? 'upload'
@@ -334,6 +342,24 @@ new class extends Component {
                     @endforeach
                 </select>
                 @error('contentCardStyle')
+                    <span class="mt-1 block text-sm font-medium text-red-500">{{ $message }}</span>
+                @enderror
+            </div>
+        </div>
+
+        <div class="flex flex-col gap-3 md:flex-row md:items-center md:gap-6">
+            <label for="monitor-display-mode" class="text-sm font-medium leading-tight text-base-content md:w-2/3 md:text-base">{{ __('Besucheranzeige') }}</label>
+            <div class="md:w-1/3 md:max-w-[15rem]">
+                <select
+                    id="monitor-display-mode"
+                    wire:model.live="monitorDisplayMode"
+                    class="select select-bordered h-10 w-full rounded-xl border-base-300 bg-base-100 text-sm focus:border-primary transition-all"
+                >
+                    @foreach ($displayModes as $modeValue => $modeLabel)
+                        <option value="{{ $modeValue }}">{{ $modeLabel }}</option>
+                    @endforeach
+                </select>
+                @error('monitorDisplayMode')
                     <span class="mt-1 block text-sm font-medium text-red-500">{{ $message }}</span>
                 @enderror
             </div>

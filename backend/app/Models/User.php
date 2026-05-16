@@ -28,6 +28,7 @@ class User extends Authenticatable implements FilamentUser
      * @var list<string>
      */
     protected $fillable = [
+        'site_id',
         'name',
         'first_name',
         'title',
@@ -67,6 +68,11 @@ class User extends Authenticatable implements FilamentUser
         return $this->belongsTo(Department::class, 'department_id'); // Relationship to departments table id
     }
 
+    public function site(): BelongsTo
+    {
+        return $this->belongsTo(Site::class);
+    }
+
     public function visit(): HasMany
     {
         return $this->hasMany(Visit::class, 'user_id'); // Relationship to visits table id
@@ -95,6 +101,12 @@ class User extends Authenticatable implements FilamentUser
     protected static function booted(): void
     {
         static::saving(function (self $user): void {
+            if (blank($user->site_id)) {
+                $user->site_id = $user->department_id
+                    ? Department::query()->whereKey($user->department_id)->value('site_id')
+                    : Site::default()->id;
+            }
+
             if (! $user->isDirty('is_active')) {
                 return;
             }

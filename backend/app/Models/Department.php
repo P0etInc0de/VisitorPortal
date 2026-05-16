@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Department extends Model
@@ -13,10 +14,29 @@ class Department extends Model
      * @var list<string>
      */
     protected $fillable = [
+        'site_id',
         'name',
         'location',
         'is_active',
     ];
+
+    protected $casts = [
+        'is_active' => 'boolean',
+    ];
+
+    protected static function booted(): void
+    {
+        static::saving(function (self $department): void {
+            if (blank($department->site_id)) {
+                $department->site_id = Site::default()->id;
+            }
+        });
+    }
+
+    public function site(): BelongsTo
+    {
+        return $this->belongsTo(Site::class);
+    }
 
     /**
      * Relationships to table users for foreign key

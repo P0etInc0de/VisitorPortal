@@ -107,7 +107,7 @@ class ReceptionAdministerVisitTest extends TestCase
     {
         $receptionist = (new PermissionHelper)->getReceptionistUser();
 
-        $participant = Visitor::factory()->create();
+        $participant = Visitor::factory()->create(['created_by_user_id' => $receptionist->id]);
 
         $visitTitle = 'Test Visit';
 
@@ -146,7 +146,7 @@ class ReceptionAdministerVisitTest extends TestCase
     {
         $receptionist = (new PermissionHelper)->getReceptionistUser();
 
-        $participant = Visitor::factory()->create();
+        $participant = Visitor::factory()->create(['created_by_user_id' => $receptionist->id]);
         $employee = User::factory()->create();
         $responsibleUser = User::factory()->create();
 

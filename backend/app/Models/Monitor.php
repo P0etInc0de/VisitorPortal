@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Collection as EloquentCollection;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Facades\Storage;
 
@@ -17,12 +18,23 @@ class Monitor extends Model
 
     public const DEFAULT_CONTENT_CARD_STYLE = 'transparent';
 
+    public const DISPLAY_COMPANY_ONLY = 'company_only';
+
+    public const DISPLAY_TITLE_FIRST_NAME_LAST_INITIAL = 'title_first_name_last_initial';
+
+    public const DISPLAY_TITLE_FIRST_INITIAL_LAST_NAME = 'title_first_initial_last_name';
+
+    public const DISPLAY_TITLE_FULL_NAME = 'title_full_name';
+
+    public const DEFAULT_MONITOR_DISPLAY_MODE = self::DISPLAY_TITLE_FIRST_INITIAL_LAST_NAME;
+
     /**
      * The attributes that are mass assignable.
      *
      * @var list<string>
      */
     protected $fillable = [
+        'site_id',
         'name',
         'transition_time_milliseconds',
         'image_path',
@@ -32,6 +44,7 @@ class Monitor extends Model
         'content_card_style',
         'auto_generation',
         'auto_generation_window_minutes',
+        'monitor_display_mode',
         'fallback_heading',
         'fallback_subheading',
         'fallback_show_logo',
@@ -53,6 +66,10 @@ class Monitor extends Model
     protected static function booted(): void
     {
         static::creating(function (self $monitor) {
+            if (blank($monitor->site_id)) {
+                $monitor->site_id = Site::default()->id;
+            }
+
             foreach (self::defaultSettings() as $attribute => $value) {
                 if ($monitor->{$attribute} === null) {
                     $monitor->{$attribute} = $value;
@@ -66,6 +83,11 @@ class Monitor extends Model
         return $this->hasMany(MonitorSlide::class);
     }
 
+    public function site(): BelongsTo
+    {
+        return $this->belongsTo(Site::class);
+    }
+
     /**
      * @return array<string, int|bool|string>
      */
@@ -75,6 +97,7 @@ class Monitor extends Model
             'transition_time_milliseconds' => self::DEFAULT_TRANSITION_TIME_MILLISECONDS,
             'auto_generation' => true,
             'auto_generation_window_minutes' => self::DEFAULT_AUTO_GENERATION_WINDOW_MINUTES,
+            'monitor_display_mode' => self::DEFAULT_MONITOR_DISPLAY_MODE,
             'background_source' => self::DEFAULT_BACKGROUND_SOURCE,
             'background_overlay_enabled' => false,
             'header_text_is_light' => false,
@@ -94,6 +117,27 @@ class Monitor extends Model
     public static function defaultFallbackSubheading(): string
     {
         return (string) config('branding.monitor_fallback_subheading', "We're glad you're here.");
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    public static function displayModeOptions(): array
+    {
+        return [
+            self::DISPLAY_COMPANY_ONLY => __('Nur Unternehmen'),
+            self::DISPLAY_TITLE_FIRST_NAME_LAST_INITIAL => __('Titel + Vorname + erster Buchstabe Nachname'),
+            self::DISPLAY_TITLE_FIRST_INITIAL_LAST_NAME => __('Titel + erster Buchstabe Vorname + Nachname'),
+            self::DISPLAY_TITLE_FULL_NAME => __('Titel + Vorname + Nachname'),
+        ];
+    }
+
+    /**
+     * @return list<string>
+     */
+    public static function displayModes(): array
+    {
+        return array_keys(self::displayModeOptions());
     }
 
     /**

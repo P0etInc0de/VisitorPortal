@@ -3,11 +3,13 @@
 namespace App\Filament\Resources\Visits\Schemas;
 
 use App\Enums\VisitStatusEnum;
+use App\Models\Site;
 use App\Models\User;
 use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\Toggle;
 use Filament\Schemas\Schema;
 
 class VisitForm
@@ -16,6 +18,12 @@ class VisitForm
     {
         return $schema
             ->components([
+                Select::make('site_id')
+                    ->label(__('Standort'))
+                    ->relationship('site', 'name')
+                    ->default(fn () => Site::default()->id)
+                    ->required()
+                    ->preload(),
                 Select::make('user_id')
                     ->label(__('Host'))
                     ->relationship(
@@ -68,6 +76,9 @@ class VisitForm
                     ->preload()
                     ->default(VisitStatusEnum::Planned->value)
                     ->disabled(fn ($record) => $record?->status === VisitStatusEnum::Canceled->value),
+                Toggle::make('is_confidential')
+                    ->label(__('Vertraulich'))
+                    ->default(false),
                 Textarea::make('notes')
                     ->label(__('Notizen'))
                     ->maxLength(1000)

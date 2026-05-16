@@ -11,8 +11,8 @@
             @method('PUT')
 
             <div class="grid gap-5">
-                <x-bp.input label="{{ __('Überschrift') }}" name="heading" value="{{ old('heading', $monitor->fallback_heading) }}"/>
-                <x-bp.input label="{{ __('Unterüberschrift') }}" name="subheading" value="{{ old('subheading', $monitor->fallback_subheading) }}"/>
+                <x-bp.input label="{{ __('Überschrift') }}" name="heading" :value="old('heading', $monitor->fallback_heading)"/>
+                <x-bp.input label="{{ __('Unterüberschrift') }}" name="subheading" :value="old('subheading', $monitor->fallback_subheading)"/>
 
                 <div class="grid gap-3 sm:grid-cols-2 xl:max-w-[28rem]">
                     <div class="rounded-2xl border border-base-300 bg-base-200 p-3.5">

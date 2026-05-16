@@ -34,6 +34,13 @@ Docker-Hinweis:
 - Der Retention-Lauf unterstützt `--dry-run` für auditierbare Probeläufe ohne Datenänderung.
 - Weitere Betreiberpflichten und eine Vorlage für Besucherinformationen stehen in `PRIVACY.md`.
 
+## Organisation und Standorte
+- Eine Installation ist für genau eine Organisation/Firma gedacht.
+- Mehrere Standorte innerhalb dieser Organisation werden über `sites` abgebildet.
+- Für rechtlich getrennte Organisationen sollten getrennte Instanzen betrieben werden, solange keine vollständige Multi-Tenancy explizit implementiert und auditiert wurde.
+- Neue Installationen erhalten automatisch einen `Default Site`; bestehende Daten werden bei der Migration diesem Standort zugeordnet.
+- Besucher bleiben organisationsweit als Person/Kontakt erhalten. Sichtbarkeit entsteht über berechtigte Besuche, Abteilungen und Standorte.
+
 ## Cache-Hinweise
 - In der Entwicklung `config:cache` möglichst nicht verwenden.
 - Wenn `.env` geändert wurde:

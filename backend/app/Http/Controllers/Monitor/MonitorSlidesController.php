@@ -27,7 +27,7 @@ class MonitorSlidesController extends Controller
     public function create(Monitor $monitor)
     {
         $this->authorize('create', MonitorSlide::class);
-        $this->authorize('update', Monitor::class);
+        $this->authorize('update', $monitor);
 
         $currentMax = MonitorSlide::query()
             ->where('monitor_id', $monitor->id)
@@ -36,6 +36,8 @@ class MonitorSlidesController extends Controller
 
         $defaultSlideNumber = $currentMax + 1;
         $todayVisits = Visit::query()
+            ->where('site_id', $monitor->site_id)
+            ->where('is_confidential', false)
             ->whereDate('visits.scheduled_from', '<=', Carbon::today())
             ->whereDate('visits.scheduled_until', '>=', Carbon::today())
             ->with('visitors')
@@ -57,6 +59,7 @@ class MonitorSlidesController extends Controller
     public function store(StoreMonitorSlideRequest $request, Monitor $monitor)
     {
         $this->authorize('create', MonitorSlide::class);
+        $this->authorize('update', $monitor);
 
         $validated = $request->validated();
         $validated['visitors'] = $this->normalizeVisitors($request->input('visitors'));
@@ -83,9 +86,11 @@ class MonitorSlidesController extends Controller
         $this->ensureSlideBelongsToMonitor($monitor, $slide);
 
         $this->authorize('update', $slide);
-        $this->authorize('update', Monitor::class);
+        $this->authorize('update', $monitor);
 
         $todayVisits = Visit::query()
+            ->where('site_id', $monitor->site_id)
+            ->where('is_confidential', false)
             ->whereDate('visits.scheduled_from', '<=', Carbon::today())
             ->whereDate('visits.scheduled_until', '>=', Carbon::today())
             ->orderBy('visits.scheduled_from')

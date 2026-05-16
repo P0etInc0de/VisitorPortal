@@ -29,6 +29,14 @@ The application processes potentially personal data such as visitor names, compa
 - White-label branding via environment configuration
 - Docker-based demo setup with prebuilt application image
 
+## Organization And Site Model
+
+VisitorPortal is designed for one organization per instance.
+Multiple sites/locations within one organization are supported.
+For legally separate organizations, run separate instances unless full multi-tenancy is explicitly implemented and audited.
+
+Sites represent physical locations such as receptions, plants, offices, or buildings. Visits, monitors, reception views, and host/responsible user selections are scoped by site so one reception desk does not automatically see operational data from another location.
+
 ## Screenshots
 
 ### Reception Dashboard

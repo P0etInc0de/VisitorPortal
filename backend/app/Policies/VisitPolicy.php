@@ -15,12 +15,12 @@ class VisitPolicy
 
     public function viewAny(User $user): bool
     {
-        return $user->can('ViewAny:Visit');
+        return $user->can('ViewAny:Visit') || $user->can('ViewSite:Visit') || $user->can('EditSite:Visit') || $user->can('DeleteSite:Visit');
     }
 
     public function view(User $user, Visit $visit): bool
     {
-        return $this->viewAny($user) || $this->viewOwn($user, $visit) || $this->viewDepartment($user, $visit);
+        return $this->viewAnyGlobal($user) || $this->viewSite($user, $visit) || $this->viewOwn($user, $visit) || $this->viewDepartment($user, $visit);
     }
 
     public function create(User $user): bool
@@ -38,7 +38,7 @@ class VisitPolicy
             return false;
         }
 
-        return $this->editDepartment($user, $visit) || $this->editOwn($user, $visit);
+        return $this->editSite($user, $visit) || $this->editDepartment($user, $visit) || $this->editOwn($user, $visit);
     }
 
     public function delete(User $user, Visit $visit): bool
@@ -51,7 +51,7 @@ class VisitPolicy
             return false;
         }
 
-        return $this->deleteDepartment($user, $visit) || $this->deleteOwn($user, $visit);
+        return $this->deleteSite($user, $visit) || $this->deleteDepartment($user, $visit) || $this->deleteOwn($user, $visit);
     }
 
     public function deleteAny(User $user): bool
@@ -62,6 +62,27 @@ class VisitPolicy
     public function editAny(User $user): bool
     {
         return $user->can('EditAny:Visit');
+    }
+
+    public function viewSite(User $user, Visit $visit): bool
+    {
+        return $user->can('ViewSite:Visit')
+            && $user->site_id !== null
+            && (int) $user->site_id === (int) $visit->site_id;
+    }
+
+    public function editSite(User $user, Visit $visit): bool
+    {
+        return $user->can('EditSite:Visit')
+            && $user->site_id !== null
+            && (int) $user->site_id === (int) $visit->site_id;
+    }
+
+    public function deleteSite(User $user, Visit $visit): bool
+    {
+        return $user->can('DeleteSite:Visit')
+            && $user->site_id !== null
+            && (int) $user->site_id === (int) $visit->site_id;
     }
 
     public function viewDepartment(User $user, Visit $visit): bool
@@ -117,5 +138,10 @@ class VisitPolicy
         return ! $visit->visitors()
             ->wherePivotNull('checked_out_at')
             ->exists();
+    }
+
+    private function viewAnyGlobal(User $user): bool
+    {
+        return $user->can('ViewAny:Visit');
     }
 }

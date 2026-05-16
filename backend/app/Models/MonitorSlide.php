@@ -20,6 +20,7 @@ class MonitorSlide extends Model
         'slide_number',
         'is_active',
         'is_auto_generated',
+        'monitor_display_mode',
         'show_logo',
         'show_date',
         'show_time',
@@ -40,6 +41,13 @@ class MonitorSlide extends Model
     public function monitor(): BelongsTo
     {
         return $this->belongsTo(Monitor::class);
+    }
+
+    public function effectiveMonitorDisplayMode(Monitor $monitor): string
+    {
+        return in_array($this->monitor_display_mode, Monitor::displayModes(), true)
+            ? $this->monitor_display_mode
+            : ($monitor->monitor_display_mode ?: Monitor::DEFAULT_MONITOR_DISPLAY_MODE);
     }
 
     public function resolvedBackgroundSource(): ?string
@@ -78,6 +86,11 @@ class MonitorSlide extends Model
     {
         // Automatically assign the next number on creation
         static::creating(function ($model) {
+            if (blank($model->monitor_display_mode) && $model->monitor_id) {
+                $model->monitor_display_mode = Monitor::query()->whereKey($model->monitor_id)->value('monitor_display_mode')
+                    ?: Monitor::DEFAULT_MONITOR_DISPLAY_MODE;
+            }
+
             $scope = static::where('monitor_id', $model->monitor_id)
                 ->where('is_auto_generated', (bool) $model->is_auto_generated);
 

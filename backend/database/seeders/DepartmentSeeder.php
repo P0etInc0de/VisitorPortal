@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use App\Models\Department;
+use App\Models\Site;
 use Illuminate\Database\Seeder;
 
 class DepartmentSeeder extends Seeder
@@ -28,8 +29,10 @@ class DepartmentSeeder extends Seeder
 
     private function createOrUpdateDept(string $name, ?string $location, ?bool $is_active): void
     {
+        $site = Site::default();
+
         Department::query()->updateOrCreate(
-            ['name' => $name], // search criteria
+            ['site_id' => $site->id, 'name' => $name], // search criteria
             ['location' => $location, 'is_active' => $is_active] // update values
         );
     }

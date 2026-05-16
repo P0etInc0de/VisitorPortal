@@ -12,6 +12,8 @@ class DepartmentInfolist
     {
         return $schema
             ->components([
+                TextEntry::make('site.name')
+                    ->label(__('Standort')),
                 TextEntry::make('name')
                     ->label(__('Name')),
                 TextEntry::make('location')

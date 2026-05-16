@@ -23,6 +23,7 @@ class VisitController extends Controller
         $this->authorize('create', Visit::class);
 
         return $this->formView(new Visit([
+            'site_id' => auth()->user()?->site_id,
             'user_id' => auth()->id(),
             'status' => VisitStatusEnum::Planned->value,
         ]), false);
@@ -243,7 +244,11 @@ class VisitController extends Controller
             return $query->get();
         }
 
-        if ($actor->department_id !== null && ($actor->can('ViewDepartment:Visit') || $actor->can('EditDepartment:Visit') || $actor->can('DeleteDepartment:Visit'))) {
+        if ($actor->site_id !== null && ($actor->can('ViewSite:Visit') || $actor->can('EditSite:Visit') || $actor->can('DeleteSite:Visit') || $actor->can('CreateForSite:Visit'))) {
+            return $query->where('site_id', $actor->site_id)->get();
+        }
+
+        if ($actor->department_id !== null && ($actor->can('ViewDepartment:Visit') || $actor->can('EditDepartment:Visit') || $actor->can('DeleteDepartment:Visit') || $actor->can('CreateForDepartment:Visit'))) {
             return $query->where('department_id', $actor->department_id)->get();
         }
 
@@ -258,7 +263,11 @@ class VisitController extends Controller
             return $query->get();
         }
 
-        if ($actor->department_id !== null) {
+        if ($actor->site_id !== null && ($actor->can('ViewSite:Visit') || $actor->can('EditSite:Visit') || $actor->can('DeleteSite:Visit') || $actor->can('CreateForSite:Visit'))) {
+            return $query->where('site_id', $actor->site_id)->get();
+        }
+
+        if ($actor->department_id !== null && ($actor->can('ViewDepartment:Visit') || $actor->can('EditDepartment:Visit') || $actor->can('DeleteDepartment:Visit') || $actor->can('CreateForDepartment:Visit'))) {
             return $query->where('department_id', $actor->department_id)->get();
         }
 
@@ -268,7 +277,7 @@ class VisitController extends Controller
     private function selectableUsersQuery()
     {
         return User::query()
-            ->select('id', 'first_name', 'name', 'title', 'department_id')
+            ->select('id', 'first_name', 'name', 'title', 'department_id', 'site_id')
             ->where('is_active', true)
             ->whereDoesntHave('roles', fn ($query) => $query->whereIn('name', ['welcome monitor', 'welcome_monitor']))
             ->orderBy('first_name')

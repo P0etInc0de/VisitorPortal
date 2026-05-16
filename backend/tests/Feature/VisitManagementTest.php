@@ -22,7 +22,8 @@ class VisitManagementTest extends TestCase
             ->actingAs($user)
             ->get(route('portal.visits.create'))
             ->assertOk()
-            ->assertSee('option value="planned" selected', false);
+            ->assertSee('option value="planned" selected', false)
+            ->assertSee(__('Diese werden nicht automatisch auf Willkommensmonitoren angezeigt.'));
     }
 
     public function test_visit_create_page_scopes_host_and_substitute_options(): void

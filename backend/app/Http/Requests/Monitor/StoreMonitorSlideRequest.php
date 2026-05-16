@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Monitor;
 
+use App\Models\Monitor;
 use App\Models\MonitorSlide;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
@@ -40,6 +41,7 @@ class StoreMonitorSlideRequest extends FormRequest
                 'between:1,'.$maxSlide,
             ],
             'is_active' => 'boolean',
+            'monitor_display_mode' => ['required', 'string', 'in:'.implode(',', Monitor::displayModes())],
             'show_logo' => 'boolean',
             'show_date' => 'boolean',
             'show_time' => 'boolean',

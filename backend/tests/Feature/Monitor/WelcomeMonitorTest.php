@@ -4,6 +4,7 @@ namespace Tests\Feature\Monitor;
 
 use App\Enums\VisitStatusEnum;
 use App\Models\Monitor;
+use App\Models\Site;
 use App\Models\Visit;
 use App\Models\Visitor;
 use App\Tasks\WelcomeMonitorAutoGeneration;
@@ -36,6 +37,7 @@ class WelcomeMonitorTest extends TestCase
             ->set('backgroundOverlayEnabled', true)
             ->set('headerTextIsLight', true)
             ->set('contentCardStyle', 'none')
+            ->set('monitorDisplayMode', Monitor::DISPLAY_TITLE_FULL_NAME)
             ->call('save')
             ->assertHasNoErrors();
 
@@ -48,8 +50,20 @@ class WelcomeMonitorTest extends TestCase
         $this->assertTrue($monitor->background_overlay_enabled);
         $this->assertTrue($monitor->header_text_is_light);
         $this->assertSame('none', $monitor->content_card_style);
+        $this->assertSame(Monitor::DISPLAY_TITLE_FULL_NAME, $monitor->monitor_display_mode);
 
         $this->assertSame(0, $monitor->monitorSlides()->count());
+    }
+
+    public function test_monitor_defaults_to_first_initial_last_name_display_mode(): void
+    {
+        $monitor = Monitor::query()->create([
+            'name' => 'Empfang',
+            'transition_time_milliseconds' => 5000,
+            'auto_generation' => false,
+        ]);
+
+        $this->assertSame(Monitor::DISPLAY_TITLE_FIRST_INITIAL_LAST_NAME, $monitor->monitor_display_mode);
     }
 
     public function test_fallback_page_can_be_updated_from_its_dedicated_edit_flow(): void
@@ -101,6 +115,7 @@ class WelcomeMonitorTest extends TestCase
                 'show_logo' => '1',
                 'show_date' => '1',
                 'background_source' => 'inherit',
+                'monitor_display_mode' => Monitor::DISPLAY_TITLE_FIRST_NAME_LAST_INITIAL,
                 'visitors' => json_encode([
                     ['id' => null, 'name' => 'Theo Pünktlich'],
                 ]),
@@ -116,6 +131,7 @@ class WelcomeMonitorTest extends TestCase
         $this->assertFalse($slide->is_active);
         $this->assertTrue($slide->show_logo);
         $this->assertTrue($slide->show_date);
+        $this->assertSame(Monitor::DISPLAY_TITLE_FIRST_NAME_LAST_INITIAL, $slide->monitor_display_mode);
         $this->assertNull($slide->background_source);
         $this->assertNull($slide->image_path);
         $this->assertSame([
@@ -151,6 +167,7 @@ class WelcomeMonitorTest extends TestCase
                 'show_logo' => '0',
                 'show_date' => '0',
                 'background_source' => 'preset-2',
+                'monitor_display_mode' => Monitor::DISPLAY_TITLE_FULL_NAME,
                 'visitors' => json_encode([
                     ['id' => 5, 'name' => 'Theo Pünktlich'],
                     ['id' => null, 'name' => 'Gast ohne Termin'],
@@ -167,6 +184,7 @@ class WelcomeMonitorTest extends TestCase
         $this->assertFalse($slide->show_logo);
         $this->assertFalse($slide->show_date);
         $this->assertSame('preset-2', $slide->background_source);
+        $this->assertSame(Monitor::DISPLAY_TITLE_FULL_NAME, $slide->monitor_display_mode);
         $this->assertSame([
             ['id' => 5, 'name' => 'Theo Pünktlich'],
             ['id' => null, 'name' => 'Gast ohne Termin'],
@@ -197,13 +215,17 @@ class WelcomeMonitorTest extends TestCase
             ->get(route('monitors.slides.create', $monitor))
             ->assertOk()
             ->assertSee(__('Seite aktiv'))
-            ->assertSee(__('Manuell Name hinzufügen'));
+            ->assertSee(__('Besucheranzeige'))
+            ->assertSee(__('Manuell Name hinzufügen'))
+            ->assertSee('value="We&#039;re glad you&#039;re here."', false)
+            ->assertDontSee('We&amp;#039;re', false);
 
         $this
             ->actingAs($user)
             ->get(route('monitors.slides.edit', [$monitor, $slide]))
             ->assertOk()
             ->assertSee(__('Seite aktiv'))
+            ->assertSee(__('Besucheranzeige'))
             ->assertSee(__('Manuell Name hinzufügen'));
     }
 
@@ -227,6 +249,7 @@ class WelcomeMonitorTest extends TestCase
                 'show_logo' => '1',
                 'show_date' => '1',
                 'background_source' => 'inherit',
+                'monitor_display_mode' => Monitor::DISPLAY_TITLE_FIRST_NAME_LAST_INITIAL,
                 'visitors' => json_encode([
                     ['id' => null, 'name' => str_repeat('A', 51)],
                 ]),
@@ -296,6 +319,7 @@ class WelcomeMonitorTest extends TestCase
                 'transition_time_milliseconds' => 5000,
                 'auto_generation' => true,
                 'auto_generation_window_minutes' => 10,
+                'monitor_display_mode' => Monitor::DISPLAY_TITLE_FULL_NAME,
             ]);
 
             $insideVisit = Visit::factory()->create([
@@ -352,6 +376,7 @@ class WelcomeMonitorTest extends TestCase
                 'transition_time_milliseconds' => 5000,
                 'auto_generation' => true,
                 'auto_generation_window_minutes' => 30,
+                'monitor_display_mode' => Monitor::DISPLAY_TITLE_FULL_NAME,
             ]);
 
             $overlappingPlannedVisit = Visit::factory()->create([
@@ -397,6 +422,51 @@ class WelcomeMonitorTest extends TestCase
         }
     }
 
+    public function test_auto_generation_uses_monitor_display_mode_and_deduplicates_company_names(): void
+    {
+        Carbon::setTestNow('2026-04-24 10:00:00');
+
+        try {
+            $monitor = Monitor::query()->create([
+                'name' => 'Empfang',
+                'transition_time_milliseconds' => 5000,
+                'auto_generation' => true,
+                'auto_generation_window_minutes' => 30,
+                'monitor_display_mode' => Monitor::DISPLAY_COMPANY_ONLY,
+            ]);
+
+            $visit = Visit::factory()->create([
+                'scheduled_from' => now()->addMinutes(5),
+                'scheduled_until' => now()->addMinutes(65),
+                'status' => VisitStatusEnum::Planned->value,
+            ]);
+
+            $firstAcmeVisitor = Visitor::factory()->create(['company' => 'Acme GmbH']);
+            $secondAcmeVisitor = Visitor::factory()->create(['company' => 'Acme GmbH']);
+            $otherVisitor = Visitor::factory()->create(['company' => 'Other GmbH']);
+
+            $visit->visitors()->attach([$firstAcmeVisitor->id, $secondAcmeVisitor->id, $otherVisitor->id]);
+
+            (new WelcomeMonitorAutoGeneration)();
+
+            $slide = $monitor->monitorSlides()->sole();
+
+            $this->assertSame(Monitor::DISPLAY_COMPANY_ONLY, $slide->monitor_display_mode);
+            $this->assertSame([
+                [
+                    'id' => $firstAcmeVisitor->id,
+                    'name' => 'Acme GmbH',
+                ],
+                [
+                    'id' => $otherVisitor->id,
+                    'name' => 'Other GmbH',
+                ],
+            ], $slide->visitors);
+        } finally {
+            Carbon::setTestNow();
+        }
+    }
+
     public function test_auto_generation_keeps_manual_pages_and_only_replaces_generated_pages(): void
     {
         Carbon::setTestNow('2026-04-24 10:00:00');
@@ -407,6 +477,7 @@ class WelcomeMonitorTest extends TestCase
                 'transition_time_milliseconds' => 5000,
                 'auto_generation' => true,
                 'auto_generation_window_minutes' => 30,
+                'monitor_display_mode' => Monitor::DISPLAY_TITLE_FULL_NAME,
             ]);
 
             $manualSlide = $monitor->monitorSlides()->create([
@@ -631,6 +702,65 @@ class WelcomeMonitorTest extends TestCase
             ->assertSee('Fallback aktiv')
             ->assertDontSee('Nicht sichtbar')
             ->assertDontSee('Versteckt');
+    }
+
+    public function test_auto_generation_is_site_scoped_and_hides_confidential_visits(): void
+    {
+        Carbon::setTestNow('2026-04-24 10:00:00');
+
+        try {
+            $site = Site::factory()->create(['name' => 'Standort Ulm']);
+            $otherSite = Site::factory()->create(['name' => 'Standort Neu-Ulm']);
+            $monitor = Monitor::query()->create([
+                'site_id' => $site->id,
+                'name' => 'Empfang Ulm',
+                'transition_time_milliseconds' => 5000,
+                'auto_generation' => true,
+                'auto_generation_window_minutes' => 30,
+                'monitor_display_mode' => Monitor::DISPLAY_COMPANY_ONLY,
+            ]);
+
+            $visibleVisit = Visit::factory()->create([
+                'site_id' => $site->id,
+                'scheduled_from' => now()->addMinutes(5),
+                'scheduled_until' => now()->addMinutes(65),
+                'status' => VisitStatusEnum::Planned->value,
+            ]);
+            $otherSiteVisit = Visit::factory()->create([
+                'site_id' => $otherSite->id,
+                'scheduled_from' => now()->addMinutes(5),
+                'scheduled_until' => now()->addMinutes(65),
+                'status' => VisitStatusEnum::Planned->value,
+            ]);
+            $confidentialVisit = Visit::factory()->create([
+                'site_id' => $site->id,
+                'scheduled_from' => now()->addMinutes(5),
+                'scheduled_until' => now()->addMinutes(65),
+                'status' => VisitStatusEnum::Planned->value,
+                'is_confidential' => true,
+            ]);
+
+            $visibleVisitor = Visitor::factory()->create(['company' => 'Acme GmbH']);
+            $otherSiteVisitor = Visitor::factory()->create(['company' => 'Other GmbH']);
+            $confidentialVisitor = Visitor::factory()->create(['first_name' => 'Secret', 'name' => 'Guest', 'company' => 'Secret GmbH']);
+
+            $visibleVisit->visitors()->attach($visibleVisitor);
+            $otherSiteVisit->visitors()->attach($otherSiteVisitor);
+            $confidentialVisit->visitors()->attach($confidentialVisitor);
+
+            (new WelcomeMonitorAutoGeneration)($monitor);
+
+            $slide = $monitor->monitorSlides()->sole();
+
+            $this->assertSame([
+                [
+                    'id' => $visibleVisitor->id,
+                    'name' => 'Acme GmbH',
+                ],
+            ], $slide->visitors);
+        } finally {
+            Carbon::setTestNow();
+        }
     }
 
     private function monitorUser()

@@ -15,6 +15,13 @@ use Illuminate\Validation\Validator;
 
 class StoreVisitRequest extends FormRequest
 {
+    protected function prepareForValidation(): void
+    {
+        $this->merge([
+            'is_confidential' => filter_var($this->input('is_confidential', false), FILTER_VALIDATE_BOOL),
+        ]);
+    }
+
     public function authorize(): bool
     {
         return $this->user()->can('create', Visit::class);
@@ -29,6 +36,7 @@ class StoreVisitRequest extends FormRequest
             'scheduled_from' => ['required', 'date', 'after_or_equal:1970-01-01'],
             'scheduled_until' => ['required', 'date', 'after:scheduled_from', 'after_or_equal:1970-01-01'],
             'status' => ['required', 'string', Rule::in(VisitStatusEnum::values())],
+            'is_confidential' => ['nullable', 'boolean'],
             'notes' => ['nullable', 'string', 'max:1000'],
             'recurrence_enabled' => ['nullable', 'boolean'],
             'recurrence_frequency' => ['nullable', 'string', Rule::in(RecurringVisitSeries::frequencies())],
@@ -213,6 +221,19 @@ class StoreVisitRequest extends FormRequest
 
         $this->validateResponsibleUserSelection($validator, $user);
 
+        if ($this->canSelectSiteHost($user)) {
+            $hostIsInSite = User::query()
+                ->whereKey($hostId)
+                ->where('site_id', $user->site_id)
+                ->exists();
+
+            if (! $hostIsInSite) {
+                $validator->errors()->add('user_id', __('Sie können nur Hosts aus Ihrem Standort auswählen.'));
+            }
+
+            return;
+        }
+
         if ($this->canSelectDepartmentHost($user)) {
             $hostIsInDepartment = User::query()
                 ->whereKey($hostId)
@@ -243,7 +264,20 @@ class StoreVisitRequest extends FormRequest
             return;
         }
 
-        if ($user->department_id !== null) {
+        if ($this->canSelectSiteHost($user)) {
+            $responsibleUserIsInSite = User::query()
+                ->whereKey($responsibleUserId)
+                ->where('site_id', $user->site_id)
+                ->exists();
+
+            if (! $responsibleUserIsInSite) {
+                $validator->errors()->add('responsible_user_id', __('Sie können nur Vertretungen aus Ihrem Standort auswählen.'));
+            }
+
+            return;
+        }
+
+        if ($this->canSelectDepartmentHost($user)) {
             $responsibleUserIsInDepartment = User::query()
                 ->whereKey($responsibleUserId)
                 ->where('department_id', $user->department_id)
@@ -263,7 +297,7 @@ class StoreVisitRequest extends FormRequest
     {
         $user = $this->user();
 
-        if ($user instanceof User && ($user->can('ViewAny:Visit') || $user->can('EditAny:Visit'))) {
+        if ($user instanceof User && ($user->can('ViewAny:Visit') || $user->can('EditAny:Visit') || $user->can('ViewSite:Visit') || $user->can('EditSite:Visit'))) {
             return;
         }
 
@@ -298,13 +332,28 @@ class StoreVisitRequest extends FormRequest
 
     private function canSelectAnyHost(User $user): bool
     {
-        return $user->can('ViewAny:Visit') || $user->can('EditAny:Visit') || $user->can('DeleteAny:Visit');
+        return $user->can('ViewAny:Visit')
+            || $user->can('EditAny:Visit')
+            || $user->can('DeleteAny:Visit')
+            || $user->can('CreateForAny:Visit');
+    }
+
+    private function canSelectSiteHost(User $user): bool
+    {
+        return $user->site_id !== null
+            && ($user->can('ViewSite:Visit')
+                || $user->can('EditSite:Visit')
+                || $user->can('DeleteSite:Visit')
+                || $user->can('CreateForSite:Visit'));
     }
 
     private function canSelectDepartmentHost(User $user): bool
     {
         return $user->department_id !== null
-            && ($user->can('ViewDepartment:Visit') || $user->can('EditDepartment:Visit') || $user->can('DeleteDepartment:Visit'));
+            && ($user->can('ViewDepartment:Visit')
+                || $user->can('EditDepartment:Visit')
+                || $user->can('DeleteDepartment:Visit')
+                || $user->can('CreateForDepartment:Visit'));
     }
 
     private function validateParticipantContactRequirement(Validator $validator): void

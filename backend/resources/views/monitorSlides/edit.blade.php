@@ -9,11 +9,12 @@
             @csrf
             @method('PUT')
             <div class="grid gap-4">
-                <x-bp.input label="{{ __('Überschrift') }}" name="heading" value="{{$slide->heading}}" class="h-11"/>
-                <x-bp.input label="{{ __('Unterüberschrift') }}" name="subheading" value="{{$slide->subheading}}" class="h-11"/>
+                <x-bp.input label="{{ __('Überschrift') }}" name="heading" :value="$slide->heading" class="h-11"/>
+                <x-bp.input label="{{ __('Unterüberschrift') }}" name="subheading" :value="$slide->subheading" class="h-11"/>
 
                 @include('monitorSlides.partials.page-settings', [
                     'slideNumber' => $slide->slide_number,
+                    'displayMode' => $slide->monitor_display_mode ?: ($monitor->monitor_display_mode ?: \App\Models\Monitor::DEFAULT_MONITOR_DISPLAY_MODE),
                     'toggleValues' => [
                         ['label' => __('Seite aktiv'), 'name' => 'is_active', 'checked' => $slide->is_active],
                         ['label' => __('Logo Anzeigen'), 'name' => 'show_logo', 'checked' => $slide->show_logo],
@@ -38,19 +39,99 @@
 
 <script>
     var selectedVisitors = @js(json_decode(old('visitors', 'null'), true) ?? $slide->visitors);
+    const visitorSources = @js($todayVisitors->mapWithKeys(fn ($visitor) => [(string) $visitor->id => [
+        'title' => $visitor->title,
+        'first_name' => $visitor->first_name,
+        'name' => $visitor->name,
+        'company' => $visitor->company,
+    ]])->all());
     const errorMessage = document.getElementById('visitorError');
     const manualNameInput = document.getElementById('manualNameInput');
+    const monitorDisplayModeSelect = document.getElementById('monitorDisplayMode');
     const maxManualVisitorNameLength = 50;
     const manualVisitorTooLongMessage = @js(__('Manuell hinzugefügte Namen dürfen maximal :count Zeichen lang sein.', ['count' => 50]));
+    const displayModes = @js([
+        'companyOnly' => \App\Models\Monitor::DISPLAY_COMPANY_ONLY,
+        'titleFirstNameLastInitial' => \App\Models\Monitor::DISPLAY_TITLE_FIRST_NAME_LAST_INITIAL,
+        'titleFirstInitialLastName' => \App\Models\Monitor::DISPLAY_TITLE_FIRST_INITIAL_LAST_NAME,
+        'titleFullName' => \App\Models\Monitor::DISPLAY_TITLE_FULL_NAME,
+    ]);
 
-    selectedVisitors = selectedVisitors.map((visitor, index) => ({
-        key: visitor.id ? `visit-${visitor.id}` : `manual-${index}`,
-        id: visitor.id ?? null,
-        name: visitor.name,
-    }));
+    selectedVisitors = selectedVisitors.map((visitor, index) => {
+        const source = visitor.source ?? (visitor.id ? visitorSources[String(visitor.id)] ?? null : null);
+
+        return {
+            key: visitor.id ? `visit-${visitor.id}` : `manual-${index}`,
+            id: visitor.id ?? null,
+            name: source ? formatDisplayName(source) : visitor.name,
+            source,
+            manual: !source,
+        };
+    });
+
+    selectedVisitors = deduplicateSelectedVisitors(selectedVisitors);
+
+    monitorDisplayModeSelect?.addEventListener('change', () => {
+        selectedVisitors = selectedVisitors.map(visitor => {
+            if (!visitor.source) return visitor;
+
+            return {
+                ...visitor,
+                name: formatDisplayName(visitor.source),
+            };
+        });
+
+        selectedVisitors = deduplicateSelectedVisitors(selectedVisitors);
+        renderVisitors();
+    });
+
+    function initial(value) {
+        const trimmed = (value ?? '').trim();
+
+        return trimmed ? `${trimmed.charAt(0)}.` : '';
+    }
+
+    function joinParts(parts) {
+        return parts.filter(part => (part ?? '').trim() !== '').join(' ').trim();
+    }
+
+    function formatDisplayName(source) {
+        const title = (source.title ?? '').trim();
+        const firstName = (source.first_name ?? '').trim();
+        const lastName = (source.name ?? '').trim();
+        const company = (source.company ?? '').trim();
+        const mode = monitorDisplayModeSelect?.value ?? displayModes.titleFirstNameLastInitial;
+
+        if (mode === displayModes.companyOnly) {
+            return company || @js(__('Gast'));
+        }
+
+        if (mode === displayModes.titleFirstInitialLastName) {
+            return joinParts([title, initial(firstName), lastName]) || company || @js(__('Gast'));
+        }
+
+        if (mode === displayModes.titleFullName) {
+            return joinParts([title, firstName, lastName]) || company || @js(__('Gast'));
+        }
+
+        return joinParts([title, firstName, initial(lastName)]) || company || @js(__('Gast'));
+    }
+
+    function deduplicateSelectedVisitors(visitors) {
+        const seen = new Set();
+
+        return visitors.filter(visitor => {
+            const key = visitor.name.trim().toLowerCase();
+
+            if (seen.has(key)) return false;
+
+            seen.add(key);
+            return true;
+        });
+    }
 
     function addVisitor(visitor) {
-        const trimmedName = (visitor.name ?? '').trim();
+        const trimmedName = (visitor.source ? formatDisplayName(visitor.source) : visitor.name ?? '').trim();
 
         if (!trimmedName) return false;
 
@@ -72,7 +153,11 @@
             key: visitor.key,
             id: visitor.id ?? null,
             name: trimmedName,
+            source: visitor.source ?? null,
+            manual: !visitor.source,
         });
+
+        selectedVisitors = deduplicateSelectedVisitors(selectedVisitors);
         renderVisitors();
 
         return true;
