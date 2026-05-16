@@ -5,6 +5,7 @@ namespace Tests\Feature\Security;
 use App\Enums\VisitStatusEnum;
 use App\Livewire\Portal\CheckInOutBoard;
 use App\Models\Monitor;
+use App\Models\RecurringVisitSeries;
 use App\Models\Visit;
 use App\Models\Visitor;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -177,6 +178,57 @@ class AuditRegressionTest extends TestCase
             ->assertSessionHasErrors(['user_id', 'status']);
     }
 
+    public function test_regular_user_cannot_assign_arbitrary_responsible_user(): void
+    {
+        $user = (new PermissionHelper)->getUserUser();
+        $otherUser = (new PermissionHelper)->getUserUser();
+
+        $this->actingAs($user)
+            ->post(route('portal.visits.store'), [
+                'title' => 'Blocked Substitute',
+                'user_id' => $user->id,
+                'responsible_user_id' => $otherUser->id,
+                'scheduled_from' => now()->addDay()->format('Y-m-d H:i:s'),
+                'scheduled_until' => now()->addDay()->addHour()->format('Y-m-d H:i:s'),
+                'status' => VisitStatusEnum::Planned->value,
+                'participants' => [
+                    [
+                        'first_name' => 'Anna',
+                        'name' => 'Becker',
+                    ],
+                ],
+            ])
+            ->assertSessionHasErrors('responsible_user_id');
+    }
+
+    public function test_regular_user_cannot_update_visit_after_all_participants_checked_out(): void
+    {
+        $user = (new PermissionHelper)->getUserUser();
+        $visitor = Visitor::factory()->create(['created_by_user_id' => $user->id]);
+        $visit = Visit::factory()->create([
+            'user_id' => $user->id,
+            'responsible_user_id' => $user->id,
+            'status' => VisitStatusEnum::Planned->value,
+        ]);
+        $visit->visitors()->attach($visitor->id, [
+            'checked_in_at' => now()->subHours(2),
+            'checked_out_at' => now()->subHour(),
+        ]);
+
+        $this->actingAs($user)
+            ->patch(route('portal.visits.update', $visit), [
+                'title' => 'Blocked Historical Update',
+                'user_id' => $user->id,
+                'scheduled_from' => now()->addDay()->format('Y-m-d H:i:s'),
+                'scheduled_until' => now()->addDay()->addHour()->format('Y-m-d H:i:s'),
+                'status' => VisitStatusEnum::Planned->value,
+                'participants' => [
+                    ['visitor_id' => $visitor->id],
+                ],
+            ])
+            ->assertForbidden();
+    }
+
     public function test_regular_user_cannot_mount_reception_check_in_board(): void
     {
         $user = (new PermissionHelper)->getUserUser();
@@ -278,5 +330,68 @@ class AuditRegressionTest extends TestCase
         $this->assertNull($manualSlide->fresh()->visitors);
         $this->assertDatabaseMissing('visitors', ['id' => $visitor->id]);
         $this->assertNull($recentSlide->fresh()->visitors);
+    }
+
+    public function test_retention_purges_expired_recurring_series_and_pivot_notes(): void
+    {
+        $oldTimestamp = now()->subDays(400);
+        $host = (new PermissionHelper)->getUserUser();
+        $visitor = Visitor::factory()->create(['created_by_user_id' => $host->id]);
+        $series = RecurringVisitSeries::query()->create([
+            'title' => 'Expired recurring visit',
+            'user_id' => $host->id,
+            'responsible_user_id' => $host->id,
+            'created_by_user_id' => $host->id,
+            'status' => VisitStatusEnum::Planned->value,
+            'notes' => 'Old series note',
+            'starts_at' => $oldTimestamp,
+            'duration_minutes' => 60,
+            'frequency' => RecurringVisitSeries::FREQUENCY_WEEKLY,
+            'ends' => RecurringVisitSeries::END_DATE,
+            'end_date' => $oldTimestamp->toDateString(),
+            'generated_until' => $oldTimestamp,
+        ]);
+        $series->visitors()->attach($visitor->id, ['notes' => 'Old visitor pivot note']);
+        $series->forceFill(['created_at' => $oldTimestamp, 'updated_at' => $oldTimestamp])->save();
+
+        $this->artisan('visits:purge-expired', ['--days' => 365])->assertExitCode(0);
+
+        $this->assertDatabaseMissing('recurring_visit_series', ['id' => $series->id]);
+        $this->assertDatabaseMissing('recurring_visit_series_visitor', [
+            'recurring_visit_series_id' => $series->id,
+            'visitor_id' => $visitor->id,
+        ]);
+    }
+
+    public function test_retention_does_not_delete_active_future_recurring_series(): void
+    {
+        $oldTimestamp = now()->subDays(400);
+        $host = (new PermissionHelper)->getUserUser();
+        $series = RecurringVisitSeries::query()->create([
+            'title' => 'Active recurring visit',
+            'user_id' => $host->id,
+            'responsible_user_id' => $host->id,
+            'created_by_user_id' => $host->id,
+            'status' => VisitStatusEnum::Planned->value,
+            'notes' => 'Keep this series',
+            'starts_at' => $oldTimestamp,
+            'duration_minutes' => 60,
+            'frequency' => RecurringVisitSeries::FREQUENCY_WEEKLY,
+            'ends' => RecurringVisitSeries::END_FOREVER,
+            'generated_until' => $oldTimestamp,
+        ]);
+        Visit::factory()->create([
+            'recurring_visit_series_id' => $series->id,
+            'recurrence_occurrence_number' => 999,
+            'user_id' => $host->id,
+            'responsible_user_id' => $host->id,
+            'scheduled_from' => now()->addDay(),
+            'scheduled_until' => now()->addDay()->addHour(),
+        ]);
+        $series->forceFill(['created_at' => $oldTimestamp, 'updated_at' => $oldTimestamp])->save();
+
+        $this->artisan('visits:purge-expired', ['--days' => 365])->assertExitCode(0);
+
+        $this->assertDatabaseHas('recurring_visit_series', ['id' => $series->id]);
     }
 }

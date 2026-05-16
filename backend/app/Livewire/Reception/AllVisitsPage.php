@@ -79,7 +79,7 @@ class AllVisitsPage extends Component
     {
         $this->search = '';
         $this->expandedVisitIds = [];
-        $this->setRange('all');
+        $this->setRange('week');
     }
 
     public function toggleExpanded(int $visitId): void
@@ -197,7 +197,8 @@ class AllVisitsPage extends Component
             'today' => __('Heute'),
             'week' => __('Diese Woche'),
             'next-week' => __('Nächste Woche'),
-            'all' => __('Alle'),
+            'custom' => __('Benutzerdefiniert'),
+            ...($this->canViewArchive() ? ['all' => __('Archiv')] : []),
         ];
     }
 
@@ -242,6 +243,7 @@ class AllVisitsPage extends Component
                 });
             })
             ->orderBy('scheduled_from')
+            ->limit(500)
             ->get()
             ->map(function (Visit $visit): array {
                 $participants = $visit->visitors
@@ -388,6 +390,10 @@ class AllVisitsPage extends Component
         $untilDate = $this->parseDateInput($dateToInput, true);
 
         if ($fromDate && $untilDate) {
+            if ($fromDate->diffInDays($untilDate) > 180 && ! $this->canViewArchive()) {
+                $untilDate = $fromDate->copy()->addDays(180)->endOfDay();
+            }
+
             return [$fromDate, $untilDate, $fromDate->toDateString(), $untilDate->toDateString()];
         }
 
@@ -399,7 +405,7 @@ class AllVisitsPage extends Component
                 now()->copy()->addWeek()->startOfWeek()->toDateString(),
                 now()->copy()->addWeek()->endOfWeek()->toDateString(),
             ],
-            'all' => [null, null, '', ''],
+            'all' => $this->canViewArchive() ? [null, null, '', ''] : [now()->startOfWeek(), now()->endOfWeek(), now()->startOfWeek()->toDateString(), now()->endOfWeek()->toDateString()],
             default => [
                 now()->startOfWeek(),
                 now()->endOfWeek(),
@@ -426,9 +432,18 @@ class AllVisitsPage extends Component
 
     private function normalizeRange(string $range): string
     {
+        if ($range === 'all' && ! $this->canViewArchive()) {
+            return 'week';
+        }
+
         return array_key_exists($range, $this->ranges()) || $range === 'custom'
             ? $range
             : 'week';
+    }
+
+    private function canViewArchive(): bool
+    {
+        return auth()->user()?->can('ViewArchive:Visit') ?? false;
     }
 
     private function loadVisitParticipantPair(int $visitId, int $visitorId): Visit

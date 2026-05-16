@@ -103,6 +103,7 @@ class ShieldSeeder extends Seeder
             'View:Visit',
             'Update:Visit',
             'Delete:Visit',
+            'ViewArchive:Visit',
             'Restore:User',
             'ForceDelete:User',
             'ForceDeleteAny:User',

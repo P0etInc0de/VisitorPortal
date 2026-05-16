@@ -30,12 +30,28 @@ class VisitPolicy
 
     public function update(User $user, Visit $visit): bool
     {
-        return $this->editAny($user, $visit) || $this->editDepartment($user, $visit) || $this->editOwn($user, $visit);
+        if ($this->editAny($user)) {
+            return true;
+        }
+
+        if ($this->isHistorical($visit)) {
+            return false;
+        }
+
+        return $this->editDepartment($user, $visit) || $this->editOwn($user, $visit);
     }
 
     public function delete(User $user, Visit $visit): bool
     {
-        return $this->deleteAny($user, $visit) || $this->deleteDepartment($user, $visit) || $this->deleteOwn($user, $visit);
+        if ($this->deleteAny($user)) {
+            return true;
+        }
+
+        if ($this->isHistorical($visit)) {
+            return false;
+        }
+
+        return $this->deleteDepartment($user, $visit) || $this->deleteOwn($user, $visit);
     }
 
     public function deleteAny(User $user): bool
@@ -82,5 +98,24 @@ class VisitPolicy
     public function deleteOwn(User $user, Visit $visit): bool
     {
         return $user->can('DeleteOwn:Visit') && ($user->id === $visit->user_id || $user->id === $visit->responsible_user_id);
+    }
+
+    private function isHistorical(Visit $visit): bool
+    {
+        if (in_array($visit->status, ['completed', 'canceled'], true)) {
+            return true;
+        }
+
+        $hasCheckedInVisitors = $visit->visitors()
+            ->wherePivotNotNull('checked_in_at')
+            ->exists();
+
+        if (! $hasCheckedInVisitors) {
+            return false;
+        }
+
+        return ! $visit->visitors()
+            ->wherePivotNull('checked_out_at')
+            ->exists();
     }
 }

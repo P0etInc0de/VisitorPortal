@@ -4,6 +4,7 @@ namespace App\Console\Commands;
 
 use App\Models\DataRetentionRun;
 use App\Models\MonitorSlide;
+use App\Models\RecurringVisitSeries;
 use App\Models\Visit;
 use App\Models\Visitor;
 use Illuminate\Console\Command;
@@ -46,6 +47,10 @@ class PurgeExpiredVisits extends Command
 
             $visitsDeleted = $dryRun ? 0 : $this->deleteByChunks($expiredVisits, Visit::class, $chunkSize);
 
+            $expiredRecurringSeries = $this->expiredRecurringSeriesQuery($cutoff);
+            $recurringSeriesMatched = (clone $expiredRecurringSeries)->count();
+            $recurringSeriesDeleted = $dryRun ? 0 : $this->deleteByChunks($expiredRecurringSeries, RecurringVisitSeries::class, $chunkSize);
+
             $visitorQuery = $dryRun
                 ? $this->potentialOrphanVisitorsQuery($cutoff, $expiredVisitIds)
                 : $this->orphanVisitorsQuery($cutoff);
@@ -79,15 +84,18 @@ class PurgeExpiredVisits extends Command
                 'monitor_slides_matched' => $autoMonitorSlidesMatched + $manualMonitorSlidesMatched + $visitorReferenceSlidesMatched,
                 'monitor_slides_deleted' => $autoMonitorSlidesDeleted,
                 'monitor_slides_anonymized' => $manualMonitorSlidesAnonymized + $visitorReferenceSlidesAnonymized,
+                'recurring_series_matched' => $recurringSeriesMatched,
+                'recurring_series_deleted' => $recurringSeriesDeleted,
                 'indefinite_legal_holds_matched' => $indefiniteLegalHoldsMatched,
                 'status' => 'completed',
                 'finished_at' => now(),
             ]);
 
             $this->info(sprintf(
-                'Retention run completed%s: %d visits, %d visitors, %d notifications, %d monitor slides matched. %d indefinite legal holds remain.',
+                'Retention run completed%s: %d visits, %d recurring series, %d visitors, %d notifications, %d monitor slides matched. %d indefinite legal holds remain.',
                 $dryRun ? ' (dry-run)' : '',
                 $visitsMatched,
+                $recurringSeriesMatched,
                 $visitorsMatched,
                 $notificationsMatched,
                 $autoMonitorSlidesMatched + $manualMonitorSlidesMatched + $visitorReferenceSlidesMatched,
@@ -154,6 +162,31 @@ class PurgeExpiredVisits extends Command
                             ->whereDoesntHave('visits', fn (Builder $query) => $query->whereNotIn('visits.id', $expiredVisitIds));
                     });
                 }
+            });
+    }
+
+    private function expiredRecurringSeriesQuery(Carbon $cutoff): Builder
+    {
+        return RecurringVisitSeries::query()
+            ->where('updated_at', '<', $cutoff)
+            ->whereDoesntHave('visits', fn (Builder $query) => $query->where('scheduled_until', '>=', $cutoff))
+            ->where(function (Builder $query) use ($cutoff): void {
+                $query->where(function (Builder $query) use ($cutoff): void {
+                    $query->where('ends', RecurringVisitSeries::END_DATE)
+                        ->whereNotNull('end_date')
+                        ->where('end_date', '<', $cutoff->toDateString());
+                })->orWhere(function (Builder $query) use ($cutoff): void {
+                    $query->where('ends', RecurringVisitSeries::END_COUNT)
+                        ->whereNotNull('generated_until')
+                        ->where('generated_until', '<', $cutoff);
+                })->orWhere(function (Builder $query) use ($cutoff): void {
+                    $query->where('ends', RecurringVisitSeries::END_FOREVER)
+                        ->whereNotNull('generated_until')
+                        ->where('generated_until', '<', $cutoff);
+                })->orWhere(function (Builder $query) use ($cutoff): void {
+                    $query->whereDoesntHave('visits')
+                        ->where('updated_at', '<', $cutoff);
+                });
             });
     }
 

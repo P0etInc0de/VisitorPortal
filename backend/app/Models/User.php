@@ -37,6 +37,8 @@ class User extends Authenticatable implements FilamentUser
         'password',
         'department_id',
         'gender',
+        'is_active',
+        'deactivated_at',
     ];
 
     protected $casts = [
@@ -90,6 +92,17 @@ class User extends Authenticatable implements FilamentUser
         return $this->hasMany(VisitVisitor::class, 'checked_out_by_user_id');
     }
 
+    protected static function booted(): void
+    {
+        static::saving(function (self $user): void {
+            if (! $user->isDirty('is_active')) {
+                return;
+            }
+
+            $user->deactivated_at = $user->is_active ? null : ($user->deactivated_at ?? now());
+        });
+    }
+
     /**
      * Get the attributes that should be cast.
      *
@@ -100,11 +113,17 @@ class User extends Authenticatable implements FilamentUser
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'is_active' => 'boolean',
+            'deactivated_at' => 'datetime',
         ];
     }
 
     public function canAccessPanel(Panel $panel): bool
     {
+        if (! $this->is_active) {
+            return false;
+        }
+
         // Check if the user has the Superuser or admin role (Shield's default is 'super_admin')
 
         if ($this->hasRole('admin') || $this->hasRole('super_admin')) {

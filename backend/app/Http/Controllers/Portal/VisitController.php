@@ -180,7 +180,7 @@ class VisitController extends Controller
         abort_unless($actor instanceof User, 403);
 
         $hostUsers = $this->selectableHostUsers($actor);
-        $responsibleUsers = $this->selectableResponsibleUsers();
+        $responsibleUsers = $this->selectableResponsibleUsers($actor);
 
         $existingVisitors = Visitor::query()
             ->visibleTo($actor)
@@ -250,15 +250,26 @@ class VisitController extends Controller
         return $query->whereKey($actor->id)->get();
     }
 
-    private function selectableResponsibleUsers()
+    private function selectableResponsibleUsers(User $actor)
     {
-        return $this->selectableUsersQuery()->get();
+        $query = $this->selectableUsersQuery();
+
+        if ($actor->can('ViewAny:Visit') || $actor->can('EditAny:Visit') || $actor->can('DeleteAny:Visit')) {
+            return $query->get();
+        }
+
+        if ($actor->department_id !== null) {
+            return $query->where('department_id', $actor->department_id)->get();
+        }
+
+        return collect();
     }
 
     private function selectableUsersQuery()
     {
         return User::query()
             ->select('id', 'first_name', 'name', 'title', 'department_id')
+            ->where('is_active', true)
             ->whereDoesntHave('roles', fn ($query) => $query->whereIn('name', ['welcome monitor', 'welcome_monitor']))
             ->orderBy('first_name')
             ->orderBy('name');

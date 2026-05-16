@@ -16,6 +16,7 @@ use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\HtmlString;
 use Illuminate\Support\Str;
+use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
 use Livewire\Component;
 
@@ -92,7 +93,7 @@ class CheckInOutBoard extends Component
 
         $payload = $this->validate([
             ...$this->walkInRules(),
-            'walkInHostId' => ['required', 'integer', 'exists:users,id'],
+            'walkInHostId' => ['required', 'integer', Rule::exists('users', 'id')->where('is_active', true)],
         ]);
         $user = auth()->user();
 
@@ -134,6 +135,7 @@ class CheckInOutBoard extends Component
         return view('livewire.portal.check-in-out-board', [
             'hosts' => User::query()
                 ->select('id', 'first_name', 'name')
+                ->where('is_active', true)
                 ->whereDoesntHave('roles', fn ($query) => $query->whereIn('name', ['welcome monitor', 'welcome_monitor']))
                 ->orderBy('first_name')
                 ->orderBy('name')
@@ -329,7 +331,7 @@ class CheckInOutBoard extends Component
         $email = $this->normalizeText($payload['email'] ?? null);
         $phone = $this->normalizeText($payload['phone'] ?? null);
         $emailVisitor = $email ? Visitor::query()->where('email', $email)->first() : null;
-        $phoneVisitor = $phone ? Visitor::query()->where('phone', $phone)->first() : null;
+        $phoneVisitor = $phone ? $this->singlePhoneMatch($phone) : null;
 
         if ($emailVisitor && $phoneVisitor && ! $emailVisitor->is($phoneVisitor)) {
             throw ValidationException::withMessages([
@@ -393,6 +395,16 @@ class CheckInOutBoard extends Component
         $value = trim((string) $value);
 
         return $value === '' ? null : $value;
+    }
+
+    private function singlePhoneMatch(string $phone): ?Visitor
+    {
+        $matches = Visitor::query()
+            ->where('phone', $phone)
+            ->limit(2)
+            ->get();
+
+        return $matches->count() === 1 ? $matches->first() : null;
     }
 
     private function visitActionService(): VisitActionService

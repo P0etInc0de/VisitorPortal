@@ -3,10 +3,13 @@ import 'tom-select/dist/css/tom-select.default.css';
 
 import focus from '@alpinejs/focus';
 import TomSelect from 'tom-select';
-import { installRuntimeChannel } from './runtime/channel';
 import { visitForm } from './portal/visit-form';
 
-installRuntimeChannel();
+if (import.meta.env.DEV) {
+    import('./runtime/channel').then(({ installRuntimeChannel }) => {
+        installRuntimeChannel();
+    });
+}
 
 const initializeTomSelect = () => {
     document.querySelectorAll('[data-bp-tom-select]').forEach((select) => {

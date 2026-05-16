@@ -50,6 +50,15 @@ class LoginRequest extends FormRequest
             ]);
         }
 
+        if (! Auth::user()?->is_active) {
+            Auth::guard('web')->logout();
+            RateLimiter::hit($this->throttleKey(), (int) config('auth.login.decay_seconds', 60));
+
+            throw ValidationException::withMessages([
+                'email' => __('Dieses Benutzerkonto ist deaktiviert.'),
+            ]);
+        }
+
         RateLimiter::clear($this->throttleKey());
     }
 

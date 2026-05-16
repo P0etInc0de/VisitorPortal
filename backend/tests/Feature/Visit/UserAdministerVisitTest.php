@@ -86,7 +86,6 @@ class UserAdministerVisitTest extends TestCase
         $response = $this->actingAs($user)
             ->patch(route('portal.visits.update', $visit), [
                 'user_id' => $user->id,
-                'responsible_user_id' => $responsibleUser->id,
                 'title' => $updatedVisitTitle,
                 'scheduled_from' => $updatedScheduledFrom,
                 'scheduled_until' => $updatedScheduledUntil,

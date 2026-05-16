@@ -26,6 +26,13 @@ class UserInfolist
                     ->label(__('Rollen')),
                 TextEntry::make('email')
                     ->label(__('E-Mail')),
+                TextEntry::make('is_active')
+                    ->label(__('Aktiv'))
+                    ->formatStateUsing(fn (bool $state): string => $state ? __('Ja') : __('Nein')),
+                TextEntry::make('deactivated_at')
+                    ->label(__('Deaktiviert am'))
+                    ->dateTime()
+                    ->placeholder('-'),
                 TextEntry::make('email_verified_at')
                     ->label(__('E-Mail verifiziert am'))
                     ->dateTime()

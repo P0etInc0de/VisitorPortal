@@ -81,6 +81,7 @@ class PermissionHelper
             'ViewAny:Visit',
             'ViewDepartment:Visit',
             'ViewOwn:Visit',
+            'ViewArchive:Visit',
             'Create:Visit',
             'Update:Visit',
             'EditAny:Visit',

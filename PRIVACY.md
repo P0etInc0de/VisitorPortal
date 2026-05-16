@@ -54,6 +54,6 @@ Possible lower-risk configurations include:
 
 ## Retention And Legal Holds
 
-The retention command removes expired visits, orphaned visitors, old notifications, stale auto-generated monitor slides, and old manual monitor visitor-name payloads. It also removes monitor-slide references to visitors purged by the same run.
+The retention command removes expired visits, expired recurring visit series without retained/future visits, orphaned visitors, old notifications, stale auto-generated monitor slides, and old manual monitor visitor-name payloads. It also removes monitor-slide references to visitors purged by the same run.
 
 A `retention_hold_reason` without `retention_hold_until` is treated as an indefinite legal hold and prevents automated visit deletion. Operators should review indefinite legal holds regularly and document who approved them and why.

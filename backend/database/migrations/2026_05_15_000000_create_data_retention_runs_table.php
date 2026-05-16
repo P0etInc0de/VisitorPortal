@@ -23,6 +23,8 @@ return new class extends Migration
             $table->unsignedInteger('monitor_slides_matched')->default(0);
             $table->unsignedInteger('monitor_slides_deleted')->default(0);
             $table->unsignedInteger('monitor_slides_anonymized')->default(0);
+            $table->unsignedInteger('recurring_series_matched')->default(0);
+            $table->unsignedInteger('recurring_series_deleted')->default(0);
             $table->unsignedInteger('indefinite_legal_holds_matched')->default(0);
             $table->string('status')->default('running');
             $table->text('error_message')->nullable();
