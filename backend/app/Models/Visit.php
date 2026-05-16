@@ -118,7 +118,8 @@ class Visit extends Model
             return $query;
         }
 
-        $canSeeSite = $user->site_id !== null
+        $assignedSiteIds = $user->assignedSiteIds();
+        $canSeeSite = $assignedSiteIds->isNotEmpty()
             && ($user->can('ViewSite:Visit') || $user->can('EditSite:Visit') || $user->can('DeleteSite:Visit'));
         $canSeeDepartment = $user->department_id !== null
             && ($user->can('ViewDepartment:Visit') || $user->can('EditDepartment:Visit') || $user->can('DeleteDepartment:Visit'));
@@ -128,9 +129,9 @@ class Visit extends Model
             return $query->whereRaw('1 = 0');
         }
 
-        return $query->where(function (Builder $query) use ($user, $canSeeSite, $canSeeDepartment, $canSeeOwn): void {
+        return $query->where(function (Builder $query) use ($user, $assignedSiteIds, $canSeeSite, $canSeeDepartment, $canSeeOwn): void {
             if ($canSeeSite) {
-                $query->orWhere('site_id', $user->site_id);
+                $query->orWhereIn('site_id', $assignedSiteIds->all());
             }
 
             if ($canSeeDepartment) {

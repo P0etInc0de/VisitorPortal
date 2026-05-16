@@ -240,12 +240,12 @@ class VisitController extends Controller
     {
         $query = $this->selectableUsersQuery();
 
-        if ($actor->can('ViewAny:Visit') || $actor->can('EditAny:Visit') || $actor->can('DeleteAny:Visit')) {
+        if ($actor->can('ViewAny:Visit') || $actor->can('EditAny:Visit') || $actor->can('DeleteAny:Visit') || $actor->can('CreateForAny:Visit')) {
             return $query->get();
         }
 
-        if ($actor->site_id !== null && ($actor->can('ViewSite:Visit') || $actor->can('EditSite:Visit') || $actor->can('DeleteSite:Visit') || $actor->can('CreateForSite:Visit'))) {
-            return $query->where('site_id', $actor->site_id)->get();
+        if ($actor->assignedSiteIds()->isNotEmpty() && ($actor->can('ViewSite:Visit') || $actor->can('EditSite:Visit') || $actor->can('DeleteSite:Visit') || $actor->can('CreateForSite:Visit'))) {
+            return $query->whereIn('site_id', $actor->assignedSiteIds()->all())->get();
         }
 
         if ($actor->department_id !== null && ($actor->can('ViewDepartment:Visit') || $actor->can('EditDepartment:Visit') || $actor->can('DeleteDepartment:Visit') || $actor->can('CreateForDepartment:Visit'))) {
@@ -259,12 +259,12 @@ class VisitController extends Controller
     {
         $query = $this->selectableUsersQuery();
 
-        if ($actor->can('ViewAny:Visit') || $actor->can('EditAny:Visit') || $actor->can('DeleteAny:Visit')) {
+        if ($actor->can('ViewAny:Visit') || $actor->can('EditAny:Visit') || $actor->can('DeleteAny:Visit') || $actor->can('CreateForAny:Visit')) {
             return $query->get();
         }
 
-        if ($actor->site_id !== null && ($actor->can('ViewSite:Visit') || $actor->can('EditSite:Visit') || $actor->can('DeleteSite:Visit') || $actor->can('CreateForSite:Visit'))) {
-            return $query->where('site_id', $actor->site_id)->get();
+        if ($actor->assignedSiteIds()->isNotEmpty() && ($actor->can('ViewSite:Visit') || $actor->can('EditSite:Visit') || $actor->can('DeleteSite:Visit') || $actor->can('CreateForSite:Visit'))) {
+            return $query->whereIn('site_id', $actor->assignedSiteIds()->all())->get();
         }
 
         if ($actor->department_id !== null && ($actor->can('ViewDepartment:Visit') || $actor->can('EditDepartment:Visit') || $actor->can('DeleteDepartment:Visit') || $actor->can('CreateForDepartment:Visit'))) {

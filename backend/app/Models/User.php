@@ -11,10 +11,13 @@ use Filament\Panel;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Validation\ValidationException;
 use Spatie\Permission\Traits\HasRoles;
 
 class User extends Authenticatable implements FilamentUser
@@ -107,12 +110,66 @@ class User extends Authenticatable implements FilamentUser
                     : Site::default()->id;
             }
 
+            if (filled($user->department_id)) {
+                $departmentSiteId = Department::query()->whereKey($user->department_id)->value('site_id');
+
+                if ($departmentSiteId !== null && (int) $departmentSiteId !== (int) $user->site_id) {
+                    throw ValidationException::withMessages([
+                        'department_id' => __('Die Abteilung muss zum ausgewählten Standort gehören.'),
+                    ]);
+                }
+            }
+
             if (! $user->isDirty('is_active')) {
                 return;
             }
 
             $user->deactivated_at = $user->is_active ? null : ($user->deactivated_at ?? now());
         });
+
+        static::saved(function (self $user): void {
+            $user->syncPrimarySiteAssignment();
+        });
+    }
+
+    public function syncPrimarySiteAssignment(): void
+    {
+        if (filled($this->site_id)) {
+            $this->sites()->syncWithoutDetaching([(int) $this->site_id]);
+        }
+    }
+
+    public function sites(): BelongsToMany
+    {
+        return $this->belongsToMany(Site::class)->withTimestamps();
+    }
+
+    /**
+     * @return Collection<int, int>
+     */
+    public function assignedSiteIds(): Collection
+    {
+        $siteIds = $this->relationLoaded('sites')
+            ? $this->sites->pluck('id')
+            : $this->sites()->pluck('sites.id');
+
+        if (filled($this->site_id)) {
+            $siteIds->push((int) $this->site_id);
+        }
+
+        return $siteIds
+            ->map(fn ($siteId): int => (int) $siteId)
+            ->unique()
+            ->values();
+    }
+
+    public function canAccessSite(null|int|string $siteId): bool
+    {
+        if (blank($siteId)) {
+            return false;
+        }
+
+        return $this->assignedSiteIds()->contains((int) $siteId);
     }
 
     /**

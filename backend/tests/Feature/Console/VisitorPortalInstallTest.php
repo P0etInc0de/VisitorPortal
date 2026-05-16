@@ -1,0 +1,45 @@
+<?php
+
+namespace Tests\Feature\Console;
+
+use App\Models\User;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Spatie\Permission\Models\Permission;
+use Spatie\Permission\Models\Role;
+use Tests\TestCase;
+
+class VisitorPortalInstallTest extends TestCase
+{
+    use RefreshDatabase;
+
+    public function test_sync_permissions_creates_production_safe_roles_and_permissions_idempotently(): void
+    {
+        $this->artisan('visitorportal:sync-permissions')->assertExitCode(0);
+        $this->artisan('visitorportal:sync-permissions')->assertExitCode(0);
+
+        $this->assertDatabaseHas('roles', ['name' => 'admin', 'guard_name' => 'web']);
+        $this->assertDatabaseHas('roles', ['name' => 'receptionist', 'guard_name' => 'web']);
+        $this->assertDatabaseHas('permissions', ['name' => 'ManageAny:Site', 'guard_name' => 'web']);
+        $this->assertDatabaseHas('permissions', ['name' => 'ViewSite:Visit', 'guard_name' => 'web']);
+        $this->assertSame(1, Role::query()->where('name', 'admin')->count());
+        $this->assertSame(1, Permission::query()->where('name', 'ViewSite:Visit')->count());
+    }
+
+    public function test_create_admin_creates_active_admin_without_demo_password(): void
+    {
+        $this->artisan('visitorportal:create-admin', [
+            '--email' => 'admin@example.org',
+            '--first-name' => 'Ada',
+            '--last-name' => 'Admin',
+        ])
+            ->expectsQuestion('Admin password', 'VerySecurePass123!')
+            ->expectsQuestion('Confirm admin password', 'VerySecurePass123!')
+            ->assertExitCode(0);
+
+        $user = User::query()->where('email', 'admin@example.org')->firstOrFail();
+
+        $this->assertTrue($user->is_active);
+        $this->assertTrue($user->hasRole('admin'));
+        $this->assertFalse(password_verify('ChangeMe-42!', $user->password));
+    }
+}

@@ -55,14 +55,14 @@ class WelcomeMonitorTest extends TestCase
         $this->assertSame(0, $monitor->monitorSlides()->count());
     }
 
-    public function test_monitor_defaults_to_first_initial_last_name_display_mode(): void
+    public function test_monitor_defaults_to_fallback_only_with_configured_display_mode(): void
     {
         $monitor = Monitor::query()->create([
             'name' => 'Empfang',
             'transition_time_milliseconds' => 5000,
-            'auto_generation' => false,
         ]);
 
+        $this->assertFalse($monitor->auto_generation);
         $this->assertSame(Monitor::DISPLAY_TITLE_FIRST_INITIAL_LAST_NAME, $monitor->monitor_display_mode);
     }
 

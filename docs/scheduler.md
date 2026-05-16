@@ -35,6 +35,8 @@ Schedule::call(new DailyVisitorReminder())->daily();
 - Der Command bereinigt zusätzlich abgelaufene wiederkehrende Serien ohne relevante Visits, alte Notifications, verwaiste Visitors, alte auto-generierte Monitor-Slides und alte manuelle Monitor-Besuchernamen.
 - Referenzen auf gelöschte Visitors werden aus Monitor-Slides entfernt.
 - Ein `retention_hold_reason` ohne `retention_hold_until` gilt als unbefristeter Legal Hold und wird im Retention-Run gezählt.
+- Alte Retention-Laufprotokolle werden nach `DATA_RETENTION_RUN_LOG_DAYS` gelöscht.
+- Technische Tabellen und Betriebsdaten wie `sessions`, `failed_jobs`, Logs und Backups brauchen eigene Betreiber-Retention. Siehe `docs/deployment.md`.
 
 ## Quellen
 

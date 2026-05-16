@@ -25,7 +25,7 @@ return new class extends Migration
             $table->string('name')->default('Entrance welcome monitor');
             $table->timestamps();
             $table->integer('transition_time_milliseconds')->default(5000);
-            $table->boolean('auto_generation')->default(true);
+            $table->boolean('auto_generation')->default(false);
             $table->integer('auto_generation_window_minutes')->default(30);
             $table->string('monitor_display_mode')->default('title_first_initial_last_name');
             $table->string('fallback_heading')->default($fallbackHeading);

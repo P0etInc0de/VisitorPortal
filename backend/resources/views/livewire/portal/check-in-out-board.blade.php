@@ -317,6 +317,14 @@
                             <label class="label px-0 pb-2"><span class="label-text font-medium">{{ __('Telefon') }} {{ $walkInPhoneMarker }}</span></label>
                             <input type="text" class="input input-bordered w-full" wire:model="walkIn.phone" maxlength="50" placeholder="{{ $walkInPhoneMarker ? '' : __('optional') }}" @if ($walkInPhoneRequired) required @endif>
                         </div>
+
+                        <label class="flex cursor-pointer items-start gap-3 rounded-2xl border border-base-300 bg-base-200/40 px-4 py-4">
+                            <input type="checkbox" wire:model="walkInIsConfidential" class="checkbox checkbox-primary mt-1">
+                            <span>
+                                <span class="block text-sm font-medium text-base-content">{{ __('Vertraulicher Besuch') }}</span>
+                                <span class="mt-1 block text-sm text-base-content/65">{{ __('Wird nicht automatisch am Willkommensmonitor angezeigt.') }}</span>
+                            </span>
+                        </label>
                     </div>
 
                     <div class="flex flex-wrap gap-3 pt-2">

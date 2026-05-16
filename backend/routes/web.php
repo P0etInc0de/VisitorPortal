@@ -91,6 +91,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
             ->name('participants.check-out');
     });
 
+    Route::view('monitors/missing', 'monitor.missing')->name('monitors.missing');
     Route::get('monitors/{monitor}/fallback/edit', [MonitorController::class, 'editFallbackPage'])->name('monitors.fallback.edit');
     Route::put('monitors/{monitor}/fallback', [MonitorController::class, 'updateFallbackPage'])->name('monitors.fallback.update');
     Route::resource('monitors', MonitorController::class);

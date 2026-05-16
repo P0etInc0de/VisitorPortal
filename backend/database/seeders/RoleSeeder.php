@@ -2,10 +2,8 @@
 
 namespace Database\Seeders;
 
+use App\Support\VisitorPortalPermissions;
 use Illuminate\Database\Seeder;
-use Spatie\Permission\Models\Permission;
-use Spatie\Permission\Models\Role;
-use Spatie\Permission\PermissionRegistrar;
 
 class RoleSeeder extends Seeder
 {
@@ -15,42 +13,6 @@ class RoleSeeder extends Seeder
             throw new \RuntimeException('Demo roles are disabled in production.');
         }
 
-        // Always reset cached roles and permissions first
-        app()[PermissionRegistrar::class]->forgetCachedPermissions();
-
-        $userPermissions = [
-            'ViewOwn:User', 'EditOwn:User', 'Create:Visit', 'Create:Visitor',
-            'ViewKnown:Visitor',
-            'ViewOwn:Visit', 'EditOwn:Visit', 'DeleteOwn:Visit',
-            'View:Role'];
-
-        $managerPermissions = array_merge($userPermissions, [
-            'ViewDepartment:User', 'EditDepartment:User',
-            'ViewDepartment:Visit', 'EditDepartment:Visit',
-            'DeleteDepartment:Visit', 'CreateForDepartment:Visit',
-            'ViewDepartment:Visitor']);
-
-        $receptionistPermissions = array_merge($userPermissions, [
-            'ViewSite:Visit', 'EditSite:Visit', 'DeleteSite:Visit', 'CreateForSite:Visit',
-            'ViewSite:Visitor', 'ViewContactDetails:Visitor', 'UpdateKnown:Visitor',
-            'CheckIn:Visitor', 'CheckOut:Visitor', 'Print:Visitor',
-            'View:Monitor', 'ViewSite:Monitor', 'ManageSite:Monitor', 'Edit:Monitor', 'Create:Monitor',
-            'ViewAny:MonitorSlide', 'View:MonitorSlide', 'Create:MonitorSlide',
-            'Update:MonitorSlide', 'Delete:MonitorSlide', 'Delete:Monitor']);
-
-        $roles = [
-            'user' => $userPermissions,
-            'manager' => $managerPermissions,
-            'receptionist' => $receptionistPermissions,
-            'welcome monitor' => [
-                'View:Monitor', 'ViewSite:Monitor', 'View:MonitorSlide', 'ViewAny:MonitorSlide',
-            ],
-            // 'admin' => Permission::all()->pluck('name')->toArray(),
-        ];
-
-        foreach ($roles as $roleName => $permissions) {
-            $role = Role::firstOrCreate(['name' => $roleName, 'guard_name' => 'web']);
-            $role->syncPermissions($permissions);
-        }
+        VisitorPortalPermissions::sync($this->command);
     }
 }

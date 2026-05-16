@@ -15,6 +15,10 @@ Vorlagen:
 - PRIVACY_VISIT_RETENTION_DAYS (Default: `365`)
 - PRIVACY_PURGE_ENABLED (`true`/`false`)
 - PRIVACY_SEARCH_RATE_LIMIT_PER_MINUTE (Default: `60`)
+- PRIVACY_WALK_IN_CONFIDENTIAL_DEFAULT (Default: `true`)
+- PRIVACY_NOTICE_URL (optional, vorbereitet für Betreiber-Dokumentation oder spätere externe Flows)
+- BRANDING_MONITOR_AUTO_GENERATION (Default: `false`)
+- BRANDING_MONITOR_DISPLAY_MODE (Default: `title_first_initial_last_name`)
 
 Docker-Hinweis:
 - `DB_HOST` ist der Service-Name aus `docker-compose.yml` (bei uns `db`), nicht `127.0.0.1`.
@@ -33,6 +37,7 @@ Docker-Hinweis:
 - Abgelaufene Besuche werden nach `PRIVACY_VISIT_RETENTION_DAYS` Tagen durch `visits:purge-expired` bereinigt, sofern kein Legal Hold gesetzt ist.
 - Der Retention-Lauf unterstützt `--dry-run` für auditierbare Probeläufe ohne Datenänderung.
 - Weitere Betreiberpflichten und eine Vorlage für Besucherinformationen stehen in `PRIVACY.md`.
+- `PRIVACY_NOTICE_URL` wird aktuell nicht automatisch in internen Mitarbeitenden-Formularen angezeigt. Betreiber können Besucher außerhalb des Portals informieren, z. B. per Aushang, QR-Code, Website oder Einladung.
 
 ## Organisation und Standorte
 - Eine Installation ist für genau eine Organisation/Firma gedacht.

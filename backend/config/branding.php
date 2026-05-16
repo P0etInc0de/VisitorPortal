@@ -33,4 +33,9 @@ return [
 
     'monitor_slide_heading' => env('BRANDING_MONITOR_SLIDE_HEADING', 'Welcome!'),
 
+    // Disabled by default for privacy: automatic monitor slides can reveal visitor presence.
+    'monitor_auto_generation' => (bool) env('BRANDING_MONITOR_AUTO_GENERATION', false),
+
+    'monitor_display_mode' => env('BRANDING_MONITOR_DISPLAY_MODE', 'title_first_initial_last_name'),
+
 ];

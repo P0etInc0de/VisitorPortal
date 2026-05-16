@@ -222,13 +222,14 @@ class StoreVisitRequest extends FormRequest
         $this->validateResponsibleUserSelection($validator, $user);
 
         if ($this->canSelectSiteHost($user)) {
+            $assignedSiteIds = $user->assignedSiteIds();
             $hostIsInSite = User::query()
                 ->whereKey($hostId)
-                ->where('site_id', $user->site_id)
+                ->whereIn('site_id', $assignedSiteIds->all())
                 ->exists();
 
             if (! $hostIsInSite) {
-                $validator->errors()->add('user_id', __('Sie können nur Hosts aus Ihrem Standort auswählen.'));
+                $validator->errors()->add('user_id', __('Sie können nur Hosts aus Ihren Standorten auswählen.'));
             }
 
             return;
@@ -265,13 +266,14 @@ class StoreVisitRequest extends FormRequest
         }
 
         if ($this->canSelectSiteHost($user)) {
+            $assignedSiteIds = $user->assignedSiteIds();
             $responsibleUserIsInSite = User::query()
                 ->whereKey($responsibleUserId)
-                ->where('site_id', $user->site_id)
+                ->whereIn('site_id', $assignedSiteIds->all())
                 ->exists();
 
             if (! $responsibleUserIsInSite) {
-                $validator->errors()->add('responsible_user_id', __('Sie können nur Vertretungen aus Ihrem Standort auswählen.'));
+                $validator->errors()->add('responsible_user_id', __('Sie können nur Vertretungen aus Ihren Standorten auswählen.'));
             }
 
             return;
@@ -340,7 +342,7 @@ class StoreVisitRequest extends FormRequest
 
     private function canSelectSiteHost(User $user): bool
     {
-        return $user->site_id !== null
+        return $user->assignedSiteIds()->isNotEmpty()
             && ($user->can('ViewSite:Visit')
                 || $user->can('EditSite:Visit')
                 || $user->can('DeleteSite:Visit')

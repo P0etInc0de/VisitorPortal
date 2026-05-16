@@ -64,20 +64,21 @@ class Visitor extends Model
         $canSeeOwnVisits = $user->can('ViewKnown:Visitor') || $user->can('ViewOwn:Visit') || $user->can('EditOwn:Visit') || $user->can('DeleteOwn:Visit');
         $canSeeDepartmentVisits = $user->department_id !== null
             && ($user->can('ViewDepartment:Visitor') || $user->can('ViewDepartment:Visit') || $user->can('EditDepartment:Visit') || $user->can('DeleteDepartment:Visit'));
-        $canSeeSiteVisits = $user->site_id !== null
+        $assignedSiteIds = $user->assignedSiteIds();
+        $canSeeSiteVisits = $assignedSiteIds->isNotEmpty()
             && ($user->can('ViewSite:Visitor') || $user->can('ViewSite:Visit') || $user->can('EditSite:Visit') || $user->can('DeleteSite:Visit'));
 
-        return $query->where(function (Builder $query) use ($user, $canSeeOwnVisits, $canSeeDepartmentVisits, $canSeeSiteVisits): void {
+        return $query->where(function (Builder $query) use ($user, $assignedSiteIds, $canSeeOwnVisits, $canSeeDepartmentVisits, $canSeeSiteVisits): void {
             $query->where('created_by_user_id', $user->id);
 
             if (! $canSeeOwnVisits && ! $canSeeDepartmentVisits && ! $canSeeSiteVisits) {
                 return;
             }
 
-            $query->orWhereHas('visits', function (Builder $query) use ($user, $canSeeOwnVisits, $canSeeDepartmentVisits, $canSeeSiteVisits): void {
-                $query->where(function (Builder $query) use ($user, $canSeeOwnVisits, $canSeeDepartmentVisits, $canSeeSiteVisits): void {
+            $query->orWhereHas('visits', function (Builder $query) use ($user, $assignedSiteIds, $canSeeOwnVisits, $canSeeDepartmentVisits, $canSeeSiteVisits): void {
+                $query->where(function (Builder $query) use ($user, $assignedSiteIds, $canSeeOwnVisits, $canSeeDepartmentVisits, $canSeeSiteVisits): void {
                     if ($canSeeSiteVisits) {
-                        $query->orWhere('visits.site_id', $user->site_id);
+                        $query->orWhereIn('visits.site_id', $assignedSiteIds->all());
                     }
 
                     if ($canSeeOwnVisits) {

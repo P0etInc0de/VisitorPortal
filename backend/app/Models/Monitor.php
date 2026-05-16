@@ -95,9 +95,9 @@ class Monitor extends Model
     {
         return [
             'transition_time_milliseconds' => self::DEFAULT_TRANSITION_TIME_MILLISECONDS,
-            'auto_generation' => true,
+            'auto_generation' => self::defaultAutoGeneration(),
             'auto_generation_window_minutes' => self::DEFAULT_AUTO_GENERATION_WINDOW_MINUTES,
-            'monitor_display_mode' => self::DEFAULT_MONITOR_DISPLAY_MODE,
+            'monitor_display_mode' => self::defaultMonitorDisplayMode(),
             'background_source' => self::DEFAULT_BACKGROUND_SOURCE,
             'background_overlay_enabled' => false,
             'header_text_is_light' => false,
@@ -107,6 +107,18 @@ class Monitor extends Model
             'fallback_show_logo' => true,
             'fallback_show_date' => true,
         ];
+    }
+
+    public static function defaultAutoGeneration(): bool
+    {
+        return (bool) config('branding.monitor_auto_generation', false);
+    }
+
+    public static function defaultMonitorDisplayMode(): string
+    {
+        $mode = (string) config('branding.monitor_display_mode', self::DEFAULT_MONITOR_DISPLAY_MODE);
+
+        return in_array($mode, self::displayModes(), true) ? $mode : self::DEFAULT_MONITOR_DISPLAY_MODE;
     }
 
     public static function defaultFallbackHeading(): string

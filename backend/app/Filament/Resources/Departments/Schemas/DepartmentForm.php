@@ -26,7 +26,7 @@ class DepartmentForm
                     ->required()
                     ->unique(ignoreRecord: true, modifyRuleUsing: fn (Unique $rule, callable $get): Unique => $rule->where('site_id', $get('site_id'))),
                 TextInput::make('location')
-                    ->label(__('Standort')),
+                    ->label(__('Gebäude/Raum')),
                 Toggle::make('is_active')
                     ->label(__('Aktiv'))
                     ->required(),

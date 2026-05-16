@@ -113,8 +113,13 @@ if [ "${RUN_SETUP:-true}" = "true" ]; then
         info "AUTO_MIGRATE=false, skipping migrations."
     fi
 
-    step "Loading demo data if needed"
+    step "Loading seed data if enabled"
     if [ "${AUTO_SEED:-false}" = "true" ]; then
+        if [ "${APP_ENV:-}" = "production" ]; then
+            printf '[ERROR] AUTO_SEED=true is not allowed in production. Use php artisan visitorportal:install and visitorportal:create-admin instead.\n' >&2
+            exit 1
+        fi
+
         if [ "${FORCE_SEED:-false}" = "true" ] || [ ! -f "$INSTALL_FLAG" ]; then
             php artisan db:seed --force
             touch "$INSTALL_FLAG"

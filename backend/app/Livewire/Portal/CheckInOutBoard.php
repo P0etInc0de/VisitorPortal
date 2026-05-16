@@ -29,6 +29,8 @@ class CheckInOutBoard extends Component
 
     public ?string $walkInHostId = null;
 
+    public bool $walkInIsConfidential = true;
+
     /**
      * @var array<string, string>
      */
@@ -44,6 +46,7 @@ class CheckInOutBoard extends Component
     public function mount(): void
     {
         $this->authorize('viewAny', Visit::class);
+        $this->walkInIsConfidential = $this->walkInConfidentialDefault();
     }
 
     public function checkIn(int $visitId, int $visitorId): void
@@ -111,7 +114,7 @@ class CheckInOutBoard extends Component
 
         [$visit, $visitor] = DB::transaction(function () use ($payload, $user, $hostId) {
             $visitor = $this->resolveWalkInVisitor($payload['walkIn'], $user);
-            $visit = $this->createWalkInVisit($visitor, $user, $hostId);
+            $visit = $this->createWalkInVisit($visitor, $user, $hostId, $this->walkInIsConfidential);
 
             $visit->visitors()->syncWithoutDetaching([
                 $visitor->id => [
@@ -357,7 +360,7 @@ class CheckInOutBoard extends Component
         ]);
     }
 
-    private function createWalkInVisit(Visitor $visitor, User $user, int $hostId): Visit
+    private function createWalkInVisit(Visitor $visitor, User $user, int $hostId, bool $isConfidential): Visit
     {
         $displayName = trim(implode(' ', array_filter([
             $visitor->title,
@@ -374,7 +377,7 @@ class CheckInOutBoard extends Component
             'scheduled_until' => now()->addHour(),
             'status' => VisitStatusEnum::Planned->value,
             'is_walk_in' => true,
-            'is_confidential' => false,
+            'is_confidential' => $isConfidential,
             'notes' => __('Am Empfang als Walk-in erfasst.'),
         ]);
     }
@@ -390,7 +393,7 @@ class CheckInOutBoard extends Component
             ->orderBy('name');
 
         if (! ($actor->can('ViewAny:Visit') || $actor->can('EditAny:Visit') || $actor->can('DeleteAny:Visit'))) {
-            $query->where('site_id', $actor->site_id);
+            $query->whereIn('site_id', $actor->assignedSiteIds()->all());
         }
 
         return $query->get();
@@ -408,6 +411,7 @@ class CheckInOutBoard extends Component
     {
         $this->reset('walkIn');
         $this->walkInHostId = null;
+        $this->walkInIsConfidential = $this->walkInConfidentialDefault();
 
         $this->walkIn = [
             'title' => '',
@@ -417,6 +421,11 @@ class CheckInOutBoard extends Component
             'phone' => '',
             'company' => '',
         ];
+    }
+
+    private function walkInConfidentialDefault(): bool
+    {
+        return (bool) config('privacy.walk_in_confidential_default', true);
     }
 
     private function normalizeText(mixed $value): ?string
