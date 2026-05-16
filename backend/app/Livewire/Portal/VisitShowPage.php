@@ -37,12 +37,12 @@ class VisitShowPage extends Component
 
         $payload = $this->validate([
             'scheduledFrom' => ['required', 'date'],
-            'scheduledUntil' => ['nullable', 'date', 'after:scheduledFrom'],
+            'scheduledUntil' => ['required', 'date', 'after:scheduledFrom'],
         ]);
 
         $this->visit->update([
             'scheduled_from' => $payload['scheduledFrom'],
-            'scheduled_until' => $payload['scheduledUntil'] !== '' ? $payload['scheduledUntil'] : null,
+            'scheduled_until' => $payload['scheduledUntil'],
             'recurrence_is_modified' => $this->visit->recurring_visit_series_id ? true : $this->visit->recurrence_is_modified,
         ]);
 

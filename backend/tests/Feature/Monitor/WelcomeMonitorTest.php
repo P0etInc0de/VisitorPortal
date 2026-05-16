@@ -55,6 +55,20 @@ class WelcomeMonitorTest extends TestCase
         $this->assertSame(0, $monitor->monitorSlides()->count());
     }
 
+    public function test_monitor_settings_livewire_component_requires_update_permission(): void
+    {
+        $user = (new PermissionHelper)->getIndividualUser(['View:Monitor'], 'monitor-viewer');
+        $monitor = Monitor::query()->create([
+            'name' => 'Empfang',
+            'transition_time_milliseconds' => 5000,
+            'auto_generation' => false,
+        ]);
+
+        Livewire::actingAs($user)
+            ->test('monitor.settings-form', ['monitor' => $monitor])
+            ->assertForbidden();
+    }
+
     public function test_monitor_defaults_to_fallback_only_with_configured_display_mode(): void
     {
         $monitor = Monitor::query()->create([

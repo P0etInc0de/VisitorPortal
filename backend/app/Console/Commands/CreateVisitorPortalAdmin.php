@@ -27,6 +27,11 @@ class CreateVisitorPortalAdmin extends Command
         VisitorPortalPermissions::sync($this);
 
         $site = $this->resolveSite();
+
+        if (! $site) {
+            return self::FAILURE;
+        }
+
         $email = $this->promptEmail();
         $existingUser = User::query()->where('email', $email)->first();
 
@@ -66,16 +71,17 @@ class CreateVisitorPortalAdmin extends Command
         return self::SUCCESS;
     }
 
-    private function resolveSite(): Site
+    private function resolveSite(): ?Site
     {
         $siteId = $this->option('site-id');
 
         if ($siteId !== null && $siteId !== '') {
-            $site = Site::query()->find((int) $siteId);
+            $site = Site::query()->active()->find((int) $siteId);
 
             if (! $site) {
-                $this->error('The given site ID does not exist.');
-                exit(self::FAILURE);
+                $this->error('The given site ID does not exist or is inactive.');
+
+                return null;
             }
 
             return $site;

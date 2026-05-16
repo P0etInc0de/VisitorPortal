@@ -4,6 +4,7 @@ namespace App\Http\Requests;
 
 use App\Enums\VisitStatusEnum;
 use App\Models\RecurringVisitSeries;
+use App\Models\Site;
 use App\Models\User;
 use App\Models\Visit;
 use App\Models\Visitor;
@@ -303,13 +304,26 @@ class StoreVisitRequest extends FormRequest
 
     private function validateSiteSelection(Validator $validator, User $user, int $siteId): void
     {
-        if ($siteId <= 0 || $this->canSelectAnyHost($user)) {
+        if ($siteId <= 0) {
             return;
         }
 
-        if (! $user->canAccessSite($siteId)) {
+        if ($this->siteMustBeActive($siteId) && ! Site::query()->active()->whereKey($siteId)->exists()) {
+            $validator->errors()->add('site_id', __('Der ausgewählte Standort ist nicht aktiv.'));
+
+            return;
+        }
+
+        if (! $this->canSelectAnyHost($user) && ! $user->canAccessSite($siteId)) {
             $validator->errors()->add('site_id', __('Sie können nur Standorte auswählen, denen Sie zugeordnet sind.'));
         }
+    }
+
+    private function siteMustBeActive(int $siteId): bool
+    {
+        $visit = $this->route('visit');
+
+        return ! $visit instanceof Visit || (int) $visit->site_id !== $siteId;
     }
 
     private function validateStatusSelection(Validator $validator): void

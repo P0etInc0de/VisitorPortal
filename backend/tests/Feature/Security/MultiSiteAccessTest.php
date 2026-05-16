@@ -156,6 +156,39 @@ class MultiSiteAccessTest extends TestCase
         ]);
     }
 
+    public function test_visit_creation_rejects_inactive_site(): void
+    {
+        $activeSite = Site::factory()->create();
+        $inactiveSite = Site::factory()->create(['is_active' => false]);
+        $actor = (new PermissionHelper)->getReceptionistUser();
+        $host = User::factory()->create(['site_id' => $activeSite->id]);
+
+        $actor->forceFill(['site_id' => $activeSite->id])->save();
+        $actor->sites()->syncWithoutDetaching([$inactiveSite->id]);
+        $host->sites()->syncWithoutDetaching([$inactiveSite->id]);
+
+        $this->actingAs($actor)
+            ->post(route('portal.visits.store'), [
+                'title' => 'Inactive site visit',
+                'site_id' => $inactiveSite->id,
+                'user_id' => $host->id,
+                'scheduled_from' => now()->addDay()->format('Y-m-d H:i:s'),
+                'scheduled_until' => now()->addDay()->addHour()->format('Y-m-d H:i:s'),
+                'status' => VisitStatusEnum::Planned->value,
+                'participants' => [
+                    [
+                        'first_name' => 'Inactive',
+                        'name' => 'Visitor',
+                    ],
+                ],
+            ])
+            ->assertSessionHasErrors('site_id');
+
+        $this->assertDatabaseMissing('visits', [
+            'title' => 'Inactive site visit',
+        ]);
+    }
+
     public function test_reception_board_uses_all_assigned_sites(): void
     {
         Carbon::setTestNow(Carbon::create(2026, 5, 16, 10, 0, 0, config('app.timezone')));
@@ -230,6 +263,31 @@ class MultiSiteAccessTest extends TestCase
             'site_id' => $assignedSite->id,
             'user_id' => $host->id,
             'is_walk_in' => true,
+        ]);
+    }
+
+    public function test_walk_in_rejects_inactive_site(): void
+    {
+        $activeSite = Site::factory()->create();
+        $inactiveSite = Site::factory()->create(['is_active' => false]);
+        $receptionist = (new PermissionHelper)->getReceptionistUser();
+        $host = User::factory()->create(['site_id' => $activeSite->id]);
+
+        $receptionist->forceFill(['site_id' => $activeSite->id])->save();
+        $receptionist->sites()->syncWithoutDetaching([$inactiveSite->id]);
+        $host->sites()->syncWithoutDetaching([$inactiveSite->id]);
+
+        Livewire::actingAs($receptionist)
+            ->test(CheckInOutBoard::class)
+            ->set('walkInSiteId', (string) $inactiveSite->id)
+            ->set('walkInHostId', (string) $host->id)
+            ->set('walkIn.first_name', 'Walk')
+            ->set('walkIn.name', 'Inactive')
+            ->call('registerWalkIn')
+            ->assertHasErrors(['walkInSiteId']);
+
+        $this->assertDatabaseMissing('visits', [
+            'title' => 'Walk-in: Walk Inactive',
         ]);
     }
 

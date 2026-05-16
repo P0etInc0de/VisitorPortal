@@ -100,7 +100,7 @@ class CheckInOutBoard extends Component
 
         $payload = $this->validate([
             ...$this->walkInRules(),
-            'walkInSiteId' => ['required', 'integer', 'exists:sites,id'],
+            'walkInSiteId' => ['required', 'integer', Rule::exists('sites', 'id')->where('is_active', true)],
             'walkInHostId' => ['required', 'integer', Rule::exists('users', 'id')->where('is_active', true)],
         ]);
         $user = auth()->user();
@@ -425,12 +425,14 @@ class CheckInOutBoard extends Component
         if ($this->canSelectAnyHost($actor)) {
             return Site::query()
                 ->select('id', 'name')
+                ->active()
                 ->orderBy('name')
                 ->get();
         }
 
         return Site::query()
             ->select('id', 'name')
+            ->active()
             ->whereIn('id', $actor->assignedSiteIds()->all())
             ->orderByRaw('CASE WHEN id = ? THEN 0 ELSE 1 END', [(int) $actor->site_id])
             ->orderBy('name')

@@ -155,7 +155,7 @@ class VisitController extends Controller
 
         $visit->update([
             'scheduled_from' => $payload['scheduled_from'],
-            'scheduled_until' => $payload['scheduled_until'] ?? null,
+            'scheduled_until' => $payload['scheduled_until'],
             'recurrence_is_modified' => $visit->recurring_visit_series_id ? true : $visit->recurrence_is_modified,
         ]);
 
@@ -163,7 +163,7 @@ class VisitController extends Controller
             'visit_id' => $visit->id,
             'user_id' => auth()->id(),
             'scheduled_from' => $payload['scheduled_from'],
-            'scheduled_until' => $payload['scheduled_until'] ?? null,
+            'scheduled_until' => $payload['scheduled_until'],
         ]);
 
         return back()->with('status', __('Termin wurde verschoben.'));
@@ -181,7 +181,7 @@ class VisitController extends Controller
         $actor = auth()->user();
         abort_unless($actor instanceof User, 403);
 
-        $siteOptions = $this->selectableSites($actor);
+        $siteOptions = $this->selectableSites($actor, $visit);
         $hostUsers = $this->selectableHostUsers($actor);
         $responsibleUsers = $this->selectableResponsibleUsers($actor);
 
@@ -239,11 +239,17 @@ class VisitController extends Controller
         ]);
     }
 
-    private function selectableSites(User $actor)
+    private function selectableSites(User $actor, Visit $visit)
     {
+        $currentSiteId = $visit->exists ? (int) $visit->site_id : null;
+
         if ($this->canSelectAnyHost($actor)) {
             return Site::query()
                 ->select('id', 'name')
+                ->where(function ($query) use ($currentSiteId): void {
+                    $query->active()
+                        ->when($currentSiteId, fn ($query) => $query->orWhereKey($currentSiteId));
+                })
                 ->orderBy('name')
                 ->get();
         }
@@ -256,7 +262,11 @@ class VisitController extends Controller
 
         return Site::query()
             ->select('id', 'name')
-            ->whereIn('id', $assignedSiteIds->all())
+            ->where(function ($query) use ($assignedSiteIds, $currentSiteId): void {
+                $query->active()
+                    ->whereIn('id', $assignedSiteIds->all())
+                    ->when($currentSiteId, fn ($query) => $query->orWhereKey($currentSiteId));
+            })
             ->orderByRaw('CASE WHEN id = ? THEN 0 ELSE 1 END', [(int) $actor->site_id])
             ->orderBy('name')
             ->get();

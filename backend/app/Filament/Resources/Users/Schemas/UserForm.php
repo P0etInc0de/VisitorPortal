@@ -5,6 +5,8 @@ namespace App\Filament\Resources\Users\Schemas;
 use App\Enums\GenderEnum;
 use App\Models\Department;
 use App\Models\Site;
+use App\Rules\ActiveSite;
+use App\Rules\ActiveSites;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
@@ -18,8 +20,8 @@ class UserForm
             ->components([
                 Select::make('site_id')
                     ->label(__('Primärer Standort'))
-                    ->relationship('site', 'name')
-                    ->default(fn () => Site::default()->id)
+                    ->options(fn (): array => Site::query()->active()->orderBy('name')->pluck('name', 'id')->all())
+                    ->default(fn () => Site::query()->active()->value('id') ?: Site::default()->id)
                     ->required()
                     ->live()
                     ->afterStateUpdated(function (callable $set, callable $get, mixed $state): void {
@@ -36,14 +38,16 @@ class UserForm
                             ->values()
                             ->all());
                     })
+                    ->rules([new ActiveSite])
                     ->preload(),
                 Select::make('sites')
                     ->label(__('Zugeordnete Standorte'))
-                    ->relationship('sites', 'name')
+                    ->relationship('sites', 'name', modifyQueryUsing: fn ($query) => $query->active())
                     ->multiple()
-                    ->default(fn (callable $get): array => [(int) ($get('site_id') ?: Site::default()->id)])
+                    ->default(fn (callable $get): array => [(int) ($get('site_id') ?: Site::query()->active()->value('id') ?: Site::default()->id)])
                     ->preload()
                     ->searchable()
+                    ->rules([new ActiveSites])
                     ->helperText(__('Der primäre Standort wird automatisch zugeordnet. Weitere zugeordnete Standorte bleiben beim Primärstandort-Wechsel erhalten.')),
                 Select::make('department_id')
                     ->label(__('Abteilung'))

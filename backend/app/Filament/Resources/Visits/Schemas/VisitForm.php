@@ -5,6 +5,8 @@ namespace App\Filament\Resources\Visits\Schemas;
 use App\Enums\VisitStatusEnum;
 use App\Models\Site;
 use App\Models\User;
+use App\Rules\ActiveSite;
+use App\Rules\UserCanAccessSite;
 use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
@@ -20,39 +22,35 @@ class VisitForm
             ->components([
                 Select::make('site_id')
                     ->label(__('Standort'))
-                    ->relationship('site', 'name')
-                    ->default(fn () => Site::default()->id)
+                    ->options(fn (): array => Site::query()->active()->orderBy('name')->pluck('name', 'id')->all())
+                    ->default(fn () => self::defaultActiveSiteId())
                     ->required()
+                    ->live()
+                    ->afterStateUpdated(function (callable $set): void {
+                        $set('user_id', null);
+                        $set('responsible_user_id', null);
+                    })
+                    ->rules([new ActiveSite])
                     ->preload(),
                 Select::make('user_id')
                     ->label(__('Host'))
-                    ->relationship(
-                        name: 'creator',
-                        titleAttribute: 'first_name',
-                        modifyQueryUsing: fn ($query) => $query->whereDoesntHave(
-                            'roles',
-                            fn ($query) => $query->whereIn('name', ['welcome monitor', 'welcome_monitor'])
-                        ),
-                    )
-                    ->getOptionLabelFromRecordUsing(fn (User $record) => $record->fullName)
+                    ->options(fn (callable $get): array => self::userOptionsForSite((int) ($get('site_id') ?: self::defaultActiveSiteId())))
                     ->default(auth()->id())
                     ->disabled()
-                    ->dehydrated(), // ensure it's still saved
+                    ->dehydrated()
+                    ->rules(fn (callable $get): array => [
+                        new UserCanAccessSite((int) ($get('site_id') ?: self::defaultActiveSiteId()), __('Der Host ist dem ausgewählten Standort nicht zugeordnet.')),
+                    ]),
                 Select::make('responsible_user_id')
                     ->label(__('Vertretung'))
-                    ->relationship(
-                        name: 'responsibleUser',
-                        titleAttribute: 'first_name',
-                        modifyQueryUsing: fn ($query) => $query->whereDoesntHave(
-                            'roles',
-                            fn ($query) => $query->whereIn('name', ['welcome monitor', 'welcome_monitor'])
-                        ),
-                    )
-                    ->getOptionLabelFromRecordUsing(fn (User $record) => $record->fullName)
-                    ->searchable(['first_name', 'name'])
+                    ->options(fn (callable $get): array => self::userOptionsForSite((int) ($get('site_id') ?: self::defaultActiveSiteId())))
+                    ->searchable()
                     ->preload()
                     ->different('user_id')
-                    ->required(),
+                    ->required()
+                    ->rules(fn (callable $get): array => [
+                        new UserCanAccessSite((int) ($get('site_id') ?: self::defaultActiveSiteId()), __('Die Vertretung ist dem ausgewählten Standort nicht zugeordnet.')),
+                    ]),
                 TextInput::make('title')
                     ->label(__('Titel'))
                     ->required()
@@ -95,5 +93,35 @@ class VisitForm
                     ->preload(),
 
             ]);
+    }
+
+    private static function defaultActiveSiteId(): int
+    {
+        return (int) (Site::query()->active()->value('id') ?: Site::default()->id);
+    }
+
+    /**
+     * @return array<int, string>
+     */
+    private static function userOptionsForSite(int $siteId): array
+    {
+        return self::usersForSite($siteId)
+            ->get()
+            ->mapWithKeys(fn (User $user): array => [$user->id => $user->fullName])
+            ->all();
+    }
+
+    private static function usersForSite(int $siteId)
+    {
+        return User::query()
+            ->with('sites:id')
+            ->where('is_active', true)
+            ->whereDoesntHave('roles', fn ($query) => $query->whereIn('name', ['welcome monitor', 'welcome_monitor']))
+            ->where(function ($query) use ($siteId): void {
+                $query->where('site_id', $siteId)
+                    ->orWhereHas('sites', fn ($query) => $query->whereKey($siteId));
+            })
+            ->orderBy('first_name')
+            ->orderBy('name');
     }
 }

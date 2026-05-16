@@ -2,6 +2,7 @@
 
 namespace Tests\Feature\Console;
 
+use App\Models\Site;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Spatie\Permission\Models\Permission;
@@ -41,5 +42,19 @@ class VisitorPortalInstallTest extends TestCase
         $this->assertTrue($user->is_active);
         $this->assertTrue($user->hasRole('admin'));
         $this->assertFalse(password_verify('ChangeMe-42!', $user->password));
+    }
+
+    public function test_create_admin_rejects_inactive_site(): void
+    {
+        $inactiveSite = Site::factory()->create(['is_active' => false]);
+
+        $this->artisan('visitorportal:create-admin', [
+            '--email' => 'admin@example.org',
+            '--site-id' => $inactiveSite->id,
+        ])->assertExitCode(1);
+
+        $this->assertDatabaseMissing('users', [
+            'email' => 'admin@example.org',
+        ]);
     }
 }
