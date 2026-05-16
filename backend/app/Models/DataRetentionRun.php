@@ -20,6 +20,8 @@ class DataRetentionRun extends Model
         'monitor_slides_matched',
         'monitor_slides_deleted',
         'monitor_slides_anonymized',
+        'recurring_series_matched',
+        'recurring_series_deleted',
         'indefinite_legal_holds_matched',
         'status',
         'error_message',

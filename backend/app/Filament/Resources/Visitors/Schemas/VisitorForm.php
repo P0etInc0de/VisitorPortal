@@ -40,8 +40,7 @@ class VisitorForm
                     ->tel()
                     ->maxLength(50)
                     ->required(VisitorContactRequirement::requiresPhone())
-                    ->rules(VisitorContactRequirement::requiresOne() ? ['required_without:email'] : [])
-                    ->unique(ignoreRecord: true),
+                    ->rules(VisitorContactRequirement::requiresOne() ? ['required_without:email'] : []),
                 TextInput::make('company')
                     ->label(__('Firma')),
                 Textarea::make('notes')

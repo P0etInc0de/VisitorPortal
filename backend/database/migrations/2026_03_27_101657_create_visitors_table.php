@@ -18,7 +18,7 @@ return new class extends Migration
             $table->string('salutation')->default('not_specified');
             $table->string('title')->nullable();
             $table->string('email')->nullable()->unique();
-            $table->string('phone', 50)->nullable()->unique();
+            $table->string('phone', 50)->nullable()->index();
             $table->string('company')->nullable();
             $table->text('notes')->nullable();
             $table->foreignId('created_by_user_id')->nullable()->constrained('users')->nullOnDelete();

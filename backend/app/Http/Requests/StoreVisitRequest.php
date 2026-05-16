@@ -177,6 +177,20 @@ class StoreVisitRequest extends FormRequest
             return;
         }
 
+        $inactiveUserIds = User::query()
+            ->whereIn('id', $userIds)
+            ->where('is_active', false)
+            ->pluck('id')
+            ->map(fn ($userId) => (int) $userId);
+
+        if ($inactiveUserIds->contains((int) $this->input('user_id'))) {
+            $validator->errors()->add('user_id', __('Inaktive Benutzer können nicht als Host ausgewählt werden.'));
+        }
+
+        if ($inactiveUserIds->contains((int) $this->input('responsible_user_id'))) {
+            $validator->errors()->add('responsible_user_id', __('Inaktive Benutzer können nicht als Vertretung ausgewählt werden.'));
+        }
+
         $welcomeMonitorIds = User::query()
             ->whereIn('id', $userIds)
             ->whereHas('roles', fn ($query) => $query->whereIn('name', ['welcome monitor', 'welcome_monitor']))
@@ -197,6 +211,8 @@ class StoreVisitRequest extends FormRequest
             return;
         }
 
+        $this->validateResponsibleUserSelection($validator, $user);
+
         if ($this->canSelectDepartmentHost($user)) {
             $hostIsInDepartment = User::query()
                 ->whereKey($hostId)
@@ -213,6 +229,34 @@ class StoreVisitRequest extends FormRequest
         if ($hostId !== $user->id) {
             $validator->errors()->add('user_id', __('Sie können Besuche nur für sich selbst anlegen oder bearbeiten.'));
         }
+    }
+
+    private function validateResponsibleUserSelection(Validator $validator, User $user): void
+    {
+        if (blank($this->input('responsible_user_id'))) {
+            return;
+        }
+
+        $responsibleUserId = (int) $this->input('responsible_user_id');
+
+        if ($this->canSelectAnyHost($user)) {
+            return;
+        }
+
+        if ($user->department_id !== null) {
+            $responsibleUserIsInDepartment = User::query()
+                ->whereKey($responsibleUserId)
+                ->where('department_id', $user->department_id)
+                ->exists();
+
+            if (! $responsibleUserIsInDepartment) {
+                $validator->errors()->add('responsible_user_id', __('Sie können nur Vertretungen aus Ihrer Abteilung auswählen.'));
+            }
+
+            return;
+        }
+
+        $validator->errors()->add('responsible_user_id', __('Sie können keine freie Vertretung auswählen.'));
     }
 
     private function validateStatusSelection(Validator $validator): void

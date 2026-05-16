@@ -30,6 +30,9 @@ class UsersTable
                 TextColumn::make('email')
                     ->label(__('E-Mail'))
                     ->searchable(),
+                TextColumn::make('is_active')
+                    ->label(__('Aktiv'))
+                    ->formatStateUsing(fn (bool $state): string => $state ? __('Ja') : __('Nein')),
                 TextColumn::make('created_at')
                     ->label(__('Erstellt am'))
                     ->dateTime()

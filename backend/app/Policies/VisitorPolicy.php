@@ -20,7 +20,10 @@ class VisitorPolicy
 
     public function view(User $user, Visitor $visitor): bool
     {
-        return $user->can('View:Visitor');
+        return Visitor::query()
+            ->visibleTo($user)
+            ->whereKey($visitor->id)
+            ->exists();
     }
 
     public function create(User $user): bool
@@ -30,12 +33,20 @@ class VisitorPolicy
 
     public function update(User $user, Visitor $visitor): bool
     {
-        return $user->can('Update:Visitor');
+        return ($user->can('Update:Visitor') || $user->can('EditAny:Visitor'))
+            && Visitor::query()
+                ->visibleTo($user)
+                ->whereKey($visitor->id)
+                ->exists();
     }
 
     public function delete(User $user, Visitor $visitor): bool
     {
-        return $user->can('Delete:Visitor');
+        return ($user->can('Delete:Visitor') || $user->can('DeleteAny:Visitor'))
+            && Visitor::query()
+                ->visibleTo($user)
+                ->whereKey($visitor->id)
+                ->exists();
     }
 
     public function deleteAny(User $user): bool

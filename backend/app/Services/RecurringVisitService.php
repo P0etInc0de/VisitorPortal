@@ -446,7 +446,7 @@ class RecurringVisitService
             ? Visitor::query()->visibleTo($actor)->where('email', $row['email'])->first()
             : null;
         $existingByPhone = filled($row['phone'])
-            ? Visitor::query()->visibleTo($actor)->where('phone', $row['phone'])->first()
+            ? $this->singleVisiblePhoneMatch($row['phone'], $actor)
             : null;
 
         if ($existingByEmail && $existingByPhone && ! $existingByEmail->is($existingByPhone)) {
@@ -495,20 +495,12 @@ class RecurringVisitService
 
     private function rejectHiddenContactMatch(array $row, User $actor): void
     {
-        if (blank($row['email']) && blank($row['phone'])) {
+        if (blank($row['email'])) {
             return;
         }
 
         $hiddenMatch = Visitor::query()
-            ->where(function ($query) use ($row): void {
-                if (filled($row['email'])) {
-                    $query->orWhere('email', $row['email']);
-                }
-
-                if (filled($row['phone'])) {
-                    $query->orWhere('phone', $row['phone']);
-                }
-            })
+            ->where('email', $row['email'])
             ->whereNotIn('id', Visitor::query()->visibleTo($actor)->select('id'))
             ->exists();
 
@@ -517,6 +509,17 @@ class RecurringVisitService
                 'participants' => __('Diese Kontaktdaten können für Ihren Besuch nicht verwendet werden. Bitte wenden Sie sich an den Empfang.'),
             ]);
         }
+    }
+
+    private function singleVisiblePhoneMatch(string $phone, User $actor): ?Visitor
+    {
+        $matches = Visitor::query()
+            ->visibleTo($actor)
+            ->where('phone', $phone)
+            ->limit(2)
+            ->get();
+
+        return $matches->count() === 1 ? $matches->first() : null;
     }
 
     private function normalizeText(mixed $value): ?string

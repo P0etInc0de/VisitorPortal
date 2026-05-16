@@ -3,6 +3,10 @@
 
 Konfiguration erfolgt über `backend/.env`. Diese Datei wird nicht versioniert und darf nicht committed werden.
 
+Vorlagen:
+- `backend/.env.example` für lokale Entwicklung.
+- `backend/.env.production.example` als sichere Orientierung für produktive Deployments.
+
 ## Wichtige Variablen (Docker / lokal)
 - APP_URL
 - DB_CONNECTION, DB_HOST, DB_PORT, DB_DATABASE, DB_USERNAME, DB_PASSWORD
