@@ -1,7 +1,7 @@
 <section class="rounded-3xl border border-base-300 bg-base-100 shadow-sm">
     <div class="p-5 sm:p-6">
         <div class="grid gap-6 xl:grid-cols-[1.55fr_0.95fr]">
-            <div class="space-y-5">
+            <div class="space-y-2">
                 <div class="grid gap-5 xl:grid-cols-12">
                     <label class="form-control xl:col-span-12">
                         <div class="label px-0 pb-2">
@@ -107,49 +107,11 @@
                     </div>
 
                     @include('portal.visits.partials.recurrence-fields')
-
-                    <div class="xl:col-span-12 rounded-2xl border border-base-300 bg-base-200/40 p-4">
-                        <div class="grid gap-4 lg:grid-cols-12 lg:items-end">
-                            <label class="flex cursor-pointer items-start gap-3 rounded-xl border border-base-300 bg-base-100 px-3 py-3 lg:col-span-5">
-                                <input
-                                    type="checkbox"
-                                    name="is_confidential"
-                                    value="1"
-                                    class="checkbox checkbox-primary mt-0.5"
-                                    @checked($isConfidentialValue)
-                                >
-                                <span>
-                                    <span class="block text-sm font-medium text-base-content">{{ __('Vertraulicher Besuch') }}</span>
-                                    <span class="mt-1 block text-sm text-base-content/65">{{ __('Vertrauliche Besuche erscheinen nie auf Willkommensmonitoren.') }}</span>
-                                </span>
-                            </label>
-
-                            <label class="form-control lg:col-span-7">
-                                <div class="label px-0 pb-2">
-                                    <span class="label-text text-sm font-medium text-base-content">{{ __('Monitor-Anzeige') }}</span>
-                                </div>
-                                <select
-                                    name="monitor_display_mode"
-                                    class="select select-bordered w-full @error('monitor_display_mode') select-error @enderror"
-                                >
-                                    @foreach (\App\Models\Visit::monitorDisplayModeOptions() as $value => $label)
-                                        <option value="{{ $value }}" @selected($monitorDisplayModeValue === $value)>{{ $label }}</option>
-                                    @endforeach
-                                </select>
-                                <div class="mt-2 text-sm text-base-content/65">
-                                    {{ __('Standard ist datenminimiert: Nur die Firma wird angezeigt.') }}
-                                </div>
-                                @error('monitor_display_mode')
-                                <div class="mt-2 text-sm text-error">{{ $message }}</div>
-                                @enderror
-                            </label>
-                        </div>
-                    </div>
                 </div>
             </div>
 
-            <div>
-                <label class="form-control h-full">
+            <div class="space-y-5">
+                <label class="form-control">
                     <div class="label px-0 pb-2">
                         <span class="label-text text-sm font-medium text-base-content">
                             {{ __('Notizen für Empfang und Ablauf') }}
@@ -160,6 +122,20 @@
                         maxlength="1000"
                         class="textarea textarea-bordered h-40 max-h-40 w-full resize-none overflow-y-auto @error('notes') textarea-error @enderror"
                     >{{ old('notes', $visit->notes) }}</textarea>
+                </label>
+
+                <label class="flex cursor-pointer items-start gap-3 rounded-2xl border border-base-300 bg-base-200/40 px-4 py-4">
+                    <input
+                        type="checkbox"
+                        name="is_confidential"
+                        value="1"
+                        class="checkbox checkbox-primary mt-1"
+                        @checked($isConfidentialValue)
+                    >
+                    <span>
+                        <span class="block text-sm font-medium text-base-content">{{ __('Vertraulicher Besuch') }}</span>
+                        <span class="mt-1 block text-sm text-base-content/65">{{ __('Diese werden nicht automatisch auf Willkommensmonitoren angezeigt.') }}</span>
+                    </span>
                 </label>
             </div>
         </div>

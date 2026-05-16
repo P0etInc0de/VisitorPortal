@@ -4,12 +4,12 @@ namespace App\Filament\Resources\Visits\Schemas;
 
 use App\Enums\VisitStatusEnum;
 use App\Models\Site;
-use App\Models\Visit;
 use App\Models\User;
 use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\Toggle;
 use Filament\Schemas\Schema;
 
 class VisitForm
@@ -76,13 +76,7 @@ class VisitForm
                     ->preload()
                     ->default(VisitStatusEnum::Planned->value)
                     ->disabled(fn ($record) => $record?->status === VisitStatusEnum::Canceled->value),
-                Select::make('monitor_display_mode')
-                    ->label(__('Monitor-Anzeige'))
-                    ->options(Visit::monitorDisplayModeOptions())
-                    ->required()
-                    ->default(Visit::MONITOR_DISPLAY_COMPANY_ONLY)
-                    ->preload(),
-                \Filament\Forms\Components\Toggle::make('is_confidential')
+                Toggle::make('is_confidential')
                     ->label(__('Vertraulich'))
                     ->default(false),
                 Textarea::make('notes')

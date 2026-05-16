@@ -17,4 +17,5 @@
 - The auto generation is scheduled to run every 5 minutes and creates slides for every visit from now +/- 30 minutes
 - Auto generation only uses visits from the monitor's own site.
 - Confidential visits are always hidden from welcome monitors.
-- Visit `monitor_display_mode` controls the amount of visitor data shown; the default is company-only.
+- The monitor controls the visitor display mode for generated slides; manual slides can override it per slide.
+- The default visitor display is title + first-name initial + last name.

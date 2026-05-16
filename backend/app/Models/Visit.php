@@ -2,8 +2,8 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
@@ -12,16 +12,6 @@ use Illuminate\Support\Collection;
 class Visit extends Model
 {
     use HasFactory;
-
-    public const MONITOR_DISPLAY_HIDDEN = 'hidden';
-
-    public const MONITOR_DISPLAY_COMPANY_ONLY = 'company_only';
-
-    public const MONITOR_DISPLAY_FIRST_NAME_COMPANY = 'first_name_company';
-
-    public const MONITOR_DISPLAY_INITIALS_COMPANY = 'initials_company';
-
-    public const MONITOR_DISPLAY_FULL_NAME = 'full_name';
 
     protected $fillable = [
         'title',
@@ -36,7 +26,6 @@ class Visit extends Model
         'scheduled_until',
         'status',
         'is_confidential',
-        'monitor_display_mode',
         'is_walk_in',
         'notes',
         'canceled_at',
@@ -120,9 +109,6 @@ class Visit extends Model
                 $visit->site_id = User::query()->whereKey($visit->user_id)->value('site_id') ?: Site::default()->id;
             }
 
-            if (blank($visit->monitor_display_mode)) {
-                $visit->monitor_display_mode = self::MONITOR_DISPLAY_COMPANY_ONLY;
-            }
         });
     }
 
@@ -157,28 +143,6 @@ class Visit extends Model
                     ->orWhere('responsible_user_id', $user->id);
             }
         });
-    }
-
-    /**
-     * @return array<string, string>
-     */
-    public static function monitorDisplayModeOptions(): array
-    {
-        return [
-            self::MONITOR_DISPLAY_HIDDEN => __('Nicht anzeigen'),
-            self::MONITOR_DISPLAY_COMPANY_ONLY => __('Nur Firma'),
-            self::MONITOR_DISPLAY_FIRST_NAME_COMPANY => __('Vorname und Firma'),
-            self::MONITOR_DISPLAY_INITIALS_COMPANY => __('Initialen und Firma'),
-            self::MONITOR_DISPLAY_FULL_NAME => __('Vollständiger Name'),
-        ];
-    }
-
-    /**
-     * @return list<string>
-     */
-    public static function monitorDisplayModes(): array
-    {
-        return array_keys(self::monitorDisplayModeOptions());
     }
 
     public function getDisplayTitleAttribute(): string

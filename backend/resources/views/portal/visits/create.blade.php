@@ -72,7 +72,6 @@
     $hostUserIdValue = (string) old('user_id', $visit->user_id ?: auth()->id());
     $responsibleUserIdValue = (string) old('responsible_user_id', $visit->responsible_user_id);
     $isConfidentialValue = filter_var(old('is_confidential', $visit->is_confidential), FILTER_VALIDATE_BOOL);
-    $monitorDisplayModeValue = old('monitor_display_mode', $visit->monitor_display_mode ?: \App\Models\Visit::MONITOR_DISPLAY_COMPANY_ONLY);
 
     if (! $hostUsers->contains('id', (int) $hostUserIdValue)) {
         $hostUserIdValue = (string) ($hostUsers->first()?->id ?? '');

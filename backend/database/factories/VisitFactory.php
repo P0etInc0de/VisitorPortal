@@ -33,7 +33,6 @@ class VisitFactory extends Factory
             'scheduled_until' => Carbon::now()->addHour(1),
             'status' => VisitStatusEnum::Planned->value,
             'is_confidential' => false,
-            'monitor_display_mode' => Visit::MONITOR_DISPLAY_COMPANY_ONLY,
             'is_walk_in' => false,
             'notes' => 'test',
             'title' => 'test',

@@ -26,7 +26,6 @@ class VisitController extends Controller
             'site_id' => auth()->user()?->site_id,
             'user_id' => auth()->id(),
             'status' => VisitStatusEnum::Planned->value,
-            'monitor_display_mode' => Visit::MONITOR_DISPLAY_COMPANY_ONLY,
         ]), false);
     }
 

@@ -43,7 +43,6 @@ class RecurringVisitSeries extends Model
         'created_by_user_id',
         'status',
         'is_confidential',
-        'monitor_display_mode',
         'notes',
         'starts_at',
         'duration_minutes',
@@ -156,9 +155,6 @@ class RecurringVisitSeries extends Model
                 $series->site_id = User::query()->whereKey($series->user_id)->value('site_id') ?: Site::default()->id;
             }
 
-            if (blank($series->monitor_display_mode)) {
-                $series->monitor_display_mode = Visit::MONITOR_DISPLAY_COMPANY_ONLY;
-            }
         });
     }
 }

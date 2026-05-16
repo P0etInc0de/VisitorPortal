@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Monitor;
 
+use App\Models\Monitor;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 
@@ -27,6 +28,7 @@ class UpdateMonitorRequest extends FormRequest
         return [
             'transition_time_milliseconds' => 'required|integer|between:1000,50000',
             'auto_generation_window_minutes' => 'required|integer|between:1,180',
+            'monitor_display_mode' => ['required', 'string', 'in:'.implode(',', Monitor::displayModes())],
             'background_source' => 'required|in:preset-1,preset-2,preset-3,upload',
             'background_overlay_enabled' => 'boolean',
             'content_card_style' => 'required|in:solid,transparent,none',

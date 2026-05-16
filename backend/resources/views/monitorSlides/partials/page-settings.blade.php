@@ -1,6 +1,7 @@
 @php
     $slideNumber = $slideNumber ?? null;
     $toggleValues = $toggleValues ?? [];
+    $displayMode = $displayMode ?? \App\Models\Monitor::DEFAULT_MONITOR_DISPLAY_MODE;
 @endphp
 
 <div class="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
@@ -43,4 +44,25 @@
             </label>
         </div>
     @endforeach
+
+    <div class="rounded-2xl border border-base-300 bg-base-200 p-3.5 sm:col-span-2 xl:col-span-4">
+        <label class="form-control">
+            <div class="label px-0 pb-2">
+                <span class="label-text text-sm font-medium text-base-content">{{ __('Besucheranzeige') }}</span>
+            </div>
+            <select
+                id="monitorDisplayMode"
+                name="monitor_display_mode"
+                class="select select-bordered h-11 w-full rounded-xl border-base-300 bg-base-100 focus:border-primary transition-all @error('monitor_display_mode') select-error @enderror"
+            >
+                @foreach (\App\Models\Monitor::displayModeOptions() as $value => $label)
+                    <option value="{{ $value }}" @selected(old('monitor_display_mode', $displayMode) === $value)>{{ $label }}</option>
+                @endforeach
+            </select>
+        </label>
+
+        @error('monitor_display_mode')
+            <span class="mt-1 block text-sm font-medium text-red-500">{{ $message }}</span>
+        @enderror
+    </div>
 </div>

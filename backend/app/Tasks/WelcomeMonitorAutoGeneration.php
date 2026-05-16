@@ -7,6 +7,7 @@ use App\Models\Monitor;
 use App\Models\Visit;
 use Carbon\Carbon;
 use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Log;
 
 class WelcomeMonitorAutoGeneration implements ShouldQueue
@@ -41,7 +42,6 @@ class WelcomeMonitorAutoGeneration implements ShouldQueue
             $currentVisits = Visit::query()
                 ->where('site_id', $monitor->site_id)
                 ->where('is_confidential', false)
-                ->where('monitor_display_mode', '!=', Visit::MONITOR_DISPLAY_HIDDEN)
                 ->where('scheduled_from', '<=', $windowEnd)
                 ->where('scheduled_until', '>=', $windowStart)
                 ->where('status', VisitStatusEnum::Planned->value)
@@ -52,7 +52,7 @@ class WelcomeMonitorAutoGeneration implements ShouldQueue
             $slidenumber = 1;
             foreach ($currentVisits as $currentVisit) {
 
-                $visitors = $currentVisit->visitors->values();
+                $visitors = $this->displayVisitors($currentVisit, $monitor->monitor_display_mode ?: Monitor::DEFAULT_MONITOR_DISPLAY_MODE);
 
                 $chunks = $visitors->chunk(6);
 
@@ -63,18 +63,12 @@ class WelcomeMonitorAutoGeneration implements ShouldQueue
                         'slide_number' => $slidenumber++,
                         'is_active' => true,
                         'is_auto_generated' => true,
+                        'monitor_display_mode' => $monitor->monitor_display_mode ?: Monitor::DEFAULT_MONITOR_DISPLAY_MODE,
                         'show_logo' => true,
                         'show_date' => true,
                     ]);
 
-                    $payload = $chunk->map(function ($visitor) use ($currentVisit) {
-                        $name = $this->monitorDisplayName($currentVisit, $visitor);
-
-                        return [
-                            'id' => $visitor->id,
-                            'name' => $name,
-                        ];
-                    })->values()->toArray();
+                    $payload = $chunk->values()->toArray();
 
                     $slide->update([
                         'visitors' => $payload,
@@ -84,22 +78,50 @@ class WelcomeMonitorAutoGeneration implements ShouldQueue
         }
     }
 
-    private function monitorDisplayName(Visit $visit, mixed $visitor): string
+    private function displayVisitors(Visit $visit, string $displayMode): Collection
+    {
+        $items = $visit->visitors
+            ->map(fn (mixed $visitor): array => [
+                'id' => $visitor->id,
+                'name' => $this->monitorDisplayName($displayMode, $visitor),
+                'company_key' => $this->companyKey($visitor),
+            ]);
+
+        if ($displayMode === Monitor::DISPLAY_COMPANY_ONLY) {
+            $items = $items->unique('company_key');
+        }
+
+        return $items
+            ->map(fn (array $visitor): array => [
+                'id' => $visitor['id'],
+                'name' => $visitor['name'],
+            ])
+            ->values();
+    }
+
+    private function monitorDisplayName(string $displayMode, mixed $visitor): string
     {
         $company = trim((string) $visitor->company);
+        $title = trim((string) $visitor->title);
         $firstName = trim((string) $visitor->first_name);
         $lastName = trim((string) $visitor->name);
-        $fullName = trim(implode(' ', array_filter([$visitor->title, $firstName, $lastName])));
-        $initials = trim(implode(' ', array_filter([
-            $firstName !== '' ? mb_substr($firstName, 0, 1).'.' : null,
-            $lastName !== '' ? mb_substr($lastName, 0, 1).'.' : null,
-        ])));
+        $firstInitial = $firstName !== '' ? mb_substr($firstName, 0, 1).'.' : null;
+        $lastInitial = $lastName !== '' ? mb_substr($lastName, 0, 1).'.' : null;
 
-        return match ($visit->monitor_display_mode) {
-            Visit::MONITOR_DISPLAY_FULL_NAME => $fullName !== '' ? $fullName : ($company ?: __('Gast')),
-            Visit::MONITOR_DISPLAY_FIRST_NAME_COMPANY => trim(implode(' - ', array_filter([$firstName, $company]))) ?: __('Gast'),
-            Visit::MONITOR_DISPLAY_INITIALS_COMPANY => trim(implode(' - ', array_filter([$initials, $company]))) ?: __('Gast'),
-            default => $company !== '' ? $company : __('Gast'),
+        $name = match ($displayMode) {
+            Monitor::DISPLAY_TITLE_FULL_NAME => trim(implode(' ', array_filter([$title, $firstName, $lastName]))),
+            Monitor::DISPLAY_TITLE_FIRST_INITIAL_LAST_NAME => trim(implode(' ', array_filter([$title, $firstInitial, $lastName]))),
+            Monitor::DISPLAY_TITLE_FIRST_NAME_LAST_INITIAL => trim(implode(' ', array_filter([$title, $firstName, $lastInitial]))),
+            default => $company,
         };
+
+        return $name !== '' ? $name : __('Gast');
+    }
+
+    private function companyKey(mixed $visitor): string
+    {
+        $company = trim((string) $visitor->company);
+
+        return mb_strtolower($company !== '' ? $company : __('Gast'));
     }
 }

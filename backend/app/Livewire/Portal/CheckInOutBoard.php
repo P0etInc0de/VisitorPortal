@@ -375,7 +375,6 @@ class CheckInOutBoard extends Component
             'status' => VisitStatusEnum::Planned->value,
             'is_walk_in' => true,
             'is_confidential' => false,
-            'monitor_display_mode' => Visit::MONITOR_DISPLAY_COMPANY_ONLY,
             'notes' => __('Am Empfang als Walk-in erfasst.'),
         ]);
     }

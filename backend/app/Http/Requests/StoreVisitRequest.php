@@ -19,7 +19,6 @@ class StoreVisitRequest extends FormRequest
     {
         $this->merge([
             'is_confidential' => filter_var($this->input('is_confidential', false), FILTER_VALIDATE_BOOL),
-            'monitor_display_mode' => $this->input('monitor_display_mode') ?: Visit::MONITOR_DISPLAY_COMPANY_ONLY,
         ]);
     }
 
@@ -38,7 +37,6 @@ class StoreVisitRequest extends FormRequest
             'scheduled_until' => ['required', 'date', 'after:scheduled_from', 'after_or_equal:1970-01-01'],
             'status' => ['required', 'string', Rule::in(VisitStatusEnum::values())],
             'is_confidential' => ['nullable', 'boolean'],
-            'monitor_display_mode' => ['required', 'string', Rule::in(Visit::monitorDisplayModes())],
             'notes' => ['nullable', 'string', 'max:1000'],
             'recurrence_enabled' => ['nullable', 'boolean'],
             'recurrence_frequency' => ['nullable', 'string', Rule::in(RecurringVisitSeries::frequencies())],
