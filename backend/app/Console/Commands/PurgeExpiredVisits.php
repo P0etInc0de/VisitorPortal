@@ -73,6 +73,7 @@ class PurgeExpiredVisits extends Command
             $visitorReferenceSlidesMatched = $this->anonymizeMonitorSlideVisitorReferences($expiredVisitorIds, $chunkSize, true);
             $visitorReferenceSlidesAnonymized = $dryRun ? 0 : $this->anonymizeMonitorSlideVisitorReferences($expiredVisitorIds, $chunkSize, false);
             $indefiniteLegalHoldsMatched = (clone $this->indefiniteLegalHoldsQuery())->count();
+            $retentionRunLogsDeleted = $dryRun ? 0 : $this->deleteOldRetentionRunLogs($run);
 
             $run->update([
                 'visits_matched' => $visitsMatched,
@@ -92,7 +93,7 @@ class PurgeExpiredVisits extends Command
             ]);
 
             $this->info(sprintf(
-                'Retention run completed%s: %d visits, %d recurring series, %d visitors, %d notifications, %d monitor slides matched. %d indefinite legal holds remain.',
+                'Retention run completed%s: %d visits, %d recurring series, %d visitors, %d notifications, %d monitor slides matched. %d indefinite legal holds remain. %d old retention run logs deleted.',
                 $dryRun ? ' (dry-run)' : '',
                 $visitsMatched,
                 $recurringSeriesMatched,
@@ -100,6 +101,7 @@ class PurgeExpiredVisits extends Command
                 $notificationsMatched,
                 $autoMonitorSlidesMatched + $manualMonitorSlidesMatched + $visitorReferenceSlidesMatched,
                 $indefiniteLegalHoldsMatched,
+                $retentionRunLogsDeleted,
             ));
 
             return self::SUCCESS;
@@ -218,6 +220,16 @@ class PurgeExpiredVisits extends Command
         return Visit::query()
             ->whereNotNull('retention_hold_reason')
             ->whereNull('retention_hold_until');
+    }
+
+    private function deleteOldRetentionRunLogs(DataRetentionRun $currentRun): int
+    {
+        $days = max(1, (int) config('privacy.run_log_retention_days', 1095));
+
+        return DataRetentionRun::query()
+            ->whereKeyNot($currentRun->id)
+            ->where('created_at', '<', now()->subDays($days))
+            ->delete();
     }
 
     private function anonymizeMonitorSlidesByQuery(Builder $query, int $chunkSize): int

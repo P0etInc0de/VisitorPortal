@@ -333,6 +333,7 @@ class CheckInOutBoardTest extends TestCase
                 'email' => 'duplicate@example.com',
                 'phone' => '+493023125023',
                 'company' => 'Existing Company',
+                'created_by_user_id' => $user->id,
             ]);
 
             Livewire::actingAs($user)
@@ -359,6 +360,7 @@ class CheckInOutBoardTest extends TestCase
 
             $this->assertNotNull($walkInVisit);
             $this->assertStringContainsString('Existing Person', $walkInVisit->title);
+            $this->assertTrue($walkInVisit->is_confidential);
             $this->assertDatabaseHas('visit_visitor', [
                 'visit_id' => $walkInVisit->id,
                 'visitor_id' => $existingVisitor->id,
@@ -367,6 +369,23 @@ class CheckInOutBoardTest extends TestCase
         } finally {
             Carbon::setTestNow();
         }
+    }
+
+    public function test_walk_in_confidential_toggle_can_be_disabled(): void
+    {
+        $user = (new PermissionHelper)->getReceptionistUser();
+        $host = User::factory()->create();
+
+        Livewire::actingAs($user)
+            ->test(CheckInOutBoard::class)
+            ->set('walkInHostId', (string) $host->id)
+            ->set('walkIn.first_name', 'Public')
+            ->set('walkIn.name', 'Walkin')
+            ->set('walkInIsConfidential', false)
+            ->call('registerWalkIn')
+            ->assertHasNoErrors();
+
+        $this->assertFalse(Visit::query()->where('is_walk_in', true)->sole()->is_confidential);
     }
 
     public function test_walk_in_rejects_conflicting_existing_email_and_phone_matches(): void

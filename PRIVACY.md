@@ -20,6 +20,8 @@ Depending on configuration and usage, VisitorPortal may process:
 - Existing visitor records are not automatically overwritten by normal visit creation. Updating visitor master data requires visitor update permissions.
 - Demo seeders and demo credentials are blocked in `production`.
 - Automated retention is available through `php artisan visits:purge-expired` and is scheduled when `PRIVACY_PURGE_ENABLED=true`.
+- Welcome-monitor auto generation is disabled by default; operators must intentionally enable generated visitor slides.
+- `PRIVACY_NOTICE_URL` can be configured for operator documentation or future external flows, but it is not automatically displayed in internal staff forms.
 
 ## Operator Responsibilities
 
@@ -30,6 +32,7 @@ Before production use, the operator should define and document:
 - Retention periods for visits, visitors, notifications, logs, backups, and monitor displays.
 - Which roles may view contact details, create visitors, check visitors in/out, print badges, and administer visitor master data.
 - Whether welcome monitors may show full visitor names or should use a data-minimized display mode.
+- How visitors are informed, for example by reception notice, QR code, website, invitation text, or paper notice.
 - Backup encryption, backup retention, log retention, and incident-response procedures.
 - Whether MFA, SSO, network restrictions, or additional audit logging are required.
 

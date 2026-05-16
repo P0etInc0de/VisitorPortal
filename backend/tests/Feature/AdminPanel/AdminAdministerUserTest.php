@@ -4,6 +4,7 @@ namespace AdminPanel;
 
 use App\Filament\Resources\Users\Pages\CreateUser;
 use App\Filament\Resources\Users\Pages\EditUser;
+use App\Models\Site;
 use App\Models\User;
 use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -101,6 +102,69 @@ class AdminAdministerUserTest extends TestCase
             'email' => 'testuser@example.com',
         ]);
 
+    }
+
+    public function test_admin_can_assign_user_to_multiple_sites(): void
+    {
+        $this->app->make(PermissionRegistrar::class)->forgetCachedPermissions();
+
+        $admin = (new PermissionHelper)->getIndividualUser(['ViewAny:User', 'View:User', 'Create:User', 'Update:User'], 'admin');
+        $primarySite = Site::factory()->create();
+        $assignedSite = Site::factory()->create();
+        $userRole = Role::firstOrCreate(['name' => 'employee']);
+
+        Livewire::actingAs($admin)
+            ->test(CreateUser::class)
+            ->assertOk()
+            ->fillForm([
+                'site_id' => $primarySite->id,
+                'sites' => [$assignedSite->id],
+                'first_name' => 'Multi',
+                'name' => 'Site User',
+                'email' => 'multi.site.user@example.com',
+                'password' => 'password',
+                'roles' => [$userRole->id],
+            ])
+            ->call('create')
+            ->assertHasNoFormErrors();
+
+        $user = User::where('email', 'multi.site.user@example.com')->firstOrFail();
+
+        $this->assertDatabaseHas('site_user', [
+            'user_id' => $user->id,
+            'site_id' => $primarySite->id,
+        ]);
+        $this->assertDatabaseHas('site_user', [
+            'user_id' => $user->id,
+            'site_id' => $assignedSite->id,
+        ]);
+    }
+
+    public function test_admin_can_update_user_without_changing_password(): void
+    {
+        $this->app->make(PermissionRegistrar::class)->forgetCachedPermissions();
+
+        $admin = (new PermissionHelper)->getIndividualUser(['ViewAny:User', 'View:User', 'Update:User', 'EditAny:User'], 'admin');
+        $user = User::factory()->create([
+            'password' => Hash::make('OriginalPassword123!'),
+        ]);
+
+        Livewire::actingAs($admin)
+            ->test(EditUser::class, ['record' => $user->getRouteKey()])
+            ->assertOk()
+            ->fillForm([
+                'first_name' => 'Updated',
+                'name' => $user->name,
+                'email' => $user->email,
+                'password' => '',
+            ])
+            ->call('save')
+            ->assertHasNoFormErrors();
+
+        $user->refresh();
+
+        $this->assertSame('Updated', $user->first_name);
+        $this->assertTrue(Hash::check('OriginalPassword123!', $user->password));
     }
 
     /**

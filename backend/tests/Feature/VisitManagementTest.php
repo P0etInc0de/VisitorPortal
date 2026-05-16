@@ -2,11 +2,13 @@
 
 namespace Tests\Feature;
 
+use App\Livewire\Portal\VisitShowPage;
 use App\Models\RecurringVisitSeries;
 use App\Models\Visit;
 use App\Models\Visitor;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Carbon;
+use Livewire\Livewire;
 use Tests\Support\PermissionHelper;
 use Tests\TestCase;
 
@@ -337,5 +339,22 @@ class VisitManagementTest extends TestCase
             ->assertSee(__('Status'))
             ->assertDontSee(__('Ausweis'))
             ->assertDontSee(__('Aktion'));
+    }
+
+    public function test_visit_show_reschedule_requires_end_time(): void
+    {
+        $user = (new PermissionHelper)->getUserUser();
+        $visit = Visit::factory()->create([
+            'user_id' => $user->id,
+            'responsible_user_id' => $user->id,
+            'scheduled_from' => now()->addDay(),
+            'scheduled_until' => now()->addDay()->addHour(),
+        ]);
+
+        Livewire::actingAs($user)
+            ->test(VisitShowPage::class, ['visit' => $visit])
+            ->set('scheduledUntil', '')
+            ->call('saveSchedule')
+            ->assertHasErrors(['scheduledUntil' => 'required']);
     }
 }

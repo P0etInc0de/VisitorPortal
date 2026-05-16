@@ -2,9 +2,12 @@
 
 namespace Tests\Feature\Auth;
 
+use App\Models\Monitor;
+use App\Models\Site;
 use App\Models\User;
 use App\Support\UserPreferences;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\Support\PermissionHelper;
 use Tests\TestCase;
 
 class AuthenticationTest extends TestCase
@@ -103,6 +106,23 @@ class AuthenticationTest extends TestCase
         ])->assertSessionHasErrors('email');
 
         $this->assertGuest();
+    }
+
+    public function test_welcome_monitor_user_without_site_monitor_does_not_fall_back_to_other_site(): void
+    {
+        $site = Site::factory()->create(['name' => 'Site A']);
+        $otherSite = Site::factory()->create(['name' => 'Site B']);
+        $user = (new PermissionHelper)->getWelcomeMonitorUser();
+        $user->forceFill(['site_id' => $site->id])->save();
+        Monitor::query()->create([
+            'site_id' => $otherSite->id,
+            'name' => 'Other Site Monitor',
+        ]);
+
+        $this->post('/login', [
+            'email' => $user->email,
+            'password' => 'password',
+        ])->assertRedirect(route('monitors.missing', absolute: false));
     }
 
     public function test_users_can_logout(): void

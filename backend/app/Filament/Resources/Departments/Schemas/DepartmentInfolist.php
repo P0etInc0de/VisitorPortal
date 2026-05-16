@@ -17,7 +17,7 @@ class DepartmentInfolist
                 TextEntry::make('name')
                     ->label(__('Name')),
                 TextEntry::make('location')
-                    ->label(__('Standort'))
+                    ->label(__('Gebäude/Raum'))
                     ->placeholder('-'),
                 IconEntry::make('is_active')
                     ->label(__('Aktiv'))

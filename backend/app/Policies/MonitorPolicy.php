@@ -29,8 +29,7 @@ class MonitorPolicy
         }
 
         return ($user->can('View:Monitor') || $user->can('ViewSite:Monitor') || $user->can('ManageSite:Monitor'))
-            && $user->site_id !== null
-            && (int) $user->site_id === (int) $monitor->site_id;
+            && $user->canAccessSite($monitor->site_id);
     }
 
     public function create(User $user): bool
@@ -49,8 +48,7 @@ class MonitorPolicy
         }
 
         return ($user->can('Edit:Monitor') || $user->can('ManageSite:Monitor'))
-            && $user->site_id !== null
-            && (int) $user->site_id === (int) $monitor->site_id;
+            && $user->canAccessSite($monitor->site_id);
     }
 
     public function delete(User $user, ?Monitor $monitor = null): bool
@@ -64,8 +62,7 @@ class MonitorPolicy
         }
 
         return ($user->can('Delete:Monitor') || $user->can('ManageSite:Monitor'))
-            && $user->site_id !== null
-            && (int) $user->site_id === (int) $monitor->site_id;
+            && $user->canAccessSite($monitor->site_id);
     }
 
     public function edit(User $user, ?Monitor $monitor = null): bool

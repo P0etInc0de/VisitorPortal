@@ -8,6 +8,8 @@ export const visitForm = (config) => ({
     existingVisitors: config.existingVisitors ?? [],
     hostUserOptions: config.hostUserOptions ?? config.userOptions ?? [],
     responsibleUserOptions: config.responsibleUserOptions ?? config.userOptions ?? [],
+    siteOptions: config.siteOptions ?? [],
+    siteId: config.siteId ?? '',
     hostId: config.hostId ?? '',
     responsibleUserId: config.responsibleUserId ?? '',
     userDropdownOpen: null,
@@ -35,6 +37,11 @@ export const visitForm = (config) => ({
         is_open: false,
     },
 
+    init() {
+        this.siteId = String(this.siteId || this.siteOptions[0]?.id || '');
+        this.ensureSelectedUsersForSite();
+    },
+
     composeDateTime(dateValue, timeValue) {
         if (!dateValue || !timeValue) {
             return '';
@@ -45,7 +52,9 @@ export const visitForm = (config) => ({
 
     userLabel(field) {
         const selectedId = field === 'host' ? this.hostId : this.responsibleUserId;
-        const user = this.userOptionsForField(field).find((option) => String(option.id) === String(selectedId));
+        const user = this.userOptionsForField(field)
+            .filter((option) => this.userCanAccessSelectedSite(option))
+            .find((option) => String(option.id) === String(selectedId));
 
         return user?.label ?? '';
     },
@@ -85,6 +94,32 @@ export const visitForm = (config) => ({
         this.userDropdownOpen = null;
     },
 
+    selectSite(siteId) {
+        this.siteId = String(siteId || '');
+        this.ensureSelectedUsersForSite();
+    },
+
+    userCanAccessSelectedSite(user) {
+        const siteIds = (user.site_ids ?? []).map((siteId) => String(siteId));
+
+        return this.siteId === '' || siteIds.includes(String(this.siteId));
+    },
+
+    ensureSelectedUsersForSite() {
+        const host = this.hostUserOptions.find((user) => String(user.id) === String(this.hostId));
+
+        if (!host || !this.userCanAccessSelectedSite(host)) {
+            const firstHost = this.hostUserOptions.find((user) => this.userCanAccessSelectedSite(user));
+            this.hostId = firstHost ? String(firstHost.id) : '';
+        }
+
+        const responsibleUser = this.responsibleUserOptions.find((user) => String(user.id) === String(this.responsibleUserId));
+
+        if (!responsibleUser || !this.userCanAccessSelectedSite(responsibleUser) || String(this.responsibleUserId) === String(this.hostId)) {
+            this.responsibleUserId = '';
+        }
+    },
+
     clearUserSearch(field) {
         this.userSearch[field] = '';
         this.$nextTick(() => this.$refs[`${field}UserSearch`]?.focus());
@@ -101,6 +136,7 @@ export const visitForm = (config) => ({
         const excludedId = field === 'host' ? this.responsibleUserId : this.hostId;
 
         return this.userOptionsForField(field)
+            .filter((user) => this.userCanAccessSelectedSite(user))
             .filter((user) => String(user.id) !== String(excludedId))
             .filter((user) => term === '' || String(user.search).toLowerCase().includes(term))
             .slice(0, 20);

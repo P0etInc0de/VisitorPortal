@@ -4,6 +4,7 @@ namespace App\Livewire\Portal;
 
 use App\Enums\VisitStatusEnum;
 use App\Livewire\Concerns\RateLimitsSearch;
+use App\Models\Site;
 use App\Models\User;
 use App\Models\Visit;
 use App\Models\Visitor;
@@ -29,6 +30,10 @@ class CheckInOutBoard extends Component
 
     public ?string $walkInHostId = null;
 
+    public ?string $walkInSiteId = null;
+
+    public bool $walkInIsConfidential = true;
+
     /**
      * @var array<string, string>
      */
@@ -44,6 +49,8 @@ class CheckInOutBoard extends Component
     public function mount(): void
     {
         $this->authorize('viewAny', Visit::class);
+        $this->walkInIsConfidential = $this->walkInConfidentialDefault();
+        $this->walkInSiteId = (string) ($this->siteOptions()->first()?->id ?? $this->actor()->site_id);
     }
 
     public function checkIn(int $visitId, int $visitorId): void
@@ -93,6 +100,7 @@ class CheckInOutBoard extends Component
 
         $payload = $this->validate([
             ...$this->walkInRules(),
+            'walkInSiteId' => ['required', 'integer', Rule::exists('sites', 'id')->where('is_active', true)],
             'walkInHostId' => ['required', 'integer', Rule::exists('users', 'id')->where('is_active', true)],
         ]);
         $user = auth()->user();
@@ -101,17 +109,25 @@ class CheckInOutBoard extends Component
             abort(403);
         }
 
+        $siteId = (int) $payload['walkInSiteId'];
+
+        if (! $this->canSelectAnyHost($user) && ! $user->canAccessSite($siteId)) {
+            throw ValidationException::withMessages([
+                'walkInSiteId' => __('Sie können nur Standorte auswählen, denen Sie zugeordnet sind.'),
+            ]);
+        }
+
         $hostId = (int) $payload['walkInHostId'];
 
         if (! $this->hostOptions()->contains('id', $hostId)) {
             throw ValidationException::withMessages([
-                'walkInHostId' => __('Sie können nur Hosts aus Ihrem Standort auswählen.'),
+                'walkInHostId' => __('Sie können nur Hosts aus dem ausgewählten Standort auswählen.'),
             ]);
         }
 
-        [$visit, $visitor] = DB::transaction(function () use ($payload, $user, $hostId) {
+        [$visit, $visitor] = DB::transaction(function () use ($payload, $user, $hostId, $siteId) {
             $visitor = $this->resolveWalkInVisitor($payload['walkIn'], $user);
-            $visit = $this->createWalkInVisit($visitor, $user, $hostId);
+            $visit = $this->createWalkInVisit($visitor, $user, $hostId, $siteId, $this->walkInIsConfidential);
 
             $visit->visitors()->syncWithoutDetaching([
                 $visitor->id => [
@@ -140,6 +156,7 @@ class CheckInOutBoard extends Component
 
         return view('livewire.portal.check-in-out-board', [
             'hosts' => $this->hostOptions(),
+            'siteOptions' => $this->siteOptions(),
             'results' => $this->searchResults(),
         ])->layout('layouts.app', [
             'header' => new HtmlString(
@@ -332,8 +349,8 @@ class CheckInOutBoard extends Component
     {
         $email = $this->normalizeText($payload['email'] ?? null);
         $phone = $this->normalizeText($payload['phone'] ?? null);
-        $emailVisitor = $email ? Visitor::query()->where('email', $email)->first() : null;
-        $phoneVisitor = $phone ? $this->singlePhoneMatch($phone) : null;
+        $emailVisitor = $email ? Visitor::query()->visibleTo($actor)->where('email', $email)->first() : null;
+        $phoneVisitor = $phone ? $this->singlePhoneMatch($phone, $actor) : null;
 
         if ($emailVisitor && $phoneVisitor && ! $emailVisitor->is($phoneVisitor)) {
             throw ValidationException::withMessages([
@@ -344,6 +361,8 @@ class CheckInOutBoard extends Component
         if ($emailVisitor || $phoneVisitor) {
             return $emailVisitor ?: $phoneVisitor;
         }
+
+        $this->rejectHiddenWalkInContactMatch($email, $phone, $actor);
 
         return Visitor::query()->create([
             'title' => $this->normalizeText($payload['title'] ?? null),
@@ -357,7 +376,7 @@ class CheckInOutBoard extends Component
         ]);
     }
 
-    private function createWalkInVisit(Visitor $visitor, User $user, int $hostId): Visit
+    private function createWalkInVisit(Visitor $visitor, User $user, int $hostId, int $siteId, bool $isConfidential): Visit
     {
         $displayName = trim(implode(' ', array_filter([
             $visitor->title,
@@ -367,14 +386,14 @@ class CheckInOutBoard extends Component
 
         return Visit::query()->create([
             'title' => __('Walk-in: :name', ['name' => $displayName !== '' ? $displayName : __('Gast')]),
-            'site_id' => User::query()->whereKey($hostId)->value('site_id') ?: $user->site_id,
+            'site_id' => $siteId,
             'user_id' => $hostId,
             'responsible_user_id' => $user->id,
             'scheduled_from' => now(),
             'scheduled_until' => now()->addHour(),
             'status' => VisitStatusEnum::Planned->value,
             'is_walk_in' => true,
-            'is_confidential' => false,
+            'is_confidential' => $isConfidential,
             'notes' => __('Am Empfang als Walk-in erfasst.'),
         ]);
     }
@@ -382,18 +401,67 @@ class CheckInOutBoard extends Component
     private function hostOptions()
     {
         $actor = $this->actor();
+        $siteId = $this->selectedWalkInSiteId();
+
+        if (! $this->canSelectAnyHost($actor) && ! $actor->canAccessSite($siteId)) {
+            return collect();
+        }
+
         $query = User::query()
             ->select('id', 'first_name', 'name', 'site_id')
+            ->with('sites:id')
             ->where('is_active', true)
             ->whereDoesntHave('roles', fn ($query) => $query->whereIn('name', ['welcome monitor', 'welcome_monitor']))
             ->orderBy('first_name')
             ->orderBy('name');
 
-        if (! ($actor->can('ViewAny:Visit') || $actor->can('EditAny:Visit') || $actor->can('DeleteAny:Visit'))) {
-            $query->where('site_id', $actor->site_id);
+        return $this->whereCanAccessAnySite($query, [$siteId])->get();
+    }
+
+    private function siteOptions()
+    {
+        $actor = $this->actor();
+
+        if ($this->canSelectAnyHost($actor)) {
+            return Site::query()
+                ->select('id', 'name')
+                ->active()
+                ->orderBy('name')
+                ->get();
         }
 
-        return $query->get();
+        return Site::query()
+            ->select('id', 'name')
+            ->active()
+            ->whereIn('id', $actor->assignedSiteIds()->all())
+            ->orderByRaw('CASE WHEN id = ? THEN 0 ELSE 1 END', [(int) $actor->site_id])
+            ->orderBy('name')
+            ->get();
+    }
+
+    private function selectedWalkInSiteId(): int
+    {
+        $siteId = (int) ($this->walkInSiteId ?: $this->siteOptions()->first()?->id ?: $this->actor()->site_id);
+
+        $this->walkInSiteId = (string) $siteId;
+
+        return $siteId;
+    }
+
+    private function whereCanAccessAnySite($query, array $siteIds)
+    {
+        return $query->where(function ($query) use ($siteIds): void {
+            $query->whereIn('site_id', $siteIds)
+                ->orWhereHas('sites', fn ($query) => $query->whereIn('sites.id', $siteIds));
+        });
+    }
+
+    private function canSelectAnyHost(User $actor): bool
+    {
+        return $actor->can('ViewAny:Visit')
+            || $actor->can('EditAny:Visit')
+            || $actor->can('DeleteAny:Visit')
+            || $actor->can('CreateForAny:Visit');
     }
 
     private function actor(): User
@@ -408,6 +476,7 @@ class CheckInOutBoard extends Component
     {
         $this->reset('walkIn');
         $this->walkInHostId = null;
+        $this->walkInIsConfidential = $this->walkInConfidentialDefault();
 
         $this->walkIn = [
             'title' => '',
@@ -419,6 +488,11 @@ class CheckInOutBoard extends Component
         ];
     }
 
+    private function walkInConfidentialDefault(): bool
+    {
+        return (bool) config('privacy.walk_in_confidential_default', true);
+    }
+
     private function normalizeText(mixed $value): ?string
     {
         $value = trim((string) $value);
@@ -426,14 +500,36 @@ class CheckInOutBoard extends Component
         return $value === '' ? null : $value;
     }
 
-    private function singlePhoneMatch(string $phone): ?Visitor
+    private function singlePhoneMatch(string $phone, User $actor): ?Visitor
     {
         $matches = Visitor::query()
+            ->visibleTo($actor)
             ->where('phone', $phone)
             ->limit(2)
             ->get();
 
         return $matches->count() === 1 ? $matches->first() : null;
+    }
+
+    private function rejectHiddenWalkInContactMatch(?string $email, ?string $phone, User $actor): void
+    {
+        if ($email && Visitor::query()
+            ->where('email', $email)
+            ->whereNotIn('id', Visitor::query()->visibleTo($actor)->select('id'))
+            ->exists()) {
+            throw ValidationException::withMessages([
+                'walkIn.email' => __('Diese Kontaktdaten können für den Walk-in nicht verwendet werden. Bitte prüfen Sie die Standortzuordnung.'),
+            ]);
+        }
+
+        if ($phone && Visitor::query()
+            ->where('phone', $phone)
+            ->whereNotIn('id', Visitor::query()->visibleTo($actor)->select('id'))
+            ->exists()) {
+            throw ValidationException::withMessages([
+                'walkIn.phone' => __('Diese Kontaktdaten können für den Walk-in nicht verwendet werden. Bitte prüfen Sie die Standortzuordnung.'),
+            ]);
+        }
     }
 
     private function visitActionService(): VisitActionService

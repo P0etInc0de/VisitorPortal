@@ -39,29 +39,7 @@ Sites represent physical locations such as receptions, plants, offices, or build
 
 ## Screenshots
 
-### Reception Dashboard
-
-HIER SCREENSHOT
-
-### Check-In / Out
-
-HIER SCREENSHOT
-
-### Visit Details Or Visit Creation
-
-HIER SCREENSHOT
-
-### Visitor Badge
-
-HIER SCREENSHOT
-
-### Welcome Monitor
-
-HIER SCREENSHOT
-
-### Admin Panel
-
-HIER SCREENSHOT
+Screenshots should be added from a current non-production demo environment before a public marketing-style release.
 
 
 ## Tech Stack

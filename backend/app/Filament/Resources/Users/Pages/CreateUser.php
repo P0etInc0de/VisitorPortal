@@ -12,6 +12,7 @@ class CreateUser extends CreateRecord
     protected function afterCreate(): void
     {
         $user = $this->record;
+        $user->syncPrimarySiteAssignment();
         $user->sendEmailVerificationNotification();
     }
 }

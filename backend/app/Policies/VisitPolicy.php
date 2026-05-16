@@ -67,22 +67,19 @@ class VisitPolicy
     public function viewSite(User $user, Visit $visit): bool
     {
         return $user->can('ViewSite:Visit')
-            && $user->site_id !== null
-            && (int) $user->site_id === (int) $visit->site_id;
+            && $user->canAccessSite($visit->site_id);
     }
 
     public function editSite(User $user, Visit $visit): bool
     {
         return $user->can('EditSite:Visit')
-            && $user->site_id !== null
-            && (int) $user->site_id === (int) $visit->site_id;
+            && $user->canAccessSite($visit->site_id);
     }
 
     public function deleteSite(User $user, Visit $visit): bool
     {
         return $user->can('DeleteSite:Visit')
-            && $user->site_id !== null
-            && (int) $user->site_id === (int) $visit->site_id;
+            && $user->canAccessSite($visit->site_id);
     }
 
     public function viewDepartment(User $user, Visit $visit): bool

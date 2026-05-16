@@ -5,6 +5,7 @@ namespace Tests\Feature\Notification;
 use App\Models\User;
 use App\Models\Visit;
 use App\Models\Visitor;
+use App\Notifications\Guest\SingleVisitReminder as GuestSingleVisitReminder;
 use App\Notifications\Host\GuestCheckedIn;
 use App\Notifications\Host\VisitCreated;
 use App\Notifications\Host\VisitReminderDaily;
@@ -159,6 +160,8 @@ class NotificationTest extends TestCase
 
     public function test_visit_created_notification_guest()
     {
+        config(['privacy.notice_url' => 'https://example.org/privacy']);
+
         $visit = Visit::factory()->create();
         $visitor = Visitor::factory()->create();
 
@@ -178,5 +181,30 @@ class NotificationTest extends TestCase
             Carbon::parse($visit->scheduled_until)->format('H:i'),
             $email->getOriginalMessage()->getBody()->bodyToString()
         );
+        $this->assertStringContainsString(
+            'https://example.org/privacy',
+            $email->getOriginalMessage()->getBody()->bodyToString()
+        );
+    }
+
+    public function test_guest_single_visit_reminder_has_release_ready_copy()
+    {
+        config(['privacy.notice_url' => 'https://example.org/privacy']);
+
+        $visitor = Visitor::factory()->create();
+
+        Notification::send($visitor, new GuestSingleVisitReminder);
+
+        $messages = app('mailer')->getSymfonyTransport()->messages();
+
+        $this->assertCount(1, $messages);
+
+        $body = $messages[0]->getOriginalMessage()->getBody()->bodyToString();
+
+        $this->assertEquals('Erinnerung an Ihren Besuch', $messages[0]->getOriginalMessage()->getSubject());
+        $this->assertStringContainsString('Erinnerung an Ihren Besuch', $body);
+        $this->assertStringContainsString('https://example.org/privacy', $body);
+        $this->assertStringNotContainsString('Introduction', $body);
+        $this->assertStringNotContainsString('Button Text', $body);
     }
 }

@@ -3,7 +3,14 @@
         ->map(fn ($host) => [
             'id' => (string) $host->id,
             'label' => trim(($host->first_name ?? '').' '.($host->name ?? '')),
+            'site_ids' => $host->assignedSiteIds()->map(fn ($siteId) => (string) $siteId)->all(),
             'search' => trim(($host->first_name ?? '').' '.($host->name ?? '')),
+        ])
+        ->values();
+    $siteSelectOptions = $siteOptions
+        ->map(fn ($site) => [
+            'id' => (string) $site->id,
+            'label' => $site->name,
         ])
         ->values();
     $contactRequirement = \App\Support\VisitorContactRequirement::current();
@@ -29,9 +36,15 @@
 <div
     x-data="{
         hosts: @js($hostOptions),
+        sites: @js($siteSelectOptions),
+        walkInSiteId: @entangle('walkInSiteId'),
         walkInHostId: @entangle('walkInHostId'),
         walkInHostOpen: false,
         walkInHostSearch: '',
+        init() {
+            this.walkInSiteId = String(this.walkInSiteId || this.sites[0]?.id || '');
+            this.ensureWalkInHostMatchesSite();
+        },
         printBadge(url) {
             if (!url) {
                 return;
@@ -41,7 +54,25 @@
             this.$refs.badgeActionForm.submit();
         },
         walkInHostLabel() {
-            return this.hosts.find((host) => String(host.id) === String(this.walkInHostId))?.label || '';
+            return this.hosts.find((host) => String(host.id) === String(this.walkInHostId) && this.walkInHostMatchesSite(host))?.label || '';
+        },
+        walkInHostMatchesSite(host) {
+            const siteIds = (host.site_ids || []).map((siteId) => String(siteId));
+
+            return this.walkInSiteId === '' || siteIds.includes(String(this.walkInSiteId));
+        },
+        selectWalkInSite(siteId) {
+            this.walkInSiteId = String(siteId || '');
+            this.$wire.set('walkInSiteId', this.walkInSiteId);
+            this.ensureWalkInHostMatchesSite();
+        },
+        ensureWalkInHostMatchesSite() {
+            const selectedHost = this.hosts.find((host) => String(host.id) === String(this.walkInHostId));
+
+            if (!selectedHost || !this.walkInHostMatchesSite(selectedHost)) {
+                this.walkInHostId = null;
+                this.$wire.set('walkInHostId', null);
+            }
         },
         openWalkInHostDropdown() {
             this.walkInHostOpen = true;
@@ -55,6 +86,7 @@
             const term = this.walkInHostSearch.trim().toLowerCase();
 
             return this.hosts
+                .filter((host) => this.walkInHostMatchesSite(host))
                 .filter((host) => term === '' || String(host.search).toLowerCase().includes(term))
                 .slice(0, 20);
         },
@@ -223,6 +255,25 @@
                     @endif
 
                     <div class="flex flex-col gap-4">
+                        @if ($siteOptions->count() > 1)
+                            <div>
+                                <label class="label px-0 pb-2"><span class="label-text font-medium">{{ __('Standort') }} *</span></label>
+                                <select
+                                    class="select select-bordered w-full @error('walkInSiteId') select-error @enderror"
+                                    wire:model.live="walkInSiteId"
+                                    x-model="walkInSiteId"
+                                    @change="selectWalkInSite($event.target.value)"
+                                >
+                                    @foreach ($siteOptions as $site)
+                                        <option value="{{ $site->id }}">{{ $site->name }}</option>
+                                    @endforeach
+                                </select>
+                                @error('walkInSiteId')
+                                    <div class="mt-2 text-sm text-error">{{ $message }}</div>
+                                @enderror
+                            </div>
+                        @endif
+
                         <div>
                             <label class="label px-0 pb-2"><span class="label-text font-medium">{{ __('Ansprechpartner') }} *</span></label>
                             <div class="relative" @click.outside="walkInHostOpen = false">
@@ -317,6 +368,14 @@
                             <label class="label px-0 pb-2"><span class="label-text font-medium">{{ __('Telefon') }} {{ $walkInPhoneMarker }}</span></label>
                             <input type="text" class="input input-bordered w-full" wire:model="walkIn.phone" maxlength="50" placeholder="{{ $walkInPhoneMarker ? '' : __('optional') }}" @if ($walkInPhoneRequired) required @endif>
                         </div>
+
+                        <label class="flex cursor-pointer items-start gap-3 rounded-2xl border border-base-300 bg-base-200/40 px-4 py-4">
+                            <input type="checkbox" wire:model="walkInIsConfidential" class="checkbox checkbox-primary mt-1">
+                            <span>
+                                <span class="block text-sm font-medium text-base-content">{{ __('Vertraulicher Besuch') }}</span>
+                                <span class="mt-1 block text-sm text-base-content/65">{{ __('Wird nicht automatisch am Willkommensmonitor angezeigt.') }}</span>
+                            </span>
+                        </label>
                     </div>
 
                     <div class="flex flex-wrap gap-3 pt-2">

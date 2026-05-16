@@ -8,6 +8,7 @@ use App\Http\Requests\RescheduleVisitRequest;
 use App\Http\Requests\StoreVisitRequest;
 use App\Http\Requests\UpdateVisitRequest;
 use App\Models\RecurringVisitSeries;
+use App\Models\Site;
 use App\Models\User;
 use App\Models\Visit;
 use App\Models\Visitor;
@@ -154,7 +155,7 @@ class VisitController extends Controller
 
         $visit->update([
             'scheduled_from' => $payload['scheduled_from'],
-            'scheduled_until' => $payload['scheduled_until'] ?? null,
+            'scheduled_until' => $payload['scheduled_until'],
             'recurrence_is_modified' => $visit->recurring_visit_series_id ? true : $visit->recurrence_is_modified,
         ]);
 
@@ -162,7 +163,7 @@ class VisitController extends Controller
             'visit_id' => $visit->id,
             'user_id' => auth()->id(),
             'scheduled_from' => $payload['scheduled_from'],
-            'scheduled_until' => $payload['scheduled_until'] ?? null,
+            'scheduled_until' => $payload['scheduled_until'],
         ]);
 
         return back()->with('status', __('Termin wurde verschoben.'));
@@ -180,6 +181,7 @@ class VisitController extends Controller
         $actor = auth()->user();
         abort_unless($actor instanceof User, 403);
 
+        $siteOptions = $this->selectableSites($actor, $visit);
         $hostUsers = $this->selectableHostUsers($actor);
         $responsibleUsers = $this->selectableResponsibleUsers($actor);
 
@@ -231,21 +233,55 @@ class VisitController extends Controller
             'formMethod' => $isEdit ? 'PATCH' : 'POST',
             'hostUsers' => $hostUsers,
             'responsibleUsers' => $responsibleUsers,
+            'siteOptions' => $siteOptions,
             'existingVisitors' => $existingVisitors,
             'initialParticipants' => $initialParticipants,
         ]);
+    }
+
+    private function selectableSites(User $actor, Visit $visit)
+    {
+        $currentSiteId = $visit->exists ? (int) $visit->site_id : null;
+
+        if ($this->canSelectAnyHost($actor)) {
+            return Site::query()
+                ->select('id', 'name')
+                ->where(function ($query) use ($currentSiteId): void {
+                    $query->active()
+                        ->when($currentSiteId, fn ($query) => $query->orWhereKey($currentSiteId));
+                })
+                ->orderBy('name')
+                ->get();
+        }
+
+        $assignedSiteIds = $actor->assignedSiteIds();
+
+        if ($assignedSiteIds->isEmpty()) {
+            return collect();
+        }
+
+        return Site::query()
+            ->select('id', 'name')
+            ->where(function ($query) use ($assignedSiteIds, $currentSiteId): void {
+                $query->active()
+                    ->whereIn('id', $assignedSiteIds->all())
+                    ->when($currentSiteId, fn ($query) => $query->orWhereKey($currentSiteId));
+            })
+            ->orderByRaw('CASE WHEN id = ? THEN 0 ELSE 1 END', [(int) $actor->site_id])
+            ->orderBy('name')
+            ->get();
     }
 
     private function selectableHostUsers(User $actor)
     {
         $query = $this->selectableUsersQuery();
 
-        if ($actor->can('ViewAny:Visit') || $actor->can('EditAny:Visit') || $actor->can('DeleteAny:Visit')) {
+        if ($this->canSelectAnyHost($actor)) {
             return $query->get();
         }
 
-        if ($actor->site_id !== null && ($actor->can('ViewSite:Visit') || $actor->can('EditSite:Visit') || $actor->can('DeleteSite:Visit') || $actor->can('CreateForSite:Visit'))) {
-            return $query->where('site_id', $actor->site_id)->get();
+        if ($actor->assignedSiteIds()->isNotEmpty() && ($actor->can('ViewSite:Visit') || $actor->can('EditSite:Visit') || $actor->can('DeleteSite:Visit') || $actor->can('CreateForSite:Visit'))) {
+            return $this->whereCanAccessAnySite($query, $actor->assignedSiteIds()->all())->get();
         }
 
         if ($actor->department_id !== null && ($actor->can('ViewDepartment:Visit') || $actor->can('EditDepartment:Visit') || $actor->can('DeleteDepartment:Visit') || $actor->can('CreateForDepartment:Visit'))) {
@@ -259,12 +295,12 @@ class VisitController extends Controller
     {
         $query = $this->selectableUsersQuery();
 
-        if ($actor->can('ViewAny:Visit') || $actor->can('EditAny:Visit') || $actor->can('DeleteAny:Visit')) {
+        if ($this->canSelectAnyHost($actor)) {
             return $query->get();
         }
 
-        if ($actor->site_id !== null && ($actor->can('ViewSite:Visit') || $actor->can('EditSite:Visit') || $actor->can('DeleteSite:Visit') || $actor->can('CreateForSite:Visit'))) {
-            return $query->where('site_id', $actor->site_id)->get();
+        if ($actor->assignedSiteIds()->isNotEmpty() && ($actor->can('ViewSite:Visit') || $actor->can('EditSite:Visit') || $actor->can('DeleteSite:Visit') || $actor->can('CreateForSite:Visit'))) {
+            return $this->whereCanAccessAnySite($query, $actor->assignedSiteIds()->all())->get();
         }
 
         if ($actor->department_id !== null && ($actor->can('ViewDepartment:Visit') || $actor->can('EditDepartment:Visit') || $actor->can('DeleteDepartment:Visit') || $actor->can('CreateForDepartment:Visit'))) {
@@ -278,10 +314,27 @@ class VisitController extends Controller
     {
         return User::query()
             ->select('id', 'first_name', 'name', 'title', 'department_id', 'site_id')
+            ->with('sites:id')
             ->where('is_active', true)
             ->whereDoesntHave('roles', fn ($query) => $query->whereIn('name', ['welcome monitor', 'welcome_monitor']))
             ->orderBy('first_name')
             ->orderBy('name');
+    }
+
+    private function whereCanAccessAnySite($query, array $siteIds)
+    {
+        return $query->where(function ($query) use ($siteIds): void {
+            $query->whereIn('site_id', $siteIds)
+                ->orWhereHas('sites', fn ($query) => $query->whereIn('sites.id', $siteIds));
+        });
+    }
+
+    private function canSelectAnyHost(User $actor): bool
+    {
+        return $actor->can('ViewAny:Visit')
+            || $actor->can('EditAny:Visit')
+            || $actor->can('DeleteAny:Visit')
+            || $actor->can('CreateForAny:Visit');
     }
 
     private function recurrenceMeta(Visit $visit): ?array

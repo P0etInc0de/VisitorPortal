@@ -5,6 +5,7 @@ namespace AdminPanel;
 use App\Enums\VisitStatusEnum;
 use App\Filament\Resources\Visits\Pages\CreateVisit;
 use App\Filament\Resources\Visits\Pages\EditVisit;
+use App\Models\Site;
 use App\Models\User;
 use App\Models\Visit;
 use App\Models\Visitor;
@@ -61,6 +62,61 @@ class AdminAdministerVisitsTest extends TestCase
             'notes' => 'Test Visit',
             'canceled_at' => null,
             'canceled_by_user_id' => null,
+        ]);
+    }
+
+    public function test_admin_cannot_create_visit_with_site_host_mismatch(): void
+    {
+        $admin = (new PermissionHelper)->getSuperAdminUser();
+        $site = Site::factory()->create();
+        $otherSite = Site::factory()->create();
+        $employee = User::factory()->create(['site_id' => $otherSite->id]);
+        $responsibleUser = User::factory()->create(['site_id' => $otherSite->id]);
+
+        Livewire::actingAs($admin)
+            ->test(CreateVisit::class)
+            ->assertOk()
+            ->fillForm([
+                'site_id' => $site->id,
+                'user_id' => $employee->id,
+                'title' => 'Invalid Site Host',
+                'responsible_user_id' => $responsibleUser->id,
+                'scheduled_from' => now()->addDay()->format('Y-m-d H:i:00'),
+                'scheduled_until' => now()->addDay()->addHour()->format('Y-m-d H:i:00'),
+                'status' => VisitStatusEnum::Planned->value,
+            ])
+            ->call('create')
+            ->assertHasFormErrors(['user_id', 'responsible_user_id']);
+
+        $this->assertDatabaseMissing('visits', [
+            'title' => 'Invalid Site Host',
+        ]);
+    }
+
+    public function test_admin_cannot_create_visit_for_inactive_site(): void
+    {
+        $admin = (new PermissionHelper)->getSuperAdminUser();
+        $inactiveSite = Site::factory()->create(['is_active' => false]);
+        $employee = User::factory()->create(['site_id' => $inactiveSite->id]);
+        $responsibleUser = User::factory()->create(['site_id' => $inactiveSite->id]);
+
+        Livewire::actingAs($admin)
+            ->test(CreateVisit::class)
+            ->assertOk()
+            ->fillForm([
+                'site_id' => $inactiveSite->id,
+                'user_id' => $employee->id,
+                'title' => 'Inactive Site Visit',
+                'responsible_user_id' => $responsibleUser->id,
+                'scheduled_from' => now()->addDay()->format('Y-m-d H:i:00'),
+                'scheduled_until' => now()->addDay()->addHour()->format('Y-m-d H:i:00'),
+                'status' => VisitStatusEnum::Planned->value,
+            ])
+            ->call('create')
+            ->assertHasFormErrors(['site_id']);
+
+        $this->assertDatabaseMissing('visits', [
+            'title' => 'Inactive Site Visit',
         ]);
     }
 

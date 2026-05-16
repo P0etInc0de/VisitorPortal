@@ -4,12 +4,16 @@ namespace Tests\Feature\Security;
 
 use App\Enums\VisitStatusEnum;
 use App\Livewire\Portal\CheckInOutBoard;
+use App\Models\DataRetentionRun;
+use App\Models\Department;
 use App\Models\Monitor;
 use App\Models\RecurringVisitSeries;
 use App\Models\Site;
+use App\Models\User;
 use App\Models\Visit;
 use App\Models\Visitor;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Validation\ValidationException;
 use Livewire\Livewire;
 use Tests\Support\PermissionHelper;
 use Tests\TestCase;
@@ -57,6 +61,23 @@ class AuditRegressionTest extends TestCase
         $this->assertNull($manager->department_id);
         $this->assertNull($otherUser->department_id);
         $this->assertFalse($manager->can('view', $otherUser));
+    }
+
+    public function test_user_department_must_belong_to_user_primary_site(): void
+    {
+        $site = Site::factory()->create();
+        $otherSite = Site::factory()->create();
+        $otherSiteDepartment = Department::query()->create([
+            'site_id' => $otherSite->id,
+            'name' => 'Other Site Department',
+        ]);
+
+        $this->expectException(ValidationException::class);
+
+        User::factory()->create([
+            'site_id' => $site->id,
+            'department_id' => $otherSiteDepartment->id,
+        ]);
     }
 
     public function test_user_cannot_patch_foreign_visit(): void
@@ -329,6 +350,26 @@ class AuditRegressionTest extends TestCase
         $this->assertDatabaseHas('monitor_slides', ['id' => $slide->id]);
     }
 
+    public function test_monitor_slide_delete_requires_parent_monitor_update_permission(): void
+    {
+        $user = (new PermissionHelper)->getIndividualUser(['Delete:MonitorSlide'], 'slide-deleter');
+        $monitor = Monitor::query()->create(['name' => 'Monitor A', 'auto_generation' => false]);
+        $slide = $monitor->monitorSlides()->create([
+            'heading' => 'Scoped Slide',
+            'slide_number' => 1,
+            'is_active' => true,
+            'is_auto_generated' => false,
+            'show_logo' => true,
+            'show_date' => true,
+        ]);
+
+        $this->actingAs($user)
+            ->delete(route('monitors.slides.destroy', [$monitor, $slide]))
+            ->assertForbidden();
+
+        $this->assertDatabaseHas('monitor_slides', ['id' => $slide->id]);
+    }
+
     public function test_retention_cleans_monitor_slide_visitor_payloads(): void
     {
         $oldTimestamp = now()->subDays(400);
@@ -437,5 +478,26 @@ class AuditRegressionTest extends TestCase
         $this->artisan('visits:purge-expired', ['--days' => 365])->assertExitCode(0);
 
         $this->assertDatabaseHas('recurring_visit_series', ['id' => $series->id]);
+    }
+
+    public function test_retention_purges_old_retention_run_logs(): void
+    {
+        $oldRun = DataRetentionRun::query()->create([
+            'command' => 'visits:purge-expired',
+            'dry_run' => false,
+            'retention_days' => 365,
+            'cutoff_at' => now()->subDays(365),
+            'status' => 'completed',
+            'started_at' => now()->subYears(4),
+            'finished_at' => now()->subYears(4),
+        ]);
+        $oldRun->forceFill([
+            'created_at' => now()->subDays(1200),
+            'updated_at' => now()->subDays(1200),
+        ])->save();
+
+        $this->artisan('visits:purge-expired')->assertExitCode(0);
+
+        $this->assertDatabaseMissing('data_retention_runs', ['id' => $oldRun->id]);
     }
 }

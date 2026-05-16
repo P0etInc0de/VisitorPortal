@@ -52,12 +52,15 @@ class AuthenticatedSessionController extends Controller
      */
     public function redirectRoles(User $user): string
     {
+        $assignedSiteIds = $user->assignedSiteIds();
         $siteMonitor = Monitor::query()
-            ->where('site_id', $user->site_id)
-            ->first() ?? Monitor::query()->first();
+            ->whereIn('site_id', $assignedSiteIds->all())
+            ->orderByRaw('CASE WHEN site_id = ? THEN 0 ELSE 1 END', [(int) $user->site_id])
+            ->first();
 
         return match (true) {
-            $user->hasRole('welcome monitor') && $siteMonitor !== null => route('monitors.show', $siteMonitor, absolute: false),
+            $user->hasAnyRole(['welcome monitor', 'welcome_monitor']) && $siteMonitor !== null => route('monitors.show', $siteMonitor, absolute: false),
+            $user->hasAnyRole(['welcome monitor', 'welcome_monitor']) => route('monitors.missing', absolute: false),
             default => route('overview', absolute: false)
         };
     }

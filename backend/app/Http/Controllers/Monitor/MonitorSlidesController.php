@@ -136,6 +136,7 @@ class MonitorSlidesController extends Controller
     {
         $this->ensureSlideBelongsToMonitor($monitor, $slide);
 
+        $this->authorize('update', $monitor);
         $this->authorize('delete', $slide);
 
         if (filled($slide->image_path)) {

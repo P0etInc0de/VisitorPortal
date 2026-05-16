@@ -69,22 +69,40 @@
         })
         ->values();
 
+    $siteIdValue = (string) old('site_id', $visit->site_id ?: auth()->user()?->site_id);
+
+    if (! $siteOptions->contains('id', (int) $siteIdValue)) {
+        $siteIdValue = (string) ($siteOptions->first()?->id ?? $siteIdValue);
+    }
+
     $hostUserIdValue = (string) old('user_id', $visit->user_id ?: auth()->id());
     $responsibleUserIdValue = (string) old('responsible_user_id', $visit->responsible_user_id);
     $isConfidentialValue = filter_var(old('is_confidential', $visit->is_confidential), FILTER_VALIDATE_BOOL);
+    $userCanAccessSelectedSite = fn ($user): bool => $user?->assignedSiteIds()->contains((int) $siteIdValue) ?? false;
+    $selectedHost = $hostUsers->firstWhere('id', (int) $hostUserIdValue);
 
-    if (! $hostUsers->contains('id', (int) $hostUserIdValue)) {
-        $hostUserIdValue = (string) ($hostUsers->first()?->id ?? '');
+    if (! $selectedHost || ! $userCanAccessSelectedSite($selectedHost)) {
+        $hostUserIdValue = (string) ($hostUsers->first(fn ($user) => $userCanAccessSelectedSite($user))?->id ?? '');
     }
 
-    if (! $responsibleUsers->contains('id', (int) $responsibleUserIdValue) || $responsibleUserIdValue === $hostUserIdValue) {
+    $selectedResponsibleUser = $responsibleUsers->firstWhere('id', (int) $responsibleUserIdValue);
+
+    if (! $selectedResponsibleUser || ! $userCanAccessSelectedSite($selectedResponsibleUser) || $responsibleUserIdValue === $hostUserIdValue) {
         $responsibleUserIdValue = '';
     }
+
+    $siteSelectOptions = $siteOptions
+        ->map(fn ($site) => [
+            'id' => (string) $site->id,
+            'label' => $site->name,
+        ])
+        ->values();
 
     $hostUserOptions = $hostUsers
         ->map(fn ($user) => [
             'id' => (string) $user->id,
             'label' => $user->fullName,
+            'site_ids' => $user->assignedSiteIds()->map(fn ($siteId) => (string) $siteId)->all(),
             'search' => trim(implode(' ', array_filter([
                 $user->fullName,
                 $user->title,
@@ -96,6 +114,7 @@
         ->map(fn ($user) => [
             'id' => (string) $user->id,
             'label' => $user->fullName,
+            'site_ids' => $user->assignedSiteIds()->map(fn ($siteId) => (string) $siteId)->all(),
             'search' => trim(implode(' ', array_filter([
                 $user->fullName,
                 $user->title,
@@ -111,6 +130,8 @@
         'endDateTouched' => filled($endDate),
         'participants' => $initialParticipants,
         'existingVisitors' => $existingVisitorOptions,
+        'siteOptions' => $siteSelectOptions,
+        'siteId' => $siteIdValue,
         'hostUserOptions' => $hostUserOptions,
         'responsibleUserOptions' => $responsibleUserOptions,
         'hostId' => $hostUserIdValue,

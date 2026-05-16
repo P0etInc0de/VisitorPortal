@@ -635,6 +635,29 @@ class ReceptionAdministerVisitTest extends TestCase
 
     }
 
+    public function test_reception_reschedule_requires_end_time(): void
+    {
+        $receptionist = (new PermissionHelper)->getReceptionistUser();
+        $scheduledFromTimeStamp = now()->subDay();
+        $scheduledToTimeStamp = now()->subDay()->addMinutes(60);
+        $visit = Visit::factory()->create([
+            'scheduled_from' => $scheduledFromTimeStamp,
+            'scheduled_until' => $scheduledToTimeStamp,
+        ]);
+
+        $this->actingAs($receptionist)
+            ->patch(route('portal.visits.reschedule', $visit), [
+                'scheduled_from' => now(),
+                'scheduled_until' => null,
+            ])
+            ->assertSessionHasErrors('scheduled_until');
+
+        $this->assertDatabaseHas('visits', [
+            'id' => $visit->id,
+            'scheduled_until' => $scheduledToTimeStamp,
+        ]);
+    }
+
     public function test_reception_can_create_id_cards(): void
     {
         $this->markTestSkipped('Ausweis-Erstellung ist noch nicht implementiert.');

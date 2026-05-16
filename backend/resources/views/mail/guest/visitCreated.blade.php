@@ -1,6 +1,7 @@
 @php
     use Carbon\Carbon;
     use \App\Enums\SalutationEnum;
+    $privacyNoticeUrl = config('privacy.notice_url');
  @endphp
 
 <x-mail.message_component :message="$message">
@@ -18,8 +19,12 @@
 
 <x-mail::table>
     |{{__('Datum')}}   | {{__('Start')}} | {{__('Ende')}} |
-    | :-----------: | :-----------: | :------------: | :------------: |
+    | :-----------: | :-----------: | :------------: |
     | {{ Carbon::parse($visit->scheduled_from)->format('d.m.Y') }} | {{ Carbon::parse($visit->scheduled_from)->format('H:i') }} | {{ Carbon::parse($visit->scheduled_until)->format('H:i') }} |
 </x-mail::table>
+
+@if($privacyNoticeUrl)
+{{ __('Datenschutzhinweise') }}: {{ $privacyNoticeUrl }}
+@endif
 
 </x-mail.message_component>

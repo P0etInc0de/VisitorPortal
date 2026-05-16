@@ -18,7 +18,7 @@ class RescheduleVisitRequest extends FormRequest
     {
         return [
             'scheduled_from' => ['required', 'date'],
-            'scheduled_until' => ['nullable', 'date', 'after:scheduled_from'],
+            'scheduled_until' => ['required', 'date', 'after:scheduled_from'],
         ];
     }
 }

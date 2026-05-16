@@ -31,31 +31,7 @@ Die Anwendung verarbeitet potenziell personenbezogene Daten wie Namen, Unternehm
 
 ## Screenshots
 
-Vor der Veröffentlichung sollten aktuelle Screenshots ergänzt werden.
-
-### Empfangs-Dashboard
-
-HIER SCREENSHOT
-
-### Check-In / Out
-
-HIER SCREENSHOT
-
-### Besuchsdetails oder Besuch anlegen
-
-HIER SCREENSHOT
-
-### Besucherausweis
-
-HIER SCREENSHOT
-
-### Willkommensmonitor
-
-HIER SCREENSHOT
-
-### Adminbereich
-
-HIER SCREENSHOT
+Vor einer öffentlichen, marketingartigen Veröffentlichung sollten aktuelle Screenshots aus einer Demo-Umgebung ergänzt werden.
 
 ## Tech Stack
 

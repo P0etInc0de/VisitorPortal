@@ -2,12 +2,14 @@
 
 use App\Models\Monitor;
 use App\Tasks\WelcomeMonitorAutoGeneration;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Livewire\Component;
 use Livewire\WithFileUploads;
 
 new class extends Component {
+    use AuthorizesRequests;
     use WithFileUploads;
 
     public Monitor $monitor;
@@ -44,6 +46,7 @@ new class extends Component {
     public function mount(Monitor $monitor): void
     {
         $this->monitor = $monitor;
+        $this->authorizeMonitorUpdate();
         $this->syncFromMonitor();
     }
 
@@ -68,6 +71,8 @@ new class extends Component {
 
     public function removeUploadedImage(): void
     {
+        $this->authorizeMonitorUpdate();
+
         $this->image = null;
 
         if (filled($this->existingImagePath)) {
@@ -83,6 +88,8 @@ new class extends Component {
 
     public function resetToDefaults(): void
     {
+        $this->authorizeMonitorUpdate();
+
         $defaults = Monitor::defaultSettings();
 
         $this->transitionTimeSeconds = (string) (int) ($defaults['transition_time_milliseconds'] / 1000);
@@ -102,6 +109,8 @@ new class extends Component {
 
     public function save(): void
     {
+        $this->authorizeMonitorUpdate();
+
         if (! $this->isDirty) {
             return;
         }
@@ -179,6 +188,11 @@ new class extends Component {
         $this->image = null;
         $this->removeExistingImage = false;
         $this->syncBaseline();
+    }
+
+    protected function authorizeMonitorUpdate(): void
+    {
+        $this->authorize('update', $this->monitor);
     }
 
     protected function syncBaseline(): void

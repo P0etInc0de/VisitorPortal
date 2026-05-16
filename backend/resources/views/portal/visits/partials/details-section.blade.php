@@ -18,6 +18,31 @@
                         >
                     </label>
 
+                    @if ($siteOptions->count() > 1)
+                        <label class="form-control xl:col-span-3">
+                            <div class="label px-0 pb-2">
+                                <span class="label-text text-sm font-medium text-base-content">{{ __('Standort') }} {{ $requiredMarker }}</span>
+                            </div>
+                            <select
+                                name="site_id"
+                                class="select select-bordered w-full @error('site_id') select-error @enderror"
+                                x-model="siteId"
+                                @change="selectSite($event.target.value)"
+                            >
+                                @foreach ($siteOptions as $site)
+                                    <option value="{{ $site->id }}" @selected((string) $site->id === $siteIdValue)>
+                                        {{ $site->name }}
+                                    </option>
+                                @endforeach
+                            </select>
+                            @error('site_id')
+                                <div class="mt-2 text-sm text-error">{{ $message }}</div>
+                            @enderror
+                        </label>
+                    @else
+                        <input type="hidden" name="site_id" value="{{ $siteIdValue }}" :value="siteId">
+                    @endif
+
                     @include('portal.visits.partials.user-select', [
                         'field' => 'host',
                         'name' => 'user_id',
