@@ -23,7 +23,7 @@ class VisitorBadgeViewTest extends TestCase
         $this->assertStringContainsString(__('Unternehmen:'), $html);
         $this->assertStringContainsString('VisitorPortal GmbH', $html);
         $this->assertStringContainsString('14.05.2026', $html);
-        $this->assertStringContainsString('09:00 '.__('bis').' 10:00 '.__('Uhr'), $html);
+        $this->assertStringContainsString(e('09:00 '.__('bis').' 10:00 '.__('Uhr')), $html);
         $this->assertStringNotContainsString(__('Name:'), $html);
         $this->assertStringNotContainsString('Firma:', $html);
         $this->assertStringNotContainsString('class="badge-photo', $html);
