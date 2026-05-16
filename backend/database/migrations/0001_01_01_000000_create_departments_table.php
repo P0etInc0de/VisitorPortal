@@ -12,11 +12,14 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('departments', function (Blueprint $table) {
-            $table->id();                                                      // primary key
-            $table->string('name')->unique();
+            $table->id();
+            $table->foreignId('site_id')->constrained('sites')->restrictOnDelete();
+            $table->string('name');
             $table->string('location')->nullable();
             $table->boolean('is_active')->default(true);
-            $table->timestamps();                                              // creates created_at and updated_at automatically
+            $table->timestamps();
+
+            $table->unique(['site_id', 'name'], 'departments_site_name_unique');
         });
     }
 

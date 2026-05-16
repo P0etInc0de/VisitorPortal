@@ -217,8 +217,8 @@ class CheckInOutBoardTest extends TestCase
 
         $user = (new PermissionHelper)->getReceptionistUser();
         $visitor = Visitor::factory()->create([
-            'first_name' => 'Max',
-            'name' => 'Mustermann',
+            'first_name' => 'Mira',
+            'name' => 'Sample',
         ]);
         $visit = Visit::factory()->create([
             'user_id' => $user->id,
@@ -331,7 +331,7 @@ class CheckInOutBoardTest extends TestCase
                 'first_name' => 'Existing',
                 'name' => 'Person',
                 'email' => 'duplicate@example.com',
-                'phone' => '123456789',
+                'phone' => '+493023125023',
                 'company' => 'Existing Company',
             ]);
 
@@ -341,7 +341,7 @@ class CheckInOutBoardTest extends TestCase
                 ->set('walkIn.first_name', 'Walk')
                 ->set('walkIn.name', 'In')
                 ->set('walkIn.email', 'duplicate@example.com')
-                ->set('walkIn.phone', '123456789')
+                ->set('walkIn.phone', '+493023125023')
                 ->set('walkIn.company', 'Walk Company')
                 ->call('registerWalkIn')
                 ->assertHasNoErrors();

@@ -6,6 +6,8 @@ use App\Enums\VisitStatusEnum;
 use App\Models\User;
 use App\Models\Visit;
 use App\Models\Visitor;
+use Faker\Factory as FakerFactory;
+use Faker\Generator;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Carbon;
 
@@ -17,152 +19,201 @@ class VisitSeeder extends Seeder
             throw new \RuntimeException('Demo visits are disabled in production.');
         }
 
+        $faker = FakerFactory::create('en_US');
+        $faker->seed(20260516);
+
         $now = Carbon::now()->setSecond(0);
         $today = $now->copy()->startOfDay();
-        $reception = $this->user('empfang@demo.local');
-        $admin = $this->user('admin@demo.local');
+        $reception = $this->user('reception@example.org');
+        $security = $this->user('security@example.org');
+        $admin = $this->user('admin@example.org');
 
         $this->seedVisit([
-            'title' => 'Morning Pages Stand-up',
-            'host' => 'jo.march@demo.local',
-            'responsible' => 'empfang@demo.local',
+            'title' => 'Morning operations briefing',
+            'host' => 'employee@example.org',
+            'responsible' => 'reception@example.org',
             'from' => $today->copy()->setTime(8, 30),
             'until' => $today->copy()->setTime(9, 0),
             'status' => VisitStatusEnum::Completed,
-            'notes' => 'Kurz, freundlich, mit sehr gutem Protokoll.',
+            'notes' => 'Completed demo visit with check-in and check-out timestamps.',
         ], [
-            'jo.march@orchard.example' => [
+            'alice.reed@example.com' => [
                 'badge_printed_at' => $today->copy()->setTime(8, 10),
+                'checked_in_at' => $today->copy()->setTime(8, 20),
+                'checked_in_by_user_id' => $reception->id,
+                'checked_out_at' => $today->copy()->setTime(9, 4),
+                'checked_out_by_user_id' => $reception->id,
+            ],
+            'dorothy.lane@example.org' => [
                 'checked_in_at' => $today->copy()->setTime(8, 22),
                 'checked_in_by_user_id' => $reception->id,
-                'checked_out_at' => $today->copy()->setTime(9, 5),
-                'checked_out_by_user_id' => $reception->id,
-            ],
-            'anne.shirley@green-gables.example' => [
-                'checked_in_at' => $today->copy()->setTime(8, 25),
-                'checked_in_by_user_id' => $reception->id,
-                'checked_out_at' => $today->copy()->setTime(9, 3),
+                'checked_out_at' => $today->copy()->setTime(9, 2),
                 'checked_out_by_user_id' => $reception->id,
             ],
         ]);
 
         $this->seedVisit([
-            'title' => 'Back-to-back 1: Research Check-in',
-            'host' => 'hermione.granger@demo.local',
-            'responsible' => 'empfang@demo.local',
-            'from' => $today->copy()->setTime(9, 0),
-            'until' => $today->copy()->setTime(9, 30),
-            'status' => VisitStatusEnum::Planned,
-            'notes' => 'Dieselbe Person hat direkt danach weitere Termine und muss aktuell je Termin separat eingecheckt werden.',
-        ], ['hermione.granger@hogwarts.example']);
-
-        $this->seedVisit([
-            'title' => 'Back-to-back 2: Library Safety Review',
-            'host' => 'matilda.wormwood@demo.local',
-            'responsible' => 'empfang@demo.local',
+            'title' => 'Supplier onboarding review',
+            'host' => 'manager@example.org',
+            'responsible' => 'reception@example.org',
             'from' => $today->copy()->setTime(9, 30),
-            'until' => $today->copy()->setTime(10, 0),
+            'until' => $today->copy()->setTime(10, 15),
             'status' => VisitStatusEnum::Planned,
-            'notes' => 'Zweiter Termin mit derselben Besucherin direkt im Anschluss.',
-        ], ['hermione.granger@hogwarts.example']);
+            'notes' => 'Planned visit for monitor and reception workflows.',
+        ], ['clara.bennett@example.net']);
 
         $this->seedVisit([
-            'title' => 'Back-to-back 3: Time-Turner Debrief',
-            'host' => 'arthur.dent@demo.local',
-            'responsible' => 'empfang@demo.local',
-            'from' => $today->copy()->setTime(10, 0),
-            'until' => $today->copy()->setTime(10, 30),
+            'title' => 'Engineering partner workshop',
+            'host' => 'demo.user04@example.org',
+            'responsible' => 'security@example.org',
+            'from' => $today->copy()->setTime(10, 30),
+            'until' => $today->copy()->setTime(12, 0),
             'status' => VisitStatusEnum::Planned,
-            'notes' => 'Dritter Termin mit derselben Besucherin. Guter Edge Case für Check-in/out.',
-        ], ['hermione.granger@hogwarts.example']);
+            'notes' => 'Multi-participant planned visit.',
+        ], ['arthur.blake@example.com', 'emily.wright@example.org']);
 
         $this->seedVisit([
-            'title' => 'Toto prüft den Empfangsteppich',
-            'host' => 'samwise.gamgee@demo.local',
-            'responsible' => 'empfang@demo.local',
-            'from' => $today->copy()->setTime(11, 0),
-            'until' => $today->copy()->setTime(11, 45),
+            'title' => 'Logistics planning session',
+            'host' => 'demo.user01@example.org',
+            'responsible' => 'reception@example.org',
+            'from' => $today->copy()->setTime(11, 30),
+            'until' => $today->copy()->setTime(12, 15),
             'status' => VisitStatusEnum::Planned,
-            'notes' => 'Hund ist eingecheckt. Bitte Wassernapf nicht vergessen.',
-        ], [
-            'toto.gale@oz.example' => [
-                'badge_printed_at' => $now->copy()->subMinutes(35),
-                'checked_in_at' => $now->copy()->subMinutes(25),
-                'checked_in_by_user_id' => $reception->id,
-                'notes' => 'Vier Pfoten, ein Ausweis.',
-            ],
-        ]);
+            'notes' => 'Single visitor planned visit.',
+        ], ['john.spencer@example.net']);
 
         $this->seedVisit([
-            'title' => 'Council of Many Pages',
-            'host' => 'bilbo.baggins@demo.local',
-            'responsible' => 'lucy.pevensie@demo.local',
+            'title' => 'Manufacturing quality review',
+            'host' => 'demo.user09@example.net',
+            'responsible' => 'reception@example.org',
             'from' => $today->copy()->setTime(14, 0),
             'until' => $today->copy()->setTime(16, 0),
             'status' => VisitStatusEnum::Planned,
-            'notes' => 'Großer Termin mit 24 Gästen. Testet Listen, Ausweise und Dashboard-Zähler.',
-        ], $this->firstVisitorEmails(24));
+            'notes' => 'Larger group visit for dashboards and monitor pagination.',
+        ], $this->firstVisitorEmails(10));
 
         $this->seedVisit([
-            'title' => 'Rabbit Hole Route Planning',
-            'host' => 'lucy.pevensie@demo.local',
-            'responsible' => 'empfang@demo.local',
-            'from' => $today->copy()->addDay()->setTime(10, 0),
-            'until' => $today->copy()->addDay()->setTime(11, 0),
-            'status' => VisitStatusEnum::Planned,
-            'notes' => 'Morgen, damit die Check-In/Out-Seite den 48h-Zeitraum zeigt.',
-        ], ['alice.liddell@wonder.example', 'dorothy.gale@oz.example']);
-
-        $this->seedVisit([
-            'title' => 'Draft: Chocolate Prototype Tasting',
-            'host' => 'anne.shirley@demo.local',
-            'responsible' => 'admin@demo.local',
-            'from' => $today->copy()->addDays(2)->setTime(13, 30),
-            'until' => $today->copy()->addDays(2)->setTime(14, 30),
-            'status' => VisitStatusEnum::Draft,
-            'notes' => 'Entwurf, weil die Muster noch nicht freigegeben sind.',
-        ], ['willy.wonka@chocolate.example', 'pippi.langstrumpf@villa.example']);
-
-        $this->seedVisit([
-            'title' => 'Canceled: Storm over Thornfield',
-            'host' => 'atticus.finch@demo.local',
-            'responsible' => 'empfang@demo.local',
-            'from' => $today->copy()->subDay()->setTime(15, 0),
-            'until' => $today->copy()->subDay()->setTime(16, 0),
-            'status' => VisitStatusEnum::Canceled,
-            'notes' => 'Abgesagt wegen Wetterwarnung.',
-            'canceled_at' => $today->copy()->subDay()->setTime(8, 15),
-            'canceled_by_user_id' => $admin->id,
-        ], ['jane.eyre@thornfield.example']);
-
-        $this->seedVisit([
-            'title' => 'Walk-in: Very Prepared Nanny',
-            'host' => 'elizabeth.bennet@demo.local',
-            'responsible' => 'empfang@demo.local',
+            'title' => 'Walk-in: documentation pickup',
+            'host' => 'employee@example.org',
+            'responsible' => 'security@example.org',
             'from' => $now->copy()->subMinutes(10),
             'until' => $now->copy()->addMinutes(50),
             'status' => VisitStatusEnum::Planned,
-            'notes' => 'Als Walk-in am Empfang erfasst.',
+            'notes' => 'Walk-in captured at reception.',
             'is_walk_in' => true,
         ], [
-            'mary.poppins@cherry.example' => [
+            'jane.miller@example.com' => [
                 'checked_in_at' => $now->copy()->subMinutes(9),
-                'checked_in_by_user_id' => $reception->id,
-                'notes' => 'Walk-in am Empfang registriert.',
+                'checked_in_by_user_id' => $security->id,
+                'notes' => 'Walk-in registered at the front desk.',
             ],
         ]);
 
         $this->seedVisit([
-            'title' => 'Far Future: Improbability Audit',
-            'host' => 'arthur.dent@demo.local',
-            'responsible' => 'admin@demo.local',
+            'title' => 'Safety audit preparation',
+            'host' => 'security@example.org',
+            'responsible' => 'reception@example.org',
+            'from' => $today->copy()->addDay()->setTime(10, 0),
+            'until' => $today->copy()->addDay()->setTime(11, 0),
+            'status' => VisitStatusEnum::Planned,
+            'notes' => 'Tomorrow visit for 48-hour reception board coverage.',
+        ], ['thomas.green@example.org', 'lucy.walker@example.net']);
+
+        $this->seedVisit([
+            'title' => 'Draft: component roadmap',
+            'host' => 'demo.user03@example.net',
+            'responsible' => 'admin@example.org',
+            'from' => $today->copy()->addDays(2)->setTime(13, 30),
+            'until' => $today->copy()->addDays(2)->setTime(14, 30),
+            'status' => VisitStatusEnum::Draft,
+            'notes' => 'Draft visits are intentionally excluded from automatic monitor generation.',
+        ], ['walter.brooks@example.com']);
+
+        $this->seedVisit([
+            'title' => 'Canceled: facility walkthrough',
+            'host' => 'demo.user06@example.net',
+            'responsible' => 'reception@example.org',
+            'from' => $today->copy()->subDay()->setTime(15, 0),
+            'until' => $today->copy()->subDay()->setTime(16, 0),
+            'status' => VisitStatusEnum::Canceled,
+            'notes' => 'Canceled demo visit.',
+            'canceled_at' => $today->copy()->subDay()->setTime(8, 15),
+            'canceled_by_user_id' => $admin->id,
+        ], ['visitor01@example.org']);
+
+        $this->seedVisit([
+            'title' => 'Far future systems audit',
+            'host' => 'admin@example.org',
+            'responsible' => 'security@example.org',
             'from' => $today->copy()->addDays(35)->setTime(12, 0),
             'until' => $today->copy()->addDays(35)->setTime(13, 0),
             'status' => VisitStatusEnum::Planned,
-            'notes' => 'Weiter als 48 Stunden entfernt, sollte nicht im Check-In/Out-Board auftauchen.',
-        ], ['arthur.dent@galaxy.example', 'ford.prefect@galaxy.example']);
+            'notes' => 'More than 48 hours away, should stay out of the check-in board.',
+        ], ['visitor02@example.com', 'visitor03@example.net']);
 
-        $this->command?->info('VisitSeeder ausgeführt: Demo-Besuche inklusive Back-to-back- und 24-Gäste-Edge-Cases angelegt/aktualisiert.');
+        foreach ($this->fakerVisits($faker, 62, $today, $admin) as [$visitData, $visitorEmails]) {
+            $this->seedVisit($visitData, $visitorEmails);
+        }
+
+        $this->command?->info('VisitSeeder ausgeführt: 72 Demo-Besuche angelegt/aktualisiert.');
+    }
+
+    /**
+     * @return array<int, array{array<string, mixed>, array<int, string>}>
+     */
+    private function fakerVisits(Generator $faker, int $count, Carbon $today, User $cancelingUser): array
+    {
+        $hostEmails = User::query()
+            ->where('email', '!=', 'welcome@example.org')
+            ->orderBy('id')
+            ->pluck('email')
+            ->values();
+        $responsibleEmails = collect(['reception@example.org', 'security@example.org', 'admin@example.org']);
+        $visitorEmails = Visitor::query()->orderBy('id')->pluck('email')->values();
+        $topics = ['planning', 'quality', 'operations', 'safety', 'prototype', 'supplier', 'training', 'logistics'];
+        $visits = [];
+
+        for ($index = 1; $index <= $count; $index++) {
+            $dayOffset = ($index % 46) - 5;
+            $startHour = 8 + ($index % 9);
+            $startsAt = $today->copy()->addDays($dayOffset)->setTime($startHour, ($index % 2) * 30);
+            $status = VisitStatusEnum::Planned;
+
+            if ($index % 11 === 0) {
+                $status = VisitStatusEnum::Canceled;
+            } elseif ($index % 8 === 0) {
+                $status = VisitStatusEnum::Draft;
+            } elseif ($startsAt->isPast() && $index % 5 === 0) {
+                $status = VisitStatusEnum::Completed;
+            }
+
+            $participantCount = 1 + ($index % 4);
+            $participants = [];
+
+            for ($participant = 0; $participant < $participantCount; $participant++) {
+                $participants[] = $visitorEmails[($index + $participant) % $visitorEmails->count()];
+            }
+
+            $visitData = [
+                'title' => sprintf('Demo %02d: %s %s', $index, ucfirst($topics[$index % count($topics)]), $faker->randomElement(['review', 'briefing', 'workshop', 'check-in'])),
+                'host' => $hostEmails[$index % $hostEmails->count()],
+                'responsible' => $responsibleEmails[$index % $responsibleEmails->count()],
+                'from' => $startsAt,
+                'until' => $startsAt->copy()->addMinutes(45 + (($index % 3) * 15)),
+                'status' => $status,
+                'notes' => $faker->sentence(8),
+                'is_confidential' => $index % 13 === 0,
+            ];
+
+            if ($status === VisitStatusEnum::Canceled) {
+                $visitData['canceled_at'] = $startsAt->copy()->subDay();
+                $visitData['canceled_by_user_id'] = $cancelingUser->id;
+            }
+
+            $visits[] = [$visitData, $participants];
+        }
+
+        return $visits;
     }
 
     /**
@@ -183,6 +234,7 @@ class VisitSeeder extends Seeder
                 'scheduled_from' => $visitData['from'],
                 'scheduled_until' => $visitData['until'],
                 'status' => $visitData['status']->value,
+                'is_confidential' => (bool) ($visitData['is_confidential'] ?? false),
                 'is_walk_in' => (bool) ($visitData['is_walk_in'] ?? false),
                 'notes' => $visitData['notes'] ?? null,
                 'canceled_at' => $visitData['canceled_at'] ?? null,

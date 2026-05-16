@@ -41,17 +41,20 @@ Falls diese Ports belegt sind, koennen `APP_PORT` und `MAILHOG_PORT` in `.env.de
 
 Login:
 
-- `admin@demo.local`
-- Passwort: `Passwort123!`
+- `admin@example.org`
+- Passwort: `ChangeMe-42!`
 
 Weitere Demo-Accounts:
 
-- `empfang@demo.local`
-- `mitarbeiter@demo.local`
-- `manager@demo.local`
-- `welcomemonitor@demo.local`
+- `reception@example.org`
+- `employee@example.org`
+- `manager@example.org`
+- `welcome@example.org`
+- `security@example.org`
 
-Alle verwenden `Passwort123!`.
+Alle verwenden `ChangeMe-42!`.
+
+Die Demo-Daten nutzen ausschließlich reservierte `example.org`-, `example.com`- und `example.net`-E-Mail-Domains. Telefonnummern sind entweder leer oder als eindeutig fiktive E.164-Nummern aus reservierten Medien-/Demo-Bereichen hinterlegt. Zusätzlich zu den festen Demo-Accounts werden englische Faker-Daten für weitere Benutzer, Besucher und Besuche erzeugt. Demo-Seeding ist in `APP_ENV=production` blockiert.
 
 ## Demo stoppen
 

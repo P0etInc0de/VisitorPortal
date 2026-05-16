@@ -4,6 +4,8 @@ namespace Database\Seeders;
 
 use App\Enums\SalutationEnum;
 use App\Models\Visitor;
+use Faker\Factory as FakerFactory;
+use Faker\Generator;
 use Illuminate\Database\Seeder;
 
 class VisitorSeeder extends Seeder
@@ -15,46 +17,64 @@ class VisitorSeeder extends Seeder
         }
 
         $visitors = [
-            ['Sherlock', 'Holmes', null, SalutationEnum::Mr, 'sherlock.holmes@baker.example', '+49 7300 100001', 'Baker Street Consulting', 'Bringt eine Lupe mit.'],
-            ['John', 'Watson', 'Dr.', SalutationEnum::Mr, 'john.watson@baker.example', '+49 7300 100002', 'Baker Street Consulting', 'Medizinischer Blick auf jeden Kaffee.'],
-            ['Irene', 'Adler', null, SalutationEnum::Ms, 'irene.adler@opera.example', '+49 7300 100003', 'Royal Opera Archives', 'Bitte diskret empfangen.'],
-            ['Elizabeth', 'Bennet', null, SalutationEnum::Ms, 'elizabeth.bennet@pemberley.example', '+49 7300 100004', 'Pemberley Projects', 'Fragt sehr gute Rückfragen.'],
-            ['Fitzwilliam', 'Darcy', null, SalutationEnum::Mr, 'fitzwilliam.darcy@pemberley.example', '+49 7300 100005', 'Pemberley Projects', 'Wirkt erst reserviert, ist aber vorbereitet.'],
-            ['Jane', 'Eyre', null, SalutationEnum::Ms, 'jane.eyre@thornfield.example', '+49 7300 100006', 'Thornfield Education', null],
-            ['Atticus', 'Finch', null, SalutationEnum::Mr, 'atticus.finch@maycomb.example', '+49 7300 100007', 'Maycomb Legal', 'Besucht den Compliance-Termin.'],
-            ['Scout', 'Finch', null, SalutationEnum::Ms, 'scout.finch@maycomb.example', '+49 7300 100008', 'Maycomb Legal', 'Neugierig, freundlich, schnell.'],
-            ['Huckleberry', 'Finn', null, SalutationEnum::Mr, 'huck.finn@river.example', '+49 7300 100009', 'River Logistics', 'Kommt eventuell mit nassen Schuhen.'],
-            ['Tom', 'Sawyer', null, SalutationEnum::Mr, 'tom.sawyer@river.example', '+49 7300 100010', 'Fence Painting Inc.', 'Hat kreative Vorschläge zur Arbeitsteilung.'],
-            ['Alice', 'Liddell', null, SalutationEnum::Ms, 'alice.liddell@wonder.example', '+49 7300 100011', 'Wonderland Labs', 'Bitte nicht dem weißen Kaninchen folgen lassen.'],
-            ['Dorothy', 'Gale', null, SalutationEnum::Ms, 'dorothy.gale@oz.example', '+49 7300 100012', 'Emerald City Travel', 'Rote Schuhe, klare Agenda.'],
-            ['Toto', 'Gale', null, SalutationEnum::NotSpecified, 'toto.gale@oz.example', '+49 7300 100013', 'Emerald City Travel', 'Hund. Bitte Wassernapf am Empfang bereitstellen.'],
-            ['Matilda', 'Wormwood', null, SalutationEnum::Ms, 'matilda.wormwood@library.example', '+49 7300 100014', 'Tiny Library Club', 'Liest die Agenda vor dem Termin.'],
-            ['Jennifer', 'Honey', 'Ms.', SalutationEnum::Ms, 'miss.honey@library.example', '+49 7300 100015', 'Tiny Library Club', 'Sehr geduldig bei Workshops.'],
-            ['Bilbo', 'Baggins', null, SalutationEnum::Mr, 'bilbo.baggins@shire.example', '+49 7300 100016', 'Shire Snacks', 'Mag kurze Wege und zweite Frühstücke.'],
-            ['Frodo', 'Baggins', null, SalutationEnum::Mr, 'frodo.baggins@shire.example', '+49 7300 100017', 'Shire Snacks', 'Bitte keine schweren Ringe aushändigen.'],
-            ['Samwise', 'Gamgee', null, SalutationEnum::Mr, 'samwise.gamgee@shire.example', '+49 7300 100018', 'Shire Garden Supply', 'Kennt sich mit Kartoffeln aus.'],
-            ['Hermione', 'Granger', null, SalutationEnum::Ms, 'hermione.granger@hogwarts.example', '+49 7300 100019', 'Hogwarts Research', 'Hat drei Termine direkt nacheinander.'],
-            ['Ron', 'Weasley', null, SalutationEnum::Mr, 'ron.weasley@hogwarts.example', '+49 7300 100020', 'Hogwarts Logistics', 'Bitte Snack-Schale auffüllen.'],
-            ['Luna', 'Lovegood', null, SalutationEnum::Ms, 'luna.lovegood@quibbler.example', '+49 7300 100021', 'Quibbler Ideas', 'Sieht Lösungen, wo andere nur Flipcharts sehen.'],
-            ['Arthur', 'Dent', null, SalutationEnum::Mr, 'arthur.dent@galaxy.example', '+49 7300 100022', 'Infinite Improbability Ltd.', 'Handtuch nicht vergessen.'],
-            ['Ford', 'Prefect', null, SalutationEnum::Mr, 'ford.prefect@galaxy.example', '+49 7300 100023', 'Infinite Improbability Ltd.', 'Recherchiert Gebäude für Reiseführer.'],
-            ['Lyra', 'Belacqua', null, SalutationEnum::Ms, 'lyra.belacqua@north.example', '+49 7300 100024', 'Northern Compass', 'Kommt mit Kompass und vielen Fragen.'],
-            ['Mary', 'Poppins', null, SalutationEnum::Ms, 'mary.poppins@cherry.example', '+49 7300 100025', 'Cherry Tree Services', 'Tasche kann größer sein als erwartet.'],
-            ['Anne', 'Shirley', null, SalutationEnum::Ms, 'anne.shirley@green-gables.example', '+49 7300 100026', 'Green Gables Creative', 'Bringt Begeisterung für Whiteboards mit.'],
-            ['Jo', 'March', null, SalutationEnum::Ms, 'jo.march@orchard.example', '+49 7300 100027', 'Orchard House Editorial', 'Schreibt das Protokoll schneller als alle reden.'],
-            ['Long John', 'Silver', null, SalutationEnum::Mr, 'longjohn.silver@treasure.example', '+49 7300 100028', 'Treasure Map Co.', 'Barrierefreien Zugang einplanen.'],
-            ['Pippi', 'Langstrumpf', null, SalutationEnum::Ms, 'pippi.langstrumpf@villa.example', '+49 7300 100029', 'Villa Kunterbunt', 'Sehr stark, sehr freundlich.'],
-            ['Willy', 'Wonka', null, SalutationEnum::NotSpecified, 'willy.wonka@chocolate.example', '+49 7300 100030', 'Chocolate Factory', 'Muster nur nach Freigabe verteilen.'],
+            ['Alice', 'Reed', null, SalutationEnum::Ms, 'alice.reed@example.com', $this->demoPhone(0), 'Example Industries', null],
+            ['Dorothy', 'Lane', null, SalutationEnum::Ms, 'dorothy.lane@example.org', $this->demoPhone(1), 'Northbridge Consulting', null],
+            ['Clara', 'Bennett', null, SalutationEnum::Ms, 'clara.bennett@example.net', $this->demoPhone(2), 'Greenfield Engineering', null],
+            ['Arthur', 'Blake', null, SalutationEnum::Mr, 'arthur.blake@example.com', $this->demoPhone(3), 'Blue River Systems', null],
+            ['Emily', 'Wright', null, SalutationEnum::Ms, 'emily.wright@example.org', $this->demoPhone(4), 'Silver Oak Manufacturing', null],
+            ['John', 'Spencer', null, SalutationEnum::Mr, 'john.spencer@example.net', $this->demoPhone(5), 'Sample Logistics', null],
+            ['Jane', 'Miller', null, SalutationEnum::Ms, 'jane.miller@example.com', null, 'DemoTech Solutions', null],
+            ['Thomas', 'Green', null, SalutationEnum::Mr, 'thomas.green@example.org', $this->demoPhone(6), 'Clearwater Labs', null],
+            ['Lucy', 'Walker', null, SalutationEnum::Ms, 'lucy.walker@example.net', $this->demoPhone(7), 'Horizon Components', null],
+            ['Walter', 'Brooks', null, SalutationEnum::Mr, 'walter.brooks@example.com', $this->demoPhone(8), 'Rivergate Solutions', null],
         ];
+
+        $faker = FakerFactory::create('en_US');
+        $faker->seed(20260516);
+
+        foreach ($this->fakerVisitors($faker, 50, count($visitors)) as $visitor) {
+            $visitors[] = $visitor;
+        }
 
         foreach ($visitors as [$firstName, $name, $title, $salutation, $email, $phone, $company, $notes]) {
             $this->createOrUpdateVisitor($firstName, $name, $title, $salutation, $email, $phone, $company, $notes);
         }
 
-        $this->command?->info('VisitorSeeder ausgeführt: 30 Demo-Gäste angelegt/aktualisiert.');
+        $this->command?->info('VisitorSeeder ausgeführt: 60 Demo-Gäste angelegt/aktualisiert.');
     }
 
-    private function createOrUpdateVisitor(string $firstName, string $name, ?string $title, SalutationEnum $salutation, string $email, string $phone, ?string $company, ?string $notes): void
+    /**
+     * @return array<int, array{string, string, ?string, SalutationEnum, string, ?string, string, ?string}>
+     */
+    private function fakerVisitors(Generator $faker, int $count, int $phoneOffset): array
+    {
+        $domains = ['example.org', 'example.com', 'example.net'];
+        $companyPrefixes = ['Atlas', 'Northstar', 'Greenfield', 'Blue River', 'Clearwater', 'Horizon', 'Silver Oak', 'Rivergate', 'Brightline', 'Cedar'];
+        $companySuffixes = ['Systems', 'Components', 'Consulting', 'Engineering', 'Logistics', 'Manufacturing', 'Labs', 'Services'];
+        $visitors = [];
+
+        for ($index = 1; $index <= $count; $index++) {
+            $visitors[] = [
+                $faker->firstName(),
+                $faker->lastName(),
+                $index % 13 === 0 ? 'Dr.' : null,
+                $faker->randomElement([SalutationEnum::Mr, SalutationEnum::Ms, SalutationEnum::NotSpecified]),
+                sprintf('visitor%02d@%s', $index, $domains[($index - 1) % count($domains)]),
+                $index % 10 === 0 ? null : $this->demoPhone($phoneOffset + $index),
+                $companyPrefixes[($index - 1) % count($companyPrefixes)].' '.$companySuffixes[intdiv($index - 1, count($companyPrefixes)) % count($companySuffixes)],
+                null,
+            ];
+        }
+
+        return $visitors;
+    }
+
+    private function demoPhone(int $index): string
+    {
+        return sprintf('+493023125%03d', $index % 100);
+    }
+
+    private function createOrUpdateVisitor(string $firstName, string $name, ?string $title, SalutationEnum $salutation, string $email, ?string $phone, ?string $company, ?string $notes): void
     {
         Visitor::query()->updateOrCreate(
             ['email' => $email],

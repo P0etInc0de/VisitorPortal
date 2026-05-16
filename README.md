@@ -138,17 +138,18 @@ VISITORPORTAL_VERSION=v1.0.2
 
 ## Demo Accounts
 
-All demo accounts use the same password: `Passwort123!`
+All demo accounts use the same password: `ChangeMe-42!`
 
 | Role | Email | Password |
 | --- | --- | --- |
-| Admin | `admin@demo.local` | `Passwort123!` |
-| Reception | `empfang@demo.local` | `Passwort123!` |
-| Employee | `mitarbeiter@demo.local` | `Passwort123!` |
-| Manager | `manager@demo.local` | `Passwort123!` |
-| Welcome monitor | `welcomemonitor@demo.local` | `Passwort123!` |
+| Admin | `admin@example.org` | `ChangeMe-42!` |
+| Reception | `reception@example.org` | `ChangeMe-42!` |
+| Employee | `employee@example.org` | `ChangeMe-42!` |
+| Manager | `manager@example.org` | `ChangeMe-42!` |
+| Welcome monitor | `welcome@example.org` | `ChangeMe-42!` |
+| Security/reception | `security@example.org` | `ChangeMe-42!` |
 
-The seeders also create additional fictional demo users, visitors, and visits. Do not use real person data in demo environments.
+The seeders also create 20 additional Faker-based users, 50 additional Faker-based visitors, and 50 to 100 demo visits. Demo email addresses use reserved `example.org`, `example.com`, or `example.net` domains. Demo phone numbers use reserved media/demo number ranges in E.164 format or are intentionally blank. Demo seeders are blocked in `APP_ENV=production`.
 
 ## Development Setup
 

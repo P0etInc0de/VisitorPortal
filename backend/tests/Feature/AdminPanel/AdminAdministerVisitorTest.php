@@ -27,26 +27,26 @@ class AdminAdministerVisitorTest extends TestCase
             ->test(CreateVisitor::class)
             ->assertOk()
             ->fillForm([
-                'first_name' => 'Max',
-                'name' => 'Mustermann',
+                'first_name' => 'Mira',
+                'name' => 'Sample',
                 'title' => 'Dr.',
                 'salutation' => SalutationEnum::Mr,
                 'email' => 'max@example.com',
-                'phone' => '+49123456789',
-                'company' => 'Test GmbH',
+                'phone' => '+493023125020',
+                'company' => 'Example Industries',
                 'notes' => 'Test Notiz',
             ])
             ->call('create')
             ->assertHasNoFormErrors();
 
         $this->assertDatabaseHas('visitors', [
-            'first_name' => 'Max',
-            'name' => 'Mustermann',
+            'first_name' => 'Mira',
+            'name' => 'Sample',
             'title' => 'Dr.',
             'salutation' => SalutationEnum::Mr,
             'email' => 'max@example.com',
-            'phone' => '+49123456789',
-            'company' => 'Test GmbH',
+            'phone' => '+493023125020',
+            'company' => 'Example Industries',
             'notes' => 'Test Notiz',
         ]);
     }
@@ -60,42 +60,42 @@ class AdminAdministerVisitorTest extends TestCase
             ->test(CreateVisitor::class)
             ->assertOk()
             ->fillForm([
-                'first_name' => 'Max',
-                'name' => 'Mustermann',
+                'first_name' => 'Mira',
+                'name' => 'Sample',
                 'title' => 'Dr.',
                 'salutation' => SalutationEnum::Mr,
                 'email' => 'max@example.com',
-                'phone' => '+49123456789',
-                'company' => 'Test GmbH',
+                'phone' => '+493023125020',
+                'company' => 'Example Industries',
                 'notes' => 'Test Notiz',
             ])
             ->call('create')
             ->assertHasNoFormErrors();
 
         $this->assertDatabaseHas('visitors', [
-            'first_name' => 'Max',
-            'name' => 'Mustermann',
+            'first_name' => 'Mira',
+            'name' => 'Sample',
             'title' => 'Dr.',
             'salutation' => SalutationEnum::Mr,
             'email' => 'max@example.com',
-            'phone' => '+49123456789',
-            'company' => 'Test GmbH',
+            'phone' => '+493023125020',
+            'company' => 'Example Industries',
             'notes' => 'Test Notiz',
         ]);
 
-        $visitor = Visitor::where('phone', '+49123456789')->first();
+        $visitor = Visitor::where('phone', '+493023125020')->first();
 
         Livewire::actingAs($admin)
             ->test(EditVisitor::class, ['record' => $visitor->getRouteKey()])
             ->assertOk()
             ->fillForm([
                 'first_name' => 'Erika',
-                'name' => 'Mustermann',
+                'name' => 'Sample',
                 'title' => 'Prof.',
                 'salutation' => SalutationEnum::Ms,
                 'email' => 'erika@example.com',
-                'phone' => '+49987654321',
-                'company' => 'Neue Firma GmbH',
+                'phone' => '+493023125021',
+                'company' => 'Sample Logistics',
                 'notes' => 'Aktualisierte Notiz',
             ])
             ->call('save')
@@ -103,12 +103,12 @@ class AdminAdministerVisitorTest extends TestCase
 
         $this->assertDatabaseHas('visitors', [
             'first_name' => 'Erika',
-            'name' => 'Mustermann',
+            'name' => 'Sample',
             'title' => 'Prof.',
             'salutation' => SalutationEnum::Ms,
             'email' => 'erika@example.com',
-            'phone' => '+49987654321',
-            'company' => 'Neue Firma GmbH',
+            'phone' => '+493023125021',
+            'company' => 'Sample Logistics',
             'notes' => 'Aktualisierte Notiz',
         ]);
 
@@ -122,30 +122,30 @@ class AdminAdministerVisitorTest extends TestCase
             ->test(CreateVisitor::class)
             ->assertOk()
             ->fillForm([
-                'first_name' => 'Max',
-                'name' => 'Mustermann',
+                'first_name' => 'Mira',
+                'name' => 'Sample',
                 'title' => 'Dr.',
                 'salutation' => SalutationEnum::Mr,
                 'email' => 'max@example.com',
-                'phone' => '+49123456789',
-                'company' => 'Test GmbH',
+                'phone' => '+493023125020',
+                'company' => 'Example Industries',
                 'notes' => 'Test Notiz',
             ])
             ->call('create')
             ->assertHasNoFormErrors();
 
         $this->assertDatabaseHas('visitors', [
-            'first_name' => 'Max',
-            'name' => 'Mustermann',
+            'first_name' => 'Mira',
+            'name' => 'Sample',
             'title' => 'Dr.',
             'salutation' => SalutationEnum::Mr,
             'email' => 'max@example.com',
-            'phone' => '+49123456789',
-            'company' => 'Test GmbH',
+            'phone' => '+493023125020',
+            'company' => 'Example Industries',
             'notes' => 'Test Notiz',
         ]);
 
-        $visitor = Visitor::where('phone', '+49123456789')->first();
+        $visitor = Visitor::where('phone', '+493023125020')->first();
 
         Livewire::actingAs($admin)
             ->test(EditVisitor::class, ['record' => $visitor->getRouteKey()])
@@ -154,12 +154,12 @@ class AdminAdministerVisitorTest extends TestCase
 
         $this->assertDatabaseMissing('visitors', [
             'first_name' => 'Erika',
-            'name' => 'Mustermann',
+            'name' => 'Sample',
             'title' => 'Prof.',
             'salutation' => SalutationEnum::Ms,
             'email' => 'erika@example.com',
-            'phone' => '+49987654321',
-            'company' => 'Neue Firma GmbH',
+            'phone' => '+493023125021',
+            'company' => 'Sample Logistics',
             'notes' => 'Aktualisierte Notiz',
         ]);
     }
@@ -185,8 +185,8 @@ class AdminAdministerVisitorTest extends TestCase
         Livewire::actingAs($admin)
             ->test(CreateVisitor::class)
             ->fillForm([
-                'first_name' => 'Max',
-                'name' => 'Mustermann',
+                'first_name' => 'Mira',
+                'name' => 'Sample',
                 'email' => 'not-an-email',
             ])
             ->call('create')
@@ -200,15 +200,15 @@ class AdminAdministerVisitorTest extends TestCase
         Livewire::actingAs($admin)
             ->test(CreateVisitor::class)
             ->fillForm([
-                'first_name' => 'Max',
-                'name' => 'Mustermann',
+                'first_name' => 'Mira',
+                'name' => 'Sample',
             ])
             ->call('create')
             ->assertHasNoFormErrors();
 
         $this->assertDatabaseHas('visitors', [
-            'first_name' => 'Max',
-            'name' => 'Mustermann',
+            'first_name' => 'Mira',
+            'name' => 'Sample',
             'email' => null,
             'phone' => null,
         ]);
@@ -221,8 +221,8 @@ class AdminAdministerVisitorTest extends TestCase
         Livewire::actingAs($admin)
             ->test(CreateVisitor::class)
             ->fillForm([
-                'first_name' => 'Max',
-                'name' => 'Mustermann',
+                'first_name' => 'Mira',
+                'name' => 'Sample',
                 'email' => 'max@example.com',
                 'phone' => 'invalid-phone',
             ])

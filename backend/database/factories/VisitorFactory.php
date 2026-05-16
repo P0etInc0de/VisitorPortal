@@ -13,6 +13,8 @@ class VisitorFactory extends Factory
 {
     protected $model = Visitor::class;
 
+    protected static int $demoPhoneIndex = 0;
+
     /**
      * Define the model's default state.
      *
@@ -23,12 +25,17 @@ class VisitorFactory extends Factory
         return [
             'first_name' => $this->faker->firstName(),
             'name' => $this->faker->lastName(),
-            'email' => fake()->email(),
-            'phone' => fake()->phoneNumber(),
-            'company' => fake()->company(),
+            'email' => fake()->safeEmail(),
+            'phone' => $this->demoPhone(),
+            'company' => 'Example '.$this->faker->randomElement(['Industries', 'Consulting', 'Engineering', 'Systems', 'Logistics', 'Labs']),
             'notes' => null,
             'salutation' => SalutationEnum::Mr,
             'title' => 'Dr.',
         ];
+    }
+
+    private function demoPhone(): string
+    {
+        return sprintf('+493023125%03d', (self::$demoPhoneIndex++) % 100);
     }
 }

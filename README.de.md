@@ -131,17 +131,18 @@ VISITORPORTAL_VERSION=v1.0.2
 
 ## Demo-Zugangsdaten
 
-Alle Demo-Accounts verwenden dasselbe Passwort: `Passwort123!`
+Alle Demo-Accounts verwenden dasselbe Passwort: `ChangeMe-42!`
 
 | Rolle | E-Mail | Passwort |
 | --- | --- | --- |
-| Admin | `admin@demo.local` | `Passwort123!` |
-| Empfang | `empfang@demo.local` | `Passwort123!` |
-| Mitarbeitende | `mitarbeiter@demo.local` | `Passwort123!` |
-| Manager | `manager@demo.local` | `Passwort123!` |
-| Willkommensmonitor | `welcomemonitor@demo.local` | `Passwort123!` |
+| Admin | `admin@example.org` | `ChangeMe-42!` |
+| Empfang | `reception@example.org` | `ChangeMe-42!` |
+| Mitarbeitende | `employee@example.org` | `ChangeMe-42!` |
+| Manager | `manager@example.org` | `ChangeMe-42!` |
+| Willkommensmonitor | `welcome@example.org` | `ChangeMe-42!` |
+| Security/Empfang | `security@example.org` | `ChangeMe-42!` |
 
-Die Seeder erzeugen zusätzlich weitere fiktive Demo-Benutzer, Besucher und Besuche. In Demo-Umgebungen dürfen keine echten personenbezogenen Daten verwendet werden.
+Die Seeder erzeugen zusätzlich 20 englische Faker-Benutzer, 50 englische Faker-Besucher und 50 bis 100 Demo-Besuche. Demo-E-Mails verwenden ausschließlich reservierte `example.org`-, `example.com`- oder `example.net`-Domains. Telefonnummern sind entweder leer oder eindeutig fiktive E.164-Nummern aus reservierten Medien-/Demo-Bereichen. Demo-Seeding ist in `APP_ENV=production` blockiert.
 
 ## Entwickler-Setup
 
