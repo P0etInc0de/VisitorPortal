@@ -6,6 +6,8 @@ use App\Enums\GenderEnum;
 use App\Models\Department;
 use App\Models\Site;
 use App\Models\User;
+use Faker\Factory as FakerFactory;
+use Faker\Generator;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
 use Spatie\Permission\Models\Role;
@@ -19,36 +21,62 @@ class UserSeeder extends Seeder
         }
 
         // Demo credentials must never be available in production.
-        $defaultPassword = 'Passwort123!';
+        $defaultPassword = 'ChangeMe-42!';
 
         $users = [
-            ['User', 'Admin', GenderEnum::Male, null, 'admin@demo.local', 'IT/Administration', 'admin'],
-            ['User', 'Empfang', GenderEnum::Female, null, 'empfang@demo.local', 'Empfang', 'receptionist'],
-            ['User', 'Mitarbeiter', GenderEnum::Male, null, 'mitarbeiter@demo.local', 'Vertrieb', 'user'],
-            ['User', 'Manager', GenderEnum::Male, null, 'manager@demo.local', 'Management', 'manager'],
-            ['User', 'WelcomeMonitor', GenderEnum::Not_Specified, null, 'welcomemonitor@demo.local', 'Empfang', 'welcome monitor'],
-            ['Bilbo', 'Baggins', GenderEnum::Male, null, 'bilbo.baggins@demo.local', 'Management', 'manager'],
-            ['Hermione', 'Granger', GenderEnum::Female, null, 'hermione.granger@demo.local', 'Forschung & Entwicklung', 'user'],
-            ['Matilda', 'Wormwood', GenderEnum::Female, null, 'matilda.wormwood@demo.local', 'Bibliothek', 'user'],
-            ['Atticus', 'Finch', GenderEnum::Male, null, 'atticus.finch@demo.local', 'Management', 'manager'],
-            ['Elizabeth', 'Bennet', GenderEnum::Female, null, 'elizabeth.bennet@demo.local', 'Vertrieb', 'user'],
-            ['Sherlock', 'Holmes', GenderEnum::Male, null, 'sherlock.holmes@demo.local', 'Forschung & Entwicklung', 'user'],
-            ['Anne', 'Shirley', GenderEnum::Female, null, 'anne.shirley@demo.local', 'Küche', 'user'],
-            ['Samwise', 'Gamgee', GenderEnum::Male, null, 'samwise.gamgee@demo.local', 'Facility', 'user'],
-            ['Lucy', 'Pevensie', GenderEnum::Female, null, 'lucy.pevensie@demo.local', 'Empfang', 'receptionist'],
-            ['Arthur', 'Dent', GenderEnum::Male, null, 'arthur.dent@demo.local', 'IT/Administration', 'user'],
-            ['Jo', 'March', GenderEnum::Female, null, 'jo.march@demo.local', 'Bibliothek', 'user'],
+            ['Ada', 'Avery', GenderEnum::Female, null, 'admin@example.org', 'IT/Administration', 'admin'],
+            ['Rita', 'Reed', GenderEnum::Female, null, 'reception@example.org', 'Empfang', 'receptionist'],
+            ['Evan', 'Edwards', GenderEnum::Male, null, 'employee@example.org', 'Vertrieb', 'user'],
+            ['Martha', 'Miller', GenderEnum::Female, null, 'manager@example.org', 'Management', 'manager'],
+            ['Wendy', 'Walker', GenderEnum::Female, null, 'welcome@example.org', 'Empfang', 'welcome monitor'],
+            ['Arthur', 'Alden', GenderEnum::Male, null, 'security@example.org', 'Facility', 'receptionist'],
         ];
+
+        $faker = FakerFactory::create('en_US');
+        $faker->seed(20260516);
+
+        foreach ($this->fakerUsers($faker, 20) as $user) {
+            $users[] = $user;
+        }
 
         foreach ($users as [$firstName, $name, $gender, $title, $email, $department, $role]) {
             $this->createOrUpdateUser($name, $firstName, $gender, $title, $email, $defaultPassword, $department, $role);
         }
 
-        $this->command?->info('UserSeeder ausgeführt: 16 Demo-Benutzer angelegt/aktualisiert.');
-        $this->command?->info('Demo-Login (alle): Passwort123!');
-        $this->command?->line('- admin@demo.local');
-        $this->command?->line('- empfang@demo.local');
-        $this->command?->line('- mitarbeiter@demo.local');
+        $this->command?->info('UserSeeder ausgeführt: 26 Demo-Benutzer angelegt/aktualisiert.');
+        $this->command?->info('Demo-Login (alle): ChangeMe-42!');
+        $this->command?->line('- admin@example.org');
+        $this->command?->line('- reception@example.org');
+        $this->command?->line('- employee@example.org');
+        $this->command?->line('- manager@example.org');
+        $this->command?->line('- welcome@example.org');
+        $this->command?->line('- security@example.org');
+    }
+
+    /**
+     * @return array<int, array{string, string, GenderEnum, ?string, string, string, string}>
+     */
+    private function fakerUsers(Generator $faker, int $count): array
+    {
+        $departments = ['IT/Administration', 'Empfang', 'Vertrieb', 'Forschung & Entwicklung', 'Facility', 'Management'];
+        $roles = ['user', 'user', 'user', 'manager', 'receptionist'];
+        $domains = ['example.org', 'example.com', 'example.net'];
+        $users = [];
+
+        for ($index = 1; $index <= $count; $index++) {
+            $gender = $faker->randomElement([GenderEnum::Female, GenderEnum::Male, GenderEnum::Not_Specified]);
+            $users[] = [
+                $faker->firstName(),
+                $faker->lastName(),
+                $gender,
+                null,
+                sprintf('demo.user%02d@%s', $index, $domains[($index - 1) % count($domains)]),
+                $departments[($index - 1) % count($departments)],
+                $roles[($index - 1) % count($roles)],
+            ];
+        }
+
+        return $users;
     }
 
     private function createOrUpdateUser(

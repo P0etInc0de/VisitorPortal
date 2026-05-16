@@ -8,15 +8,15 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::table('visits', function (Blueprint $table) {
-            $table->boolean('is_walk_in')->default(false);
+        Schema::create('password_reset_tokens', function (Blueprint $table) {
+            $table->string('email')->primary();
+            $table->string('token');
+            $table->timestamp('created_at')->nullable();
         });
     }
 
     public function down(): void
     {
-        Schema::table('visits', function (Blueprint $table) {
-            $table->dropColumn('is_walk_in');
-        });
+        Schema::dropIfExists('password_reset_tokens');
     }
 };

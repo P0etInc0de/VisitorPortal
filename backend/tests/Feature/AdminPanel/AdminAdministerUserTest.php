@@ -183,8 +183,8 @@ class AdminAdministerUserTest extends TestCase
         Livewire::actingAs($admin)
             ->test(CreateUser::class)
             ->fillForm([
-                'first_name' => 'Max',
-                'name' => 'Mustermann',
+                'first_name' => 'Mira',
+                'name' => 'Sample',
                 'email' => 'not-an-email',
                 'password' => 'password',
                 'roles' => [$userRole->id],
@@ -204,9 +204,9 @@ class AdminAdministerUserTest extends TestCase
         Livewire::actingAs($admin)
             ->test(CreateUser::class)
             ->fillForm([
-                'first_name' => 'Max',
-                'name' => 'Mustermann',
-                'email' => 'max@example.com',
+                'first_name' => 'Mira',
+                'name' => 'Sample',
+                'email' => 'mira.sample@example.com',
                 'password' => '',
                 'roles' => [$userRole->id],
             ])

@@ -11,10 +11,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('users', function (Blueprint $table) {
-            $table->string('locale', 5)->nullable()->after('email_verified_at');
-            $table->string('theme_preference', 20)->nullable()->after('locale');
+        Schema::create('cache', function (Blueprint $table) {
+            $table->string('key')->primary();
+            $table->mediumText('value');
+            $table->integer('expiration')->index();
         });
+
     }
 
     /**
@@ -22,8 +24,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('users', function (Blueprint $table) {
-            $table->dropColumn(['locale', 'theme_preference']);
-        });
+        Schema::dropIfExists('cache');
     }
 };

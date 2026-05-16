@@ -24,8 +24,8 @@ class OverviewNotificationTest extends TestCase
             'responsible_user_id' => $user->id,
         ]);
         $visitor = Visitor::factory()->create([
-            'first_name' => 'Max',
-            'name' => 'Mustermann',
+            'first_name' => 'Mira',
+            'name' => 'Sample',
         ]);
 
         Notification::send($user, new GuestCheckedIn($visit, $visitor));
@@ -35,7 +35,7 @@ class OverviewNotificationTest extends TestCase
             ->get(route('overview'))
             ->assertOk()
             ->assertSee('Status & Benachrichtigungen')
-            ->assertSee('Gast Max Mustermann ist soeben eingetroffen.');
+            ->assertSee('Gast Mira Sample ist soeben eingetroffen.');
     }
 
     public function test_user_can_mark_notification_as_read(): void

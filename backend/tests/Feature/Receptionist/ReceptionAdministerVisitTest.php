@@ -569,11 +569,11 @@ class ReceptionAdministerVisitTest extends TestCase
         $host = (new PermissionHelper)->getUserUser();
 
         $walkInTitle = 'Dr';
-        $walkInFirstName = 'Max';
-        $walkInLastName = 'Mustermann';
-        $walkInEmail = 'max@test.de';
-        $walkInPhoneNumber = '0123456789';
-        $walkInCompany = 'TestCompany';
+        $walkInFirstName = 'Mira';
+        $walkInLastName = 'Sample';
+        $walkInEmail = 'mira.sample@example.com';
+        $walkInPhoneNumber = '+493023125022';
+        $walkInCompany = 'Example Industries';
 
         // create a walk-in
         Livewire::actingAs($receptionist)

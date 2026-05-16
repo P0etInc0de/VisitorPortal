@@ -78,8 +78,8 @@ class NotificationTest extends TestCase
             'responsible_user_id' => $host->id,
         ]);
         $visitor = Visitor::factory()->create([
-            'first_name' => 'Max',
-            'name' => 'Mustermann',
+            'first_name' => 'Mira',
+            'name' => 'Sample',
         ]);
 
         $visit->visitors()->attach($visitor->id);
@@ -93,7 +93,7 @@ class NotificationTest extends TestCase
         $this->assertNotNull($notification);
         $this->assertSame('guest_checked_in', $notification->data['type']);
         $this->assertSame('Gast :name ist soeben eingetroffen.', $notification->data['message_key']);
-        $this->assertSame('Max Mustermann', $notification->data['message_replacements']['name']);
+        $this->assertSame('Mira Sample', $notification->data['message_replacements']['name']);
     }
 
     public function test_daily_notification()

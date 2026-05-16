@@ -20,11 +20,11 @@ class VisitorBadgeViewTest extends TestCase
         $this->assertStringContainsString('badge badge--standard', $html);
         $this->assertStringContainsString(__('Besucherausweis'), $html);
         $this->assertStringContainsString('Dr. Anna Ausweis', $html);
-        $this->assertStringContainsString('Unternehmen:', $html);
+        $this->assertStringContainsString(__('Unternehmen:'), $html);
         $this->assertStringContainsString('VisitorPortal GmbH', $html);
         $this->assertStringContainsString('14.05.2026', $html);
-        $this->assertStringContainsString('09:00 bis 10:00 Uhr', $html);
-        $this->assertStringNotContainsString('Name:', $html);
+        $this->assertStringContainsString(e('09:00 '.__('bis').' 10:00 '.__('Uhr')), $html);
+        $this->assertStringNotContainsString(__('Name:'), $html);
         $this->assertStringNotContainsString('Firma:', $html);
         $this->assertStringNotContainsString('class="badge-photo', $html);
         $this->assertStringNotContainsString('class="qr-code', $html);
@@ -36,7 +36,7 @@ class VisitorBadgeViewTest extends TestCase
 
         $html = $this->renderBadge();
 
-        $this->assertStringContainsString('Unternehmen:', $html);
+        $this->assertStringContainsString(__('Unternehmen:'), $html);
         $this->assertStringNotContainsString('Firma:', $html);
     }
 
@@ -98,10 +98,10 @@ class VisitorBadgeViewTest extends TestCase
         $html = $this->renderBadge();
 
         $this->assertStringContainsString('badge badge--photo_qr', $html);
-        $this->assertStringContainsString('<div class="badge-photo badge-photo--placeholder">Foto</div>', $html);
+        $this->assertStringContainsString('<div class="badge-photo badge-photo--placeholder">'.__('Foto').'</div>', $html);
         $this->assertStringContainsString('<div class="qr-code qr-code--placeholder">QR</div>', $html);
         $this->assertStringContainsString('Dr. Anna Ausweis', $html);
-        $this->assertStringNotContainsString('Name:', $html);
+        $this->assertStringNotContainsString(__('Name:'), $html);
     }
 
     public function test_unknown_badge_design_falls_back_to_standard_layout(): void
@@ -112,7 +112,7 @@ class VisitorBadgeViewTest extends TestCase
 
         $this->assertStringContainsString('badge badge--standard', $html);
         $this->assertStringContainsString('Dr. Anna Ausweis', $html);
-        $this->assertStringNotContainsString('Name:', $html);
+        $this->assertStringNotContainsString(__('Name:'), $html);
         $this->assertStringNotContainsString('class="badge-photo', $html);
     }
 
