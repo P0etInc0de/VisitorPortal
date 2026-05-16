@@ -37,11 +37,12 @@ Docker-Hinweis:
 - Abgelaufene Besuche werden nach `PRIVACY_VISIT_RETENTION_DAYS` Tagen durch `visits:purge-expired` bereinigt, sofern kein Legal Hold gesetzt ist.
 - Der Retention-Lauf unterstützt `--dry-run` für auditierbare Probeläufe ohne Datenänderung.
 - Weitere Betreiberpflichten und eine Vorlage für Besucherinformationen stehen in `PRIVACY.md`.
-- `PRIVACY_NOTICE_URL` wird aktuell nicht automatisch in internen Mitarbeitenden-Formularen angezeigt. Betreiber können Besucher außerhalb des Portals informieren, z. B. per Aushang, QR-Code, Website oder Einladung.
+- `PRIVACY_NOTICE_URL` wird aktuell nicht automatisch in internen Mitarbeitenden-Formularen angezeigt. Wenn externe Besucher-Mails genutzt werden, enthalten diese den Link optional. Betreiber können Besucher zusätzlich außerhalb des Portals informieren, z. B. per Aushang, QR-Code, Website oder Einladung.
 
 ## Organisation und Standorte
 - Eine Installation ist für genau eine Organisation/Firma gedacht.
 - Mehrere Standorte innerhalb dieser Organisation werden über `sites` abgebildet.
+- Benutzer haben einen Primärstandort (`users.site_id`) und zugeordnete Standorte (`site_user`). Ein Wechsel des Primärstandorts entfernt bestehende zusätzliche Standortzuordnungen nicht automatisch.
 - Für rechtlich getrennte Organisationen sollten getrennte Instanzen betrieben werden, solange keine vollständige Multi-Tenancy explizit implementiert und auditiert wurde.
 - Neue Installationen erhalten automatisch einen `Default Site`; bestehende Daten werden bei der Migration diesem Standort zugeordnet.
 - Besucher bleiben organisationsweit als Person/Kontakt erhalten. Sichtbarkeit entsteht über berechtigte Besuche, Abteilungen und Standorte.

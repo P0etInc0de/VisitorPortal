@@ -140,6 +140,33 @@ class AdminAdministerUserTest extends TestCase
         ]);
     }
 
+    public function test_admin_can_update_user_without_changing_password(): void
+    {
+        $this->app->make(PermissionRegistrar::class)->forgetCachedPermissions();
+
+        $admin = (new PermissionHelper)->getIndividualUser(['ViewAny:User', 'View:User', 'Update:User', 'EditAny:User'], 'admin');
+        $user = User::factory()->create([
+            'password' => Hash::make('OriginalPassword123!'),
+        ]);
+
+        Livewire::actingAs($admin)
+            ->test(EditUser::class, ['record' => $user->getRouteKey()])
+            ->assertOk()
+            ->fillForm([
+                'first_name' => 'Updated',
+                'name' => $user->name,
+                'email' => $user->email,
+                'password' => '',
+            ])
+            ->call('save')
+            ->assertHasNoFormErrors();
+
+        $user->refresh();
+
+        $this->assertSame('Updated', $user->first_name);
+        $this->assertTrue(Hash::check('OriginalPassword123!', $user->password));
+    }
+
     /**
      * @throws BindingResolutionException
      */

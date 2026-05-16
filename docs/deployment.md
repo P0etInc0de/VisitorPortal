@@ -31,6 +31,7 @@ php artisan visitorportal:install --create-admin
 ```
 
 Der Bootstrap erzeugt keine Demo-User und keine Standardpasswörter. Das Admin-Passwort wird interaktiv abgefragt.
+Wenn `visitorportal:create-admin --force` für eine bestehende E-Mail genutzt wird, bestätigt der Operator zusätzlich, dass Passwort, Profildaten, Standortzuordnung und Admin-Rolle überschrieben werden.
 
 ## Einzelne Bootstrap-Commands
 
@@ -158,7 +159,7 @@ Logs und Backups brauchen eigene Aufbewahrungsfristen außerhalb der Anwendung. 
 
 ## Datenschutzinformation
 
-`PRIVACY_NOTICE_URL` ist vorbereitet, wird aber im rein internen Produktflow nicht automatisch angezeigt. Betreiber können Besucher außerhalb des Portals informieren, z. B. per Aushang, QR-Code, Website, Einladung oder Papierhinweis. Eine Vorlage liegt in `docs/data-protection-notice-template.md`.
+`PRIVACY_NOTICE_URL` ist vorbereitet, wird aber in internen Mitarbeitenden-Formularen nicht automatisch angezeigt. Wenn externe Besucher-Mails produktiv genutzt werden, enthalten diese den Link optional. Betreiber können Besucher zusätzlich außerhalb des Portals informieren, z. B. per Aushang, QR-Code, Website, Einladung oder Papierhinweis. Eine Vorlage liegt in `docs/data-protection-notice-template.md`.
 
 ## Updates
 

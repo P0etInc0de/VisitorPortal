@@ -1,10 +1,16 @@
+@php
+    $privacyNoticeUrl = config('privacy.notice_url');
+@endphp
+
 <x-mail.message_component :message="$message">
-# Introduction
+# {{ __('Erinnerung an Ihren Besuch') }}
 
-The body of your message.
+{{ __('dies ist eine Erinnerung an Ihren bevorstehenden Besuch.') }}
 
-<x-mail::button :url="''">
-Button Text
-</x-mail::button>
+{{ __('Bitte melden Sie sich bei Ihrer Ankunft am Empfang.') }}
+
+@if($privacyNoticeUrl)
+{{ __('Datenschutzhinweise') }}: {{ $privacyNoticeUrl }}
+@endif
 
 </x-mail.message_component>

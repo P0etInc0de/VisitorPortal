@@ -40,6 +40,12 @@ Innerhalb eines Controllers oder einer PHP-Klasse können wir einfach folgenden 
 
 Standardmäßig verwendet Laravel den Mailer, der in der Konfigurationsdatei als Standard (Default) hinterlegt ist (in unserem Fall **SMTP**). Eine weitere (und oft bessere) Option ist die Verwendung von **Laravel Notifications**.
 
+## Besucher-Mails
+
+- Externe Besucher-Mails müssen vor produktiver Nutzung fachlich geprüft werden.
+- Wenn `PRIVACY_NOTICE_URL` gesetzt ist, wird der Link in Besucher-Mail-Templates ausgegeben.
+- Interne Mitarbeitenden-Formulare zeigen `PRIVACY_NOTICE_URL` weiterhin nicht automatisch an.
+
 ### Queuing (siehe  docs/Queues.md)
 
 Um die E-Mail asynchron im Hintergrund zu versenden, nutzt man:

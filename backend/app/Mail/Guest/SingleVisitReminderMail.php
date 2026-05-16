@@ -27,7 +27,7 @@ class SingleVisitReminderMail extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Guest Single Visit Reminder',
+            subject: 'Erinnerung an Ihren Besuch',
         );
     }
 

@@ -17,7 +17,10 @@ class StoreVisitRequest extends FormRequest
 {
     protected function prepareForValidation(): void
     {
+        $routeVisit = $this->route('visit');
+
         $this->merge([
+            'site_id' => $this->input('site_id') ?: ($routeVisit instanceof Visit ? $routeVisit->site_id : $this->user()?->site_id),
             'is_confidential' => filter_var($this->input('is_confidential', false), FILTER_VALIDATE_BOOL),
         ]);
     }
@@ -31,6 +34,7 @@ class StoreVisitRequest extends FormRequest
     {
         return [
             'title' => ['required', 'string', 'max:255'],
+            'site_id' => ['required', 'integer', 'exists:sites,id'],
             'user_id' => ['required', 'integer', 'exists:users,id'],
             'responsible_user_id' => ['nullable', 'integer', 'different:user_id', 'exists:users,id'],
             'scheduled_from' => ['required', 'date', 'after_or_equal:1970-01-01'],
@@ -80,6 +84,7 @@ class StoreVisitRequest extends FormRequest
             'participants.*.email' => __('E-Mail der teilnehmenden Person'),
             'participants.*.phone' => __('Telefon der teilnehmenden Person'),
             'participants.*.company' => __('Firma der teilnehmenden Person'),
+            'site_id' => __('Standort'),
             'user_id' => __('Host'),
             'responsible_user_id' => __('Vertretung'),
             'recurrence_frequency' => __('Wiederholung'),
@@ -214,24 +219,25 @@ class StoreVisitRequest extends FormRequest
         }
 
         $hostId = (int) $this->input('user_id');
+        $siteId = $this->selectedSiteId();
+
+        $this->validateSiteSelection($validator, $user, $siteId);
+
+        $host = User::query()->with('sites:id')->find($hostId);
+
+        if ($host && ! $host->canAccessSite($siteId)) {
+            $validator->errors()->add('user_id', __('Der Host ist dem ausgewählten Standort nicht zugeordnet.'));
+        }
 
         if ($this->canSelectAnyHost($user)) {
+            $this->validateResponsibleUserSelection($validator, $user, $siteId);
+
             return;
         }
 
-        $this->validateResponsibleUserSelection($validator, $user);
+        $this->validateResponsibleUserSelection($validator, $user, $siteId);
 
         if ($this->canSelectSiteHost($user)) {
-            $assignedSiteIds = $user->assignedSiteIds();
-            $hostIsInSite = User::query()
-                ->whereKey($hostId)
-                ->whereIn('site_id', $assignedSiteIds->all())
-                ->exists();
-
-            if (! $hostIsInSite) {
-                $validator->errors()->add('user_id', __('Sie können nur Hosts aus Ihren Standorten auswählen.'));
-            }
-
             return;
         }
 
@@ -253,29 +259,24 @@ class StoreVisitRequest extends FormRequest
         }
     }
 
-    private function validateResponsibleUserSelection(Validator $validator, User $user): void
+    private function validateResponsibleUserSelection(Validator $validator, User $user, int $siteId): void
     {
         if (blank($this->input('responsible_user_id'))) {
             return;
         }
 
         $responsibleUserId = (int) $this->input('responsible_user_id');
+        $responsibleUser = User::query()->with('sites:id')->find($responsibleUserId);
+
+        if ($responsibleUser && ! $responsibleUser->canAccessSite($siteId)) {
+            $validator->errors()->add('responsible_user_id', __('Die Vertretung ist dem ausgewählten Standort nicht zugeordnet.'));
+        }
 
         if ($this->canSelectAnyHost($user)) {
             return;
         }
 
         if ($this->canSelectSiteHost($user)) {
-            $assignedSiteIds = $user->assignedSiteIds();
-            $responsibleUserIsInSite = User::query()
-                ->whereKey($responsibleUserId)
-                ->whereIn('site_id', $assignedSiteIds->all())
-                ->exists();
-
-            if (! $responsibleUserIsInSite) {
-                $validator->errors()->add('responsible_user_id', __('Sie können nur Vertretungen aus Ihren Standorten auswählen.'));
-            }
-
             return;
         }
 
@@ -293,6 +294,22 @@ class StoreVisitRequest extends FormRequest
         }
 
         $validator->errors()->add('responsible_user_id', __('Sie können keine freie Vertretung auswählen.'));
+    }
+
+    private function selectedSiteId(): int
+    {
+        return (int) $this->input('site_id');
+    }
+
+    private function validateSiteSelection(Validator $validator, User $user, int $siteId): void
+    {
+        if ($siteId <= 0 || $this->canSelectAnyHost($user)) {
+            return;
+        }
+
+        if (! $user->canAccessSite($siteId)) {
+            $validator->errors()->add('site_id', __('Sie können nur Standorte auswählen, denen Sie zugeordnet sind.'));
+        }
     }
 
     private function validateStatusSelection(Validator $validator): void

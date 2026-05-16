@@ -5,6 +5,7 @@ namespace Tests\Feature\Security;
 use App\Enums\VisitStatusEnum;
 use App\Livewire\Portal\CheckInOutBoard;
 use App\Models\Monitor;
+use App\Models\RecurringVisitSeries;
 use App\Models\Site;
 use App\Models\User;
 use App\Models\Visit;
@@ -90,10 +91,11 @@ class MultiSiteAccessTest extends TestCase
         $otherSite = Site::factory()->create();
         $actor = (new PermissionHelper)->getReceptionistUser();
         $assignedHost = User::factory()->create([
-            'site_id' => $assignedSite->id,
-            'first_name' => 'Assigned',
+            'site_id' => $primarySite->id,
+            'first_name' => 'Multi',
             'name' => 'Host',
         ]);
+        $assignedHost->sites()->syncWithoutDetaching([$assignedSite->id]);
         $otherHost = User::factory()->create([
             'site_id' => $otherSite->id,
             'first_name' => 'Foreign',
@@ -106,12 +108,13 @@ class MultiSiteAccessTest extends TestCase
         $this->actingAs($actor)
             ->get(route('portal.visits.create'))
             ->assertOk()
-            ->assertSee('Assigned Host')
+            ->assertSee('Multi Host')
             ->assertDontSee('Foreign Host');
 
         $this->actingAs($actor)
             ->post(route('portal.visits.store'), [
                 'title' => 'Allowed assigned site visit',
+                'site_id' => $assignedSite->id,
                 'user_id' => $assignedHost->id,
                 'scheduled_from' => now()->addDay()->format('Y-m-d H:i:s'),
                 'scheduled_until' => now()->addDay()->addHour()->format('Y-m-d H:i:s'),
@@ -134,6 +137,7 @@ class MultiSiteAccessTest extends TestCase
         $this->actingAs($actor)
             ->post(route('portal.visits.store'), [
                 'title' => 'Blocked foreign site visit',
+                'site_id' => $assignedSite->id,
                 'user_id' => $otherHost->id,
                 'scheduled_from' => now()->addDay()->format('Y-m-d H:i:s'),
                 'scheduled_until' => now()->addDay()->addHour()->format('Y-m-d H:i:s'),
@@ -200,6 +204,71 @@ class MultiSiteAccessTest extends TestCase
         } finally {
             Carbon::setTestNow();
         }
+    }
+
+    public function test_walk_in_uses_selected_site_for_multisite_host(): void
+    {
+        $primarySite = Site::factory()->create();
+        $assignedSite = Site::factory()->create();
+        $receptionist = (new PermissionHelper)->getReceptionistUser();
+        $host = User::factory()->create(['site_id' => $primarySite->id]);
+
+        $receptionist->forceFill(['site_id' => $primarySite->id])->save();
+        $receptionist->sites()->syncWithoutDetaching([$assignedSite->id]);
+        $host->sites()->syncWithoutDetaching([$assignedSite->id]);
+
+        Livewire::actingAs($receptionist)
+            ->test(CheckInOutBoard::class)
+            ->set('walkInSiteId', (string) $assignedSite->id)
+            ->set('walkInHostId', (string) $host->id)
+            ->set('walkIn.first_name', 'Walk')
+            ->set('walkIn.name', 'Assigned')
+            ->call('registerWalkIn')
+            ->assertHasNoErrors();
+
+        $this->assertDatabaseHas('visits', [
+            'site_id' => $assignedSite->id,
+            'user_id' => $host->id,
+            'is_walk_in' => true,
+        ]);
+    }
+
+    public function test_recurring_visit_series_uses_selected_site_for_multisite_host(): void
+    {
+        $primarySite = Site::factory()->create();
+        $assignedSite = Site::factory()->create();
+        $actor = (new PermissionHelper)->getReceptionistUser();
+        $host = User::factory()->create(['site_id' => $primarySite->id]);
+
+        $actor->forceFill(['site_id' => $assignedSite->id])->save();
+        $host->sites()->syncWithoutDetaching([$assignedSite->id]);
+
+        $this->actingAs($actor)
+            ->post(route('portal.visits.store'), [
+                'title' => 'Recurring assigned site visit',
+                'site_id' => $assignedSite->id,
+                'user_id' => $host->id,
+                'scheduled_from' => now()->addDay()->format('Y-m-d H:i:s'),
+                'scheduled_until' => now()->addDay()->addHour()->format('Y-m-d H:i:s'),
+                'status' => VisitStatusEnum::Planned->value,
+                'recurrence_enabled' => '1',
+                'recurrence_frequency' => RecurringVisitSeries::FREQUENCY_WEEKLY,
+                'recurrence_end_type' => RecurringVisitSeries::END_COUNT,
+                'recurrence_occurrence_count' => 2,
+                'participants' => [
+                    [
+                        'first_name' => 'Recurring',
+                        'name' => 'Visitor',
+                    ],
+                ],
+            ])
+            ->assertRedirect();
+
+        $series = RecurringVisitSeries::query()->where('title', 'Recurring assigned site visit')->sole();
+
+        $this->assertSame($assignedSite->id, $series->site_id);
+        $this->assertTrue($series->visits()->where('site_id', $assignedSite->id)->exists());
+        $this->assertFalse($series->visits()->where('site_id', $primarySite->id)->exists());
     }
 
     public function test_welcome_monitor_redirect_uses_assigned_site_monitor(): void

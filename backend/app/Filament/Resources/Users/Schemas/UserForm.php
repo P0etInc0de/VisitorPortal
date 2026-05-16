@@ -44,7 +44,7 @@ class UserForm
                     ->default(fn (callable $get): array => [(int) ($get('site_id') ?: Site::default()->id)])
                     ->preload()
                     ->searchable()
-                    ->helperText(__('Der primäre Standort wird automatisch zugeordnet.')),
+                    ->helperText(__('Der primäre Standort wird automatisch zugeordnet. Weitere zugeordnete Standorte bleiben beim Primärstandort-Wechsel erhalten.')),
                 Select::make('department_id')
                     ->label(__('Abteilung'))
                     ->options(fn (callable $get): array => Department::query()
@@ -82,7 +82,8 @@ class UserForm
                 TextInput::make('password')
                     ->label(__('Passwort'))
                     ->password()
-                    ->required(),
+                    ->required(fn (string $operation): bool => $operation === 'create')
+                    ->dehydrated(fn (?string $state): bool => filled($state)),
                 Toggle::make('is_active')
                     ->label(__('Aktiv'))
                     ->default(true),

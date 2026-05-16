@@ -454,11 +454,11 @@ class WelcomeMonitorTest extends TestCase
             $this->assertSame(Monitor::DISPLAY_COMPANY_ONLY, $slide->monitor_display_mode);
             $this->assertSame([
                 [
-                    'id' => $firstAcmeVisitor->id,
+                    'id' => null,
                     'name' => 'Acme GmbH',
                 ],
                 [
-                    'id' => $otherVisitor->id,
+                    'id' => null,
                     'name' => 'Other GmbH',
                 ],
             ], $slide->visitors);
@@ -754,7 +754,7 @@ class WelcomeMonitorTest extends TestCase
 
             $this->assertSame([
                 [
-                    'id' => $visibleVisitor->id,
+                    'id' => null,
                     'name' => 'Acme GmbH',
                 ],
             ], $slide->visitors);

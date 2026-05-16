@@ -333,6 +333,7 @@ class CheckInOutBoardTest extends TestCase
                 'email' => 'duplicate@example.com',
                 'phone' => '+493023125023',
                 'company' => 'Existing Company',
+                'created_by_user_id' => $user->id,
             ]);
 
             Livewire::actingAs($user)

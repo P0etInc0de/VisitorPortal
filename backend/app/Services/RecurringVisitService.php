@@ -3,7 +3,6 @@
 namespace App\Services;
 
 use App\Models\RecurringVisitSeries;
-use App\Models\Site;
 use App\Models\User;
 use App\Models\Visit;
 use App\Models\Visitor;
@@ -89,7 +88,7 @@ class RecurringVisitService
 
         return RecurringVisitSeries::query()->create([
             'title' => $payload['title'],
-            'site_id' => $this->siteIdForHost((int) $payload['user_id']),
+            'site_id' => $this->siteIdFromPayload($payload),
             'user_id' => (int) $payload['user_id'],
             'responsible_user_id' => (int) (($payload['responsible_user_id'] ?? null) ?: $payload['user_id']),
             'created_by_user_id' => $creator->id,
@@ -188,7 +187,7 @@ class RecurringVisitService
     {
         return Visit::query()->create([
             'title' => $payload['title'],
-            'site_id' => $this->siteIdForHost((int) $payload['user_id']),
+            'site_id' => $this->siteIdFromPayload($payload),
             'user_id' => (int) $payload['user_id'],
             'responsible_user_id' => (int) (($payload['responsible_user_id'] ?? null) ?: $payload['user_id']),
             'scheduled_from' => $payload['scheduled_from'],
@@ -203,7 +202,7 @@ class RecurringVisitService
     {
         $visit->update([
             'title' => $payload['title'],
-            'site_id' => $this->siteIdForHost((int) $payload['user_id']),
+            'site_id' => $this->siteIdFromPayload($payload),
             'user_id' => (int) $payload['user_id'],
             'responsible_user_id' => (int) (($payload['responsible_user_id'] ?? null) ?: $payload['user_id']),
             'scheduled_from' => $payload['scheduled_from'],
@@ -234,7 +233,7 @@ class RecurringVisitService
 
         $series->update([
             'title' => $payload['title'],
-            'site_id' => $this->siteIdForHost((int) $payload['user_id']),
+            'site_id' => $this->siteIdFromPayload($payload),
             'user_id' => (int) $payload['user_id'],
             'responsible_user_id' => (int) (($payload['responsible_user_id'] ?? null) ?: $payload['user_id']),
             'status' => $payload['status'],
@@ -301,9 +300,9 @@ class RecurringVisitService
         return filter_var($payload['recurrence_enabled'] ?? false, FILTER_VALIDATE_BOOL);
     }
 
-    private function siteIdForHost(int $hostId): int
+    private function siteIdFromPayload(array $payload): int
     {
-        return (int) (User::query()->whereKey($hostId)->value('site_id') ?: Site::default()->id);
+        return (int) $payload['site_id'];
     }
 
     private function generationTarget(RecurringVisitSeries $series): ?Carbon

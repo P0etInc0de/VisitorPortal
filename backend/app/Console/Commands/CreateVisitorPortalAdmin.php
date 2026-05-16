@@ -36,6 +36,12 @@ class CreateVisitorPortalAdmin extends Command
             return self::FAILURE;
         }
 
+        if ($existingUser && $this->option('force') && ! $this->confirm('This will update the existing user password, profile fields, site assignment and admin role. Continue?', false)) {
+            $this->warn('No changes were made.');
+
+            return self::FAILURE;
+        }
+
         $firstName = $this->promptRequiredString('first-name', 'First name');
         $lastName = $this->promptRequiredString('last-name', 'Last name');
         $password = $this->promptPassword();

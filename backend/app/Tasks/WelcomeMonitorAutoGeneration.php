@@ -93,7 +93,7 @@ class WelcomeMonitorAutoGeneration implements ShouldQueue
 
         return $items
             ->map(fn (array $visitor): array => [
-                'id' => $visitor['id'],
+                'id' => $displayMode === Monitor::DISPLAY_COMPANY_ONLY ? null : $visitor['id'],
                 'name' => $visitor['name'],
             ])
             ->values();
