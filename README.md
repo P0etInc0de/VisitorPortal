@@ -277,7 +277,7 @@ Further development, cleanup, and technical improvements continued after the ori
 - **Jonathan Läpple** – Project Lead and Developer
 - **Jannik Schabel** – Developer
 - **Jan Wangerin** – Developer
-- **Peter Claaß** – Developer
 - **Lena Berger** – Developer
+- **Peter Claaß** – Developer
 
 We would like to thank all contributors for their work on concept development, implementation, testing, documentation, and feedback.
