@@ -1,0 +1,42 @@
+name: Build Release ZIP
+
+on:
+  release:
+    types: [published]
+
+permissions:
+  contents: write
+
+jobs:
+  build-release-asset:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Replace release version placeholder
+        run: |
+          sed -i "s/RELEASE_VERSION_PLACEHOLDER/${{ github.event.release.tag_name }}/g" .env.demo
+
+      - name: Build ZIP file
+        run: |
+          zip -r "besucherportal-${{ github.event.release.tag_name }}.zip" . \
+            -x "*.git*" \
+            -x ".github/*" \
+            -x ".env" \
+            -x "backend/.env" \
+            -x "backend/vendor/*" \
+            -x "backend/node_modules/*" \
+            -x "backend/storage/app/*" \
+            -x "backend/storage/framework/cache/*" \
+            -x "backend/storage/framework/sessions/*" \
+            -x "backend/storage/framework/testing/*" \
+            -x "backend/storage/framework/views/*" \
+            -x "backend/storage/logs/*" \
+            -x "node_modules/*"
+
+      - name: Attach ZIP to GitHub release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: besucherportal-${{ github.event.release.tag_name }}.zip
