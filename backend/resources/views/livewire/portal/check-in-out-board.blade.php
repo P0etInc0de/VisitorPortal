@@ -223,16 +223,18 @@
                                             </button>
                                         @endif
 
-                                        <form method="POST" action="{{ $result['badge_url'] }}" target="check-in-out-badge-download-frame">
-                                            @csrf
-                                            <button
-                                                type="submit"
-                                                class="btn btn-outline btn-sm rounded-xl"
-                                                x-on:click="$wire.printBadge({{ $result['visit_id'] }}, {{ $result['visitor_id'] }})"
-                                            >
-                                                {{ __('Ausweis') }}
-                                            </button>
-                                        </form>
+                                        @if ($result['can_print_badge'])
+                                            <form method="POST" action="{{ $result['badge_url'] }}" target="check-in-out-badge-download-frame">
+                                                @csrf
+                                                <button
+                                                    type="submit"
+                                                    class="btn btn-outline btn-sm rounded-xl"
+                                                    x-on:click="$wire.printBadge({{ $result['visit_id'] }}, {{ $result['visitor_id'] }})"
+                                                >
+                                                    {{ __('Ausweis') }}
+                                                </button>
+                                            </form>
+                                        @endif
                                     </div>
                                 </div>
                             </article>

@@ -9,9 +9,11 @@ use App\Livewire\Reception\DashboardPage;
 use App\Models\User;
 use App\Models\Visit;
 use App\Models\Visitor;
+use App\Services\VisitActionService;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Carbon;
+use Illuminate\Validation\ValidationException;
 use Livewire\Livewire;
 use Tests\Support\PermissionHelper;
 use Tests\Support\VisitHelper;
@@ -287,7 +289,7 @@ class ReceptionAdministerVisitTest extends TestCase
             $visit = (new VisitHelper)->makeVisit(
                 $employee->id,
                 $visitTitle,
-                VisitStatusEnum::Completed,
+                VisitStatusEnum::Planned,
                 $responsibleUser->id,
                 $visitors
             );
@@ -309,6 +311,42 @@ class ReceptionAdministerVisitTest extends TestCase
             ]);
         } finally {
             Carbon::setTestNow();
+        }
+    }
+
+    public function test_operational_actions_are_blocked_for_non_planned_visits(): void
+    {
+        $receptionist = (new PermissionHelper)->getReceptionistUser();
+        $service = app(VisitActionService::class);
+
+        foreach ([VisitStatusEnum::Draft, VisitStatusEnum::Canceled, VisitStatusEnum::Completed] as $status) {
+            $visitor = Visitor::factory()->create();
+            $visit = Visit::factory()->create([
+                'status' => $status->value,
+            ]);
+            $visit->visitors()->attach($visitor->id, [
+                'checked_in_at' => now()->subMinutes(5),
+                'checked_in_by_user_id' => $receptionist->id,
+            ]);
+
+            foreach (['checkInParticipant', 'checkOutParticipant', 'printBadge'] as $method) {
+                try {
+                    if ($method === 'printBadge') {
+                        $service->{$method}($visit, $visitor);
+                    } else {
+                        $service->{$method}($visit, $visitor, $receptionist);
+                    }
+
+                    $this->fail("{$method} should be blocked for {$status->value} visits.");
+                } catch (ValidationException) {
+                    $this->assertDatabaseHas('visit_visitor', [
+                        'visit_id' => $visit->id,
+                        'visitor_id' => $visitor->id,
+                        'checked_out_at' => null,
+                        'badge_printed_at' => null,
+                    ]);
+                }
+            }
         }
     }
 

@@ -22,6 +22,11 @@ class WelcomeMonitorAutoGeneration implements ShouldQueue
         $monitors = $onlyMonitor ? collect([$onlyMonitor]) : Monitor::all();
 
         foreach ($monitors as $monitor) {
+            $monitor->loadMissing('site');
+
+            if (! $monitor->site?->is_active) {
+                continue;
+            }
 
             if (! $monitor->auto_generation) {
                 continue;

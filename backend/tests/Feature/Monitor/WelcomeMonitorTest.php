@@ -170,6 +170,15 @@ class WelcomeMonitorTest extends TestCase
             'show_date' => true,
             'visitors' => [],
         ]);
+        $visitor = Visitor::factory()->create([
+            'first_name' => 'Theo',
+            'name' => 'Pünktlich',
+        ]);
+        $visit = Visit::factory()->create([
+            'site_id' => $monitor->site_id,
+            'is_confidential' => false,
+        ]);
+        $visit->visitors()->attach($visitor->id);
 
         $response = $this
             ->actingAs($user)
@@ -183,7 +192,7 @@ class WelcomeMonitorTest extends TestCase
                 'background_source' => 'preset-2',
                 'monitor_display_mode' => Monitor::DISPLAY_TITLE_FULL_NAME,
                 'visitors' => json_encode([
-                    ['id' => 5, 'name' => 'Theo Pünktlich'],
+                    ['id' => $visitor->id, 'name' => 'Theo Pünktlich'],
                     ['id' => null, 'name' => 'Gast ohne Termin'],
                 ]),
             ]);
@@ -200,9 +209,89 @@ class WelcomeMonitorTest extends TestCase
         $this->assertSame('preset-2', $slide->background_source);
         $this->assertSame(Monitor::DISPLAY_TITLE_FULL_NAME, $slide->monitor_display_mode);
         $this->assertSame([
-            ['id' => 5, 'name' => 'Theo Pünktlich'],
+            ['id' => $visitor->id, 'name' => 'Theo Pünktlich'],
             ['id' => null, 'name' => 'Gast ohne Termin'],
         ], $slide->visitors);
+    }
+
+    public function test_monitor_slide_rejects_numeric_visitor_from_another_site(): void
+    {
+        $user = $this->monitorUser();
+        $site = Site::factory()->create();
+        $otherSite = Site::factory()->create();
+        $monitor = Monitor::query()->create([
+            'site_id' => $site->id,
+            'name' => 'Empfang',
+            'transition_time_milliseconds' => 5000,
+            'auto_generation' => false,
+        ]);
+        $user->forceFill(['site_id' => $site->id])->save();
+        $visitor = Visitor::factory()->create(['first_name' => 'Foreign', 'name' => 'Guest']);
+        $visit = Visit::factory()->create([
+            'site_id' => $otherSite->id,
+            'is_confidential' => false,
+        ]);
+        $visit->visitors()->attach($visitor->id);
+
+        $response = $this
+            ->actingAs($user)
+            ->from(route('monitors.slides.create', $monitor))
+            ->post(route('monitors.slides.store', $monitor), [
+                'heading' => 'Herzlich willkommen!',
+                'slide_number' => 1,
+                'is_active' => '1',
+                'show_logo' => '1',
+                'show_date' => '1',
+                'background_source' => 'inherit',
+                'monitor_display_mode' => Monitor::DISPLAY_TITLE_FULL_NAME,
+                'visitors' => json_encode([
+                    ['id' => $visitor->id, 'name' => 'Foreign Guest'],
+                ]),
+            ]);
+
+        $response
+            ->assertRedirect(route('monitors.slides.create', $monitor))
+            ->assertSessionHasErrors('visitors');
+
+        $this->assertSame(0, $monitor->monitorSlides()->count());
+    }
+
+    public function test_monitor_slide_rejects_numeric_visitor_from_confidential_visit(): void
+    {
+        $user = $this->monitorUser();
+        $monitor = Monitor::query()->create([
+            'name' => 'Empfang',
+            'transition_time_milliseconds' => 5000,
+            'auto_generation' => false,
+        ]);
+        $visitor = Visitor::factory()->create(['first_name' => 'Secret', 'name' => 'Guest']);
+        $visit = Visit::factory()->create([
+            'site_id' => $monitor->site_id,
+            'is_confidential' => true,
+        ]);
+        $visit->visitors()->attach($visitor->id);
+
+        $response = $this
+            ->actingAs($user)
+            ->from(route('monitors.slides.create', $monitor))
+            ->post(route('monitors.slides.store', $monitor), [
+                'heading' => 'Herzlich willkommen!',
+                'slide_number' => 1,
+                'is_active' => '1',
+                'show_logo' => '1',
+                'show_date' => '1',
+                'background_source' => 'inherit',
+                'monitor_display_mode' => Monitor::DISPLAY_TITLE_FULL_NAME,
+                'visitors' => json_encode([
+                    ['id' => $visitor->id, 'name' => 'Secret Guest'],
+                ]),
+            ]);
+
+        $response
+            ->assertRedirect(route('monitors.slides.create', $monitor))
+            ->assertSessionHasErrors('visitors');
+
+        $this->assertSame(0, $monitor->monitorSlides()->count());
     }
 
     public function test_monitor_slide_editor_pages_render_the_new_manual_name_and_visibility_controls(): void
@@ -772,6 +861,38 @@ class WelcomeMonitorTest extends TestCase
                     'name' => 'Acme GmbH',
                 ],
             ], $slide->visitors);
+        } finally {
+            Carbon::setTestNow();
+        }
+    }
+
+    public function test_auto_generation_skips_monitors_for_inactive_sites(): void
+    {
+        Carbon::setTestNow('2026-04-24 10:00:00');
+
+        try {
+            $inactiveSite = Site::factory()->create(['is_active' => false]);
+            $monitor = Monitor::query()->create([
+                'site_id' => $inactiveSite->id,
+                'name' => 'Inactive Site Monitor',
+                'transition_time_milliseconds' => 5000,
+                'auto_generation' => true,
+                'auto_generation_window_minutes' => 30,
+                'monitor_display_mode' => Monitor::DISPLAY_TITLE_FULL_NAME,
+            ]);
+            $visit = Visit::factory()->create([
+                'site_id' => $inactiveSite->id,
+                'scheduled_from' => now()->addMinutes(5),
+                'scheduled_until' => now()->addMinutes(65),
+                'status' => VisitStatusEnum::Planned->value,
+            ]);
+            $visitor = Visitor::factory()->create(['first_name' => 'Inactive', 'name' => 'Guest']);
+
+            $visit->visitors()->attach($visitor->id);
+
+            (new WelcomeMonitorAutoGeneration)($monitor);
+
+            $this->assertSame(0, $monitor->monitorSlides()->count());
         } finally {
             Carbon::setTestNow();
         }

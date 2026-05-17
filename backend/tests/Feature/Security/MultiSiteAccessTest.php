@@ -329,6 +329,48 @@ class MultiSiteAccessTest extends TestCase
         $this->assertFalse($series->visits()->where('site_id', $primarySite->id)->exists());
     }
 
+    public function test_visit_update_keeps_selected_site_when_host_primary_site_differs(): void
+    {
+        $primarySite = Site::factory()->create();
+        $assignedSite = Site::factory()->create();
+        $actor = (new PermissionHelper)->getReceptionistUser();
+        $originalHost = User::factory()->create(['site_id' => $assignedSite->id]);
+        $newHost = User::factory()->create(['site_id' => $primarySite->id]);
+        $visitor = Visitor::factory()->create();
+
+        $actor->forceFill(['site_id' => $primarySite->id])->save();
+        $actor->sites()->syncWithoutDetaching([$assignedSite->id]);
+        $newHost->sites()->syncWithoutDetaching([$assignedSite->id]);
+
+        $visit = Visit::factory()->create([
+            'title' => 'Assigned site update',
+            'site_id' => $assignedSite->id,
+            'user_id' => $originalHost->id,
+            'responsible_user_id' => $originalHost->id,
+            'status' => VisitStatusEnum::Planned->value,
+        ]);
+        $visit->visitors()->attach($visitor->id);
+
+        $this->actingAs($actor)
+            ->patch(route('portal.visits.update', $visit), [
+                'title' => 'Assigned site update changed',
+                'site_id' => $assignedSite->id,
+                'user_id' => $newHost->id,
+                'scheduled_from' => now()->addDay()->format('Y-m-d H:i:s'),
+                'scheduled_until' => now()->addDay()->addHour()->format('Y-m-d H:i:s'),
+                'status' => VisitStatusEnum::Planned->value,
+                'participants' => [
+                    ['visitor_id' => $visitor->id],
+                ],
+            ])
+            ->assertRedirect();
+
+        $visit->refresh();
+
+        $this->assertSame($assignedSite->id, $visit->site_id);
+        $this->assertSame($newHost->id, $visit->user_id);
+    }
+
     public function test_welcome_monitor_redirect_uses_assigned_site_monitor(): void
     {
         $primarySite = Site::factory()->create();
