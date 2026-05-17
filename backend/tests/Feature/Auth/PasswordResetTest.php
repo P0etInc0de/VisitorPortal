@@ -5,7 +5,9 @@ namespace Tests\Feature\Auth;
 use App\Models\User;
 use Illuminate\Auth\Notifications\ResetPassword;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Notification;
+use Illuminate\Support\Facades\Password;
 use Tests\TestCase;
 
 class PasswordResetTest extends TestCase
@@ -29,6 +31,18 @@ class PasswordResetTest extends TestCase
         $this->post('/forgot-password', ['email' => $user->email]);
 
         Notification::assertSentTo($user, ResetPassword::class);
+    }
+
+    public function test_reset_password_link_is_not_sent_when_local_login_is_disabled(): void
+    {
+        Notification::fake();
+
+        $user = User::factory()->create(['local_login_allowed' => false]);
+
+        $this->post('/forgot-password', ['email' => $user->email])
+            ->assertSessionHas('status', __(Password::RESET_LINK_SENT));
+
+        Notification::assertNotSentTo($user, ResetPassword::class);
     }
 
     public function test_reset_password_screen_can_be_rendered(): void
@@ -72,5 +86,24 @@ class PasswordResetTest extends TestCase
 
             return true;
         });
+    }
+
+    public function test_password_cannot_be_reset_when_local_login_is_disabled(): void
+    {
+        $user = User::factory()->create(['local_login_allowed' => false]);
+        $token = Password::broker()->createToken($user);
+
+        $this
+            ->from('/reset-password/'.$token)
+            ->post('/reset-password', [
+                'token' => $token,
+                'email' => $user->email,
+                'password' => 'new-password',
+                'password_confirmation' => 'new-password',
+            ])
+            ->assertSessionHasErrors('email')
+            ->assertRedirect('/reset-password/'.$token);
+
+        $this->assertTrue(Hash::check('password', $user->fresh()->password));
     }
 }

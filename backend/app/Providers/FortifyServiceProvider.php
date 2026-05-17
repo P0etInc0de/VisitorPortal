@@ -2,8 +2,10 @@
 
 namespace App\Providers;
 
+use App\Actions\Fortify\EnsureLocalLoginIsAllowed;
 use App\Actions\Fortify\EnsureUserIsActive;
 use App\Actions\Fortify\ResetUserPassword;
+use App\Http\Controllers\Auth\PasswordResetLinkController as LocalPasswordResetLinkController;
 use App\Http\Responses\LoginResponse;
 use App\Http\Responses\PasswordConfirmedResponse;
 use Illuminate\Http\Request;
@@ -18,6 +20,7 @@ use Laravel\Fortify\Contracts\RedirectsIfTwoFactorAuthenticatable;
 use Laravel\Fortify\Contracts\TwoFactorLoginResponse as TwoFactorLoginResponseContract;
 use Laravel\Fortify\Features;
 use Laravel\Fortify\Fortify;
+use Laravel\Fortify\Http\Controllers\PasswordResetLinkController as FortifyPasswordResetLinkController;
 
 class FortifyServiceProvider extends ServiceProvider
 {
@@ -26,6 +29,7 @@ class FortifyServiceProvider extends ServiceProvider
         $this->app->singleton(LoginResponseContract::class, LoginResponse::class);
         $this->app->singleton(TwoFactorLoginResponseContract::class, LoginResponse::class);
         $this->app->singleton(PasswordConfirmedResponseContract::class, PasswordConfirmedResponse::class);
+        $this->app->bind(FortifyPasswordResetLinkController::class, LocalPasswordResetLinkController::class);
     }
 
     public function boot(): void
@@ -42,6 +46,7 @@ class FortifyServiceProvider extends ServiceProvider
             config('fortify.limiters.login') ? null : EnsureLoginIsNotThrottled::class,
             config('fortify.lowercase_usernames') ? CanonicalizeUsername::class : null,
             EnsureUserIsActive::class,
+            EnsureLocalLoginIsAllowed::class,
             Features::enabled(Features::twoFactorAuthentication()) ? RedirectsIfTwoFactorAuthenticatable::class : null,
             AttemptToAuthenticate::class,
             PrepareAuthenticatedSession::class,

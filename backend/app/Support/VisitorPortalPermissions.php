@@ -24,6 +24,7 @@ class VisitorPortalPermissions
             'EditOwn:Visit',
             'DeleteOwn:Visit',
             'View:Role',
+            'LoginLocallyInSsoOnlyMode',
         ];
 
         $managerPermissions = self::unique(array_merge($userPermissions, [

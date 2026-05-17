@@ -54,7 +54,7 @@ MFA_ENABLED=true
 MFA_OPTIONAL_FOR_USERS=true
 MFA_REQUIRED_ROLES=admin,super_admin
 MFA_REQUIRED_FOR_ADMIN_PANEL=true
-MFA_ENFORCED_AUTH_METHODS=local,sso
+MFA_ENFORCED_AUTH_METHODS=local
 ```
 
 Wenn ein Benutzer keinen Zugriff mehr auf seine Authenticator-App hat, kann ein Betreiber mit Shell-Zugriff MFA zuruecksetzen:

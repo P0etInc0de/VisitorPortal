@@ -24,7 +24,7 @@ MFA_ENABLED=true
 MFA_OPTIONAL_FOR_USERS=true
 MFA_REQUIRED_ROLES=admin,super_admin
 MFA_REQUIRED_FOR_ADMIN_PANEL=true
-MFA_ENFORCED_AUTH_METHODS=local,sso
+MFA_ENFORCED_AUTH_METHODS=local
 ```
 
 Privileged users must configure and confirm MFA before they can continue using the portal. This applies to the whole privileged account, not only to the Filament admin panel.
@@ -74,16 +74,19 @@ Admin accounts should:
 
 This is recommended but not technically enforced, so small organizations and demo setups can stay simple.
 
-## SSO Preparation
+## Single Sign-On
 
-Fortify does not block future SSO. SSO should later be added as another login entry point that resolves or creates the same local `users` records.
+Fortify remains the local authentication backend. SSO is added as a separate optional OpenID Connect login entry point that resolves or creates the same local `users` records.
 
-Prepared architecture:
+Implemented architecture:
 
-- `AuthRedirector` centralizes post-login redirects for local login and future SSO login.
+- `AuthRedirector` centralizes post-login redirects for local login and SSO login.
 - `UserSessionPreferences` centralizes locale and theme session setup.
-- `user_identities` stores external identities by provider, tenant and provider user ID.
-- `config/sso.php` is present but disabled by default.
-- The session key `auth.method` can distinguish `local` and future `sso` logins for MFA policy decisions.
+- `user_identities` stores external identities by `provider + issuer + subject`.
+- `config/sso.php` is disabled by default and contains generic OIDC configuration.
+- The session key `auth.method` distinguishes `local` and `sso` logins for MFA policy decisions.
+- The Facile OIDC library is only used inside the internal adapter.
 
-Do not rely on email alone as an SSO identifier. Future providers such as Entra ID should map `provider + tenant_id + provider_user_id` to a local user, then local roles, sites and permissions decide portal access.
+Do not rely on e-mail alone as an SSO identifier. OIDC providers map `provider + issuer + subject` to a local user, then local roles, sites and permissions decide portal access.
+
+Auto-provisioned SSO users have local password login disabled by default. Password reset and local login both respect `local_login_allowed`.

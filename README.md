@@ -23,6 +23,7 @@ The application processes potentially personal data such as visitor names, compa
 - Welcome monitor for scheduled visitors
 - Role-based access control with custom permissions
 - Optional MFA for users and required MFA for privileged admin roles
+- Optional generic OpenID Connect SSO for enterprise identity providers
 - Admin panel for users, departments, roles, permissions, visitors, visits, monitors, and monitor slides
 - Host notifications by email and in-app notifications
 - Queue and scheduler support for background tasks
@@ -181,6 +182,12 @@ The GitHub Actions workflow runs PHP setup, Pint, migrations, and tests against 
 
 VisitorPortal has a central branding configuration in `backend/config/branding.php`.
 
+### Single Sign-On
+
+VisitorPortal can be configured for generic OpenID Connect SSO. The implementation is provider-independent and is intended for enterprise identity providers such as Microsoft Entra ID, Keycloak, Authentik, Okta and other OIDC-compatible systems.
+
+SSO is disabled by default. Local authentication remains available unless `AUTH_MODE=sso_only` is configured. In `sso_only`, local login is reserved for break-glass accounts with the `LoginLocallyInSsoOnlyMode` permission.
+
 Common environment variables:
 
 - `BRANDING_NAME`
@@ -238,6 +245,7 @@ For production-like deployments, explicitly review these demo defaults:
 - [UI Notes](docs/UI.md)
 - [Architecture Decisions](docs/decisions.md)
 - [Security Hardening](docs/security-hardening.md)
+- [Single Sign-On](docs/sso.md)
 
 ## Roadmap
 

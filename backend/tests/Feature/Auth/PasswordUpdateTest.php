@@ -50,4 +50,24 @@ class PasswordUpdateTest extends TestCase
             ->assertSessionHasErrorsIn('updatePassword', 'current_password')
             ->assertRedirect('/profile');
     }
+
+    public function test_password_cannot_be_updated_when_local_login_is_disabled(): void
+    {
+        $user = User::factory()->create(['local_login_allowed' => false]);
+
+        $response = $this
+            ->actingAs($user)
+            ->from('/profile')
+            ->put('/password', [
+                'current_password' => 'password',
+                'password' => 'new-password',
+                'password_confirmation' => 'new-password',
+            ]);
+
+        $response
+            ->assertSessionHasErrorsIn('updatePassword', 'current_password')
+            ->assertRedirect('/profile');
+
+        $this->assertTrue(Hash::check('password', $user->refresh()->password));
+    }
 }

@@ -8,6 +8,7 @@ RUN a2enmod rewrite headers \
         ca-certificates \
         curl \
         git \
+        libgmp-dev \
         libicu-dev \
         libonig-dev \
         libxml2-dev \
@@ -15,6 +16,7 @@ RUN a2enmod rewrite headers \
         unzip \
     && docker-php-ext-install -j"$(nproc)" \
         dom \
+        gmp \
         intl \
         mbstring \
         opcache \

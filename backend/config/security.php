@@ -13,6 +13,6 @@ return [
         'optional_for_users' => env('MFA_OPTIONAL_FOR_USERS', true),
         'required_roles' => $csv(env('MFA_REQUIRED_ROLES'), 'admin,super_admin'),
         'required_for_admin_panel' => env('MFA_REQUIRED_FOR_ADMIN_PANEL', true),
-        'enforced_auth_methods' => $csv(env('MFA_ENFORCED_AUTH_METHODS'), 'local,sso'),
+        'enforced_auth_methods' => $csv(env('MFA_ENFORCED_AUTH_METHODS'), 'local'),
     ],
 ];
