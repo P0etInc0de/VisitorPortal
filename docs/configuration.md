@@ -6,6 +6,7 @@ Konfiguration erfolgt über `backend/.env`. Diese Datei wird nicht versioniert u
 Vorlagen:
 - `backend/.env.example` für lokale Entwicklung.
 - `backend/.env.production.example` als sichere Orientierung für produktive Deployments.
+- Fuer Docker-Produktion wird diese Vorlage als `.env` im Projektroot neben `docker-compose.prod.yml` verwendet; fuer LAMP-Deployments als `backend/.env`.
 
 ## Wichtige Variablen (Docker / lokal)
 - APP_URL

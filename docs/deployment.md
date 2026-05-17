@@ -13,7 +13,7 @@ Diese Anleitung beschreibt den produktionssicheren Bootstrap ohne Demo-Daten. De
 
 ## Production Bootstrap
 
-1. `.env` aus `backend/.env.production.example` ableiten und echte Secrets setzen.
+1. `.env` aus `backend/.env.production.example` ableiten und echte Secrets setzen. Fuer Docker-Deployments liegt diese `.env` im Projektroot neben `docker-compose.prod.yml`; fuer LAMP-Deployments liegt sie als `backend/.env` im Laravel-Verzeichnis.
 2. `APP_KEY` erzeugen und sicher speichern.
 3. Migrationen ausführen.
 4. Rollen und Permissions synchronisieren.
@@ -66,6 +66,7 @@ php artisan view:cache
 ## Docker Produktion
 
 - `docker-compose.prod.yml` ist für produktive Container gedacht.
+- `VISITORPORTAL_IMAGE` muss auf einen festen Image-Tag zeigen, z. B. `ghcr.io/p0etinc0de/besucherportal:v1.2.0`.
 - DB und Gotenberg werden nicht nach außen veröffentlicht.
 - Mailhog ist nicht enthalten; SMTP muss über `MAIL_*` konfiguriert werden.
 - `APP_KEY` ist Pflicht und hat keinen Default-Wert.

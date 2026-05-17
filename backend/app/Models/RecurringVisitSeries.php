@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use LogicException;
 
 class RecurringVisitSeries extends Model
 {
@@ -152,7 +153,7 @@ class RecurringVisitSeries extends Model
     {
         static::creating(function (self $series): void {
             if (blank($series->site_id)) {
-                $series->site_id = Site::default()->id;
+                throw new LogicException('Recurring visit series site_id must be set explicitly.');
             }
         });
     }

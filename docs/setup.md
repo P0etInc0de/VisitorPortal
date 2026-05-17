@@ -106,13 +106,13 @@ sh update.sh
 
 Das Demo-Setup liest `.env.demo`.
 
-Fuer Release-Zips sollte dort ein fester Image-Tag stehen, zum Beispiel:
+Im Source-Repository steht dort `RELEASE_VERSION_PLACEHOLDER`. Der Release-ZIP-Workflow ersetzt diesen Platzhalter beim Veroeffentlichen automatisch durch den Release-Tag, zum Beispiel:
 
 ```env
 VISITORPORTAL_VERSION=v1.0.2
 ```
 
-So bleiben Demos reproduzierbar und werden nicht versehentlich durch ein neues `latest`-Image veraendert.
+So bleiben Demos reproduzierbar und werden nicht versehentlich durch ein neues `latest`-Image veraendert. Wenn ein ZIP manuell erstellt wird, muss der Platzhalter vor dem Verpacken ersetzt werden.
 
 ## Auto-Setup steuern
 

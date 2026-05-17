@@ -29,9 +29,13 @@ Die Anwendung verarbeitet potenziell personenbezogene Daten wie Namen, Unternehm
 - White-Label-Branding per Umgebungsvariablen
 - Docker-basiertes Demo-Setup mit fertigem App-Image
 
-## Screenshots
+## Organisations- Und Standortmodell
 
-Vor einer öffentlichen, marketingartigen Veröffentlichung sollten aktuelle Screenshots aus einer Demo-Umgebung ergänzt werden.
+VisitorPortal ist fuer eine Organisation pro Instanz gedacht. Mehrere Standorte innerhalb dieser Organisation werden unterstuetzt. Fuer rechtlich getrennte Organisationen sollten getrennte Instanzen betrieben werden, solange keine vollstaendige Multi-Tenancy explizit implementiert und auditiert wurde.
+
+Standorte bilden physische Orte wie Empfaenge, Werke, Bueros oder Gebaeude ab. Besuche, Monitore, Empfangsansichten und Host-/Vertretungsauswahl werden nach Standort begrenzt, damit ein Empfang nicht automatisch operative Daten anderer Standorte sieht.
+
+Besucher-Stammdaten sind organisationsweite Kontakte. Die Standortisolation gilt fuer Besuche, Monitore, operative Sichtbarkeit und Host-/Vertretungszuordnungen, nicht fuer den Besucher-Kontaktdatensatz selbst.
 
 ## Tech Stack
 
@@ -99,7 +103,7 @@ sh update.sh
 
 Windows-Nutzer können jeweils die passenden `.bat`-Skripte verwenden.
 
-Für Release-ZIPs sollte `.env.demo` einen festen Image-Tag pinnen:
+Im Source-Repository enthaelt `.env.demo` den Platzhalter `RELEASE_VERSION_PLACEHOLDER`. Offizielle Release-ZIPs ersetzen diesen Platzhalter durch den veroeffentlichten Release-Tag, damit Demos reproduzierbar bleiben:
 
 ```env
 VISITORPORTAL_VERSION=v1.0.2

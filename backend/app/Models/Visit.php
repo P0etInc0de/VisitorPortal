@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Support\Collection;
+use LogicException;
 
 class Visit extends Model
 {
@@ -106,7 +107,7 @@ class Visit extends Model
     {
         static::creating(function (self $visit): void {
             if (blank($visit->site_id)) {
-                $visit->site_id = Site::default()->id;
+                throw new LogicException('Visit site_id must be set explicitly.');
             }
         });
     }

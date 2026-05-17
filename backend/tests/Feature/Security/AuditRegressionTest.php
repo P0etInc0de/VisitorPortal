@@ -13,8 +13,10 @@ use App\Models\User;
 use App\Models\Visit;
 use App\Models\Visitor;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Route;
 use Illuminate\Validation\ValidationException;
 use Livewire\Livewire;
+use LogicException;
 use Tests\Support\PermissionHelper;
 use Tests\TestCase;
 
@@ -78,6 +80,63 @@ class AuditRegressionTest extends TestCase
             'site_id' => $site->id,
             'department_id' => $otherSiteDepartment->id,
         ]);
+    }
+
+    public function test_visit_requires_explicit_site_id_on_create(): void
+    {
+        $host = (new PermissionHelper)->getUserUser();
+
+        $this->expectException(LogicException::class);
+        $this->expectExceptionMessage('Visit site_id must be set explicitly.');
+
+        Visit::query()->create([
+            'title' => 'Missing Site Visit',
+            'user_id' => $host->id,
+            'responsible_user_id' => $host->id,
+            'scheduled_from' => now()->addDay(),
+            'scheduled_until' => now()->addDay()->addHour(),
+            'status' => VisitStatusEnum::Planned->value,
+        ]);
+    }
+
+    public function test_recurring_visit_series_requires_explicit_site_id_on_create(): void
+    {
+        $host = (new PermissionHelper)->getUserUser();
+
+        $this->expectException(LogicException::class);
+        $this->expectExceptionMessage('Recurring visit series site_id must be set explicitly.');
+
+        RecurringVisitSeries::query()->create([
+            'title' => 'Missing Site Series',
+            'user_id' => $host->id,
+            'responsible_user_id' => $host->id,
+            'created_by_user_id' => $host->id,
+            'status' => VisitStatusEnum::Planned->value,
+            'starts_at' => now()->addDay(),
+            'duration_minutes' => 60,
+            'frequency' => RecurringVisitSeries::FREQUENCY_WEEKLY,
+            'ends' => RecurringVisitSeries::END_COUNT,
+            'occurrence_count' => 1,
+        ]);
+    }
+
+    public function test_unused_monitor_resource_routes_are_not_registered(): void
+    {
+        $this->assertFalse(Route::has('monitors.index'));
+        $this->assertFalse(Route::has('monitors.create'));
+        $this->assertFalse(Route::has('monitors.store'));
+        $this->assertFalse(Route::has('monitors.destroy'));
+        $this->assertFalse(Route::has('monitors.slides.index'));
+        $this->assertFalse(Route::has('monitors.slides.show'));
+
+        $this->assertTrue(Route::has('monitors.show'));
+        $this->assertTrue(Route::has('monitors.edit'));
+        $this->assertTrue(Route::has('monitors.update'));
+        $this->assertTrue(Route::has('monitors.slides.create'));
+        $this->assertTrue(Route::has('monitors.slides.store'));
+        $this->assertTrue(Route::has('monitors.slides.edit'));
+        $this->assertTrue(Route::has('monitors.slides.update'));
+        $this->assertTrue(Route::has('monitors.slides.destroy'));
     }
 
     public function test_user_cannot_patch_foreign_visit(): void
@@ -424,6 +483,7 @@ class AuditRegressionTest extends TestCase
         $visitor = Visitor::factory()->create(['created_by_user_id' => $host->id]);
         $series = RecurringVisitSeries::query()->create([
             'title' => 'Expired recurring visit',
+            'site_id' => $host->site_id,
             'user_id' => $host->id,
             'responsible_user_id' => $host->id,
             'created_by_user_id' => $host->id,
@@ -454,6 +514,7 @@ class AuditRegressionTest extends TestCase
         $host = (new PermissionHelper)->getUserUser();
         $series = RecurringVisitSeries::query()->create([
             'title' => 'Active recurring visit',
+            'site_id' => $host->site_id,
             'user_id' => $host->id,
             'responsible_user_id' => $host->id,
             'created_by_user_id' => $host->id,
