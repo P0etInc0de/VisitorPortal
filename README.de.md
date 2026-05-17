@@ -260,8 +260,6 @@ VisitorPortal ist unter der GNU General Public License v3.0 oder später lizenzi
 
 ## Autoren Und Credits
 
-## Autoren und Credits
-
 Dieses Projekt entstand ursprünglich im Rahmen eines studentischen Hochschulprojekts. Nach Abschluss der ursprünglichen Projektarbeit wurden die Weiterentwicklung, Bereinigung und technische Verbesserung des Projekts fortgeführt.
 
 ### Projektteam
