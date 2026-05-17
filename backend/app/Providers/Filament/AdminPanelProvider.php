@@ -4,6 +4,7 @@ namespace App\Providers\Filament;
 
 use App\Filament\Pages\Dashboard;
 use App\Http\Middleware\ApplyUserPreferences;
+use App\Http\Middleware\EnsureAdminPanelMfa;
 use BezhanSalleh\FilamentShield\FilamentShieldPlugin;
 use Filament\Enums\GlobalSearchPosition;
 use Filament\Http\Middleware\Authenticate;
@@ -74,6 +75,7 @@ class AdminPanelProvider extends PanelProvider
             ])
             ->authMiddleware([
                 Authenticate::class,
+                EnsureAdminPanelMfa::class,
             ])
             ->renderHook(
                 PanelsRenderHook::HEAD_START,

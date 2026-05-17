@@ -22,6 +22,7 @@ The application processes potentially personal data such as visitor names, compa
 - Check-in/out overview for reception desks
 - Welcome monitor for scheduled visitors
 - Role-based access control with custom permissions
+- Optional MFA for users and required MFA for privileged admin roles
 - Admin panel for users, departments, roles, permissions, visitors, visits, monitors, and monitor slides
 - Host notifications by email and in-app notifications
 - Queue and scheduler support for background tasks
@@ -236,6 +237,7 @@ For production-like deployments, explicitly review these demo defaults:
 - [Welcome Monitor](docs/welcome_monitor.md)
 - [UI Notes](docs/UI.md)
 - [Architecture Decisions](docs/decisions.md)
+- [Security Hardening](docs/security-hardening.md)
 
 ## Roadmap
 

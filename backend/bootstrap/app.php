@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Middleware\ApplyUserPreferences;
+use App\Http\Middleware\EnsureRequiredMfaIsConfigured;
 use App\Http\Middleware\SecurityHeaders;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
@@ -20,6 +21,7 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->web(append: [
             ApplyUserPreferences::class,
             SecurityHeaders::class,
+            EnsureRequiredMfaIsConfigured::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

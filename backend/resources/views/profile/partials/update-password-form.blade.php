@@ -5,7 +5,7 @@
         </h2>
     </header>
 
-    <form method="post" action="{{ route('password.update') }}" class="mt-5 grid gap-5">
+    <form method="post" action="{{ route('profile.password.update') }}" class="mt-5 grid gap-5">
         @csrf
         @method('put')
 

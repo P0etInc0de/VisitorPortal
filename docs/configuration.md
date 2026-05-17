@@ -12,6 +12,11 @@ Vorlagen:
 - APP_URL
 - DB_CONNECTION, DB_HOST, DB_PORT, DB_DATABASE, DB_USERNAME, DB_PASSWORD
 - MAIL_MAILER, MAIL_HOST, MAIL_PORT, MAIL_FROM_ADDRESS, MAIL_FROM_NAME
+- MFA_ENABLED (`true`/`false`)
+- MFA_OPTIONAL_FOR_USERS (`true`/`false`)
+- MFA_REQUIRED_ROLES (Default: `admin,super_admin`)
+- MFA_REQUIRED_FOR_ADMIN_PANEL (`true`/`false`)
+- MFA_ENFORCED_AUTH_METHODS (Default: `local,sso`)
 - VISITOR_CONTACT_REQUIREMENT (`optional`, `require_one`, `require_email`, `require_phone`)
 - PRIVACY_VISIT_RETENTION_DAYS (Default: `365`)
 - PRIVACY_PURGE_ENABLED (`true`/`false`)
@@ -39,6 +44,14 @@ Docker-Hinweis:
 - Der Retention-Lauf unterstützt `--dry-run` für auditierbare Probeläufe ohne Datenänderung.
 - Weitere Betreiberpflichten und eine Vorlage für Besucherinformationen stehen in `PRIVACY.md`.
 - `PRIVACY_NOTICE_URL` wird aktuell nicht automatisch in internen Mitarbeitenden-Formularen angezeigt. Wenn externe Besucher-Mails genutzt werden, enthalten diese den Link optional. Betreiber können Besucher zusätzlich außerhalb des Portals informieren, z. B. per Aushang, QR-Code, Website oder Einladung.
+
+## Authentifizierung und MFA
+
+- Lokale Authentifizierung laeuft ueber Laravel Fortify.
+- MFA ist fuer normale Nutzer optional und fuer Rollen aus `MFA_REQUIRED_ROLES` verpflichtend.
+- Das Filament-Adminpanel prueft zusaetzlich bestaetigte MFA, wenn `MFA_REQUIRED_FOR_ADMIN_PANEL=true` gesetzt ist.
+- E-Mail-Verifikation ist in diesem Schritt bewusst nicht erzwungen. `MustVerifyEmail` ist nicht am User-Model aktiv.
+- SSO ist noch deaktiviert, aber ueber `config/sso.php` und die Tabelle `user_identities` vorbereitet.
 
 ## Organisation und Standorte
 - Eine Installation ist für genau eine Organisation/Firma gedacht.
