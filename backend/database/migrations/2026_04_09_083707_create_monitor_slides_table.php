@@ -22,7 +22,7 @@ return new class extends Migration
             $table->string('subheading')->nullable();
             $table->boolean('is_active')->default(true);
             $table->boolean('is_auto_generated')->default(false);
-            $table->string('monitor_display_mode')->default('company_only');
+            $table->string('monitor_display_mode')->default('title_first_initial_last_name');
             $table->boolean('show_logo')->default(false);
             $table->boolean('show_date')->default(false);
             $table->boolean('show_time')->default(false);

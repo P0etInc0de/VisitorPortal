@@ -33,9 +33,12 @@ return [
 
     'monitor_slide_heading' => env('BRANDING_MONITOR_SLIDE_HEADING', 'Welcome!'),
 
-    // Disabled by default for privacy: automatic monitor slides can reveal visitor presence.
+    // Automatic monitor generation is disabled by default. This is the main privacy-by-default safeguard.
     'monitor_auto_generation' => (bool) env('BRANDING_MONITOR_AUTO_GENERATION', false),
 
-    'monitor_display_mode' => env('BRANDING_MONITOR_DISPLAY_MODE', 'company_only'),
+    // The default display mode intentionally uses title + first initial + last name instead of company-only.
+    // Company names are not inherently less sensitive: a company name can reveal a lawyer, insolvency advisor,
+    // auditor, medical provider, union representative, security contractor, or other sensitive visit context.
+    'monitor_display_mode' => env('BRANDING_MONITOR_DISPLAY_MODE', 'title_first_initial_last_name'),
 
 ];

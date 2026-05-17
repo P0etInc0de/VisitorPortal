@@ -132,6 +132,12 @@ final class FacileOidcAuthenticator implements OidcAuthenticator
                 throw new SsoAuthenticationException("OIDC {$key} is not configured.");
             }
         }
+
+        $tokenEndpointAuthMethod = (string) config('sso.oidc.token_endpoint_auth_method', 'client_secret_basic');
+
+        if ($tokenEndpointAuthMethod !== 'none' && blank(config('sso.oidc.client_secret'))) {
+            throw new SsoAuthenticationException('OIDC client_secret is required for the configured token endpoint authentication method.');
+        }
     }
 
     private function client(): ClientInterface

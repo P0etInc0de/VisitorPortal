@@ -71,6 +71,8 @@ OIDC_GROUPS_CLAIM=groups
 OIDC_LOGOUT_MODE=local
 ```
 
+`OIDC_TOKEN_ENDPOINT_AUTH_METHOD` defaults to `client_secret_basic`. With that default, `OIDC_CLIENT_SECRET` is required. Public clients without a secret must explicitly set `OIDC_TOKEN_ENDPOINT_AUTH_METHOD=none` and should only be used when the identity provider and deployment model support that safely.
+
 Provisioning modes:
 
 `disabled` only allows already linked external identities.

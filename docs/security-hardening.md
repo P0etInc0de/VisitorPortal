@@ -90,3 +90,9 @@ Implemented architecture:
 Do not rely on e-mail alone as an SSO identifier. OIDC providers map `provider + issuer + subject` to a local user, then local roles, sites and permissions decide portal access.
 
 Auto-provisioned SSO users have local password login disabled by default. Password reset and local login both respect `local_login_allowed`.
+
+## Content Security Policy
+
+The default CSP is Livewire/Alpine compatible and therefore allows `unsafe-inline` and `unsafe-eval` for scripts/styles. This is a conscious compatibility trade-off, not a strict CSP profile.
+
+In `APP_ENV=local`, the CSP also allows the Vite dev server at `http://localhost:5173` and `ws://localhost:5173` so local hot reload works. Production does not include these development origins.

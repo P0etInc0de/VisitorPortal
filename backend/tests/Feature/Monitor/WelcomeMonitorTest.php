@@ -69,15 +69,15 @@ class WelcomeMonitorTest extends TestCase
             ->assertForbidden();
     }
 
-    public function test_monitor_defaults_to_fallback_only_with_configured_display_mode(): void
+    public function test_monitor_defaults_to_fallback_only_with_title_first_initial_last_name_mode(): void
     {
         $monitor = Monitor::query()->create([
-            'name' => 'Empfang',
+            'name' => 'Reception',
             'transition_time_milliseconds' => 5000,
         ]);
 
         $this->assertFalse($monitor->auto_generation);
-        $this->assertSame(Monitor::DISPLAY_COMPANY_ONLY, $monitor->monitor_display_mode);
+        $this->assertSame(Monitor::DISPLAY_TITLE_FIRST_INITIAL_LAST_NAME, $monitor->monitor_display_mode);
     }
 
     public function test_fallback_page_can_be_updated_from_its_dedicated_edit_flow(): void

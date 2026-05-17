@@ -381,6 +381,18 @@ class AuditRegressionTest extends TestCase
         $this->assertStringContainsString("frame-ancestors 'self'", $csp);
     }
 
+    public function test_local_security_headers_allow_vite_dev_server(): void
+    {
+        $this->app->detectEnvironment(fn (): string => 'local');
+
+        $response = $this->get(route('login'))->assertOk();
+        $csp = (string) $response->headers->get('Content-Security-Policy');
+
+        $this->assertStringContainsString("script-src 'self' 'unsafe-inline' 'unsafe-eval' http://localhost:5173", $csp);
+        $this->assertStringContainsString("style-src 'self' 'unsafe-inline' http://localhost:5173", $csp);
+        $this->assertStringContainsString("connect-src 'self' http://localhost:5173 ws://localhost:5173", $csp);
+    }
+
     public function test_regular_user_cannot_call_reception_check_in_route(): void
     {
         $user = (new PermissionHelper)->getUserUser();

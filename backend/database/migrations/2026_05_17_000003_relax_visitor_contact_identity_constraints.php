@@ -35,6 +35,7 @@ return new class extends Migration
 
     public function down(): void
     {
+        // Phone numbers intentionally remain non-unique on rollback because shared office numbers are valid visitor contact data.
         if (Schema::hasIndex('visitors', ['email']) && ! Schema::hasIndex('visitors', ['email'], 'unique')) {
             Schema::table('visitors', function (Blueprint $table): void {
                 $table->dropIndex(['email']);
