@@ -211,6 +211,40 @@ class CheckInOutBoardTest extends TestCase
         }
     }
 
+    public function test_check_in_out_board_hides_contact_details_without_permission(): void
+    {
+        $user = (new PermissionHelper)->getIndividualUser([
+            'ViewSite:Visit',
+            'ViewSite:Visitor',
+        ], 'site viewer');
+
+        $visitor = Visitor::factory()->create([
+            'first_name' => 'Contact',
+            'name' => 'Hidden',
+            'email' => 'contact.hidden@example.test',
+            'phone' => '+49 111 222333',
+        ]);
+        $visit = Visit::factory()->create([
+            'title' => 'Contact Detail Visit',
+            'site_id' => $user->site_id,
+            'user_id' => $user->id,
+            'responsible_user_id' => $user->id,
+            'status' => VisitStatusEnum::Planned->value,
+            'scheduled_from' => now()->addHour(),
+            'scheduled_until' => now()->addHours(2),
+        ]);
+        $visit->visitors()->attach($visitor->id);
+
+        Livewire::actingAs($user)
+            ->test(CheckInOutBoard::class)
+            ->assertSee('Contact Hidden')
+            ->assertDontSee('contact.hidden@example.test')
+            ->assertDontSee('+49 111 222333')
+            ->set('search', 'contact.hidden@example.test')
+            ->assertDontSee('Contact Hidden')
+            ->assertDontSee('Contact Detail Visit');
+    }
+
     public function test_portal_check_in_updates_pivot_and_renders_db_state(): void
     {
         Carbon::setTestNow(Carbon::create(2026, 4, 26, 17, 0, 0, config('app.timezone')));
@@ -388,31 +422,40 @@ class CheckInOutBoardTest extends TestCase
         $this->assertFalse(Visit::query()->where('is_walk_in', true)->sole()->is_confidential);
     }
 
-    public function test_walk_in_rejects_conflicting_existing_email_and_phone_matches(): void
+    public function test_walk_in_does_not_reuse_existing_visitor_by_phone(): void
     {
         $user = (new PermissionHelper)->getReceptionistUser();
         $host = User::factory()->create();
-        Visitor::factory()->create([
-            'email' => 'email-owner@example.com',
-            'phone' => '111111',
-        ]);
-        Visitor::factory()->create([
-            'email' => 'phone-owner@example.com',
+        $existingVisitor = Visitor::factory()->create([
+            'first_name' => 'Phone',
+            'name' => 'Owner',
             'phone' => '222222',
+            'created_by_user_id' => $user->id,
         ]);
 
         Livewire::actingAs($user)
             ->test(CheckInOutBoard::class)
             ->set('walkInHostId', (string) $host->id)
-            ->set('walkIn.first_name', 'Conflict')
+            ->set('walkIn.first_name', 'Shared')
             ->set('walkIn.name', 'Person')
-            ->set('walkIn.email', 'email-owner@example.com')
             ->set('walkIn.phone', '222222')
             ->call('registerWalkIn')
-            ->assertHasErrors(['walkIn.email']);
+            ->assertHasNoErrors();
 
-        $this->assertDatabaseMissing('visits', [
-            'title' => 'Walk-in: Conflict Person',
+        $this->assertDatabaseHas('visitors', [
+            'id' => $existingVisitor->id,
+            'first_name' => 'Phone',
+            'name' => 'Owner',
+            'phone' => '222222',
         ]);
+        $this->assertDatabaseHas('visitors', [
+            'first_name' => 'Shared',
+            'name' => 'Person',
+            'phone' => '222222',
+        ]);
+        $this->assertDatabaseHas('visits', [
+            'title' => 'Walk-in: Shared Person',
+        ]);
+        $this->assertSame(2, Visitor::query()->where('phone', '222222')->count());
     }
 }

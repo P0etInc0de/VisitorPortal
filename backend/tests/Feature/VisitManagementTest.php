@@ -141,6 +141,46 @@ class VisitManagementTest extends TestCase
         $this->assertDatabaseCount('visit_visitor', 2);
     }
 
+    public function test_visit_creation_allows_distinct_visitors_with_same_phone(): void
+    {
+        $user = (new PermissionHelper)->getUser();
+        Visitor::factory()->create([
+            'first_name' => 'Existing',
+            'name' => 'SharedPhone',
+            'phone' => '+493023125099',
+        ]);
+
+        $response = $this
+            ->actingAs($user)
+            ->post(route('portal.visits.store'), [
+                'title' => 'Shared phone visit',
+                'user_id' => $user->id,
+                'scheduled_from' => now()->addDay()->setTime(9, 0)->format('Y-m-d H:i:s'),
+                'scheduled_until' => now()->addDay()->setTime(10, 0)->format('Y-m-d H:i:s'),
+                'status' => 'planned',
+                'participants' => [
+                    [
+                        'first_name' => 'New',
+                        'name' => 'SharedPhone',
+                        'phone' => '+493023125099',
+                    ],
+                ],
+            ]);
+
+        $visit = Visit::query()->where('title', 'Shared phone visit')->firstOrFail();
+
+        $response
+            ->assertSessionHasNoErrors()
+            ->assertRedirect(route('portal.visits.show', $visit));
+
+        $this->assertSame(2, Visitor::query()->where('phone', '+493023125099')->count());
+        $this->assertDatabaseHas('visitors', [
+            'first_name' => 'New',
+            'name' => 'SharedPhone',
+            'phone' => '+493023125099',
+        ]);
+    }
+
     public function test_recurring_visit_can_be_created_with_total_occurrence_count(): void
     {
         $user = (new PermissionHelper)->getUser();

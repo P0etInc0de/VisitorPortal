@@ -11,6 +11,15 @@ class SecurityHeaders
     public function handle(Request $request, Closure $next): Response
     {
         $response = $next($request);
+        $scriptSrc = "'self' 'unsafe-inline' 'unsafe-eval'";
+        $styleSrc = "'self' 'unsafe-inline'";
+        $connectSrc = "'self'";
+
+        if (app()->environment('local')) {
+            $scriptSrc .= ' http://localhost:5173';
+            $styleSrc .= ' http://localhost:5173';
+            $connectSrc .= ' http://localhost:5173 ws://localhost:5173';
+        }
 
         $response->headers->set('X-Content-Type-Options', 'nosniff');
         $response->headers->set('Referrer-Policy', 'strict-origin-when-cross-origin');
@@ -23,9 +32,9 @@ class SecurityHeaders
             "form-action 'self'",
             "img-src 'self' data: blob:",
             "font-src 'self' data:",
-            "script-src 'self' 'unsafe-inline' 'unsafe-eval'",
-            "style-src 'self' 'unsafe-inline'",
-            "connect-src 'self'",
+            "script-src {$scriptSrc}",
+            "style-src {$styleSrc}",
+            "connect-src {$connectSrc}",
         ]));
 
         if ($request->isSecure()) {

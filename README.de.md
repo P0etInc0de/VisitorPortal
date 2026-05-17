@@ -23,6 +23,7 @@ Die Anwendung verarbeitet potenziell personenbezogene Daten wie Namen, Unternehm
 - Willkommensmonitor für geplante Besucher
 - Rollenbasierte Rechteverwaltung mit eigenen Berechtigungen
 - Optionale MFA fuer Nutzer und verpflichtende MFA fuer privilegierte Admin-Rollen
+- Optionales generisches OpenID-Connect-SSO fuer Enterprise-Identity-Provider
 - Adminbereich für Benutzer, Abteilungen, Rollen, Rechte, Besucher, Besuche, Monitore und Monitorseiten
 - Benachrichtigungen für Gastgeber per E-Mail und in der Anwendung
 - Queue- und Scheduler-Unterstützung für Hintergrundaufgaben
@@ -179,6 +180,12 @@ Der GitHub-Actions-Workflow richtet PHP ein, führt Pint aus, migriert die Daten
 
 VisitorPortal nutzt eine zentrale Branding-Konfiguration in `backend/config/branding.php`.
 
+### Single Sign-On
+
+VisitorPortal kann fuer generisches OpenID-Connect-SSO konfiguriert werden. Die Implementierung ist providerunabhaengig und fuer Enterprise-Identity-Provider wie Microsoft Entra ID, Keycloak, Authentik, Okta und andere OIDC-kompatible Systeme gedacht.
+
+SSO ist standardmaessig deaktiviert. Lokale Authentifizierung bleibt verfuegbar, ausser `AUTH_MODE=sso_only` wird gesetzt. In `sso_only` ist lokaler Login nur fuer Break-glass-Konten mit der Permission `LoginLocallyInSsoOnlyMode` erlaubt.
+
 Wichtige Umgebungsvariablen:
 
 - `BRANDING_NAME`
@@ -236,6 +243,7 @@ Für produktionsnahe Deployments müssen insbesondere diese Demo-Defaults geprü
 - [UI Notes](docs/UI.md)
 - [Architecture Decisions](docs/decisions.md)
 - [Security Hardening](docs/security-hardening.md)
+- [Single Sign-On](docs/sso.md)
 
 ## Roadmap
 

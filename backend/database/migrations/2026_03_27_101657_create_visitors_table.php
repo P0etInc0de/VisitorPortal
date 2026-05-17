@@ -17,7 +17,7 @@ return new class extends Migration
             $table->string('first_name');
             $table->string('salutation')->default('not_specified');
             $table->string('title')->nullable();
-            $table->string('email')->nullable()->unique();
+            $table->string('email')->nullable()->index();
             $table->string('phone', 50)->nullable()->index();
             $table->string('company')->nullable();
             $table->text('notes')->nullable();

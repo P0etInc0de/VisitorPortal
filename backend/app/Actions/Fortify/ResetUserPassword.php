@@ -6,6 +6,7 @@ use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
+use Illuminate\Validation\ValidationException;
 use Laravel\Fortify\Contracts\ResetsUserPasswords;
 
 class ResetUserPassword implements ResetsUserPasswords
@@ -14,6 +15,12 @@ class ResetUserPassword implements ResetsUserPasswords
 
     public function reset(User $user, array $input): void
     {
+        if ($user->local_login_allowed === false) {
+            throw ValidationException::withMessages([
+                'email' => __('Password reset is disabled for this account. Please use SSO.'),
+            ]);
+        }
+
         Validator::make($input, [
             'password' => $this->passwordRules(),
         ])->validate();

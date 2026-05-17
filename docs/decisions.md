@@ -198,3 +198,31 @@ Kurze Architekturentscheidungen und Begründungen für das Projekt **VisitorPort
   - require_email
   - require_phone
   ```
+
+---
+
+## ADR-008 Generic OpenID Connect SSO
+
+- **Datum:** 2026-05-17
+- **Status:** Accepted
+- **Entscheidung:**
+  - VisitorPortal implementiert optionales Single Sign-On ueber generisches OpenID Connect.
+  - Die initiale OIDC-Client-Library ist `facile-it/php-openid-client`.
+  - Die Library wird ausschliesslich hinter einem internen Adapter verwendet.
+  - Externe Identitaeten werden ueber `provider + issuer + subject` gespeichert.
+  - E-Mail-Adressen werden nicht als primaerer externer Identitaetsschluessel genutzt.
+- **Begründung:**
+  - OpenID Connect ist fuer Enterprise-SSO passender als provider-spezifische Social-Login-Integrationen.
+  - VisitorPortal soll mit OIDC-kompatiblen Providern wie Microsoft Entra ID, Keycloak, Authentik, Okta, Auth0, Google Workspace oder GitLab OIDC nutzbar sein.
+  - Der interne Adapter reduziert Vendor Lock-in, da `facile-it/php-openid-client` unter Version 1.0 liegt und spaeter austauschbar bleiben muss.
+- **Sicherheitsregeln:**
+  - Authorization Code Flow mit `state`, `nonce` und PKCE S256.
+  - Issuer, Audience, ID-Token-Signatur und Lifetime Claims werden validiert.
+  - Tokens werden nicht dauerhaft gespeichert und nicht geloggt.
+  - Auto-Provisioning und Rollen-Sync sind standardmaessig deaktiviert.
+  - Adminrechte duerfen nicht aus E-Mail-Domains abgeleitet werden.
+  - Auto-provisionierte SSO-Nutzer duerfen lokale Passwortwege nicht als IdP-Bypass nutzen.
+- **Konsequenzen:**
+  - Providerunabhaengige SSO-Architektur.
+  - Hoeherer Implementierungs- und Testaufwand als bei Socialite.
+  - Provider-spezifische Besonderheiten wie Entra-Gruppen-Overage werden dokumentiert, aber nicht automatisch ueber Provider-APIs aufgeloest.

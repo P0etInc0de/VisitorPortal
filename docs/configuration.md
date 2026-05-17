@@ -17,7 +17,12 @@ Vorlagen:
 - MFA_OPTIONAL_FOR_USERS (`true`/`false`; wenn `false`, koennen nicht verpflichtete Nutzer MFA nicht selbst aktivieren)
 - MFA_REQUIRED_ROLES (Default: `admin,super_admin`)
 - MFA_REQUIRED_FOR_ADMIN_PANEL (`true`/`false`)
-- MFA_ENFORCED_AUTH_METHODS (Default: `local,sso`)
+- MFA_ENFORCED_AUTH_METHODS (Default: `local`)
+- AUTH_MODE (`local`, `local_and_sso`, `sso_only`)
+- SSO_ENABLED (`true`/`false`)
+- OIDC_ISSUER_URL, OIDC_CLIENT_ID, OIDC_CLIENT_SECRET
+- OIDC_PROVISIONING_MODE (`disabled`, `invited_only`, `auto`)
+- OIDC_SYNC_ROLES (`true`/`false`)
 - VISITOR_CONTACT_REQUIREMENT (`optional`, `require_one`, `require_email`, `require_phone`)
 - PRIVACY_VISIT_RETENTION_DAYS (Default: `365`)
 - PRIVACY_PURGE_ENABLED (`true`/`false`)
@@ -54,7 +59,11 @@ Docker-Hinweis:
 - Recovery Codes und der QR-Code einer unbestaetigten MFA-Einrichtung werden nur nach erneuter Passwortbestaetigung angezeigt.
 - `MFA_ENABLED=false` deaktiviert die Rollen-Erzwingung, bestehende bestaetigte MFA wird beim Login aber weiterhin abgefragt.
 - E-Mail-Verifikation ist in diesem Schritt bewusst nicht erzwungen. `MustVerifyEmail` ist nicht am User-Model aktiv.
-- SSO ist noch deaktiviert, aber ueber `config/sso.php` und die Tabelle `user_identities` vorbereitet.
+- Optionales SSO laeuft ueber generisches OpenID Connect. Es ist standardmaessig deaktiviert und wird ueber `config/sso.php` sowie die Tabelle `user_identities` gesteuert.
+- Externe SSO-Identitaeten werden ueber `provider + issuer + subject` verknuepft, nicht ueber E-Mail als dauerhaften Primaerschluessel.
+- Auto-Provisioning und Rollen-Sync sind standardmaessig deaktiviert.
+- Auto-provisionierte SSO-Nutzer erhalten `local_login_allowed=false`, damit lokale Passwortwege den IdP nicht umgehen.
+- Details stehen in `docs/sso.md`.
 
 ## Organisation und Standorte
 - Eine Installation ist für genau eine Organisation/Firma gedacht.

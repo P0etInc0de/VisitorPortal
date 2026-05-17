@@ -2,6 +2,8 @@
 
 namespace App\Providers;
 
+use App\Auth\Sso\Contracts\OidcAuthenticator;
+use App\Auth\Sso\Facile\FacileOidcAuthenticator;
 use App\Support\SafeLogContext;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
@@ -18,7 +20,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        //
+        $this->app->bind(OidcAuthenticator::class, FacileOidcAuthenticator::class);
     }
 
     /**

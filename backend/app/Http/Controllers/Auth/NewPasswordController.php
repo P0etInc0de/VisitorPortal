@@ -43,6 +43,12 @@ class NewPasswordController extends Controller
         $status = Password::reset(
             $request->only('email', 'password', 'password_confirmation', 'token'),
             function (User $user) use ($request) {
+                if ($user->local_login_allowed === false) {
+                    throw ValidationException::withMessages([
+                        'email' => __('Password reset is disabled for this account. Please use SSO.'),
+                    ]);
+                }
+
                 $user->forceFill([
                     'password' => Hash::make($request->password),
                     'remember_token' => Str::random(60),

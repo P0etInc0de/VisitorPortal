@@ -203,7 +203,7 @@ class AuditRegressionTest extends TestCase
             ->assertSessionHasErrors('participants.0.visitor_id');
     }
 
-    public function test_regular_user_cannot_reuse_hidden_visitor_by_contact_details(): void
+    public function test_regular_user_does_not_reuse_or_disclose_hidden_visitor_by_contact_details(): void
     {
         $user = (new PermissionHelper)->getUserUser();
         $visitor = Visitor::factory()->create([
@@ -225,16 +225,25 @@ class AuditRegressionTest extends TestCase
                         'first_name' => 'Attempted',
                         'name' => 'Overwrite',
                         'email' => 'hidden.contact@example.com',
+                        'phone' => '+49 444 555666',
                     ],
                 ],
             ])
-            ->assertSessionHasErrors('participants');
+            ->assertSessionHasNoErrors();
 
         $this->assertDatabaseHas('visitors', [
             'id' => $visitor->id,
             'first_name' => 'Hidden',
             'name' => 'Visitor',
         ]);
+        $this->assertDatabaseHas('visitors', [
+            'first_name' => 'Attempted',
+            'name' => 'Overwrite',
+            'email' => 'hidden.contact@example.com',
+            'phone' => '+49 444 555666',
+        ]);
+        $this->assertSame(2, Visitor::query()->where('email', 'hidden.contact@example.com')->count());
+        $this->assertSame(2, Visitor::query()->where('phone', '+49 444 555666')->count());
     }
 
     public function test_regular_user_cannot_create_visit_for_another_host_or_completed_status(): void
@@ -370,6 +379,18 @@ class AuditRegressionTest extends TestCase
         $this->assertStringContainsString("script-src 'self' 'unsafe-inline' 'unsafe-eval'", $csp);
         $this->assertStringContainsString("object-src 'none'", $csp);
         $this->assertStringContainsString("frame-ancestors 'self'", $csp);
+    }
+
+    public function test_local_security_headers_allow_vite_dev_server(): void
+    {
+        $this->app->detectEnvironment(fn (): string => 'local');
+
+        $response = $this->get(route('login'))->assertOk();
+        $csp = (string) $response->headers->get('Content-Security-Policy');
+
+        $this->assertStringContainsString("script-src 'self' 'unsafe-inline' 'unsafe-eval' http://localhost:5173", $csp);
+        $this->assertStringContainsString("style-src 'self' 'unsafe-inline' http://localhost:5173", $csp);
+        $this->assertStringContainsString("connect-src 'self' http://localhost:5173 ws://localhost:5173", $csp);
     }
 
     public function test_regular_user_cannot_call_reception_check_in_route(): void

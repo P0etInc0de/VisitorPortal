@@ -15,13 +15,20 @@ class UserIdentity extends Model
         'provider',
         'provider_user_id',
         'tenant_id',
+        'issuer',
+        'subject',
         'email_at_provider',
+        'email_verified',
+        'display_name',
+        'claims',
         'last_login_at',
     ];
 
     protected function casts(): array
     {
         return [
+            'email_verified' => 'boolean',
+            'claims' => 'array',
             'last_login_at' => 'datetime',
         ];
     }

@@ -33,8 +33,7 @@ class VisitorForm
                     ->email()
                     ->maxLength(255)
                     ->required(VisitorContactRequirement::requiresEmail())
-                    ->rules(VisitorContactRequirement::requiresOne() ? ['required_without:phone'] : [])
-                    ->unique(ignoreRecord: true),
+                    ->rules(VisitorContactRequirement::requiresOne() ? ['required_without:phone'] : []),
                 TextInput::make('phone')
                     ->label(__('Telefon'))
                     ->tel()

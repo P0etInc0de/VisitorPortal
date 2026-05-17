@@ -4,6 +4,8 @@
     $logoDarkPath = config('branding.logo_dark');
     $hasLogoLight = is_string($logoLightPath) && $logoLightPath !== '' && file_exists(public_path($logoLightPath));
     $hasLogoDark = is_string($logoDarkPath) && $logoDarkPath !== '' && file_exists(public_path($logoDarkPath));
+    $ssoAvailable = config('sso.enabled') && in_array(config('sso.auth_mode'), ['local_and_sso', 'sso_only'], true);
+    $ssoOnly = config('sso.auth_mode') === 'sso_only';
 @endphp
 
 <x-guest-layout>
@@ -38,7 +40,25 @@
 
                 <x-auth-session-status class="mb-4" :status="session('status')" />
 
-                <form method="POST" action="{{ route('login') }}" class="space-y-5">
+                @if ($ssoAvailable)
+                    <a href="{{ route('auth.oidc.redirect') }}" class="btn btn-primary h-12 w-full rounded-xl">
+                        {{ __('Sign in with :name', ['name' => config('sso.oidc.display_name')]) }}
+                    </a>
+                @endif
+
+                @if ($ssoAvailable && ! $ssoOnly)
+                    <div class="divider my-6">{{ __('oder') }}</div>
+                @endif
+
+                @if ($ssoOnly)
+                    <details class="mt-5 rounded-2xl border border-base-300 bg-base-200/40 p-4">
+                        <summary class="cursor-pointer text-sm font-medium text-base-content/70">
+                            {{ __('Emergency local admin login') }}
+                        </summary>
+                        <div class="mt-5">
+                @endif
+
+                <form method="POST" action="{{ route('login') }}" class="{{ $ssoAvailable ? 'space-y-5' : 'space-y-5' }}">
                     @csrf
 
                     <div>
@@ -90,6 +110,11 @@
                         </button>
                     </div>
                 </form>
+
+                @if ($ssoOnly)
+                        </div>
+                    </details>
+                @endif
             </div>
         </div>
     </div>

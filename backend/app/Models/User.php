@@ -43,6 +43,7 @@ class User extends Authenticatable implements FilamentUser
         'department_id',
         'gender',
         'is_active',
+        'local_login_allowed',
         'deactivated_at',
     ];
 
@@ -191,9 +192,20 @@ class User extends Authenticatable implements FilamentUser
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
             'is_active' => 'boolean',
+            'local_login_allowed' => 'boolean',
             'deactivated_at' => 'datetime',
             'two_factor_confirmed_at' => 'datetime',
         ];
+    }
+
+    public function canLoginLocally(): bool
+    {
+        if ($this->local_login_allowed === false) {
+            return false;
+        }
+
+        return config('sso.auth_mode') !== 'sso_only'
+            || $this->can('LoginLocallyInSsoOnlyMode');
     }
 
     public function hasConfirmedTwoFactorAuthentication(): bool

@@ -14,7 +14,7 @@ class WelcomeMonitorAutoGeneration implements ShouldQueue
 {
     /**
      * If a Monitor has `auto_generation` enabled it will generate slides for the visits automatically
-     * Shall run every 5 min
+     * Shall run every minute
      *
      * */
     public function __invoke(?Monitor $onlyMonitor = null): void

@@ -10,7 +10,6 @@ use Illuminate\Support\Arr;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Validation\ValidationException;
 
 class RecurringVisitService
 {
@@ -462,17 +461,7 @@ class RecurringVisitService
         $existingByEmail = filled($row['email'])
             ? Visitor::query()->visibleTo($actor)->where('email', $row['email'])->first()
             : null;
-        $existingByPhone = filled($row['phone'])
-            ? $this->singleVisiblePhoneMatch($row['phone'], $actor)
-            : null;
-
-        if ($existingByEmail && $existingByPhone && ! $existingByEmail->is($existingByPhone)) {
-            throw ValidationException::withMessages([
-                'participants' => __('E-Mail und Telefonnummer gehören zu unterschiedlichen Besuchern.'),
-            ]);
-        }
-
-        $existingVisitor = $existingByEmail ?: $existingByPhone;
+        $existingVisitor = $existingByEmail;
 
         if ($existingVisitor) {
             if (! $this->canUpdateExistingVisitor($actor, $existingVisitor)) {
@@ -491,8 +480,6 @@ class RecurringVisitService
             return $existingVisitor;
         }
 
-        $this->rejectHiddenContactMatch($row, $actor);
-
         return Visitor::query()->create([
             'title' => $row['title'],
             'first_name' => $row['first_name'],
@@ -508,35 +495,6 @@ class RecurringVisitService
     private function canUpdateExistingVisitor(User $actor, Visitor $visitor): bool
     {
         return $actor->can('update', $visitor) || $actor->can('EditAny:Visitor');
-    }
-
-    private function rejectHiddenContactMatch(array $row, User $actor): void
-    {
-        if (blank($row['email'])) {
-            return;
-        }
-
-        $hiddenMatch = Visitor::query()
-            ->where('email', $row['email'])
-            ->whereNotIn('id', Visitor::query()->visibleTo($actor)->select('id'))
-            ->exists();
-
-        if ($hiddenMatch) {
-            throw ValidationException::withMessages([
-                'participants' => __('Diese Kontaktdaten können für Ihren Besuch nicht verwendet werden. Bitte wenden Sie sich an den Empfang.'),
-            ]);
-        }
-    }
-
-    private function singleVisiblePhoneMatch(string $phone, User $actor): ?Visitor
-    {
-        $matches = Visitor::query()
-            ->visibleTo($actor)
-            ->where('phone', $phone)
-            ->limit(2)
-            ->get();
-
-        return $matches->count() === 1 ? $matches->first() : null;
     }
 
     private function normalizeText(mixed $value): ?string
