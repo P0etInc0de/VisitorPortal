@@ -94,8 +94,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::view('monitors/missing', 'monitor.missing')->name('monitors.missing');
     Route::get('monitors/{monitor}/fallback/edit', [MonitorController::class, 'editFallbackPage'])->name('monitors.fallback.edit');
     Route::put('monitors/{monitor}/fallback', [MonitorController::class, 'updateFallbackPage'])->name('monitors.fallback.update');
-    Route::resource('monitors', MonitorController::class);
+    Route::resource('monitors', MonitorController::class)
+        ->only(['show', 'edit', 'update']);
     Route::resource('monitors.slides', MonitorSlidesController::class)
+        ->only(['create', 'store', 'edit', 'update', 'destroy'])
         ->middleware(CheckMonitorAutoGeneration::class);
 
     Route::get('/user-permissions', UserPermissionsPage::class)->name('user-permissions');

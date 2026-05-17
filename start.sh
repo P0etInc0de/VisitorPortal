@@ -41,8 +41,8 @@ cat <<'EOF'
 | App:      http://localhost:8080                            |
 | Mailhog:  http://localhost:8025                            |
 |                                                            |
-| Login:    admin@demo.local                                 |
-| Password: Passwort123!                                     |
+| Login:    admin@example.org                                |
+| Password: ChangeMe-42!                                     |
 +------------------------------------------------------------+
 
 EOF

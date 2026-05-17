@@ -8,31 +8,12 @@ use App\Http\Requests\Monitor\UpdateMonitorRequest;
 use App\Models\Monitor;
 use App\Models\MonitorSlide;
 use App\Tasks\WelcomeMonitorAutoGeneration;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\ValidationException;
 
 class MonitorController extends Controller
 {
-    /**
-     * Display a listing of monitors.
-     * Not needed yet
-     */
-    public function index() {}
-
-    /**
-     * Show the form for creating a new resource.
-     * Not needed yet
-     */
-    public function create() {}
-
-    /**
-     * Store a newly created resource in storage.
-     * Not needed yet
-     */
-    public function store(Request $request) {}
-
     /**
      * Display the specified resource.
      * (Show the Welcome Monitor)
@@ -173,14 +154,5 @@ class MonitorController extends Controller
 
         return redirect(route('monitors.edit', $monitor).'#monitor-pages')
             ->with('success', __('Allgemeine Begrüßungsseite gespeichert'));
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     * not needed yet
-     */
-    public function destroy(string $id)
-    {
-        //
     }
 }

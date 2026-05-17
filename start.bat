@@ -34,8 +34,8 @@ echo ^|                                                            ^|
 echo ^| App:      http://localhost:8080                            ^|
 echo ^| Mailhog:  http://localhost:8025                            ^|
 echo ^|                                                            ^|
-echo ^| Login:    admin@demo.local                                 ^|
-echo ^| Password: Passwort123!                                     ^|
+echo ^| Login:    admin@example.org                                ^|
+echo ^| Password: ChangeMe-42!                                     ^|
 echo +------------------------------------------------------------+
 echo.
 

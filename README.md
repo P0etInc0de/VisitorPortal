@@ -37,10 +37,7 @@ For legally separate organizations, run separate instances unless full multi-ten
 
 Sites represent physical locations such as receptions, plants, offices, or buildings. Visits, monitors, reception views, and host/responsible user selections are scoped by site so one reception desk does not automatically see operational data from another location.
 
-## Screenshots
-
-Screenshots should be added from a current non-production demo environment before a public marketing-style release.
-
+Visitor master records are organization-wide contacts. Site isolation applies to visits, monitors, operational visibility, and host/responsible assignments, not to the visitor contact record itself.
 
 ## Tech Stack
 
@@ -108,7 +105,7 @@ sh update.sh
 
 Windows users can use the matching `.bat` scripts.
 
-For release ZIPs, `.env.demo` should pin a fixed image tag:
+In the source repository, `.env.demo` contains `RELEASE_VERSION_PLACEHOLDER`. Official release ZIPs replace that placeholder with the published release tag so demos are reproducible:
 
 ```env
 VISITORPORTAL_VERSION=v1.0.2
