@@ -105,6 +105,33 @@ class MfaTest extends TestCase
             ->assertOk();
     }
 
+    public function test_unconfirmed_mfa_qr_code_requires_password_confirmation(): void
+    {
+        $user = (new PermissionHelper)->getUser();
+
+        app(EnableTwoFactorAuthentication::class)($user);
+        $user->refresh();
+
+        $this
+            ->actingAs($user)
+            ->get(route('profile.security'))
+            ->assertOk()
+            ->assertSee(__('MFA-Einrichtung fortsetzen'))
+            ->assertDontSee(__('Authenticator-App verbinden'));
+
+        $this
+            ->actingAs($user)
+            ->get(route('profile.security.two-factor-setup'))
+            ->assertRedirect(route('password.confirm', absolute: false));
+
+        $this
+            ->actingAs($user)
+            ->withSession(['auth.password_confirmed_at' => time()])
+            ->get(route('profile.security.two-factor-setup'))
+            ->assertOk()
+            ->assertSee(__('Authenticator-App verbinden'));
+    }
+
     public function test_admin_with_confirmed_mfa_gets_two_factor_challenge_and_can_login_with_totp(): void
     {
         $admin = (new PermissionHelper)->getSuperAdminUser();
@@ -268,6 +295,21 @@ class MfaTest extends TestCase
             'email' => $admin->email,
             'password' => 'password',
         ])->assertRedirect(route('overview', absolute: false));
+    }
+
+    public function test_existing_confirmed_mfa_still_challenges_when_enforcement_is_disabled(): void
+    {
+        config(['security.mfa.enabled' => false]);
+
+        $user = (new PermissionHelper)->getUser();
+        $this->confirmMfa($user);
+
+        $this->post('/login', [
+            'email' => $user->email,
+            'password' => 'password',
+        ])->assertRedirect(route('two-factor.login'));
+
+        $this->assertGuest();
     }
 
     private function confirmMfa(User $user): void

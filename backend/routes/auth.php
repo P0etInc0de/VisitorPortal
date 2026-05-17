@@ -20,6 +20,10 @@ Route::middleware('auth')->group(function () {
         ->middleware('password.confirm')
         ->name('profile.security.recovery-codes');
 
+    Route::get('profile/security/two-factor-setup', [ProfileController::class, 'twoFactorSetup'])
+        ->middleware('password.confirm')
+        ->name('profile.security.two-factor-setup');
+
     Route::patch('profile', [ProfileController::class, 'update'])
         ->name('profile.update');
 

@@ -49,6 +49,24 @@ class ProfileController extends Controller
         ]);
     }
 
+    public function twoFactorSetup(Request $request): RedirectResponse|View
+    {
+        $this->authorize('view', $request->user());
+
+        if (blank($request->user()->two_factor_secret)) {
+            return Redirect::route('profile.security')
+                ->with('warning', __('Bitte starte die MFA-Einrichtung zuerst.'));
+        }
+
+        if ($request->user()->hasConfirmedTwoFactorAuthentication()) {
+            return Redirect::route('profile.security');
+        }
+
+        return view('profile.two-factor-setup', [
+            'user' => $request->user(),
+        ]);
+    }
+
     /**
      * Update the user's profile information.
      */

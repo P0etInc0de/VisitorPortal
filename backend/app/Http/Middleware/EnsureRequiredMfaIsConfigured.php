@@ -52,6 +52,7 @@ class EnsureRequiredMfaIsConfigured
         return $request->routeIs(
             'logout',
             'profile.security',
+            'profile.security.*',
             'password.confirm',
             'password.confirm.*',
             'password.confirmation',

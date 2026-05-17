@@ -94,35 +94,19 @@
 
         @if ($hasTwoFactorSecret && ! $hasConfirmedTwoFactor)
             <section class="rounded-3xl border border-base-300 bg-base-100 p-5 shadow-sm sm:p-6">
-                <div class="grid gap-6 lg:grid-cols-[16rem_1fr] lg:items-start">
-                    <div class="rounded-3xl border border-base-300 bg-white p-4 text-gray-900">
-                        {!! $user->twoFactorQrCodeSvg() !!}
-                    </div>
-
+                <div class="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
                     <div>
                         <h2 class="text-xl font-semibold tracking-tight text-base-content">
-                            {{ __('Authenticator-App verbinden') }}
+                            {{ __('MFA-Bestaetigung offen') }}
                         </h2>
-                        <p class="mt-3 text-sm leading-7 text-base-content/70">
-                            {{ __('Bitte scanne den QR-Code mit deiner Authenticator-App und bestaetige anschliessend den sechsstelligen Code. MFA ist erst nach dieser Bestaetigung aktiv.') }}
+                        <p class="mt-3 max-w-2xl text-sm leading-7 text-base-content/70">
+                            {{ __('Der QR-Code und das MFA-Secret werden nur nach erneuter Passwortbestaetigung angezeigt. Oeffne die Einrichtung, um den QR-Code zu scannen und den sechsstelligen Code zu bestaetigen.') }}
                         </p>
-
-                        <form method="POST" action="{{ route('two-factor.confirm') }}" class="mt-5 grid gap-4 sm:max-w-sm">
-                            @csrf
-
-                            <div>
-                                <x-input-label for="code" :value="__('Sechsstelliger Code')" />
-                                <x-text-input id="code" class="mt-1 w-full" type="text" name="code" inputmode="numeric" autocomplete="one-time-code" required autofocus />
-                                <x-input-error :messages="$errors->confirmTwoFactorAuthentication->get('code')" class="mt-2" />
-                            </div>
-
-                            <div>
-                                <x-primary-button>
-                                    {{ __('MFA bestaetigen') }}
-                                </x-primary-button>
-                            </div>
-                        </form>
                     </div>
+
+                    <a href="{{ route('profile.security.two-factor-setup') }}" class="btn btn-primary rounded-2xl">
+                        {{ __('MFA-Einrichtung fortsetzen') }}
+                    </a>
                 </div>
             </section>
         @endif

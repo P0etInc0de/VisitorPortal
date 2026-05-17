@@ -51,7 +51,8 @@ Docker-Hinweis:
 - Lokale Authentifizierung laeuft ueber Laravel Fortify.
 - MFA ist fuer normale Nutzer optional und fuer Rollen aus `MFA_REQUIRED_ROLES` verpflichtend.
 - Das Filament-Adminpanel prueft zusaetzlich bestaetigte MFA, wenn `MFA_REQUIRED_FOR_ADMIN_PANEL=true` gesetzt ist.
-- Recovery Codes werden nur nach erneuter Passwortbestaetigung angezeigt.
+- Recovery Codes und der QR-Code einer unbestaetigten MFA-Einrichtung werden nur nach erneuter Passwortbestaetigung angezeigt.
+- `MFA_ENABLED=false` deaktiviert die Rollen-Erzwingung, bestehende bestaetigte MFA wird beim Login aber weiterhin abgefragt.
 - E-Mail-Verifikation ist in diesem Schritt bewusst nicht erzwungen. `MustVerifyEmail` ist nicht am User-Model aktiv.
 - SSO ist noch deaktiviert, aber ueber `config/sso.php` und die Tabelle `user_identities` vorbereitet.
 
