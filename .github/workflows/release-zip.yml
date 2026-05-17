@@ -17,7 +17,7 @@ jobs:
 
       - name: Replace release version placeholder
         run: |
-          sed -i "s/RELEASE_VERSION_PLACEHOLDER/${{ github.event.release.tag_name }}/g" .env.demo
+          sed -i "s/RELEASE_VERSION_PLACEHOLDER/${{ github.event.release.tag_name }}/g" .env.demo.example
 
       - name: Build ZIP file
         run: |
@@ -25,6 +25,7 @@ jobs:
             -x "*.git*" \
             -x ".github/*" \
             -x ".env" \
+            -x ".env.demo" \
             -x "backend/.env" \
             -x "backend/vendor/*" \
             -x "backend/node_modules/*" \

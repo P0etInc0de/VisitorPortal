@@ -35,6 +35,8 @@ The Filament admin panel has an additional MFA middleware. When `MFA_REQUIRED_FO
 
 Users with MFA should store their recovery codes securely. Each recovery code can be used once during the two-factor login challenge.
 
+Recovery codes are not shown on the regular profile security page. Users must explicitly open the recovery-code page and confirm their password before existing codes are displayed or regenerated.
+
 Operators with shell access can disable MFA for a user without exposing secrets:
 
 ```bash
@@ -42,6 +44,8 @@ php artisan visitorportal:disable-mfa user@example.org
 ```
 
 The command clears the local TOTP secret, recovery codes and confirmation timestamp, and writes a security log entry.
+
+Privileged roles that require MFA cannot disable MFA through the Fortify endpoint. A reset by a trusted operator forces them back through MFA setup.
 
 ## Recommended Account Model
 

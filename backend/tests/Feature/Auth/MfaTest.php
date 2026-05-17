@@ -16,7 +16,7 @@ class MfaTest extends TestCase
 
     public function test_normal_user_without_mfa_can_login_when_mfa_is_optional(): void
     {
-        $user = User::factory()->create();
+        $user = (new PermissionHelper)->getUser();
 
         $response = $this->post('/login', [
             'email' => $user->email,
@@ -29,7 +29,7 @@ class MfaTest extends TestCase
 
     public function test_user_can_enable_confirm_view_recovery_codes_and_disable_mfa(): void
     {
-        $user = User::factory()->create();
+        $user = (new PermissionHelper)->getUser();
 
         $this
             ->actingAs($user)
@@ -144,6 +144,54 @@ class MfaTest extends TestCase
         $this->assertNotContains($recoveryCode, $admin->fresh()->recoveryCodes());
     }
 
+    public function test_recovery_codes_are_only_visible_after_password_confirmation(): void
+    {
+        $user = (new PermissionHelper)->getUser();
+        $this->confirmMfa($user);
+
+        $recoveryCode = $user->fresh()->recoveryCodes()[0];
+
+        $this
+            ->actingAs($user)
+            ->get(route('profile.security'))
+            ->assertOk()
+            ->assertSee(__('Recovery Codes anzeigen'))
+            ->assertDontSee($recoveryCode);
+
+        $this
+            ->actingAs($user)
+            ->get(route('profile.security.recovery-codes'))
+            ->assertRedirect(route('password.confirm', absolute: false));
+
+        $this
+            ->actingAs($user)
+            ->withSession(['auth.password_confirmed_at' => time()])
+            ->get(route('profile.security.recovery-codes'))
+            ->assertOk()
+            ->assertSee($recoveryCode);
+    }
+
+    public function test_two_factor_challenge_is_rate_limited(): void
+    {
+        $admin = (new PermissionHelper)->getSuperAdminUser();
+        $this->confirmMfa($admin);
+
+        $this->post('/login', [
+            'email' => $admin->email,
+            'password' => 'password',
+        ])->assertRedirect(route('two-factor.login'));
+
+        for ($attempt = 0; $attempt < 5; $attempt++) {
+            $this->post(route('two-factor.login'), [
+                'code' => '000000',
+            ])->assertStatus(302);
+        }
+
+        $this->post(route('two-factor.login'), [
+            'code' => '000000',
+        ])->assertStatus(429);
+    }
+
     public function test_admin_without_mfa_cannot_access_filament_admin_panel(): void
     {
         $admin = (new PermissionHelper)->getSuperAdminUser();
@@ -175,6 +223,39 @@ class MfaTest extends TestCase
             'email' => $receptionist->email,
             'password' => 'password',
         ])->assertRedirect(route('profile.security'));
+    }
+
+    public function test_optional_mfa_can_be_disabled_for_non_required_users(): void
+    {
+        config(['security.mfa.optional_for_users' => false]);
+
+        $user = (new PermissionHelper)->getUser();
+
+        $this
+            ->actingAs($user)
+            ->get(route('profile.security'))
+            ->assertOk()
+            ->assertDontSee(__('MFA aktivieren'));
+
+        $this
+            ->actingAs($user)
+            ->withSession(['auth.password_confirmed_at' => time()])
+            ->post(route('two-factor.enable'))
+            ->assertForbidden();
+    }
+
+    public function test_required_mfa_user_cannot_disable_mfa_directly(): void
+    {
+        $admin = (new PermissionHelper)->getSuperAdminUser();
+        $this->confirmMfa($admin);
+
+        $this
+            ->actingAs($admin)
+            ->withSession(['auth.password_confirmed_at' => time()])
+            ->delete(route('two-factor.disable'))
+            ->assertForbidden();
+
+        $this->assertTrue($admin->fresh()->hasConfirmedTwoFactorAuthentication());
     }
 
     public function test_mfa_enforcement_can_be_disabled(): void

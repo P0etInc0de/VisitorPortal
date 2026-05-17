@@ -3,9 +3,7 @@
     $mfaRequired = $user->requiresTwoFactorAuthentication($authMethod);
     $hasTwoFactorSecret = filled($user->two_factor_secret);
     $hasConfirmedTwoFactor = $user->hasConfirmedTwoFactorAuthentication();
-    $recoveryCodes = $hasConfirmedTwoFactor && filled($user->two_factor_recovery_codes)
-        ? $user->recoveryCodes()
-        : [];
+    $canEnableOptionalMfa = config('security.mfa.optional_for_users') || $mfaRequired;
 @endphp
 
 <x-app-layout>
@@ -80,13 +78,17 @@
                 </div>
             @endif
 
-            @if (! $hasTwoFactorSecret)
+            @if (! $hasTwoFactorSecret && $canEnableOptionalMfa)
                 <form method="POST" action="{{ route('two-factor.enable') }}" class="mt-6">
                     @csrf
                     <x-primary-button>
                         {{ __('MFA aktivieren') }}
                     </x-primary-button>
                 </form>
+            @elseif (! $hasTwoFactorSecret)
+                <div class="mt-5 rounded-2xl border border-base-300 bg-base-200/70 p-4 text-sm leading-7 text-base-content/70">
+                    {{ __('MFA kann fuer dein Konto aktuell nicht selbst aktiviert werden.') }}
+                </div>
             @endif
         </section>
 
@@ -137,18 +139,9 @@
                         </p>
                     </div>
 
-                    <form method="POST" action="{{ route('two-factor.regenerate-recovery-codes') }}">
-                        @csrf
-                        <button type="submit" class="btn btn-outline rounded-2xl">
-                            {{ __('Neue Codes erzeugen') }}
-                        </button>
-                    </form>
-                </div>
-
-                <div class="mt-5 grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
-                    @foreach ($recoveryCodes as $code)
-                        <code class="rounded-2xl border border-base-300 bg-base-200 px-4 py-3 text-sm">{{ $code }}</code>
-                    @endforeach
+                    <a href="{{ route('profile.security.recovery-codes') }}" class="btn btn-outline rounded-2xl">
+                        {{ __('Recovery Codes anzeigen') }}
+                    </a>
                 </div>
             </section>
 

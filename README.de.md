@@ -82,7 +82,7 @@ Nach dem Start:
 - Anwendung: [http://localhost:8080](http://localhost:8080)
 - Mailhog: [http://localhost:8025](http://localhost:8025)
 
-Falls die Ports belegt sind, können `APP_PORT` und `MAILHOG_PORT` in `.env.demo` angepasst werden.
+Beim ersten Start erstellt das Skript eine lokale `.env.demo` aus `.env.demo.example`. Falls die Ports belegt sind, können `APP_PORT` und `MAILHOG_PORT` in `.env.demo` angepasst werden.
 
 Demo stoppen:
 
@@ -104,7 +104,7 @@ sh update.sh
 
 Windows-Nutzer können jeweils die passenden `.bat`-Skripte verwenden.
 
-Im Source-Repository enthaelt `.env.demo` den Platzhalter `RELEASE_VERSION_PLACEHOLDER`. Offizielle Release-ZIPs ersetzen diesen Platzhalter durch den veroeffentlichten Release-Tag, damit Demos reproduzierbar bleiben:
+Im Source-Repository enthaelt `.env.demo.example` den Platzhalter `RELEASE_VERSION_PLACEHOLDER`. Offizielle Release-ZIPs ersetzen diesen Platzhalter durch den veroeffentlichten Release-Tag, damit Demos reproduzierbar bleiben:
 
 ```env
 VISITORPORTAL_VERSION=v1.0.2

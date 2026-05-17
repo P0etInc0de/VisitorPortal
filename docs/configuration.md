@@ -4,6 +4,7 @@
 Konfiguration erfolgt über `backend/.env`. Diese Datei wird nicht versioniert und darf nicht committed werden.
 
 Vorlagen:
+- `.env.demo.example` fuer das Demo-Compose im Projektroot. Die Demo-Skripte erzeugen daraus lokal `.env.demo`.
 - `backend/.env.example` für lokale Entwicklung.
 - `backend/.env.production.example` als sichere Orientierung für produktive Deployments.
 - Fuer Docker-Produktion wird diese Vorlage als `.env` im Projektroot neben `docker-compose.prod.yml` verwendet; fuer LAMP-Deployments als `backend/.env`.
@@ -13,7 +14,7 @@ Vorlagen:
 - DB_CONNECTION, DB_HOST, DB_PORT, DB_DATABASE, DB_USERNAME, DB_PASSWORD
 - MAIL_MAILER, MAIL_HOST, MAIL_PORT, MAIL_FROM_ADDRESS, MAIL_FROM_NAME
 - MFA_ENABLED (`true`/`false`)
-- MFA_OPTIONAL_FOR_USERS (`true`/`false`)
+- MFA_OPTIONAL_FOR_USERS (`true`/`false`; wenn `false`, koennen nicht verpflichtete Nutzer MFA nicht selbst aktivieren)
 - MFA_REQUIRED_ROLES (Default: `admin,super_admin`)
 - MFA_REQUIRED_FOR_ADMIN_PANEL (`true`/`false`)
 - MFA_ENFORCED_AUTH_METHODS (Default: `local,sso`)
@@ -50,6 +51,7 @@ Docker-Hinweis:
 - Lokale Authentifizierung laeuft ueber Laravel Fortify.
 - MFA ist fuer normale Nutzer optional und fuer Rollen aus `MFA_REQUIRED_ROLES` verpflichtend.
 - Das Filament-Adminpanel prueft zusaetzlich bestaetigte MFA, wenn `MFA_REQUIRED_FOR_ADMIN_PANEL=true` gesetzt ist.
+- Recovery Codes werden nur nach erneuter Passwortbestaetigung angezeigt.
 - E-Mail-Verifikation ist in diesem Schritt bewusst nicht erzwungen. `MustVerifyEmail` ist nicht am User-Model aktiv.
 - SSO ist noch deaktiviert, aber ueber `config/sso.php` und die Tabelle `user_identities` vorbereitet.
 

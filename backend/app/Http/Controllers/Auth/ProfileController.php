@@ -34,6 +34,21 @@ class ProfileController extends Controller
         ]);
     }
 
+    public function recoveryCodes(Request $request): RedirectResponse|View
+    {
+        $this->authorize('view', $request->user());
+
+        if (! $request->user()->hasConfirmedTwoFactorAuthentication()) {
+            return Redirect::route('profile.security')
+                ->with('warning', __('Recovery Codes sind erst nach bestaetigter MFA verfuegbar.'));
+        }
+
+        return view('profile.recovery-codes', [
+            'user' => $request->user(),
+            'recoveryCodes' => $request->user()->recoveryCodes(),
+        ]);
+    }
+
     /**
      * Update the user's profile information.
      */

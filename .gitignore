@@ -18,9 +18,23 @@ public_html/storage
 public_html/hot
 
 storage/*.key
+
+# Real env files
 .env
+.env.*
 backend/.env
 backend/.env.*
+*.env
+
+# Example env files that should be committed
+!.env.example
+!.env.demo.example
+!backend/.env.example
+!backend/.env.production.example
+!backend/.env.demo.example
+!*.env.example
+!*.example.env
+
 Homestead.yaml
 Homestead.json
 /.vagrant

@@ -16,6 +16,10 @@ Route::middleware('auth')->group(function () {
 
     Route::get('profile/security', [ProfileController::class, 'security'])->name('profile.security');
 
+    Route::get('profile/security/recovery-codes', [ProfileController::class, 'recoveryCodes'])
+        ->middleware('password.confirm')
+        ->name('profile.security.recovery-codes');
+
     Route::patch('profile', [ProfileController::class, 'update'])
         ->name('profile.update');
 

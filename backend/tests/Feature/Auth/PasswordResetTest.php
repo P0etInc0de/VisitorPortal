@@ -24,6 +24,7 @@ class PasswordResetTest extends TestCase
         Notification::fake();
 
         $user = User::factory()->create();
+        $user->forceFill(['remember_token' => 'old-token'])->save();
 
         $this->post('/forgot-password', ['email' => $user->email]);
 
@@ -66,6 +67,8 @@ class PasswordResetTest extends TestCase
             $response
                 ->assertSessionHasNoErrors()
                 ->assertRedirect(route('login'));
+
+            $this->assertNotSame('old-token', $user->fresh()->remember_token);
 
             return true;
         });

@@ -20,6 +20,16 @@ class EnsureRequiredMfaIsConfigured
             ? (string) $request->session()->get('auth.method', 'local')
             : 'local';
 
+        if ($request->routeIs('two-factor.enable')
+            && ! config('security.mfa.optional_for_users')
+            && ! $user->requiresTwoFactorAuthentication($authMethod)) {
+            abort(403, __('MFA kann fuer dieses Konto aktuell nicht selbst aktiviert werden.'));
+        }
+
+        if ($request->routeIs('two-factor.disable') && $user->requiresTwoFactorAuthentication($authMethod)) {
+            abort(403, __('MFA kann fuer privilegierte Rollen nicht dauerhaft deaktiviert werden.'));
+        }
+
         if (! $user->requiresTwoFactorAuthentication($authMethod) || $user->hasConfirmedTwoFactorAuthentication()) {
             return $next($request);
         }

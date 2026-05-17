@@ -11,6 +11,6 @@ class PasswordConfirmedResponse implements PasswordConfirmedResponseContract
     {
         return $request->wantsJson()
             ? new JsonResponse('', 201)
-            : redirect()->route('profile.security');
+            : redirect()->intended(route('profile.security'));
     }
 }
