@@ -18,12 +18,13 @@ use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
+use Laravel\Fortify\TwoFactorAuthenticatable;
 use Spatie\Permission\Traits\HasRoles;
 
 class User extends Authenticatable implements FilamentUser
 {
     /** @use HasFactory<UserFactory> */
-    use HasFactory, HasRoles, Notifiable;
+    use HasFactory, HasRoles, Notifiable, TwoFactorAuthenticatable;
 
     /**
      * The attributes that are mass assignable.
@@ -57,6 +58,8 @@ class User extends Authenticatable implements FilamentUser
     protected $hidden = [
         'password',
         'remember_token',
+        'two_factor_recovery_codes',
+        'two_factor_secret',
     ];
 
     /**
@@ -89,6 +92,11 @@ class User extends Authenticatable implements FilamentUser
     public function canceledVisits(): HasMany
     {
         return $this->hasMany(Visit::class, 'canceled_by_user_id');
+    }
+
+    public function identities(): HasMany
+    {
+        return $this->hasMany(UserIdentity::class);
     }
 
     public function performedCheckIns(): HasMany
@@ -184,7 +192,32 @@ class User extends Authenticatable implements FilamentUser
             'password' => 'hashed',
             'is_active' => 'boolean',
             'deactivated_at' => 'datetime',
+            'two_factor_confirmed_at' => 'datetime',
         ];
+    }
+
+    public function hasConfirmedTwoFactorAuthentication(): bool
+    {
+        return filled($this->two_factor_secret)
+            && filled($this->two_factor_confirmed_at);
+    }
+
+    public function requiresTwoFactorAuthentication(?string $authMethod = null): bool
+    {
+        if (! config('security.mfa.enabled')) {
+            return false;
+        }
+
+        $method = $authMethod ?: 'local';
+        $enforcedMethods = config('security.mfa.enforced_auth_methods', ['local', 'sso']);
+
+        if (! in_array($method, $enforcedMethods, true)) {
+            return false;
+        }
+
+        return $this->roles()
+            ->whereIn('name', config('security.mfa.required_roles', ['admin', 'super_admin']))
+            ->exists();
     }
 
     public function canAccessPanel(Panel $panel): bool
@@ -194,18 +227,17 @@ class User extends Authenticatable implements FilamentUser
         }
 
         // Check if the user has the Superuser or admin role (Shield's default is 'super_admin')
-
-        if ($this->hasRole('admin') || $this->hasRole('super_admin')) {
+        if ($this->hasAnyRole(['admin', 'super_admin'])) {
             return true;
-        } else {
-            Log::channel('web')->info('Authorization failed.', [
-                ...SafeLogContext::authorization($this, 'accessPanel'),
-                'resource_type' => 'FilamentPanel',
-                'resource_id' => $panel->getId(),
-            ]);
-
-            return false;
         }
+
+        Log::channel('web')->info('Authorization failed.', [
+            ...SafeLogContext::authorization($this, 'accessPanel'),
+            'resource_type' => 'FilamentPanel',
+            'resource_id' => $panel->getId(),
+        ]);
+
+        return false;
     }
 
     protected function fullName(): Attribute

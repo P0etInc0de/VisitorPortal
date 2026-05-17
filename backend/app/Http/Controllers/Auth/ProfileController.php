@@ -25,6 +25,15 @@ class ProfileController extends Controller
         ]);
     }
 
+    public function security(Request $request): View
+    {
+        $this->authorize('view', $request->user());
+
+        return view('profile.security', [
+            'user' => $request->user(),
+        ]);
+    }
+
     /**
      * Update the user's profile information.
      */

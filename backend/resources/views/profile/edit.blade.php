@@ -19,5 +19,22 @@
                 @include('profile.partials.update-password-form')
             </div>
         </section>
+
+        <section class="rounded-3xl border border-base-300 bg-base-100 p-5 shadow-sm sm:p-6">
+            <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                <div>
+                    <h2 class="text-xl font-semibold tracking-tight text-base-content">
+                        {{ __('Sicherheit') }}
+                    </h2>
+                    <p class="mt-2 text-sm leading-7 text-base-content/70">
+                        {{ __('MFA einrichten, Recovery Codes verwalten und Kontosicherheit pruefen.') }}
+                    </p>
+                </div>
+
+                <a href="{{ route('profile.security') }}" class="btn btn-outline rounded-2xl">
+                    {{ __('Sicherheit oeffnen') }}
+                </a>
+            </div>
+        </section>
     </div>
 </x-app-layout>

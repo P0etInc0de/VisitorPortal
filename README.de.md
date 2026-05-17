@@ -22,6 +22,7 @@ Die Anwendung verarbeitet potenziell personenbezogene Daten wie Namen, Unternehm
 - Check-In/Out-Übersicht für den Empfang
 - Willkommensmonitor für geplante Besucher
 - Rollenbasierte Rechteverwaltung mit eigenen Berechtigungen
+- Optionale MFA fuer Nutzer und verpflichtende MFA fuer privilegierte Admin-Rollen
 - Adminbereich für Benutzer, Abteilungen, Rollen, Rechte, Besucher, Besuche, Monitore und Monitorseiten
 - Benachrichtigungen für Gastgeber per E-Mail und in der Anwendung
 - Queue- und Scheduler-Unterstützung für Hintergrundaufgaben
@@ -234,6 +235,7 @@ Für produktionsnahe Deployments müssen insbesondere diese Demo-Defaults geprü
 - [Welcome Monitor](docs/welcome_monitor.md)
 - [UI Notes](docs/UI.md)
 - [Architecture Decisions](docs/decisions.md)
+- [Security Hardening](docs/security-hardening.md)
 
 ## Roadmap
 

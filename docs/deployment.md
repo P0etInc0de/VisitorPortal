@@ -43,6 +43,28 @@ php artisan visitorportal:install
 
 `visitorportal:sync-permissions` ist idempotent und kann nach Updates erneut ausgeführt werden.
 
+## MFA Und Admin-Konten
+
+Produktive Installationen sollten MFA aktiviert lassen. Standardmaessig muessen `admin` und `super_admin` MFA einrichten und bestaetigen, bevor sie das Portal weiter nutzen koennen. Der Filament-Adminbereich prueft bestaetigte MFA zusaetzlich.
+
+Empfohlene produktive Werte:
+
+```env
+MFA_ENABLED=true
+MFA_OPTIONAL_FOR_USERS=true
+MFA_REQUIRED_ROLES=admin,super_admin
+MFA_REQUIRED_FOR_ADMIN_PANEL=true
+MFA_ENFORCED_AUTH_METHODS=local,sso
+```
+
+Wenn ein Benutzer keinen Zugriff mehr auf seine Authenticator-App hat, kann ein Betreiber mit Shell-Zugriff MFA zuruecksetzen:
+
+```bash
+php artisan visitorportal:disable-mfa user@example.org
+```
+
+Fuer produktive Umgebungen werden getrennte persoenliche Konten fuer Alltagsarbeit und Administration empfohlen, z. B. `jane.doe@example.org` und `admin.jane.doe@example.org`.
+
 ## LAMP Deployment
 
 1. Projekt auf den Server kopieren.
@@ -193,6 +215,9 @@ php artisan up
 - `SESSION_ENCRYPT=true`
 - `TRUSTED_PROXIES` korrekt gesetzt
 - SMTP produktiv konfiguriert
+- MFA fuer privilegierte Rollen aktiv
+- Recovery Codes sicher gespeichert
+- MFA-Reset-Prozess bekannt und auf Betreiber beschraenkt
 - Queue Worker aktiv
 - Scheduler aktiv
 - Backups getestet
