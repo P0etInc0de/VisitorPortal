@@ -3,7 +3,18 @@ set -eu
 
 COMPOSE_FILE="docker-compose.demo.yml"
 ENV_FILE=".env.demo"
+ENV_EXAMPLE=".env.demo.example"
 APP_URL="http://localhost:8080"
+
+if [ ! -f "$ENV_FILE" ]; then
+    if [ ! -f "$ENV_EXAMPLE" ]; then
+        echo "Missing $ENV_EXAMPLE. Cannot create local demo environment file."
+        exit 1
+    fi
+
+    cp "$ENV_EXAMPLE" "$ENV_FILE"
+    echo "Created $ENV_FILE from $ENV_EXAMPLE."
+fi
 
 if ! docker info >/dev/null 2>&1; then
     echo "Docker is not running. Please start Docker Desktop and run this script again."

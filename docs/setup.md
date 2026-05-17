@@ -37,7 +37,7 @@ Nach erfolgreichem Start:
 - App: [http://localhost:8080](http://localhost:8080)
 - Mailhog UI: [http://localhost:8025](http://localhost:8025)
 
-Falls diese Ports belegt sind, koennen `APP_PORT` und `MAILHOG_PORT` in `.env.demo` angepasst werden.
+Beim ersten Start erstellt das Skript eine lokale `.env.demo` aus `.env.demo.example`. Falls diese Ports belegt sind, koennen `APP_PORT` und `MAILHOG_PORT` in `.env.demo` angepasst werden.
 
 Login:
 
@@ -104,9 +104,9 @@ sh update.sh
 
 ## Version pinnen
 
-Das Demo-Setup liest `.env.demo`.
+Das Demo-Setup liest die lokale `.env.demo`. Wenn sie fehlt, wird sie aus `.env.demo.example` erstellt.
 
-Im Source-Repository steht dort `RELEASE_VERSION_PLACEHOLDER`. Der Release-ZIP-Workflow ersetzt diesen Platzhalter beim Veroeffentlichen automatisch durch den Release-Tag, zum Beispiel:
+Im Source-Repository steht in `.env.demo.example` `RELEASE_VERSION_PLACEHOLDER`. Der Release-ZIP-Workflow ersetzt diesen Platzhalter beim Veroeffentlichen automatisch durch den Release-Tag, zum Beispiel:
 
 ```env
 VISITORPORTAL_VERSION=v1.0.2

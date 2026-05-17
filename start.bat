@@ -3,7 +3,17 @@ setlocal
 
 set COMPOSE_FILE=docker-compose.demo.yml
 set ENV_FILE=.env.demo
+set ENV_EXAMPLE=.env.demo.example
 set APP_URL=http://localhost:8080
+
+if not exist "%ENV_FILE%" (
+    if not exist "%ENV_EXAMPLE%" (
+        echo Missing %ENV_EXAMPLE%. Cannot create local demo environment file.
+        exit /b 1
+    )
+    copy "%ENV_EXAMPLE%" "%ENV_FILE%" >nul
+    echo Created %ENV_FILE% from %ENV_EXAMPLE%.
+)
 
 docker info >nul 2>&1
 if errorlevel 1 (

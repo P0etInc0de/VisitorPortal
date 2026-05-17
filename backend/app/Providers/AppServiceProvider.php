@@ -37,6 +37,12 @@ class AppServiceProvider extends ServiceProvider
             )->by($key);
         });
 
+        RateLimiter::for('two-factor', function (Request $request): Limit {
+            $loginId = (string) $request->session()->get('login.id', 'anonymous');
+
+            return Limit::perMinute(5)->by($loginId.'|'.$request->ip());
+        });
+
         Gate::after(function ($user, $ability, $result, $arguments) {
             if ($result === false) {
                 Log::channel('web')->info('Authorization failed.', SafeLogContext::authorization($user, $ability, $arguments));

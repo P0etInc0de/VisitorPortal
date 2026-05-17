@@ -8,7 +8,9 @@ use Illuminate\Support\Facades\Log;
 
 class DisableMfa extends Command
 {
-    protected $signature = 'visitorportal:disable-mfa {email : User e-mail address}';
+    protected $signature = 'visitorportal:disable-mfa
+        {email : User e-mail address}
+        {--force : Disable MFA without interactive confirmation}';
 
     protected $description = 'Disable MFA for a user without exposing secrets.';
 
@@ -19,6 +21,12 @@ class DisableMfa extends Command
 
         if (! $user) {
             $this->error('No user with this e-mail address was found.');
+
+            return self::FAILURE;
+        }
+
+        if (! $this->option('force') && ! $this->confirm("This will disable MFA for {$user->email}. Continue?", false)) {
+            $this->warn('No changes were made.');
 
             return self::FAILURE;
         }

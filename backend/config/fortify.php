@@ -17,7 +17,7 @@ return [
 
     'limiters' => [
         'login' => null,
-        'two-factor' => null,
+        'two-factor' => 'two-factor',
         'passkeys' => null,
     ],
 

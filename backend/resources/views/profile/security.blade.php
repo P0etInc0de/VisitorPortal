@@ -3,9 +3,7 @@
     $mfaRequired = $user->requiresTwoFactorAuthentication($authMethod);
     $hasTwoFactorSecret = filled($user->two_factor_secret);
     $hasConfirmedTwoFactor = $user->hasConfirmedTwoFactorAuthentication();
-    $recoveryCodes = $hasConfirmedTwoFactor && filled($user->two_factor_recovery_codes)
-        ? $user->recoveryCodes()
-        : [];
+    $canEnableOptionalMfa = config('security.mfa.optional_for_users') || $mfaRequired;
 @endphp
 
 <x-app-layout>
@@ -80,47 +78,35 @@
                 </div>
             @endif
 
-            @if (! $hasTwoFactorSecret)
+            @if (! $hasTwoFactorSecret && $canEnableOptionalMfa)
                 <form method="POST" action="{{ route('two-factor.enable') }}" class="mt-6">
                     @csrf
                     <x-primary-button>
                         {{ __('MFA aktivieren') }}
                     </x-primary-button>
                 </form>
+            @elseif (! $hasTwoFactorSecret)
+                <div class="mt-5 rounded-2xl border border-base-300 bg-base-200/70 p-4 text-sm leading-7 text-base-content/70">
+                    {{ __('MFA kann fuer dein Konto aktuell nicht selbst aktiviert werden.') }}
+                </div>
             @endif
         </section>
 
         @if ($hasTwoFactorSecret && ! $hasConfirmedTwoFactor)
             <section class="rounded-3xl border border-base-300 bg-base-100 p-5 shadow-sm sm:p-6">
-                <div class="grid gap-6 lg:grid-cols-[16rem_1fr] lg:items-start">
-                    <div class="rounded-3xl border border-base-300 bg-white p-4 text-gray-900">
-                        {!! $user->twoFactorQrCodeSvg() !!}
-                    </div>
-
+                <div class="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
                     <div>
                         <h2 class="text-xl font-semibold tracking-tight text-base-content">
-                            {{ __('Authenticator-App verbinden') }}
+                            {{ __('MFA-Bestaetigung offen') }}
                         </h2>
-                        <p class="mt-3 text-sm leading-7 text-base-content/70">
-                            {{ __('Bitte scanne den QR-Code mit deiner Authenticator-App und bestaetige anschliessend den sechsstelligen Code. MFA ist erst nach dieser Bestaetigung aktiv.') }}
+                        <p class="mt-3 max-w-2xl text-sm leading-7 text-base-content/70">
+                            {{ __('Der QR-Code und das MFA-Secret werden nur nach erneuter Passwortbestaetigung angezeigt. Oeffne die Einrichtung, um den QR-Code zu scannen und den sechsstelligen Code zu bestaetigen.') }}
                         </p>
-
-                        <form method="POST" action="{{ route('two-factor.confirm') }}" class="mt-5 grid gap-4 sm:max-w-sm">
-                            @csrf
-
-                            <div>
-                                <x-input-label for="code" :value="__('Sechsstelliger Code')" />
-                                <x-text-input id="code" class="mt-1 w-full" type="text" name="code" inputmode="numeric" autocomplete="one-time-code" required autofocus />
-                                <x-input-error :messages="$errors->confirmTwoFactorAuthentication->get('code')" class="mt-2" />
-                            </div>
-
-                            <div>
-                                <x-primary-button>
-                                    {{ __('MFA bestaetigen') }}
-                                </x-primary-button>
-                            </div>
-                        </form>
                     </div>
+
+                    <a href="{{ route('profile.security.two-factor-setup') }}" class="btn btn-primary rounded-2xl">
+                        {{ __('MFA-Einrichtung fortsetzen') }}
+                    </a>
                 </div>
             </section>
         @endif
@@ -137,18 +123,9 @@
                         </p>
                     </div>
 
-                    <form method="POST" action="{{ route('two-factor.regenerate-recovery-codes') }}">
-                        @csrf
-                        <button type="submit" class="btn btn-outline rounded-2xl">
-                            {{ __('Neue Codes erzeugen') }}
-                        </button>
-                    </form>
-                </div>
-
-                <div class="mt-5 grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
-                    @foreach ($recoveryCodes as $code)
-                        <code class="rounded-2xl border border-base-300 bg-base-200 px-4 py-3 text-sm">{{ $code }}</code>
-                    @endforeach
+                    <a href="{{ route('profile.security.recovery-codes') }}" class="btn btn-outline rounded-2xl">
+                        {{ __('Recovery Codes anzeigen') }}
+                    </a>
                 </div>
             </section>
 

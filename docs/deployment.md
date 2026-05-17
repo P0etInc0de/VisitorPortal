@@ -63,7 +63,10 @@ Wenn ein Benutzer keinen Zugriff mehr auf seine Authenticator-App hat, kann ein 
 php artisan visitorportal:disable-mfa user@example.org
 ```
 
+Der Command fragt standardmaessig nach Bestaetigung. Fuer nicht-interaktive Runbooks kann bewusst `--force` genutzt werden.
+
 Fuer produktive Umgebungen werden getrennte persoenliche Konten fuer Alltagsarbeit und Administration empfohlen, z. B. `jane.doe@example.org` und `admin.jane.doe@example.org`.
+Recovery Codes sollten direkt nach der Einrichtung sicher gespeichert werden. Die Anzeige im Profil ist passwortbestaetigt.
 
 ## LAMP Deployment
 

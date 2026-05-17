@@ -60,7 +60,7 @@ jobs:
           cp start.bat start.sh stop.bat stop.sh reset-demo.bat reset-demo.sh update.bat update.sh "$PACKAGE_DIR/"
           cp docs/setup.md "$PACKAGE_DIR/README.md"
 
-          cat > "$PACKAGE_DIR/.env.demo" <<EOF
+          cat > "$PACKAGE_DIR/.env.demo.example" <<EOF
           VISITORPORTAL_VERSION=${TAG}
           EOF
 

@@ -34,6 +34,39 @@ class ProfileController extends Controller
         ]);
     }
 
+    public function recoveryCodes(Request $request): RedirectResponse|View
+    {
+        $this->authorize('view', $request->user());
+
+        if (! $request->user()->hasConfirmedTwoFactorAuthentication()) {
+            return Redirect::route('profile.security')
+                ->with('warning', __('Recovery Codes sind erst nach bestaetigter MFA verfuegbar.'));
+        }
+
+        return view('profile.recovery-codes', [
+            'user' => $request->user(),
+            'recoveryCodes' => $request->user()->recoveryCodes(),
+        ]);
+    }
+
+    public function twoFactorSetup(Request $request): RedirectResponse|View
+    {
+        $this->authorize('view', $request->user());
+
+        if (blank($request->user()->two_factor_secret)) {
+            return Redirect::route('profile.security')
+                ->with('warning', __('Bitte starte die MFA-Einrichtung zuerst.'));
+        }
+
+        if ($request->user()->hasConfirmedTwoFactorAuthentication()) {
+            return Redirect::route('profile.security');
+        }
+
+        return view('profile.two-factor-setup', [
+            'user' => $request->user(),
+        ]);
+    }
+
     /**
      * Update the user's profile information.
      */
