@@ -267,9 +267,17 @@ Contributions are welcome. Please read [CONTRIBUTING.md](CONTRIBUTING.md) before
 
 VisitorPortal is licensed under the GNU General Public License v3.0 or later. See [LICENSE](LICENSE).
 
-## Authors And Credits
+## Authors and Credits
 
-Developed by a student team at Technische Hochschule Ulm.
+The project was created collaboratively as part of an initial student project phase at university. 
+Further development, cleanup, and technical improvements continued after the original project work.
 
-HIER EVTL. UNSERE NAMEN
-personal names for public credits only after all involved people have agreed to be listed
+### Project Team
+
+- **Jonathan Läpple** – Project Lead and Developer
+- **Jannik Schabel** – Developer
+- **Jan Wangerin** – Developer
+- **Peter Claaß** – Developer
+- **Lena Berger** – Developer
+
+We would like to thank all contributors for their work on concept development, implementation, testing, documentation, and feedback.
