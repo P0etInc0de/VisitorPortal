@@ -22,8 +22,16 @@ class VisitorPortalInstallTest extends TestCase
         $this->assertDatabaseHas('roles', ['name' => 'receptionist', 'guard_name' => 'web']);
         $this->assertDatabaseHas('permissions', ['name' => 'ManageAny:Site', 'guard_name' => 'web']);
         $this->assertDatabaseHas('permissions', ['name' => 'ViewSite:Visit', 'guard_name' => 'web']);
+        $this->assertDatabaseHas('permissions', ['name' => 'LoginLocallyInSsoOnlyMode', 'guard_name' => 'web']);
         $this->assertSame(1, Role::query()->where('name', 'admin')->count());
         $this->assertSame(1, Permission::query()->where('name', 'ViewSite:Visit')->count());
+
+        foreach (['admin', 'manager', 'receptionist', 'user'] as $roleName) {
+            $this->assertFalse(
+                Role::query()->where('name', $roleName)->firstOrFail()->hasPermissionTo('LoginLocallyInSsoOnlyMode'),
+                "{$roleName} must not receive the break-glass local login permission by default."
+            );
+        }
     }
 
     public function test_create_admin_creates_active_admin_without_demo_password(): void

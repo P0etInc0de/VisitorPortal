@@ -195,7 +195,7 @@ final class SsoUserResolver
             'email_at_provider' => $identity->email !== null ? Str::lower($identity->email) : null,
             'email_verified' => $identity->emailVerified,
             'display_name' => $identity->displayName,
-            'claims' => $identity->claims,
+            'claims' => (bool) config('sso.oidc.store_claims', false) ? $identity->claims : null,
             'last_login_at' => now(),
         ];
     }

@@ -204,6 +204,8 @@ class CheckInOutBoard extends Component
      */
     private function searchResults(): Collection
     {
+        $actor = $this->actor();
+        $canViewContactDetails = $actor->can('ViewContactDetails:Visitor');
         $todayStart = now()->startOfDay();
         $windowEnd = now()->copy()->addHours(48);
         $referenceNow = now();
@@ -214,7 +216,7 @@ class CheckInOutBoard extends Component
         }
 
         $visits = Visit::query()
-            ->visibleTo($this->actor())
+            ->visibleTo($actor)
             ->with([
                 'host:id,first_name,name',
                 'responsibleUser:id,first_name,name',
@@ -222,8 +224,8 @@ class CheckInOutBoard extends Component
             ])
             ->where('status', '!=', VisitStatusEnum::Canceled->value)
             ->whereBetween('scheduled_from', [$todayStart, $windowEnd])
-            ->when($search !== '', function ($query) use ($search) {
-                $query->where(function ($query) use ($search) {
+            ->when($search !== '', function ($query) use ($search, $canViewContactDetails) {
+                $query->where(function ($query) use ($search, $canViewContactDetails) {
                     $query->where('title', 'like', '%'.$search.'%')
                         ->orWhere('notes', 'like', '%'.$search.'%')
                         ->orWhereHas('host', function ($query) use ($search) {
@@ -231,14 +233,17 @@ class CheckInOutBoard extends Component
                                 ->orWhere('name', 'like', '%'.$search.'%')
                                 ->orWhereRaw("concat(first_name, ' ', name) like ?", ['%'.$search.'%']);
                         })
-                        ->orWhereHas('visitors', function ($query) use ($search) {
+                        ->orWhereHas('visitors', function ($query) use ($search, $canViewContactDetails) {
                             $query->where('title', 'like', '%'.$search.'%')
                                 ->orWhere('first_name', 'like', '%'.$search.'%')
                                 ->orWhere('name', 'like', '%'.$search.'%')
                                 ->orWhere('company', 'like', '%'.$search.'%')
-                                ->orWhere('email', 'like', '%'.$search.'%')
-                                ->orWhere('phone', 'like', '%'.$search.'%')
                                 ->orWhereRaw("concat(first_name, ' ', name) like ?", ['%'.$search.'%']);
+
+                            if ($canViewContactDetails) {
+                                $query->orWhere('email', 'like', '%'.$search.'%')
+                                    ->orWhere('phone', 'like', '%'.$search.'%');
+                            }
                         });
                 });
             })
@@ -246,8 +251,8 @@ class CheckInOutBoard extends Component
             ->get();
 
         return $visits
-            ->flatMap(function (Visit $visit) use ($referenceNow) {
-                return $visit->visitors->map(fn (Visitor $visitor) => $this->mapParticipantResult($visit, $visitor, $referenceNow));
+            ->flatMap(function (Visit $visit) use ($referenceNow, $canViewContactDetails) {
+                return $visit->visitors->map(fn (Visitor $visitor) => $this->mapParticipantResult($visit, $visitor, $referenceNow, $canViewContactDetails));
             })
             ->when($search !== '', function (Collection $results) use ($search) {
                 return $results->filter(fn (array $result) => $this->participantMatchesSearch($result, $search));
@@ -265,7 +270,7 @@ class CheckInOutBoard extends Component
     /**
      * @return array<string, mixed>
      */
-    private function mapParticipantResult(Visit $visit, Visitor $visitor, Carbon $referenceNow): array
+    private function mapParticipantResult(Visit $visit, Visitor $visitor, Carbon $referenceNow, bool $canViewContactDetails): array
     {
         $pivot = $visit->visitors->firstWhere('id', $visitor->id)?->pivot;
         $status = $this->resolveParticipantStatus((string) $visit->status, $pivot);
@@ -295,8 +300,8 @@ class CheckInOutBoard extends Component
             'title' => $visitor->title,
             'name' => trim(($visitor->first_name ?? '').' '.($visitor->name ?? '')),
             'company' => $visitor->company,
-            'email' => $visitor->email,
-            'phone' => $visitor->phone,
+            'email' => $canViewContactDetails ? $visitor->email : null,
+            'phone' => $canViewContactDetails ? $visitor->phone : null,
             'scheduled_from_timestamp' => $scheduledFrom?->timestamp ?? PHP_INT_MAX,
             'sort_distance_seconds' => $sortDistanceSeconds,
             'is_past' => $scheduledFrom && $scheduledFrom->lt($referenceNow) ? 1 : 0,
@@ -352,19 +357,10 @@ class CheckInOutBoard extends Component
         $email = $this->normalizeText($payload['email'] ?? null);
         $phone = $this->normalizeText($payload['phone'] ?? null);
         $emailVisitor = $email ? Visitor::query()->visibleTo($actor)->where('email', $email)->first() : null;
-        $phoneVisitor = $phone ? $this->singlePhoneMatch($phone, $actor) : null;
 
-        if ($emailVisitor && $phoneVisitor && ! $emailVisitor->is($phoneVisitor)) {
-            throw ValidationException::withMessages([
-                'walkIn.email' => __('E-Mail und Telefonnummer gehören zu unterschiedlichen Besuchern.'),
-            ]);
+        if ($emailVisitor) {
+            return $emailVisitor;
         }
-
-        if ($emailVisitor || $phoneVisitor) {
-            return $emailVisitor ?: $phoneVisitor;
-        }
-
-        $this->rejectHiddenWalkInContactMatch($email, $phone, $actor);
 
         return Visitor::query()->create([
             'title' => $this->normalizeText($payload['title'] ?? null),
@@ -500,38 +496,6 @@ class CheckInOutBoard extends Component
         $value = trim((string) $value);
 
         return $value === '' ? null : $value;
-    }
-
-    private function singlePhoneMatch(string $phone, User $actor): ?Visitor
-    {
-        $matches = Visitor::query()
-            ->visibleTo($actor)
-            ->where('phone', $phone)
-            ->limit(2)
-            ->get();
-
-        return $matches->count() === 1 ? $matches->first() : null;
-    }
-
-    private function rejectHiddenWalkInContactMatch(?string $email, ?string $phone, User $actor): void
-    {
-        if ($email && Visitor::query()
-            ->where('email', $email)
-            ->whereNotIn('id', Visitor::query()->visibleTo($actor)->select('id'))
-            ->exists()) {
-            throw ValidationException::withMessages([
-                'walkIn.email' => __('Diese Kontaktdaten können für den Walk-in nicht verwendet werden. Bitte prüfen Sie die Standortzuordnung.'),
-            ]);
-        }
-
-        if ($phone && Visitor::query()
-            ->where('phone', $phone)
-            ->whereNotIn('id', Visitor::query()->visibleTo($actor)->select('id'))
-            ->exists()) {
-            throw ValidationException::withMessages([
-                'walkIn.phone' => __('Diese Kontaktdaten können für den Walk-in nicht verwendet werden. Bitte prüfen Sie die Standortzuordnung.'),
-            ]);
-        }
     }
 
     private function visitActionService(): VisitActionService

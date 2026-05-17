@@ -3,8 +3,8 @@
 namespace Tests\Feature\Auth;
 
 use App\Models\User;
+use App\Support\VisitorPortalPermissions;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Spatie\Permission\Models\Permission;
 use Tests\TestCase;
 
 class SsoAuthModeTest extends TestCase
@@ -25,18 +25,35 @@ class SsoAuthModeTest extends TestCase
         $this->assertGuest();
     }
 
-    public function test_break_glass_user_can_login_locally_in_sso_only_mode(): void
+    public function test_synced_user_role_does_not_get_break_glass_local_login(): void
     {
         config(['sso.auth_mode' => 'sso_only']);
+        VisitorPortalPermissions::sync();
 
         $user = User::factory()->create();
-        $permission = Permission::firstOrCreate(['name' => 'LoginLocallyInSsoOnlyMode', 'guard_name' => 'web']);
-        $user->givePermissionTo($permission);
+        $user->assignRole('user');
 
         $this->post('/login', [
             'email' => $user->email,
             'password' => 'password',
-        ])->assertRedirect(route('overview', absolute: false));
+        ])->assertSessionHasErrors('email');
+
+        $this->assertGuest();
+    }
+
+    public function test_break_glass_user_can_login_locally_in_sso_only_mode(): void
+    {
+        config(['sso.auth_mode' => 'sso_only']);
+        VisitorPortalPermissions::sync();
+
+        $user = User::factory()->create();
+        $user->assignRole('admin');
+        $user->givePermissionTo('LoginLocallyInSsoOnlyMode');
+
+        $this->post('/login', [
+            'email' => $user->email,
+            'password' => 'password',
+        ])->assertRedirect(route('profile.security', absolute: false));
 
         $this->assertAuthenticatedAs($user);
     }

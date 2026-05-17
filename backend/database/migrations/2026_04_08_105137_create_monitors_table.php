@@ -27,7 +27,7 @@ return new class extends Migration
             $table->integer('transition_time_milliseconds')->default(5000);
             $table->boolean('auto_generation')->default(false);
             $table->integer('auto_generation_window_minutes')->default(30);
-            $table->string('monitor_display_mode')->default('title_first_initial_last_name');
+            $table->string('monitor_display_mode')->default('company_only');
             $table->string('fallback_heading')->default($fallbackHeading);
             $table->string('fallback_subheading')->default($fallbackSubheading);
             $table->boolean('fallback_show_logo')->default(true);

@@ -31,6 +31,7 @@ return [
 
         'provisioning_mode' => env('OIDC_PROVISIONING_MODE', 'disabled'),
         'sync_user_profile' => env('OIDC_SYNC_USER_PROFILE', true),
+        'store_claims' => env('OIDC_STORE_CLAIMS', false),
 
         'sync_roles' => env('OIDC_SYNC_ROLES', false),
         'sync_roles_on_login' => env('OIDC_SYNC_ROLES_ON_LOGIN', false),

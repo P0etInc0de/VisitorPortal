@@ -133,7 +133,7 @@ Docker nutzt dafür den `scheduler` Service mit `php artisan schedule:work`.
 - `TRUSTED_PROXIES=*` ist nur für kontrollierte Container-/Proxy-Netze geeignet.
 - Der Proxy muss `X-Forwarded-Proto`, `X-Forwarded-Host`, `X-Forwarded-Port` und `X-Forwarded-For` korrekt setzen.
 
-HSTS wird nur gesetzt, wenn Laravel die Anfrage als HTTPS erkennt. Falsche Proxy-Konfiguration kann HSTS und sichere Cookie-Erkennung verhindern.
+HSTS wird nur gesetzt, wenn Laravel die Anfrage als HTTPS erkennt. Falsche Proxy-Konfiguration kann HSTS und sichere Cookie-Erkennung verhindern. Teste Reverse-Proxy-Deployments explizit mit HTTPS-Ende-zu-Ende; wenn `TRUSTED_PROXIES` oder Forwarded-Header falsch sind, erkennt Laravel die Anfrage als HTTP und setzt HSTS/Secure-Cookie-Verhalten nicht korrekt.
 
 ## Content Security Policy
 

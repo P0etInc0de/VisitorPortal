@@ -77,7 +77,7 @@ class WelcomeMonitorTest extends TestCase
         ]);
 
         $this->assertFalse($monitor->auto_generation);
-        $this->assertSame(Monitor::DISPLAY_TITLE_FIRST_INITIAL_LAST_NAME, $monitor->monitor_display_mode);
+        $this->assertSame(Monitor::DISPLAY_COMPANY_ONLY, $monitor->monitor_display_mode);
     }
 
     public function test_fallback_page_can_be_updated_from_its_dedicated_edit_flow(): void

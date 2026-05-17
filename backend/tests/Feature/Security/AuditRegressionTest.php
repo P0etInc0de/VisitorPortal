@@ -203,7 +203,7 @@ class AuditRegressionTest extends TestCase
             ->assertSessionHasErrors('participants.0.visitor_id');
     }
 
-    public function test_regular_user_cannot_reuse_hidden_visitor_by_contact_details(): void
+    public function test_regular_user_does_not_reuse_or_disclose_hidden_visitor_by_contact_details(): void
     {
         $user = (new PermissionHelper)->getUserUser();
         $visitor = Visitor::factory()->create([
@@ -225,16 +225,25 @@ class AuditRegressionTest extends TestCase
                         'first_name' => 'Attempted',
                         'name' => 'Overwrite',
                         'email' => 'hidden.contact@example.com',
+                        'phone' => '+49 444 555666',
                     ],
                 ],
             ])
-            ->assertSessionHasErrors('participants');
+            ->assertSessionHasNoErrors();
 
         $this->assertDatabaseHas('visitors', [
             'id' => $visitor->id,
             'first_name' => 'Hidden',
             'name' => 'Visitor',
         ]);
+        $this->assertDatabaseHas('visitors', [
+            'first_name' => 'Attempted',
+            'name' => 'Overwrite',
+            'email' => 'hidden.contact@example.com',
+            'phone' => '+49 444 555666',
+        ]);
+        $this->assertSame(2, Visitor::query()->where('email', 'hidden.contact@example.com')->count());
+        $this->assertSame(2, Visitor::query()->where('phone', '+49 444 555666')->count());
     }
 
     public function test_regular_user_cannot_create_visit_for_another_host_or_completed_status(): void

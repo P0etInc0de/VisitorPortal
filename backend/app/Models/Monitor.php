@@ -26,7 +26,7 @@ class Monitor extends Model
 
     public const DISPLAY_TITLE_FULL_NAME = 'title_full_name';
 
-    public const DEFAULT_MONITOR_DISPLAY_MODE = self::DISPLAY_TITLE_FIRST_INITIAL_LAST_NAME;
+    public const DEFAULT_MONITOR_DISPLAY_MODE = self::DISPLAY_COMPANY_ONLY;
 
     /**
      * The attributes that are mass assignable.

@@ -10,6 +10,13 @@ use Spatie\Permission\PermissionRegistrar;
 class VisitorPortalPermissions
 {
     /**
+     * @var list<string>
+     */
+    private const STANDALONE_PERMISSIONS = [
+        'LoginLocallyInSsoOnlyMode',
+    ];
+
+    /**
      * @return array<string, list<string>>
      */
     public static function roles(): array
@@ -24,7 +31,6 @@ class VisitorPortalPermissions
             'EditOwn:Visit',
             'DeleteOwn:Visit',
             'View:Role',
-            'LoginLocallyInSsoOnlyMode',
         ];
 
         $managerPermissions = self::unique(array_merge($userPermissions, [
@@ -165,7 +171,7 @@ class VisitorPortalPermissions
      */
     public static function permissions(): array
     {
-        return self::unique(array_merge(...array_values(self::roles())));
+        return self::unique(array_merge(self::STANDALONE_PERMISSIONS, ...array_values(self::roles())));
     }
 
     public static function sync(?Command $command = null): void
