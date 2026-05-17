@@ -2,6 +2,7 @@
 
 namespace Tests\Feature\Notification;
 
+use App\Enums\VisitStatusEnum;
 use App\Models\User;
 use App\Models\Visit;
 use App\Models\Visitor;
@@ -9,6 +10,7 @@ use App\Notifications\Guest\SingleVisitReminder as GuestSingleVisitReminder;
 use App\Notifications\Host\GuestCheckedIn;
 use App\Notifications\Host\VisitCreated;
 use App\Notifications\Host\VisitReminderDaily;
+use App\Tasks\DailyVisitorReminder;
 use Carbon\Carbon;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Notification;
@@ -97,6 +99,31 @@ class NotificationTest extends TestCase
         $this->assertSame('Mira Sample', $notification->data['message_replacements']['name']);
     }
 
+    public function test_check_in_action_does_not_notify_inactive_host(): void
+    {
+        Notification::fake();
+
+        $host = User::factory()->create(['is_active' => false]);
+        $receptionist = (new PermissionHelper)->getReceptionistUser();
+        $visit = Visit::factory()->create([
+            'user_id' => $host->id,
+            'responsible_user_id' => $host->id,
+            'status' => VisitStatusEnum::Planned->value,
+        ]);
+        $visitor = Visitor::factory()->create([
+            'first_name' => 'Mira',
+            'name' => 'InactiveHost',
+        ]);
+
+        $visit->visitors()->attach($visitor->id);
+
+        $this->actingAs($receptionist)
+            ->post(route('reception.participants.check-in', [$visit, $visitor]))
+            ->assertStatus(302);
+
+        Notification::assertNotSentTo($host, GuestCheckedIn::class);
+    }
+
     public function test_daily_notification()
     {
         $user = User::factory()->create();
@@ -130,6 +157,39 @@ class NotificationTest extends TestCase
             Carbon::parse($visit->scheduled_until)->format('H:i'),
             $email->getOriginalMessage()->getBody()->bodyToString()
         );
+    }
+
+    public function test_daily_visitor_reminder_skips_inactive_responsible_users(): void
+    {
+        Notification::fake();
+        Carbon::setTestNow('2026-05-17 07:00:00');
+
+        try {
+            $activeResponsibleUser = User::factory()->create(['is_active' => true]);
+            $inactiveResponsibleUser = User::factory()->create(['is_active' => false]);
+            $activeVisit = Visit::factory()->create([
+                'responsible_user_id' => $activeResponsibleUser->id,
+                'scheduled_from' => now()->copy()->setTime(10, 0),
+                'scheduled_until' => now()->copy()->setTime(11, 0),
+                'status' => VisitStatusEnum::Planned->value,
+            ]);
+            $inactiveVisit = Visit::factory()->create([
+                'responsible_user_id' => $inactiveResponsibleUser->id,
+                'scheduled_from' => now()->copy()->setTime(10, 0),
+                'scheduled_until' => now()->copy()->setTime(11, 0),
+                'status' => VisitStatusEnum::Planned->value,
+            ]);
+
+            $activeVisit->visitors()->attach(Visitor::factory()->create()->id);
+            $inactiveVisit->visitors()->attach(Visitor::factory()->create()->id);
+
+            (new DailyVisitorReminder)();
+
+            Notification::assertSentTo($activeResponsibleUser, VisitReminderDaily::class);
+            Notification::assertNotSentTo($inactiveResponsibleUser, VisitReminderDaily::class);
+        } finally {
+            Carbon::setTestNow();
+        }
     }
 
     public function test_visit_created_notification_host()

@@ -93,6 +93,80 @@ class AdminAdministerVisitsTest extends TestCase
         ]);
     }
 
+    public function test_admin_can_create_visit_with_host_assigned_to_selected_site(): void
+    {
+        $admin = (new PermissionHelper)->getSuperAdminUser();
+        $primarySite = Site::factory()->create();
+        $assignedSite = Site::factory()->create();
+        $employee = User::factory()->create(['site_id' => $primarySite->id]);
+        $responsibleUser = User::factory()->create(['site_id' => $primarySite->id]);
+
+        $employee->sites()->syncWithoutDetaching([$assignedSite->id]);
+        $responsibleUser->sites()->syncWithoutDetaching([$assignedSite->id]);
+
+        Livewire::actingAs($admin)
+            ->test(CreateVisit::class)
+            ->assertOk()
+            ->fillForm([
+                'site_id' => $assignedSite->id,
+                'user_id' => $employee->id,
+                'title' => 'Assigned Site Admin Visit',
+                'responsible_user_id' => $responsibleUser->id,
+                'scheduled_from' => now()->addDay()->format('Y-m-d H:i:00'),
+                'scheduled_until' => now()->addDay()->addHour()->format('Y-m-d H:i:00'),
+                'status' => VisitStatusEnum::Planned->value,
+            ])
+            ->call('create')
+            ->assertHasNoFormErrors();
+
+        $this->assertDatabaseHas('visits', [
+            'title' => 'Assigned Site Admin Visit',
+            'site_id' => $assignedSite->id,
+            'user_id' => $employee->id,
+            'responsible_user_id' => $responsibleUser->id,
+        ]);
+    }
+
+    public function test_admin_can_update_visit_with_host_assigned_to_selected_site(): void
+    {
+        $admin = (new PermissionHelper)->getSuperAdminUser();
+        $primarySite = Site::factory()->create();
+        $assignedSite = Site::factory()->create();
+        $originalHost = User::factory()->create(['site_id' => $assignedSite->id]);
+        $employee = User::factory()->create(['site_id' => $primarySite->id]);
+        $responsibleUser = User::factory()->create(['site_id' => $primarySite->id]);
+        $visit = Visit::factory()->create([
+            'site_id' => $assignedSite->id,
+            'user_id' => $originalHost->id,
+            'responsible_user_id' => $originalHost->id,
+            'status' => VisitStatusEnum::Planned->value,
+        ]);
+
+        $employee->sites()->syncWithoutDetaching([$assignedSite->id]);
+        $responsibleUser->sites()->syncWithoutDetaching([$assignedSite->id]);
+
+        Livewire::actingAs($admin)
+            ->test(EditVisit::class, ['record' => $visit->id])
+            ->assertOk()
+            ->fillForm([
+                'site_id' => $assignedSite->id,
+                'user_id' => $employee->id,
+                'title' => 'Updated Assigned Site Admin Visit',
+                'responsible_user_id' => $responsibleUser->id,
+                'scheduled_from' => now()->addDay()->format('Y-m-d H:i:00'),
+                'scheduled_until' => now()->addDay()->addHour()->format('Y-m-d H:i:00'),
+                'status' => VisitStatusEnum::Planned->value,
+            ])
+            ->call('save')
+            ->assertHasNoFormErrors();
+
+        $visit->refresh();
+
+        $this->assertSame($assignedSite->id, $visit->site_id);
+        $this->assertSame($employee->id, $visit->user_id);
+        $this->assertSame($responsibleUser->id, $visit->responsible_user_id);
+    }
+
     public function test_admin_cannot_create_visit_for_inactive_site(): void
     {
         $admin = (new PermissionHelper)->getSuperAdminUser();
