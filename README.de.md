@@ -260,6 +260,16 @@ VisitorPortal ist unter der GNU General Public License v3.0 oder später lizenzi
 
 ## Autoren Und Credits
 
-Entwickelt von einem studentischen Team der Technischen Hochschule Ulm.
+## Autoren und Credits
 
-**Unsere Namen nur nach Zustimmung aller beteiligten Personen öffentlich ergänzt.**
+Dieses Projekt entstand ursprünglich im Rahmen eines studentischen Hochschulprojekts. Nach Abschluss der ursprünglichen Projektarbeit wurden die Weiterentwicklung, Bereinigung und technische Verbesserung des Projekts fortgeführt.
+
+### Projektteam
+
+- **Jonathan Läpple** - Projektleitung und Entwicklung
+- **Jannik Schabel** - Entwicklung
+- **Jan Wangerin** - Entwicklung
+- **Lena Berger** - Entwicklung
+- **Peter Claaß** - Entwicklung
+
+Vielen Dank an alle Mitwirkenden für ihre Beiträge zu Konzeption, Umsetzung, Testing, Dokumentation und Feedback.
