@@ -1,4 +1,4 @@
-FROM php:8.3-apache
+FROM php:8.3.31-apache
 
 # Apache: URL-Rewrites für Laravel
 RUN a2enmod rewrite
@@ -12,7 +12,7 @@ RUN apt-get update && apt-get install -y \
 RUN docker-php-ext-install -j$(nproc) pdo_mysql mbstring zip intl opcache dom xml xmlwriter gmp
 
 # Composer
-COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
+COPY --from=composer:2.8.12 /usr/bin/composer /usr/bin/composer
 
 # Apache vHost für Laravel in /backend/public
 COPY docker/apache/000-default.conf /etc/apache2/sites-available/000-default.conf

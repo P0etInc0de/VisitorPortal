@@ -8,7 +8,8 @@ The test values in this document, including `visitorportal-secret` and `ChangeMe
 
 - Keycloak starts with an imported realm.
 - VisitorPortal uses real OIDC discovery against Keycloak.
-- Frontend assets are built inside the smoke-test container.
+- Frontend assets are built into the web test image.
+- Playwright test dependencies are installed into the smoke-test image.
 - The browser is redirected to Keycloak.
 - The callback logs the user into VisitorPortal.
 - `user_identities` stores `provider`, `issuer`, `subject` and `last_login_at`.
@@ -16,6 +17,16 @@ The test values in this document, including `visitorportal-secret` and `ChangeMe
 - Auto-provisioned SSO users keep `local_login_allowed=false`.
 
 ## Run Locally
+
+The SSO E2E stack uses dedicated Docker images for the web application and the Playwright smoke test.
+
+The web test image installs Composer dependencies and builds Vite assets at image build time. The running web container only prepares writable storage paths, runs database migrations, synchronizes permissions and starts Apache.
+
+The smoke test image installs only the Playwright E2E dependencies from `backend/tests/e2e/package.json` at image build time. The running smoke container only waits for the app and executes the SSO test.
+
+This keeps the test stack reproducible and avoids writing `vendor`, `node_modules` or `public/build` into the host checkout.
+
+The web image still uses `docker/app/entrypoint.sh` before the SSO-specific compose command runs. For SSO tests `RUN_SETUP=false`, so the entrypoint prepares writable paths, checks the app key, caches runtime configuration, waits for the database and finalizes Laravel runtime. If the SSO stack behaves unexpectedly, inspect both `docker-compose.sso-test.yml` and `docker/app/entrypoint.sh`.
 
 From the repository root:
 
@@ -28,6 +39,8 @@ Clean up after the run:
 ```bash
 docker compose -f docker-compose.sso-test.yml down -v
 ```
+
+In CI, the images are built with Docker Buildx and GitHub Actions cache. The compose stack is then started with `--no-build`.
 
 For debugging:
 

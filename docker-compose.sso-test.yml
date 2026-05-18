@@ -2,16 +2,17 @@ name: visitorportal-sso-test
 
 services:
   web:
+    image: visitorportal-sso-web:test
     build:
       context: .
-      dockerfile: docker/apache/Dockerfile
+      dockerfile: docker/app/Dockerfile
+      target: sso-test
     command: >
       sh -lc "
+      test -f vendor/autoload.php &&
+      test -f public/build/manifest.json &&
       mkdir -p storage/framework/cache/data storage/framework/sessions storage/framework/testing storage/framework/views storage/logs bootstrap/cache &&
-      chown -R www-data:www-data storage &&
-      composer install --no-interaction --prefer-dist &&
-      (php artisan storage:link || true) &&
-      php artisan config:clear &&
+      chown -R www-data:www-data storage bootstrap/cache &&
       php artisan migrate:fresh --force &&
       php artisan visitorportal:sync-permissions &&
       apache2-foreground
@@ -58,10 +59,8 @@ services:
       OIDC_SYNC_ROLES: "false"
       OIDC_LOGOUT_MODE: local
       GOTENBERG_URL: http://gotenberg:3000
+      RUN_SETUP: "false"
     volumes:
-      - ./:/var/www/html
-      - sso_public_build:/var/www/html/backend/public/build
-      - sso_vendor:/var/www/html/backend/vendor
       - sso_storage:/var/www/html/backend/storage
     depends_on:
       db:
@@ -79,7 +78,7 @@ services:
       retries: 30
 
   db:
-    image: mysql:8.0
+    image: mysql:8.0.45
     environment:
       MYSQL_DATABASE: visitorportal
       MYSQL_USER: visitor
@@ -110,12 +109,10 @@ services:
       retries: 30
 
   sso-smoke:
-    image: mcr.microsoft.com/playwright:v1.56.1-noble
-    working_dir: /app/backend
-    volumes:
-      - ./:/app
-      - sso_public_build:/app/backend/public/build
-      - sso_node_modules:/app/backend/node_modules
+    image: visitorportal-sso-smoke:test
+    build:
+      context: .
+      dockerfile: docker/sso-test/Dockerfile.smoke
     environment:
       BASE_URL: http://web
       KEYCLOAK_URL: http://keycloak:8080
@@ -126,8 +123,6 @@ services:
       DB_PASSWORD: visitor_pw
     command: >
       bash -lc "
-      npm ci &&
-      npm run build &&
       timeout 120 sh -c 'until curl -fsS http://web/login >/dev/null; do sleep 2; done' &&
       npm run test:sso
       "
@@ -140,13 +135,10 @@ services:
         condition: service_healthy
 
   mailhog:
-    image: mailhog/mailhog:latest
+    image: mailhog/mailhog:v1.0.1
 
   gotenberg:
-    image: gotenberg/gotenberg:8
+    image: gotenberg/gotenberg:8.30.1
 
 volumes:
-  sso_public_build:
-  sso_vendor:
-  sso_node_modules:
   sso_storage:

@@ -19,7 +19,8 @@ services:
       context: .
       dockerfile: docker/apache/Dockerfile
     container_name: besucherportal-queue
-    command: php artisan queue:work
+    restart: unless-stopped
+    command: php artisan queue:work --sleep=3 --tries=3 --timeout=120 --max-time=3600 --max-jobs=1000 --memory=128
     volumes:
       - ./:/var/www/html
     depends_on:
@@ -34,6 +35,7 @@ services:
       context: .
       dockerfile: docker/apache/Dockerfile
     container_name: besucherportal-scheduler
+    restart: unless-stopped
     command: php artisan schedule:work
     volumes:
       - ./:/var/www/html
@@ -43,7 +45,7 @@ services:
     user: "${UID:-1000}:${GID:-1000}"
 
   db:
-    image: mysql:8.0
+    image: mysql:8.0.45
     container_name: besucherportal-db
     environment:
       MYSQL_DATABASE: visitorportal
@@ -61,14 +63,14 @@ services:
       retries: 3
 
   mailhog:
-    image: mailhog/mailhog:latest
+    image: mailhog/mailhog:v1.0.1
     container_name: besucherportal-mailhog
     ports:
       - "8025:8025"
       - "1025:1025"
 
   node:
-    image: node:20-alpine
+    image: node:20.19.6-alpine
     container_name: besucherportal-node
     working_dir: /var/www/html/backend
     volumes:
@@ -80,7 +82,7 @@ services:
     command: sh -lc "npm install && npm run dev -- --host 0.0.0.0 --port 5173"
 
   gotenberg:
-    image: gotenberg/gotenberg:8
+    image: gotenberg/gotenberg:8.30.1
     container_name: besucherportal-gotenberg
     ports:
       - "3000:3000"
