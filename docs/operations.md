@@ -21,7 +21,15 @@ VisitorPortal does not include an active monitoring system. Operators are respon
 - `php artisan visitorportal:health queue`
 - `php artisan visitorportal:health scheduler`
 
+For the default development compose file, use `web` instead of `app`:
+
+```bash
+docker compose exec web php artisan visitorportal:health app
+```
+
 ## Docker
+
+Use a current Docker Engine or Docker Desktop version with Docker Compose v2.
 
 Use restart policies:
 

@@ -9,7 +9,7 @@ Dieses Projekt bietet zwei Setup-Wege:
 
 Voraussetzung:
 
-- Docker Desktop ist installiert und gestartet.
+- Aktuelles Docker Desktop oder Docker Engine mit Docker Compose v2 ist installiert und gestartet.
 
 Windows:
 

@@ -12,11 +12,19 @@ class EnsureAdminPanelMfa
     {
         $user = $request->user();
 
-        if (! $user || ! config('security.mfa.enabled') || ! config('security.mfa.required_for_admin_panel')) {
+        if (! $user || ! config('security.mfa.enabled')) {
             return $next($request);
         }
 
-        if (! $user->hasAnyRole(['admin', 'super_admin']) || $user->hasConfirmedTwoFactorAuthentication()) {
+        $authMethod = $request->hasSession()
+            ? (string) $request->session()->get('auth.method', 'local')
+            : 'local';
+
+        $enforcedMethods = config('security.mfa.app_required_for_admin_panel_auth_methods', ['local', 'sso']);
+
+        if (! in_array($authMethod, $enforcedMethods, true)
+            || ! $user->hasAnyRole(config('security.mfa.app_required_roles', ['admin', 'super_admin']))
+            || $user->hasConfirmedTwoFactorAuthentication()) {
             return $next($request);
         }
 

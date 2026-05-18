@@ -22,14 +22,16 @@ MFA is available for all users. By default it is required for privileged roles:
 ```env
 MFA_ENABLED=true
 MFA_OPTIONAL_FOR_USERS=true
-MFA_REQUIRED_ROLES=admin,super_admin
-MFA_REQUIRED_FOR_ADMIN_PANEL=true
-MFA_ENFORCED_AUTH_METHODS=local
+APP_MFA_REQUIRED_ROLES=admin,super_admin
+APP_MFA_REQUIRED_FOR_AUTH_METHODS=local
+APP_MFA_REQUIRED_FOR_ADMIN_PANEL_AUTH_METHODS=local,sso
 ```
 
-Privileged users must configure and confirm MFA before they can continue using the portal. This applies to the whole privileged account, not only to the Filament admin panel.
+Privileged users must configure and confirm local app MFA before they can continue using the portal after the configured login methods.
 
-The Filament admin panel has an additional MFA middleware. When `MFA_REQUIRED_FOR_ADMIN_PANEL=true`, admin and super admin accounts need confirmed MFA before accessing `/admin`.
+The Filament admin panel has an additional MFA middleware. By default, admin and super admin accounts need confirmed local app MFA before accessing `/admin` after both local and SSO logins. In `APP_MFA_REQUIRED_FOR_ADMIN_PANEL_AUTH_METHODS`, `sso` means VisitorPortal requires additional local app MFA after SSO login; it does not mean MFA is only expected in the external identity provider.
+
+List-style `APP_MFA_*` settings can be intentionally disabled with an empty value or `none`.
 
 ## Recovery Process
 

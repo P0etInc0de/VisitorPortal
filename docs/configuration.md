@@ -15,9 +15,9 @@ Vorlagen:
 - MAIL_MAILER, MAIL_HOST, MAIL_PORT, MAIL_FROM_ADDRESS, MAIL_FROM_NAME
 - MFA_ENABLED (`true`/`false`)
 - MFA_OPTIONAL_FOR_USERS (`true`/`false`; wenn `false`, koennen nicht verpflichtete Nutzer MFA nicht selbst aktivieren)
-- MFA_REQUIRED_ROLES (Default: `admin,super_admin`)
-- MFA_REQUIRED_FOR_ADMIN_PANEL (`true`/`false`)
-- MFA_ENFORCED_AUTH_METHODS (Default: `local`)
+- APP_MFA_REQUIRED_ROLES (Default: `admin,super_admin`)
+- APP_MFA_REQUIRED_FOR_AUTH_METHODS (Default: `local`)
+- APP_MFA_REQUIRED_FOR_ADMIN_PANEL_AUTH_METHODS (Default: `local,sso`)
 - AUTH_MODE (`local`, `local_and_sso`, `sso_only`)
 - SSO_ENABLED (`true`/`false`)
 - OIDC_ISSUER_URL, OIDC_CLIENT_ID, OIDC_CLIENT_SECRET
@@ -54,8 +54,10 @@ Docker-Hinweis:
 ## Authentifizierung und MFA
 
 - Lokale Authentifizierung laeuft ueber Laravel Fortify.
-- MFA ist fuer normale Nutzer optional und fuer Rollen aus `MFA_REQUIRED_ROLES` verpflichtend.
-- Das Filament-Adminpanel prueft zusaetzlich bestaetigte MFA, wenn `MFA_REQUIRED_FOR_ADMIN_PANEL=true` gesetzt ist.
+- MFA ist fuer normale Nutzer optional und fuer Rollen aus `APP_MFA_REQUIRED_ROLES` verpflichtend, wenn die Login-Art in `APP_MFA_REQUIRED_FOR_AUTH_METHODS` enthalten ist.
+- Das Filament-Adminpanel prueft zusaetzlich bestaetigte App-MFA fuer Rollen aus `APP_MFA_REQUIRED_ROLES`, wenn die Login-Art in `APP_MFA_REQUIRED_FOR_ADMIN_PANEL_AUTH_METHODS` enthalten ist.
+- Der Wert `sso` in diesen `APP_MFA_*`-Settings bedeutet: VisitorPortal verlangt auch nach SSO-Login zusaetzlich lokale App-MFA. Das beschreibt nicht die MFA-Erwartung im externen Identity Provider.
+- Listenartige `APP_MFA_*`-Settings koennen mit einem leeren Wert oder `none` bewusst deaktiviert werden.
 - Recovery Codes und der QR-Code einer unbestaetigten MFA-Einrichtung werden nur nach erneuter Passwortbestaetigung angezeigt.
 - `MFA_ENABLED=false` deaktiviert die Rollen-Erzwingung, bestehende bestaetigte MFA wird beim Login aber weiterhin abgefragt.
 - E-Mail-Verifikation ist in diesem Schritt bewusst nicht erzwungen. `MustVerifyEmail` ist nicht am User-Model aktiv.

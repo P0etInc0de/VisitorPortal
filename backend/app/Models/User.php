@@ -221,14 +221,14 @@ class User extends Authenticatable implements FilamentUser
         }
 
         $method = $authMethod ?: 'local';
-        $enforcedMethods = config('security.mfa.enforced_auth_methods', ['local', 'sso']);
+        $enforcedMethods = config('security.mfa.app_required_for_auth_methods', ['local']);
 
         if (! in_array($method, $enforcedMethods, true)) {
             return false;
         }
 
         return $this->roles()
-            ->whereIn('name', config('security.mfa.required_roles', ['admin', 'super_admin']))
+            ->whereIn('name', config('security.mfa.app_required_roles', ['admin', 'super_admin']))
             ->exists();
     }
 
