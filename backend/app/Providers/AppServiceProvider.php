@@ -48,7 +48,11 @@ class AppServiceProvider extends ServiceProvider
         });
 
         Queue::looping(function (): void {
-            app(OperationalHeartbeat::class)->markQueueLoop();
+            try {
+                app(OperationalHeartbeat::class)->markQueueLoop();
+            } catch (\Throwable $exception) {
+                report($exception);
+            }
         });
 
         Gate::after(function ($user, $ability, $result, $arguments) {
