@@ -31,6 +31,8 @@ Privileged users must configure and confirm local app MFA before they can contin
 
 The Filament admin panel has an additional MFA middleware. By default, admin and super admin accounts need confirmed local app MFA before accessing `/admin` after both local and SSO logins. In `APP_MFA_REQUIRED_FOR_ADMIN_PANEL_AUTH_METHODS`, `sso` means VisitorPortal requires additional local app MFA after SSO login; it does not mean MFA is only expected in the external identity provider.
 
+List-style `APP_MFA_*` settings can be intentionally disabled with an empty value or `none`.
+
 ## Recovery Process
 
 Users with MFA should store their recovery codes securely. Each recovery code can be used once during the two-factor login challenge.

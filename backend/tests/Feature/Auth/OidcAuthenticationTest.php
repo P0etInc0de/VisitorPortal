@@ -7,7 +7,9 @@ use App\Auth\Sso\DTO\OidcIdentity;
 use App\Models\User;
 use App\Models\UserIdentity;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Laravel\Fortify\Actions\EnableTwoFactorAuthentication;
 use Tests\Support\FakeOidcAuthenticator;
+use Tests\Support\PermissionHelper;
 use Tests\TestCase;
 
 class OidcAuthenticationTest extends TestCase
@@ -102,5 +104,99 @@ class OidcAuthenticationTest extends TestCase
             ->assertSessionHasErrors('email');
 
         $this->assertGuest();
+    }
+
+    public function test_sso_admin_default_allows_overview_but_requires_app_mfa_for_admin_panel(): void
+    {
+        $this->configureSso();
+        $admin = $this->adminWithSsoIdentity();
+
+        $this->get(route('auth.oidc.callback'))
+            ->assertRedirect(route('overview', absolute: false));
+
+        $this->assertAuthenticatedAs($admin);
+        $this->get(route('overview'))->assertOk();
+        $this->get('/admin')->assertRedirect(route('profile.security'));
+    }
+
+    public function test_sso_admin_redirects_to_mfa_setup_when_sso_login_requires_app_mfa(): void
+    {
+        config(['security.mfa.app_required_for_auth_methods' => ['sso']]);
+        $this->configureSso();
+        $admin = $this->adminWithSsoIdentity();
+
+        $this->get(route('auth.oidc.callback'))
+            ->assertRedirect(route('profile.security'));
+
+        $this->assertAuthenticatedAs($admin);
+    }
+
+    public function test_sso_admin_with_confirmed_mfa_can_access_admin_panel(): void
+    {
+        $this->configureSso();
+        $admin = $this->adminWithSsoIdentity();
+        $this->confirmMfa($admin);
+
+        $this->get(route('auth.oidc.callback'))
+            ->assertRedirect(route('overview', absolute: false));
+
+        $this->get('/admin')->assertOk();
+    }
+
+    public function test_sso_admin_is_not_blocked_in_admin_panel_when_admin_panel_policy_is_local_only(): void
+    {
+        config(['security.mfa.app_required_for_admin_panel_auth_methods' => ['local']]);
+        $this->configureSso();
+        $this->adminWithSsoIdentity();
+
+        $this->get(route('auth.oidc.callback'))
+            ->assertRedirect(route('overview', absolute: false));
+
+        $this->get('/admin')->assertOk();
+    }
+
+    private function configureSso(): void
+    {
+        config([
+            'sso.enabled' => true,
+            'sso.auth_mode' => 'local_and_sso',
+            'sso.oidc.provisioning_mode' => 'disabled',
+        ]);
+    }
+
+    private function adminWithSsoIdentity(): User
+    {
+        $admin = (new PermissionHelper)->getSuperAdminUser();
+
+        UserIdentity::query()->create([
+            'user_id' => $admin->id,
+            'provider' => 'oidc',
+            'provider_user_id' => 'subject-123',
+            'issuer' => 'https://idp.example.test',
+            'subject' => 'subject-123',
+        ]);
+
+        $identity = new OidcIdentity(
+            issuer: 'https://idp.example.test',
+            subject: 'subject-123',
+            email: $admin->email,
+            emailVerified: true,
+            displayName: $admin->full_name,
+            groups: [],
+            claims: [],
+        );
+
+        $this->app->bind(OidcAuthenticator::class, fn () => new FakeOidcAuthenticator($identity));
+
+        return $admin;
+    }
+
+    private function confirmMfa(User $user): void
+    {
+        app(EnableTwoFactorAuthentication::class)($user);
+        $user->refresh();
+
+        $user->forceFill(['two_factor_confirmed_at' => now()])->save();
+        $user->refresh();
     }
 }

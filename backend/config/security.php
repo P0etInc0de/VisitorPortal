@@ -1,8 +1,14 @@
 <?php
 
 $csv = static function (?string $value, string $default): array {
+    $raw = $value ?? $default;
+
+    if (trim($raw) === '' || strtolower(trim($raw)) === 'none') {
+        return [];
+    }
+
     return array_values(array_filter(
-        array_map('trim', explode(',', $value ?: $default)),
+        array_map('trim', explode(',', $raw)),
         static fn (string $item): bool => $item !== ''
     ));
 };

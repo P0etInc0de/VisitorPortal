@@ -57,6 +57,7 @@ Docker-Hinweis:
 - MFA ist fuer normale Nutzer optional und fuer Rollen aus `APP_MFA_REQUIRED_ROLES` verpflichtend, wenn die Login-Art in `APP_MFA_REQUIRED_FOR_AUTH_METHODS` enthalten ist.
 - Das Filament-Adminpanel prueft zusaetzlich bestaetigte App-MFA fuer Rollen aus `APP_MFA_REQUIRED_ROLES`, wenn die Login-Art in `APP_MFA_REQUIRED_FOR_ADMIN_PANEL_AUTH_METHODS` enthalten ist.
 - Der Wert `sso` in diesen `APP_MFA_*`-Settings bedeutet: VisitorPortal verlangt auch nach SSO-Login zusaetzlich lokale App-MFA. Das beschreibt nicht die MFA-Erwartung im externen Identity Provider.
+- Listenartige `APP_MFA_*`-Settings koennen mit einem leeren Wert oder `none` bewusst deaktiviert werden.
 - Recovery Codes und der QR-Code einer unbestaetigten MFA-Einrichtung werden nur nach erneuter Passwortbestaetigung angezeigt.
 - `MFA_ENABLED=false` deaktiviert die Rollen-Erzwingung, bestehende bestaetigte MFA wird beim Login aber weiterhin abgefragt.
 - E-Mail-Verifikation ist in diesem Schritt bewusst nicht erzwungen. `MustVerifyEmail` ist nicht am User-Model aktiv.
