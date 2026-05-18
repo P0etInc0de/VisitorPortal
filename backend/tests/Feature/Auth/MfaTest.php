@@ -240,9 +240,31 @@ class MfaTest extends TestCase
             ->assertOk();
     }
 
+    public function test_admin_panel_app_mfa_uses_auth_method_configuration(): void
+    {
+        config([
+            'security.mfa.app_required_for_auth_methods' => [],
+            'security.mfa.app_required_for_admin_panel_auth_methods' => ['sso'],
+        ]);
+
+        $admin = (new PermissionHelper)->getSuperAdminUser();
+
+        $this
+            ->actingAs($admin)
+            ->withSession(['auth.method' => 'local'])
+            ->get('/admin')
+            ->assertOk();
+
+        $this
+            ->actingAs($admin)
+            ->withSession(['auth.method' => 'sso'])
+            ->get('/admin')
+            ->assertRedirect(route('profile.security'));
+    }
+
     public function test_required_roles_configuration_is_respected(): void
     {
-        config(['security.mfa.required_roles' => ['receptionist']]);
+        config(['security.mfa.app_required_roles' => ['receptionist']]);
 
         $receptionist = (new PermissionHelper)->getReceptionistUser();
 

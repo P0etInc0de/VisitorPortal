@@ -101,6 +101,7 @@ For Microsoft Entra ID, use dedicated application groups and ensure they are emi
 
 - Use a tenant-specific issuer.
 - Enforce MFA in the identity provider.
+- If `APP_MFA_REQUIRED_FOR_ADMIN_PANEL_AUTH_METHODS` contains `sso`, VisitorPortal additionally requires local app MFA after SSO login for privileged admin panel access.
 - Keep a local break-glass admin account with `LoginLocallyInSsoOnlyMode`.
 - Use dedicated VisitorPortal groups.
 - Use HTTPS in production.

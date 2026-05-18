@@ -10,6 +10,7 @@ Diese Anleitung beschreibt den produktionssicheren Bootstrap ohne Demo-Daten. De
 - Ein SMTP-Server für produktive E-Mails.
 - Gotenberg für Badge-PDFs.
 - HTTPS vor der Anwendung, typischerweise über Reverse Proxy oder Webserver.
+- Fuer Docker-Deployments: aktuelle Docker Engine oder Docker Desktop mit Docker Compose v2.
 
 ## Production Bootstrap
 
@@ -52,10 +53,12 @@ Empfohlene produktive Werte:
 ```env
 MFA_ENABLED=true
 MFA_OPTIONAL_FOR_USERS=true
-MFA_REQUIRED_ROLES=admin,super_admin
-MFA_REQUIRED_FOR_ADMIN_PANEL=true
-MFA_ENFORCED_AUTH_METHODS=local
+APP_MFA_REQUIRED_ROLES=admin,super_admin
+APP_MFA_REQUIRED_FOR_AUTH_METHODS=local
+APP_MFA_REQUIRED_FOR_ADMIN_PANEL_AUTH_METHODS=local,sso
 ```
+
+`APP_MFA_REQUIRED_FOR_AUTH_METHODS` steuert, nach welchen Login-Arten VisitorPortal fuer diese Rollen lokale App-MFA verlangt. `APP_MFA_REQUIRED_FOR_ADMIN_PANEL_AUTH_METHODS` steuert die zusaetzliche App-MFA-Pflicht beim Zugriff auf das Admin Panel. Der Wert `sso` bedeutet hier, dass VisitorPortal auch nach SSO-Login zusaetzlich lokale App-MFA verlangt, nicht dass MFA nur im externen Identity Provider erwartet wird.
 
 Wenn ein Benutzer keinen Zugriff mehr auf seine Authenticator-App hat, kann ein Betreiber mit Shell-Zugriff MFA zuruecksetzen:
 

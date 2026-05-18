@@ -64,7 +64,7 @@ Das Demo-Setup ist für nicht-technische Nutzer gedacht. Es nutzt ein fertiges D
 
 Voraussetzung:
 
-- Docker Desktop oder Docker Engine mit Docker Compose v2
+- Aktuelles Docker Desktop oder Docker Engine mit Docker Compose v2
 
 Demo unter Windows starten:
 

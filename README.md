@@ -66,7 +66,7 @@ The demo setup is intended for non-technical users. It uses a prebuilt Docker im
 
 Requirements:
 
-- Docker Desktop or Docker Engine with Docker Compose v2
+- Current Docker Desktop or Docker Engine with Docker Compose v2
 
 Start the demo on Windows:
 
