@@ -123,6 +123,23 @@ class SsoUserResolverTest extends TestCase
         app(SsoUserResolver::class)->resolve($this->identity());
     }
 
+    public function test_it_rejects_inactive_linked_user(): void
+    {
+        $user = User::factory()->create(['is_active' => false]);
+        UserIdentity::query()->create([
+            'user_id' => $user->id,
+            'provider' => 'oidc',
+            'provider_user_id' => 'subject-123',
+            'issuer' => 'https://idp.example.test',
+            'subject' => 'subject-123',
+        ]);
+
+        $this->expectException(AuthenticationException::class);
+        $this->expectExceptionMessage('User account is disabled.');
+
+        app(SsoUserResolver::class)->resolve($this->identity());
+    }
+
     private function identity(bool $emailVerified = true): OidcIdentity
     {
         return new OidcIdentity(
