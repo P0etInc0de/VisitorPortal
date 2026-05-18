@@ -1,0 +1,77 @@
+{
+  "realm": "visitorportal",
+  "enabled": true,
+  "displayName": "VisitorPortal Test Realm",
+  "registrationAllowed": false,
+  "loginWithEmailAllowed": true,
+  "duplicateEmailsAllowed": false,
+  "resetPasswordAllowed": false,
+  "verifyEmail": false,
+  "clients": [
+    {
+      "clientId": "visitorportal",
+      "name": "VisitorPortal",
+      "enabled": true,
+      "protocol": "openid-connect",
+      "publicClient": false,
+      "clientAuthenticatorType": "client-secret",
+      "secret": "visitorportal-secret",
+      "standardFlowEnabled": true,
+      "implicitFlowEnabled": false,
+      "directAccessGrantsEnabled": false,
+      "serviceAccountsEnabled": false,
+      "redirectUris": [
+        "http://web/auth/oidc/callback"
+      ],
+      "webOrigins": [
+        "http://web"
+      ],
+      "attributes": {
+        "pkce.code.challenge.method": "S256"
+      },
+      "protocolMappers": [
+        {
+          "name": "groups",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-group-membership-mapper",
+          "consentRequired": false,
+          "config": {
+            "claim.name": "groups",
+            "full.path": "false",
+            "id.token.claim": "true",
+            "access.token.claim": "true",
+            "userinfo.token.claim": "true"
+          }
+        }
+      ]
+    }
+  ],
+  "groups": [
+    {
+      "name": "VisitorPortal-Users"
+    },
+    {
+      "name": "VisitorPortal-Reception"
+    }
+  ],
+  "users": [
+    {
+      "username": "alice@example.org",
+      "email": "alice@example.org",
+      "firstName": "Alice",
+      "lastName": "Reed",
+      "enabled": true,
+      "emailVerified": true,
+      "groups": [
+        "VisitorPortal-Users"
+      ],
+      "credentials": [
+        {
+          "type": "password",
+          "value": "ChangeMe-42!",
+          "temporary": false
+        }
+      ]
+    }
+  ]
+}
