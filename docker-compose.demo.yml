@@ -21,6 +21,7 @@ x-app-environment: &app-environment
   SESSION_DRIVER: database
   CACHE_STORE: database
   QUEUE_CONNECTION: database
+  DB_QUEUE_RETRY_AFTER: "180"
   BROADCAST_CONNECTION: log
   FILESYSTEM_DISK: local
   MAIL_MAILER: smtp
@@ -75,7 +76,7 @@ services:
   queue:
     image: *app-image
     restart: unless-stopped
-    command: php artisan queue:work --sleep=3 --tries=3 --timeout=120
+    command: php artisan queue:work --sleep=3 --tries=3 --timeout=120 --max-time=3600 --max-jobs=1000 --memory=128
     environment:
       <<: *app-environment
       RUN_SETUP: "false"

@@ -73,7 +73,7 @@ services:
       gotenberg:
         condition: service_started
     healthcheck:
-      test: ["CMD", "php", "-r", "exit(@fsockopen('127.0.0.1', 80) ? 0 : 1);"]
+      test: ["CMD-SHELL", "php -r 'exit(@fopen(\"http://127.0.0.1/up\", \"r\") ? 0 : 1);'"]
       interval: 5s
       timeout: 5s
       retries: 30
@@ -93,7 +93,7 @@ services:
       retries: 30
 
   keycloak:
-    image: quay.io/keycloak/keycloak:26.0
+    image: quay.io/keycloak/keycloak:26.0.8
     command: start-dev --import-realm
     environment:
       KEYCLOAK_ADMIN: admin

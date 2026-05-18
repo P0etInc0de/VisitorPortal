@@ -53,6 +53,12 @@ jobs:
       - name: Install Dependencies
         run: composer install --no-interaction --prefer-dist
 
+      - name: Composer security audit
+        run: composer audit
+
+      - name: Composer licenses
+        run: composer licenses
+
       - name: Install frontend dependencies
         run: npm ci
 
