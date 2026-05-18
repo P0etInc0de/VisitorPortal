@@ -53,7 +53,7 @@ WORKDIR /app/backend
 COPY backend/package.json backend/package-lock.json ./
 RUN npm ci --no-audit --no-fund
 
-COPY --from=vendor /var/www/html/backend/vendor ./vendor
+COPY --from=vendor /var/www/html/backend/vendor/laravel/framework/src/Illuminate/Pagination/resources/views ./vendor/laravel/framework/src/Illuminate/Pagination/resources/views
 COPY backend/resources ./resources
 COPY backend/public ./public
 COPY backend/vite.config.js ./vite.config.js
