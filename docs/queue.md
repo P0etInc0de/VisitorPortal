@@ -1,28 +1,58 @@
 # Queues
 
-### Queuing
+## Queuing
 
-- Das direkte Versenden einer Benachrichtigung oder E-Mail aus PHP heraus kann die Antwortzeit (**Responsiveness**) unserer Anwendung verschlechtern.
-- Wir nutzen **Queues** und einen **Worker**, um den Versandprozess im Hintergrund auszuführen.
-- Um unser Projekt übersichtlich zu halten, fügen wir unserer `docker-compose`-Datei einen neuen Container hinzu. Dieser startet einen Worker mit folgendem Befehl:
+- Die Queue ist erforderlich fuer Benachrichtigungen und Hintergrundjobs.
+- Das direkte Versenden einer Benachrichtigung oder E-Mail aus PHP heraus kann die Antwortzeit der Anwendung verschlechtern.
+- Wir nutzen Queues und einen Worker, um den Versandprozess im Hintergrund auszufuehren.
 
-```bash 
-php artisan queue:work
-```
-
-- Eine Benachrichtigung kann anschließend wie folgt gesendet werden:
-    - Sie muss lediglich das Interface `ShouldQueue` implementieren.
+Eine Benachrichtigung kann gesendet werden, indem sie das Interface `ShouldQueue` implementiert:
 
 ```php
- Notification::send($request->user(), new VisitReminderDaily());
+Notification::send($request->user(), new VisitReminderDaily());
 ```
 
-### Konfiguration
+## Worker
 
-- Wir verwenden die Standardkonfiguration von Laravel.
-- In der datei `config/queue.php` kann die Konfiguration angepasst werden
-- Die Queue ist lediglich eine Datenbanktabelle namens **"Jobs"**.
+Empfohlener Worker-Befehl:
+
+```bash
+php artisan queue:work --sleep=3 --tries=3 --timeout=120 --max-time=3600 --max-jobs=1000 --memory=128
+```
+
+`DB_QUEUE_RETRY_AFTER` muss groesser als `--timeout` sein. Der Docker-Default ist:
+
+```env
+DB_QUEUE_RETRY_AFTER=180
+```
+
+## Konfiguration
+
+- Wir verwenden die Datenbank-Queue von Laravel.
+- In `config/queue.php` kann die Konfiguration angepasst werden.
+- Die Queue nutzt die Datenbanktabelle `jobs`.
+- Fehlgeschlagene Jobs werden in `failed_jobs` gespeichert.
 - Alle erforderlichen Datenbanktabellen sind bereits vorhanden.
+
+## Betrieb
+
+Failed Jobs pruefen:
+
+```bash
+php artisan queue:failed
+```
+
+Logs pruefen:
+
+```bash
+docker compose logs -f queue
+```
+
+Health pruefen:
+
+```bash
+php artisan visitorportal:health queue
+```
 
 ## Quellen
 

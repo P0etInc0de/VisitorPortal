@@ -4,8 +4,8 @@ FROM php:8.3.31-apache
 RUN a2enmod rewrite
 
 # System libs
-RUN apt-get update && apt-get install -y \
-    git unzip libzip-dev libicu-dev libonig-dev libxml2-dev libgmp-dev \
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    curl git unzip libzip-dev libicu-dev libonig-dev libxml2-dev libgmp-dev \
   && rm -rf /var/lib/apt/lists/*
 
 # PHP Extensions
