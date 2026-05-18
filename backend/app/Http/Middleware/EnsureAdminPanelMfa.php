@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Support\MfaOnboarding;
 use Closure;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -28,9 +29,11 @@ class EnsureAdminPanelMfa
             return $next($request);
         }
 
-        if ($request->isMethod('GET')) {
-            $request->session()->put('security.mfa.intended_url', $request->fullUrl());
-        }
+        app(MfaOnboarding::class)->start(
+            $request,
+            $authMethod,
+            $request->isMethod('GET') ? $request->fullUrl() : route('overview')
+        );
 
         return redirect()
             ->route('security.mfa.required')

@@ -9,6 +9,18 @@
         </div>
 
         <div class="grid gap-5 p-7 sm:p-9">
+            @if (session('status'))
+                <div class="alert alert-success rounded-2xl">
+                    <span>
+                        @if (session('status') === 'two-factor-authentication-confirmed')
+                            {{ __('MFA wurde aktiviert. Speichere jetzt deine Recovery Codes.') }}
+                        @else
+                            {{ __(session('status')) }}
+                        @endif
+                    </span>
+                </div>
+            @endif
+
             <div class="grid gap-2 sm:grid-cols-2">
                 @foreach ($recoveryCodes as $code)
                     <code class="rounded-2xl border border-base-300 bg-base-200 px-4 py-3 text-sm">{{ $code }}</code>
@@ -16,9 +28,12 @@
             </div>
 
             <div class="flex flex-col gap-3 border-t border-base-300 pt-5 sm:flex-row">
-                <a href="{{ route('security.mfa.required') }}" class="btn btn-outline rounded-2xl">
-                    {{ __('Zurueck') }}
-                </a>
+                <form method="POST" action="{{ route('security.mfa.continue') }}">
+                    @csrf
+                    <button type="submit" class="btn btn-primary rounded-2xl">
+                        {{ __('Weiter') }}
+                    </button>
+                </form>
 
                 <form method="POST" action="{{ route('logout') }}">
                     @csrf

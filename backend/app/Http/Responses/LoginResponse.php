@@ -3,6 +3,7 @@
 namespace App\Http\Responses;
 
 use App\Support\AuthRedirector;
+use App\Support\MfaOnboarding;
 use App\Support\UserSessionPreferences;
 use Illuminate\Support\Facades\Auth;
 use Laravel\Fortify\Contracts\LoginResponse as LoginResponseContract;
@@ -33,8 +34,9 @@ class LoginResponse implements LoginResponseContract, TwoFactorLoginResponseCont
         app(UserSessionPreferences::class)->apply($request, $user);
 
         if ($user->requiresTwoFactorAuthentication($authMethod) && ! $user->hasConfirmedTwoFactorAuthentication()) {
-            $request->session()->put(
-                'security.mfa.intended_url',
+            app(MfaOnboarding::class)->start(
+                $request,
+                $authMethod,
                 $request->session()->pull('url.intended', url(app(AuthRedirector::class)->pathFor($user)))
             );
 

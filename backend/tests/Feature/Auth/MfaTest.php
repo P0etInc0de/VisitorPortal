@@ -85,6 +85,53 @@ class MfaTest extends TestCase
 
         $this->assertAuthenticatedAs($admin);
         $response->assertRedirect(route('security.mfa.required'));
+        $response->assertSessionHas('security.mfa.onboarding_required', true);
+    }
+
+    public function test_required_mfa_onboarding_can_be_completed_without_password_confirmation(): void
+    {
+        $admin = (new PermissionHelper)->getSuperAdminUser();
+
+        $this->post('/login', [
+            'email' => $admin->email,
+            'password' => 'password',
+        ])->assertRedirect(route('security.mfa.required'));
+
+        $this
+            ->get(route('security.mfa.setup'))
+            ->assertOk()
+            ->assertSee(__('MFA-Einrichtung starten'));
+
+        $this
+            ->post(route('security.mfa.enable'))
+            ->assertRedirect(route('security.mfa.setup'));
+
+        $admin->refresh();
+
+        $this->assertNotNull($admin->two_factor_secret);
+        $this->assertNull($admin->two_factor_confirmed_at);
+
+        $this
+            ->post(route('security.mfa.confirm'), [
+                'code' => $this->currentTotp($admin),
+            ])
+            ->assertRedirect(route('security.mfa.recovery-codes'));
+
+        $admin->refresh();
+
+        $this->assertTrue($admin->hasConfirmedTwoFactorAuthentication());
+
+        $recoveryCode = $admin->recoveryCodes()[0];
+
+        $this
+            ->get(route('security.mfa.recovery-codes'))
+            ->assertOk()
+            ->assertSee($recoveryCode)
+            ->assertSee(__('Weiter'));
+
+        $this
+            ->post(route('security.mfa.continue'))
+            ->assertRedirect(url('/overview'));
     }
 
     public function test_admin_with_unconfirmed_mfa_remains_limited_to_setup_routes(): void
@@ -106,6 +153,7 @@ class MfaTest extends TestCase
 
         $this
             ->actingAs($admin)
+            ->withSession($this->mfaOnboardingSession())
             ->get(route('security.mfa.required'))
             ->assertOk();
     }
@@ -116,12 +164,23 @@ class MfaTest extends TestCase
 
         $this
             ->actingAs($admin)
+            ->withSession($this->mfaOnboardingSession())
             ->get(route('security.mfa.required'))
             ->assertOk()
             ->assertSee(__('MFA erforderlich'))
             ->assertSee(__('Abmelden'))
             ->assertDontSee(__('Übersicht'))
             ->assertDontSee(__('Admin-Bereich'));
+    }
+
+    public function test_normal_user_cannot_access_required_mfa_onboarding_page_without_onboarding(): void
+    {
+        $user = (new PermissionHelper)->getUser();
+
+        $this
+            ->actingAs($user)
+            ->get(route('security.mfa.required'))
+            ->assertRedirect(route('overview'));
     }
 
     public function test_unconfirmed_mfa_qr_code_requires_password_confirmation(): void
@@ -298,18 +357,16 @@ class MfaTest extends TestCase
         $admin->refresh();
 
         $this
-            ->actingAs($admin)
-            ->withSession([
-                'auth.method' => 'local',
-                'auth.password_confirmed_at' => time(),
-                'security.mfa.intended_url' => url('/admin'),
-            ])
-            ->post(route('two-factor.confirm'), [
+            ->post(route('security.mfa.confirm'), [
                 'code' => $this->currentTotp($admin),
             ])
-            ->assertRedirect(url('/admin'));
+            ->assertRedirect(route('security.mfa.recovery-codes'));
 
         $this->assertTrue($admin->fresh()->hasConfirmedTwoFactorAuthentication());
+
+        $this
+            ->post(route('security.mfa.continue'))
+            ->assertRedirect(url('/admin'));
     }
 
     public function test_required_roles_configuration_is_respected(): void
@@ -391,6 +448,20 @@ class MfaTest extends TestCase
 
         $user->forceFill(['two_factor_confirmed_at' => now()])->save();
         $user->refresh();
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function mfaOnboardingSession(string $authMethod = 'local', ?string $intendedUrl = null): array
+    {
+        return [
+            'auth.method' => $authMethod,
+            'security.mfa.onboarding_required' => true,
+            'security.mfa.authenticated_at' => now()->timestamp,
+            'security.mfa.auth_method' => $authMethod,
+            'security.mfa.intended_url' => $intendedUrl ?? url('/overview'),
+        ];
     }
 
     private function currentTotp(User $user): string

@@ -8,6 +8,8 @@ use App\Models\User;
 use App\Models\UserIdentity;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Laravel\Fortify\Actions\EnableTwoFactorAuthentication;
+use Laravel\Fortify\Fortify;
+use PragmaRX\Google2FA\Google2FA;
 use Tests\Support\FakeOidcAuthenticator;
 use Tests\Support\PermissionHelper;
 use Tests\TestCase;
@@ -119,6 +121,25 @@ class OidcAuthenticationTest extends TestCase
         $this->get('/admin')->assertRedirect(route('security.mfa.required'));
     }
 
+    public function test_sso_admin_default_can_complete_admin_panel_mfa_onboarding(): void
+    {
+        $this->configureSso();
+        $admin = $this->adminWithSsoIdentity();
+
+        $this->get(route('auth.oidc.callback'))
+            ->assertRedirect(route('overview', absolute: false));
+
+        $this
+            ->get('/admin')
+            ->assertRedirect(route('security.mfa.required'))
+            ->assertSessionHas('security.mfa.auth_method', 'sso')
+            ->assertSessionHas('security.mfa.intended_url', url('/admin'));
+
+        $this->completeRequiredMfaOnboarding($admin, url('/admin'));
+
+        $this->get('/admin')->assertOk();
+    }
+
     public function test_sso_admin_redirects_to_mfa_setup_when_sso_login_requires_app_mfa(): void
     {
         config(['security.mfa.app_required_for_auth_methods' => ['sso']]);
@@ -129,6 +150,21 @@ class OidcAuthenticationTest extends TestCase
             ->assertRedirect(route('security.mfa.required'));
 
         $this->assertAuthenticatedAs($admin);
+    }
+
+    public function test_sso_only_admin_with_local_login_disabled_can_complete_required_app_mfa_onboarding(): void
+    {
+        config(['security.mfa.app_required_for_auth_methods' => ['sso']]);
+        $this->configureSso('sso_only');
+        $admin = $this->adminWithSsoIdentity(['local_login_allowed' => false]);
+
+        $this->get(route('auth.oidc.callback'))
+            ->assertRedirect(route('security.mfa.required'))
+            ->assertSessionHas('security.mfa.auth_method', 'sso');
+
+        $this->assertAuthenticatedAs($admin);
+
+        $this->completeRequiredMfaOnboarding($admin, url('/overview'));
     }
 
     public function test_sso_admin_with_confirmed_mfa_can_access_admin_panel(): void
@@ -155,18 +191,26 @@ class OidcAuthenticationTest extends TestCase
         $this->get('/admin')->assertOk();
     }
 
-    private function configureSso(): void
+    private function configureSso(string $authMode = 'local_and_sso'): void
     {
         config([
             'sso.enabled' => true,
-            'sso.auth_mode' => 'local_and_sso',
+            'sso.auth_mode' => $authMode,
             'sso.oidc.provisioning_mode' => 'disabled',
         ]);
     }
 
-    private function adminWithSsoIdentity(): User
+    /**
+     * @param  array<string, mixed>  $attributes
+     */
+    private function adminWithSsoIdentity(array $attributes = []): User
     {
         $admin = (new PermissionHelper)->getSuperAdminUser();
+
+        if ($attributes !== []) {
+            $admin->forceFill($attributes)->save();
+            $admin->refresh();
+        }
 
         UserIdentity::query()->create([
             'user_id' => $admin->id,
@@ -198,5 +242,45 @@ class OidcAuthenticationTest extends TestCase
 
         $user->forceFill(['two_factor_confirmed_at' => now()])->save();
         $user->refresh();
+    }
+
+    private function completeRequiredMfaOnboarding(User $user, string $expectedRedirectUrl): void
+    {
+        $this
+            ->get(route('security.mfa.setup'))
+            ->assertOk()
+            ->assertSee(__('MFA-Einrichtung starten'));
+
+        $this
+            ->post(route('security.mfa.enable'))
+            ->assertRedirect(route('security.mfa.setup'));
+
+        $user->refresh();
+
+        $this
+            ->post(route('security.mfa.confirm'), [
+                'code' => $this->currentTotp($user),
+            ])
+            ->assertRedirect(route('security.mfa.recovery-codes'));
+
+        $user->refresh();
+
+        $this->assertTrue($user->hasConfirmedTwoFactorAuthentication());
+
+        $this
+            ->get(route('security.mfa.recovery-codes'))
+            ->assertOk()
+            ->assertSee($user->recoveryCodes()[0]);
+
+        $this
+            ->post(route('security.mfa.continue'))
+            ->assertRedirect($expectedRedirectUrl);
+    }
+
+    private function currentTotp(User $user): string
+    {
+        $secret = Fortify::currentEncrypter()->decrypt($user->fresh()->two_factor_secret);
+
+        return app(Google2FA::class)->getCurrentOtp($secret);
     }
 }

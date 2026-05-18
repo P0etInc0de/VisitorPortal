@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Support\MfaOnboarding;
 use Closure;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -42,7 +43,7 @@ class EnsureRequiredMfaIsConfigured
             abort(403, __('Bitte richte die Zwei-Faktor-Authentifizierung ein, um fortzufahren.'));
         }
 
-        $this->storeIntendedUrl($request);
+        $this->startMfaOnboarding($request, $authMethod);
 
         return redirect()
             ->route('security.mfa.required')
@@ -67,10 +68,14 @@ class EnsureRequiredMfaIsConfigured
         );
     }
 
-    private function storeIntendedUrl(Request $request): void
+    private function startMfaOnboarding(Request $request, string $authMethod): void
     {
-        if ($request->isMethod('GET')) {
-            $request->session()->put('security.mfa.intended_url', $request->fullUrl());
-        }
+        app(MfaOnboarding::class)->start(
+            $request,
+            $authMethod,
+            $request->isMethod('GET')
+                ? $request->fullUrl()
+                : (string) $request->session()->get('security.mfa.intended_url', route('overview'))
+        );
     }
 }

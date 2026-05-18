@@ -7,6 +7,7 @@ use App\Auth\Sso\SsoAuthenticationException;
 use App\Auth\Sso\SsoUserResolver;
 use App\Http\Controllers\Controller;
 use App\Support\AuthRedirector;
+use App\Support\MfaOnboarding;
 use App\Support\UserSessionPreferences;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Http\RedirectResponse;
@@ -65,8 +66,9 @@ final class OidcAuthController extends Controller
         ]);
 
         if ($user->requiresTwoFactorAuthentication('sso') && ! $user->hasConfirmedTwoFactorAuthentication()) {
-            $request->session()->put(
-                'security.mfa.intended_url',
+            app(MfaOnboarding::class)->start(
+                $request,
+                'sso',
                 $request->session()->pull('url.intended', url(app(AuthRedirector::class)->pathFor($user)))
             );
 

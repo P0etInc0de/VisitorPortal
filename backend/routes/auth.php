@@ -8,6 +8,7 @@ use App\Http\Controllers\Auth\ProfileController;
 use App\Http\Controllers\Auth\SecurityMfaController;
 use App\Http\Controllers\Auth\ThemePreferenceController;
 use App\Http\Controllers\Auth\VerifyEmailController;
+use App\Http\Middleware\EnsureMfaOnboardingIsAllowed;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware('guest')->group(function () {
@@ -34,16 +35,25 @@ Route::middleware('auth')->group(function () {
         ->middleware('password.confirm')
         ->name('profile.security.two-factor-setup');
 
-    Route::get('security/mfa/required', [SecurityMfaController::class, 'required'])
-        ->name('security.mfa.required');
+    Route::middleware(EnsureMfaOnboardingIsAllowed::class)->group(function () {
+        Route::get('security/mfa/required', [SecurityMfaController::class, 'required'])
+            ->name('security.mfa.required');
 
-    Route::get('security/mfa/setup', [SecurityMfaController::class, 'setup'])
-        ->middleware('password.confirm')
-        ->name('security.mfa.setup');
+        Route::get('security/mfa/setup', [SecurityMfaController::class, 'setup'])
+            ->name('security.mfa.setup');
 
-    Route::get('security/mfa/recovery-codes', [SecurityMfaController::class, 'recoveryCodes'])
-        ->middleware('password.confirm')
-        ->name('security.mfa.recovery-codes');
+        Route::post('security/mfa/enable', [SecurityMfaController::class, 'enable'])
+            ->name('security.mfa.enable');
+
+        Route::post('security/mfa/confirm', [SecurityMfaController::class, 'confirm'])
+            ->name('security.mfa.confirm');
+
+        Route::get('security/mfa/recovery-codes', [SecurityMfaController::class, 'recoveryCodes'])
+            ->name('security.mfa.recovery-codes');
+
+        Route::match(['get', 'post'], 'security/mfa/continue', [SecurityMfaController::class, 'complete'])
+            ->name('security.mfa.continue');
+    });
 
     Route::patch('profile', [ProfileController::class, 'update'])
         ->name('profile.update');

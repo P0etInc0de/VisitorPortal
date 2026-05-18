@@ -33,7 +33,7 @@
                         {{ __('Starte die MFA-Einrichtung. Danach wird dir ein QR-Code angezeigt, den du mit deiner Authenticator-App scannst.') }}
                     </p>
 
-                    <form method="POST" action="{{ route('two-factor.enable') }}" class="mt-5">
+                    <form method="POST" action="{{ route('security.mfa.enable') }}" class="mt-5">
                         @csrf
                         <button type="submit" class="btn btn-primary rounded-2xl">
                             {{ __('MFA-Einrichtung starten') }}
@@ -54,7 +54,7 @@
                             {{ __('Bitte scanne den QR-Code mit deiner Authenticator-App und bestaetige anschliessend den sechsstelligen Code. MFA ist erst nach dieser Bestaetigung aktiv.') }}
                         </p>
 
-                        <form method="POST" action="{{ route('two-factor.confirm') }}" class="mt-5 grid gap-4 sm:max-w-sm">
+                        <form method="POST" action="{{ route('security.mfa.confirm') }}" class="mt-5 grid gap-4 sm:max-w-sm">
                             @csrf
 
                             <div>
