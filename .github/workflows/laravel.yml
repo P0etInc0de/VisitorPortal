@@ -12,7 +12,7 @@ jobs:
 
     services:
       mysql:
-        image: mysql:8.0
+        image: mysql:8.0.45
         env:
           MYSQL_DATABASE: visitorportal_test
           MYSQL_USER: visitor
@@ -59,8 +59,14 @@ jobs:
       - name: Composer licenses
         run: composer licenses
 
+      - name: Composer license policy check
+        run: php scripts/check-composer-licenses.php
+
       - name: Install frontend dependencies
         run: npm ci
+
+      - name: NPM security audit
+        run: npm audit --audit-level=moderate
 
       - name: Build frontend assets
         run: npm run build

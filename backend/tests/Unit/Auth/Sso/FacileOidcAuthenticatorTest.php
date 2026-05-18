@@ -57,6 +57,17 @@ class FacileOidcAuthenticatorTest extends TestCase
         $this->invokePrivate(app(FacileOidcAuthenticator::class), 'validateState', [$request, $authSession]);
     }
 
+    public function test_it_rejects_missing_state(): void
+    {
+        $request = Request::create('/auth/oidc/callback', 'GET');
+        $authSession = AuthSession::fromArray(['state' => 'expected-state']);
+
+        $this->expectException(SsoAuthenticationException::class);
+        $this->expectExceptionMessage('Invalid OIDC state.');
+
+        $this->invokePrivate(app(FacileOidcAuthenticator::class), 'validateState', [$request, $authSession]);
+    }
+
     public function test_it_rejects_wrong_issuer(): void
     {
         $this->expectException(SsoAuthenticationException::class);
@@ -96,6 +107,17 @@ class FacileOidcAuthenticatorTest extends TestCase
 
         $this->validateClaims([
             'aud' => ['visitorportal', 'other-client'],
+            'azp' => 'other-client',
+        ]);
+    }
+
+    public function test_it_rejects_wrong_authorized_party_for_single_audience(): void
+    {
+        $this->expectException(SsoAuthenticationException::class);
+        $this->expectExceptionMessage('Invalid OIDC authorized party.');
+
+        $this->validateClaims([
+            'aud' => 'visitorportal',
             'azp' => 'other-client',
         ]);
     }

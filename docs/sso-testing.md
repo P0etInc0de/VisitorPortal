@@ -22,9 +22,11 @@ The SSO E2E stack uses dedicated Docker images for the web application and the P
 
 The web test image installs Composer dependencies and builds Vite assets at image build time. The running web container only prepares writable storage paths, runs database migrations, synchronizes permissions and starts Apache.
 
-The smoke test image installs Playwright test dependencies at image build time. The running smoke container only waits for the app and executes the SSO test.
+The smoke test image installs only the Playwright E2E dependencies from `backend/tests/e2e/package.json` at image build time. The running smoke container only waits for the app and executes the SSO test.
 
 This keeps the test stack reproducible and avoids writing `vendor`, `node_modules` or `public/build` into the host checkout.
+
+The web image still uses `docker/app/entrypoint.sh` before the SSO-specific compose command runs. For SSO tests `RUN_SETUP=false`, so the entrypoint prepares writable paths, checks the app key, caches runtime configuration, waits for the database and finalizes Laravel runtime. If the SSO stack behaves unexpectedly, inspect both `docker-compose.sso-test.yml` and `docker/app/entrypoint.sh`.
 
 From the repository root:
 
