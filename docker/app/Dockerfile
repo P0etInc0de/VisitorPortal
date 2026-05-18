@@ -84,3 +84,15 @@ EXPOSE 80
 
 ENTRYPOINT ["besucherportal-entrypoint"]
 CMD ["apache2-foreground"]
+
+FROM app AS sso-test
+
+ENV APP_ENV=testing \
+    APP_DEBUG=false \
+    RUN_SETUP=false \
+    AUTO_MIGRATE=false \
+    AUTO_SEED=false \
+    FORCE_SEED=false
+
+RUN test -f vendor/autoload.php \
+    && test -f public/build/manifest.json

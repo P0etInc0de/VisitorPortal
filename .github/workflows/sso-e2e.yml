@@ -4,8 +4,14 @@ on:
   workflow_dispatch:
   pull_request:
     branches: ["develop", "main"]
+    paths:
+      - "backend/**"
+      - "docker/**"
+      - "docker-compose.sso-test.yml"
+      - ".github/workflows/sso-e2e.yml"
 
 permissions:
+  actions: write
   contents: read
 
 jobs:
@@ -16,10 +22,34 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build SSO web image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: docker/app/Dockerfile
+          target: sso-test
+          tags: visitorportal-sso-web:test
+          load: true
+          cache-from: type=gha,scope=sso-web
+          cache-to: type=gha,mode=max,scope=sso-web
+
+      - name: Build SSO smoke image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: docker/sso-test/Dockerfile.smoke
+          tags: visitorportal-sso-smoke:test
+          load: true
+          cache-from: type=gha,scope=sso-smoke
+          cache-to: type=gha,mode=max,scope=sso-smoke
+
       - name: Run SSO smoke test
         run: |
           docker compose -f docker-compose.sso-test.yml up \
-            --build \
+            --no-build \
             --abort-on-container-exit \
             --exit-code-from sso-smoke
 

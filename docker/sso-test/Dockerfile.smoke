@@ -1,0 +1,13 @@
+# syntax=docker/dockerfile:1
+
+FROM mcr.microsoft.com/playwright:v1.56.1-noble
+
+WORKDIR /app/backend
+
+COPY backend/package.json backend/package-lock.json ./
+RUN npm ci --no-audit --no-fund
+
+COPY backend/playwright.config.ts ./
+COPY backend/tests/e2e ./tests/e2e
+
+CMD ["npm", "run", "test:sso"]
