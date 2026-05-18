@@ -45,11 +45,14 @@ Ensure `DB_QUEUE_RETRY_AFTER` is greater than the worker timeout.
 
 ## Troubleshooting
 
+For a stricter storage permission check, run the app health command as the web server user when the container permits it.
+
 ```bash
 docker compose ps
 docker compose logs -f queue
 docker compose logs -f scheduler
 docker compose exec app php artisan visitorportal:health app
+docker compose exec --user www-data app php artisan visitorportal:health app
 docker compose exec queue php artisan visitorportal:health queue
 docker compose exec scheduler php artisan visitorportal:health scheduler
 docker compose exec app php artisan queue:failed

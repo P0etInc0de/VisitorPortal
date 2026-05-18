@@ -111,8 +111,10 @@ docker compose -f docker-compose.prod.yml exec app php artisan visitorportal:cre
 Produktiv muss ein Queue Worker laufen, weil Benachrichtigungen und geplante Aufgaben Jobs nutzen können.
 
 ```bash
-php artisan queue:work --sleep=3 --tries=3 --timeout=120
+php artisan queue:work --sleep=3 --tries=3 --timeout=120 --max-time=3600 --max-jobs=1000 --memory=128
 ```
+
+Setze `DB_QUEUE_RETRY_AFTER=180`. Der Retry-After-Wert muss groesser als der Worker-Timeout sein.
 
 ## Scheduler
 

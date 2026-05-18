@@ -125,7 +125,7 @@ services:
       db:
         condition: service_healthy
       app:
-        condition: service_started
+        condition: service_healthy
     healthcheck:
       test: ["CMD", "php", "artisan", "visitorportal:health", "queue"]
       interval: 60s
@@ -146,7 +146,7 @@ services:
       db:
         condition: service_healthy
       app:
-        condition: service_started
+        condition: service_healthy
     healthcheck:
       test: ["CMD", "php", "artisan", "visitorportal:health", "scheduler"]
       interval: 60s

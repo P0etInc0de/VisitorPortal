@@ -234,6 +234,7 @@ Für produktionsnahe Deployments müssen insbesondere diese Demo-Defaults geprü
 - [Setup Guide](docs/setup.md)
 - [Configuration](docs/configuration.md)
 - [Deployment](docs/deployment.md)
+- [Betrieb und Monitoring](docs/operations.md)
 - [Roles And Permissions](docs/roles.md)
 - [Queue](docs/queue.md)
 - [Scheduler](docs/scheduler.md)

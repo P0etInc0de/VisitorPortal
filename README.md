@@ -236,6 +236,7 @@ For production-like deployments, explicitly review these demo defaults:
 - [Setup Guide](docs/setup.md)
 - [Configuration](docs/configuration.md)
 - [Deployment](docs/deployment.md)
+- [Monitoring and Operations](docs/operations.md)
 - [Roles And Permissions](docs/roles.md)
 - [Queue](docs/queue.md)
 - [Scheduler](docs/scheduler.md)

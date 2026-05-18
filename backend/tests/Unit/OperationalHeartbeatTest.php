@@ -60,6 +60,17 @@ class OperationalHeartbeatTest extends TestCase
         $this->assertFalse(app(OperationalHeartbeat::class)->queueIsFresh());
     }
 
+    public function test_queue_is_fresh_is_false_for_invalid_timestamp(): void
+    {
+        Cache::store('database')->put(
+            config('health.queue_heartbeat_key'),
+            'not-a-date',
+            now()->addSeconds(600)
+        );
+
+        $this->assertFalse(app(OperationalHeartbeat::class)->queueIsFresh());
+    }
+
     public function test_mark_scheduler_run_writes_heartbeat_in_health_cache_store(): void
     {
         app(OperationalHeartbeat::class)->markSchedulerRun();
@@ -90,6 +101,17 @@ class OperationalHeartbeatTest extends TestCase
         Cache::store('database')->put(
             config('health.scheduler_heartbeat_key'),
             now()->subSeconds(301)->toISOString(),
+            now()->addSeconds(600)
+        );
+
+        $this->assertFalse(app(OperationalHeartbeat::class)->schedulerIsFresh());
+    }
+
+    public function test_scheduler_is_fresh_is_false_for_invalid_timestamp(): void
+    {
+        Cache::store('database')->put(
+            config('health.scheduler_heartbeat_key'),
+            'not-a-date',
             now()->addSeconds(600)
         );
 
