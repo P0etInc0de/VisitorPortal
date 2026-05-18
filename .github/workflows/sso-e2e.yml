@@ -7,6 +7,7 @@ on:
     paths:
       - "backend/**"
       - "docker/**"
+      - "docker-bake.sso-e2e.hcl"
       - "docker-compose.sso-test.yml"
       - ".github/workflows/sso-e2e.yml"
 
@@ -25,26 +26,11 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-      - name: Build SSO web image
-        uses: docker/build-push-action@v6
+      - name: Build SSO images
+        uses: docker/bake-action@v6
         with:
-          context: .
-          file: docker/app/Dockerfile
-          target: sso-test
-          tags: visitorportal-sso-web:test
-          load: true
-          cache-from: type=gha,scope=sso-web
-          cache-to: type=gha,mode=max,scope=sso-web
-
-      - name: Build SSO smoke image
-        uses: docker/build-push-action@v6
-        with:
-          context: .
-          file: docker/sso-test/Dockerfile.smoke
-          tags: visitorportal-sso-smoke:test
-          load: true
-          cache-from: type=gha,scope=sso-smoke
-          cache-to: type=gha,mode=max,scope=sso-smoke
+          files: docker-bake.sso-e2e.hcl
+          targets: sso-e2e
 
       - name: Run SSO smoke test
         run: |
