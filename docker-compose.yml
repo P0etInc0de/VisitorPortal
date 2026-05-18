@@ -45,7 +45,6 @@ services:
   db:
     image: mysql:8.0
     container_name: besucherportal-db
-    command: --default-authentication-plugin=mysql_native_password
     environment:
       MYSQL_DATABASE: visitorportal
       MYSQL_USER: visitor

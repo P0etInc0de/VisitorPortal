@@ -80,7 +80,6 @@ services:
 
   db:
     image: mysql:8.0
-    command: --default-authentication-plugin=mysql_native_password
     environment:
       MYSQL_DATABASE: visitorportal
       MYSQL_USER: visitor

@@ -140,7 +140,6 @@ services:
   db:
     image: mysql:8.0
     restart: unless-stopped
-    command: --default-authentication-plugin=mysql_native_password
     environment:
       MYSQL_DATABASE: "${DB_DATABASE:?DB_DATABASE is required}"
       MYSQL_USER: "${DB_USERNAME:?DB_USERNAME is required}"

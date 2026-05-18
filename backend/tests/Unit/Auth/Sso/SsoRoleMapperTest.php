@@ -74,4 +74,62 @@ class SsoRoleMapperTest extends TestCase
             $this->assertFalse($user->fresh()->hasRole('user'));
         }
     }
+
+    public function test_it_does_not_remove_existing_roles_by_default(): void
+    {
+        Role::firstOrCreate(['name' => 'user', 'guard_name' => 'web']);
+        Role::firstOrCreate(['name' => 'manager', 'guard_name' => 'web']);
+
+        config([
+            'sso.oidc.role_mapping' => [
+                'VisitorPortal-Users' => 'user',
+            ],
+            'sso.oidc.sync_roles_remove_unmapped' => false,
+        ]);
+
+        $user = User::factory()->create();
+        $user->assignRole('manager');
+
+        app(SsoRoleMapper::class)->sync($user, $this->identity(['VisitorPortal-Users']));
+
+        $this->assertTrue($user->fresh()->hasRole('user'));
+        $this->assertTrue($user->fresh()->hasRole('manager'));
+    }
+
+    public function test_it_removes_unmapped_roles_when_configured(): void
+    {
+        Role::firstOrCreate(['name' => 'user', 'guard_name' => 'web']);
+        Role::firstOrCreate(['name' => 'manager', 'guard_name' => 'web']);
+
+        config([
+            'sso.oidc.role_mapping' => [
+                'VisitorPortal-Users' => 'user',
+            ],
+            'sso.oidc.sync_roles_remove_unmapped' => true,
+        ]);
+
+        $user = User::factory()->create();
+        $user->assignRole('manager');
+
+        app(SsoRoleMapper::class)->sync($user, $this->identity(['VisitorPortal-Users']));
+
+        $this->assertTrue($user->fresh()->hasRole('user'));
+        $this->assertFalse($user->fresh()->hasRole('manager'));
+    }
+
+    /**
+     * @param  list<string>  $groups
+     */
+    private function identity(array $groups): OidcIdentity
+    {
+        return new OidcIdentity(
+            issuer: 'https://idp.example.test',
+            subject: 'subject-123',
+            email: 'user@example.org',
+            emailVerified: true,
+            displayName: 'User Example',
+            groups: $groups,
+            claims: [],
+        );
+    }
 }
