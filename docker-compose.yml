@@ -1,18 +1,34 @@
+x-app-environment: &app-environment
+  DB_QUEUE_RETRY_AFTER: "180"
+  HEALTH_CACHE_STORE: database
+  HEALTH_QUEUE_STALE_AFTER: "300"
+  HEALTH_SCHEDULER_STALE_AFTER: "300"
+  HEALTH_HEARTBEAT_TTL: "600"
+
 services:
   web:
     build:
       context: .
       dockerfile: docker/apache/Dockerfile
     container_name: besucherportal-web
+    restart: unless-stopped
     command: sh -c "php artisan storage:link && apache2-foreground"
     ports:
       - "8080:80"
+    environment:
+      <<: *app-environment
     volumes:
       - ./:/var/www/html
     depends_on:
       - db
       - mailhog
     user: "${UID:-1000}:${GID:-1000}"
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://127.0.0.1/up"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 30s
 
   queue:
     build:
@@ -21,6 +37,8 @@ services:
     container_name: besucherportal-queue
     restart: unless-stopped
     command: php artisan queue:work --sleep=3 --tries=3 --timeout=120 --max-time=3600 --max-jobs=1000 --memory=128
+    environment:
+      <<: *app-environment
     volumes:
       - ./:/var/www/html
     depends_on:
@@ -29,6 +47,12 @@ services:
       mailhog:
         condition: service_started
     user: "${UID:-1000}:${GID:-1000}"
+    healthcheck:
+      test: ["CMD", "php", "artisan", "visitorportal:health", "queue"]
+      interval: 60s
+      timeout: 10s
+      retries: 3
+      start_period: 180s
 
   scheduler:
     build:
@@ -37,12 +61,20 @@ services:
     container_name: besucherportal-scheduler
     restart: unless-stopped
     command: php artisan schedule:work
+    environment:
+      <<: *app-environment
     volumes:
       - ./:/var/www/html
     depends_on:
       db:
         condition: service_healthy
     user: "${UID:-1000}:${GID:-1000}"
+    healthcheck:
+      test: ["CMD", "php", "artisan", "visitorportal:health", "scheduler"]
+      interval: 60s
+      timeout: 10s
+      retries: 3
+      start_period: 180s
 
   db:
     image: mysql:8.0.45
@@ -65,6 +97,7 @@ services:
   mailhog:
     image: mailhog/mailhog:v1.0.1
     container_name: besucherportal-mailhog
+    restart: unless-stopped
     ports:
       - "8025:8025"
       - "1025:1025"
@@ -84,6 +117,7 @@ services:
   gotenberg:
     image: gotenberg/gotenberg:8.30.1
     container_name: besucherportal-gotenberg
+    restart: unless-stopped
     ports:
       - "3000:3000"
 

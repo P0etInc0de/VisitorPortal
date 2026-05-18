@@ -172,6 +172,36 @@ Vite Dev Server:
 
 - [http://localhost:5173](http://localhost:5173)
 
+## Running Artisan locally without Docker
+
+Docker-first is the recommended setup. If you run Artisan directly in WSL/Ubuntu, the local PHP CLI must provide the required extensions.
+
+Required examples:
+
+- dom
+- mbstring
+- xml
+- xmlwriter
+
+Ubuntu/WSL:
+
+```bash
+sudo apt update
+sudo apt install php-xml php-mbstring
+```
+
+For version-specific PHP installations:
+
+```bash
+sudo apt install php8.3-xml php8.3-mbstring
+```
+
+Check:
+
+```bash
+php -m | grep -E 'dom|mbstring|xml|xmlwriter'
+```
+
 ## Nuetzliche Docker-Befehle
 
 Containerstatus:

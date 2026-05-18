@@ -1,5 +1,6 @@
 <?php
 
+use App\Support\OperationalHeartbeat;
 use App\Tasks\DailyVisitorReminder;
 use App\Tasks\RecurringVisitSeriesExpansion;
 use App\Tasks\WelcomeMonitorAutoGeneration;
@@ -19,6 +20,11 @@ Artisan::command('inspire', function () {
 Schedule::call(new DailyVisitorReminder)->dailyAt('07:00')->description('DailyVisitorReminder');
 Schedule::call(new WelcomeMonitorAutoGeneration)->everyMinute()->description('WelcomeMonitorAutoGeneration');
 Schedule::call(new RecurringVisitSeriesExpansion)->dailyAt('02:30')->description('RecurringVisitSeriesExpansion');
+Schedule::call(function (): void {
+    app(OperationalHeartbeat::class)->markSchedulerRun();
+})
+    ->name('visitorportal.scheduler-heartbeat')
+    ->everyMinute();
 
 if (config('privacy.purge_enabled')) {
     Schedule::command('visits:purge-expired')

@@ -22,6 +22,10 @@ x-app-environment: &app-environment
   CACHE_STORE: database
   QUEUE_CONNECTION: database
   DB_QUEUE_RETRY_AFTER: "180"
+  HEALTH_CACHE_STORE: database
+  HEALTH_QUEUE_STALE_AFTER: "300"
+  HEALTH_SCHEDULER_STALE_AFTER: "300"
+  HEALTH_HEARTBEAT_TTL: "600"
   BROADCAST_CONNECTION: log
   FILESYSTEM_DISK: local
   MAIL_MAILER: smtp
@@ -68,10 +72,11 @@ services:
       gotenberg:
         condition: service_started
     healthcheck:
-      test: ["CMD-SHELL", "php -r \"exit(@fopen('http://127.0.0.1/up', 'r') ? 0 : 1);\""]
-      interval: 10s
+      test: ["CMD", "curl", "-fsS", "http://127.0.0.1/up"]
+      interval: 30s
       timeout: 5s
-      retries: 12
+      retries: 3
+      start_period: 30s
 
   queue:
     image: *app-image
@@ -87,6 +92,12 @@ services:
         condition: service_healthy
       app:
         condition: service_started
+    healthcheck:
+      test: ["CMD", "php", "artisan", "visitorportal:health", "queue"]
+      interval: 60s
+      timeout: 10s
+      retries: 3
+      start_period: 180s
 
   scheduler:
     image: *app-image
@@ -102,6 +113,12 @@ services:
         condition: service_healthy
       app:
         condition: service_started
+    healthcheck:
+      test: ["CMD", "php", "artisan", "visitorportal:health", "scheduler"]
+      interval: 60s
+      timeout: 10s
+      retries: 3
+      start_period: 180s
 
   db:
     image: mysql:8.0.45

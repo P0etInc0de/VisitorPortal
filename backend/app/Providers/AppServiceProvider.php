@@ -4,11 +4,13 @@ namespace App\Providers;
 
 use App\Auth\Sso\Contracts\OidcAuthenticator;
 use App\Auth\Sso\Facile\FacileOidcAuthenticator;
+use App\Support\OperationalHeartbeat;
 use App\Support\SafeLogContext;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Str;
@@ -43,6 +45,10 @@ class AppServiceProvider extends ServiceProvider
             $loginId = (string) $request->session()->get('login.id', 'anonymous');
 
             return Limit::perMinute(5)->by($loginId.'|'.$request->ip());
+        });
+
+        Queue::looping(function (): void {
+            app(OperationalHeartbeat::class)->markQueueLoop();
         });
 
         Gate::after(function ($user, $ability, $result, $arguments) {

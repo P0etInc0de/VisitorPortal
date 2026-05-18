@@ -146,7 +146,7 @@ Vite Dev Server:
 
 - [http://localhost:5173](http://localhost:5173)
 
-Weitere Details stehen in [docs/setup.md](docs/setup.md).
+Weitere Details stehen in [docs/setup.md](docs/setup.md). Hinweise zu Betrieb, Monitoring und Healthchecks stehen in [docs/operations.md](docs/operations.md).
 
 ## Tests Und Qualität
 
