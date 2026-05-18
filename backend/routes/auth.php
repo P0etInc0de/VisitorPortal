@@ -5,6 +5,7 @@ use App\Http\Controllers\Auth\EmailVerificationPromptController;
 use App\Http\Controllers\Auth\OidcAuthController;
 use App\Http\Controllers\Auth\PasswordController;
 use App\Http\Controllers\Auth\ProfileController;
+use App\Http\Controllers\Auth\SecurityMfaController;
 use App\Http\Controllers\Auth\ThemePreferenceController;
 use App\Http\Controllers\Auth\VerifyEmailController;
 use Illuminate\Support\Facades\Route;
@@ -32,6 +33,17 @@ Route::middleware('auth')->group(function () {
     Route::get('profile/security/two-factor-setup', [ProfileController::class, 'twoFactorSetup'])
         ->middleware('password.confirm')
         ->name('profile.security.two-factor-setup');
+
+    Route::get('security/mfa/required', [SecurityMfaController::class, 'required'])
+        ->name('security.mfa.required');
+
+    Route::get('security/mfa/setup', [SecurityMfaController::class, 'setup'])
+        ->middleware('password.confirm')
+        ->name('security.mfa.setup');
+
+    Route::get('security/mfa/recovery-codes', [SecurityMfaController::class, 'recoveryCodes'])
+        ->middleware('password.confirm')
+        ->name('security.mfa.recovery-codes');
 
     Route::patch('profile', [ProfileController::class, 'update'])
         ->name('profile.update');

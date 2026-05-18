@@ -116,7 +116,7 @@ class OidcAuthenticationTest extends TestCase
 
         $this->assertAuthenticatedAs($admin);
         $this->get(route('overview'))->assertOk();
-        $this->get('/admin')->assertRedirect(route('profile.security'));
+        $this->get('/admin')->assertRedirect(route('security.mfa.required'));
     }
 
     public function test_sso_admin_redirects_to_mfa_setup_when_sso_login_requires_app_mfa(): void
@@ -126,7 +126,7 @@ class OidcAuthenticationTest extends TestCase
         $admin = $this->adminWithSsoIdentity();
 
         $this->get(route('auth.oidc.callback'))
-            ->assertRedirect(route('profile.security'));
+            ->assertRedirect(route('security.mfa.required'));
 
         $this->assertAuthenticatedAs($admin);
     }

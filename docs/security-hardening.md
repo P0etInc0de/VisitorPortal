@@ -27,7 +27,7 @@ APP_MFA_REQUIRED_FOR_AUTH_METHODS=local
 APP_MFA_REQUIRED_FOR_ADMIN_PANEL_AUTH_METHODS=local,sso
 ```
 
-Privileged users must configure and confirm local app MFA before they can continue using the portal after the configured login methods.
+Privileged users must configure and confirm local app MFA before they can continue using the portal after the configured login methods. Required MFA setup uses the dedicated `/security/mfa/required` onboarding flow without normal app navigation; the regular profile security page remains available for later account security management.
 
 The Filament admin panel has an additional MFA middleware. By default, admin and super admin accounts need confirmed local app MFA before accessing `/admin` after both local and SSO logins. In `APP_MFA_REQUIRED_FOR_ADMIN_PANEL_AUTH_METHODS`, `sso` means VisitorPortal requires additional local app MFA after SSO login; it does not mean MFA is only expected in the external identity provider.
 

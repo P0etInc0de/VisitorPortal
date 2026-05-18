@@ -28,8 +28,12 @@ class EnsureAdminPanelMfa
             return $next($request);
         }
 
+        if ($request->isMethod('GET')) {
+            $request->session()->put('security.mfa.intended_url', $request->fullUrl());
+        }
+
         return redirect()
-            ->route('profile.security')
+            ->route('security.mfa.required')
             ->with('warning', __('Bitte richte die Zwei-Faktor-Authentifizierung ein, um den Adminbereich zu nutzen.'));
     }
 }

@@ -84,7 +84,7 @@ class MfaTest extends TestCase
         ]);
 
         $this->assertAuthenticatedAs($admin);
-        $response->assertRedirect(route('profile.security'));
+        $response->assertRedirect(route('security.mfa.required'));
     }
 
     public function test_admin_with_unconfirmed_mfa_remains_limited_to_setup_routes(): void
@@ -97,12 +97,31 @@ class MfaTest extends TestCase
         $this
             ->actingAs($admin)
             ->get('/overview')
-            ->assertRedirect(route('profile.security'));
+            ->assertRedirect(route('security.mfa.required'));
 
         $this
             ->actingAs($admin)
             ->get(route('profile.security'))
+            ->assertRedirect(route('security.mfa.required'));
+
+        $this
+            ->actingAs($admin)
+            ->get(route('security.mfa.required'))
             ->assertOk();
+    }
+
+    public function test_required_mfa_page_does_not_render_normal_app_navigation(): void
+    {
+        $admin = (new PermissionHelper)->getSuperAdminUser();
+
+        $this
+            ->actingAs($admin)
+            ->get(route('security.mfa.required'))
+            ->assertOk()
+            ->assertSee(__('MFA erforderlich'))
+            ->assertSee(__('Abmelden'))
+            ->assertDontSee(__('Übersicht'))
+            ->assertDontSee(__('Admin-Bereich'));
     }
 
     public function test_unconfirmed_mfa_qr_code_requires_password_confirmation(): void
@@ -226,7 +245,7 @@ class MfaTest extends TestCase
         $this
             ->actingAs($admin)
             ->get('/admin')
-            ->assertRedirect(route('profile.security'));
+            ->assertRedirect(route('security.mfa.required'));
     }
 
     public function test_admin_with_confirmed_mfa_can_access_filament_admin_panel(): void
@@ -259,7 +278,38 @@ class MfaTest extends TestCase
             ->actingAs($admin)
             ->withSession(['auth.method' => 'sso'])
             ->get('/admin')
-            ->assertRedirect(route('profile.security'));
+            ->assertRedirect(route('security.mfa.required'));
+    }
+
+    public function test_required_mfa_confirmation_redirects_to_intended_url(): void
+    {
+        config(['security.mfa.app_required_for_auth_methods' => []]);
+
+        $admin = (new PermissionHelper)->getSuperAdminUser();
+
+        $this
+            ->actingAs($admin)
+            ->withSession(['auth.method' => 'local'])
+            ->get('/admin')
+            ->assertRedirect(route('security.mfa.required'))
+            ->assertSessionHas('security.mfa.intended_url');
+
+        app(EnableTwoFactorAuthentication::class)($admin);
+        $admin->refresh();
+
+        $this
+            ->actingAs($admin)
+            ->withSession([
+                'auth.method' => 'local',
+                'auth.password_confirmed_at' => time(),
+                'security.mfa.intended_url' => url('/admin'),
+            ])
+            ->post(route('two-factor.confirm'), [
+                'code' => $this->currentTotp($admin),
+            ])
+            ->assertRedirect(url('/admin'));
+
+        $this->assertTrue($admin->fresh()->hasConfirmedTwoFactorAuthentication());
     }
 
     public function test_required_roles_configuration_is_respected(): void
@@ -271,7 +321,7 @@ class MfaTest extends TestCase
         $this->post('/login', [
             'email' => $receptionist->email,
             'password' => 'password',
-        ])->assertRedirect(route('profile.security'));
+        ])->assertRedirect(route('security.mfa.required'));
     }
 
     public function test_optional_mfa_can_be_disabled_for_non_required_users(): void

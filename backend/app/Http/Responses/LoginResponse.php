@@ -33,8 +33,13 @@ class LoginResponse implements LoginResponseContract, TwoFactorLoginResponseCont
         app(UserSessionPreferences::class)->apply($request, $user);
 
         if ($user->requiresTwoFactorAuthentication($authMethod) && ! $user->hasConfirmedTwoFactorAuthentication()) {
+            $request->session()->put(
+                'security.mfa.intended_url',
+                $request->session()->pull('url.intended', url(app(AuthRedirector::class)->pathFor($user)))
+            );
+
             return redirect()
-                ->route('profile.security')
+                ->route('security.mfa.required')
                 ->with('warning', __('Bitte richte die Zwei-Faktor-Authentifizierung ein, um fortzufahren.'));
         }
 

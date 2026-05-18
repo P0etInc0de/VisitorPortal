@@ -42,8 +42,10 @@ class EnsureRequiredMfaIsConfigured
             abort(403, __('Bitte richte die Zwei-Faktor-Authentifizierung ein, um fortzufahren.'));
         }
 
+        $this->storeIntendedUrl($request);
+
         return redirect()
-            ->route('profile.security')
+            ->route('security.mfa.required')
             ->with('warning', __('Bitte richte die Zwei-Faktor-Authentifizierung ein, um fortzufahren.'));
     }
 
@@ -51,8 +53,7 @@ class EnsureRequiredMfaIsConfigured
     {
         return $request->routeIs(
             'logout',
-            'profile.security',
-            'profile.security.*',
+            'security.mfa.*',
             'password.confirm',
             'password.confirm.*',
             'password.confirmation',
@@ -64,5 +65,12 @@ class EnsureRequiredMfaIsConfigured
             'user/two-factor-secret-key',
             'user/two-factor-recovery-codes'
         );
+    }
+
+    private function storeIntendedUrl(Request $request): void
+    {
+        if ($request->isMethod('GET')) {
+            $request->session()->put('security.mfa.intended_url', $request->fullUrl());
+        }
     }
 }

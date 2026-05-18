@@ -65,8 +65,13 @@ final class OidcAuthController extends Controller
         ]);
 
         if ($user->requiresTwoFactorAuthentication('sso') && ! $user->hasConfirmedTwoFactorAuthentication()) {
+            $request->session()->put(
+                'security.mfa.intended_url',
+                $request->session()->pull('url.intended', url(app(AuthRedirector::class)->pathFor($user)))
+            );
+
             return redirect()
-                ->route('profile.security')
+                ->route('security.mfa.required')
                 ->with('warning', __('Bitte richte die Zwei-Faktor-Authentifizierung ein, um fortzufahren.'));
         }
 
