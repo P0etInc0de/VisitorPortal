@@ -81,13 +81,19 @@ Provisioning modes:
 
 `auto` creates a local user on first successful SSO login. Auto-provisioned users get `local_login_allowed=false` so local password login and password reset do not bypass the IdP.
 
+## Profile Sync
+
+When `OIDC_SYNC_USER_PROFILE=true`, login-time profile sync only updates selected non-critical profile fields: `first_name`, `name`, verified non-conflicting `email` and `email_verified_at`.
+
+It does not overwrite roles, permissions, department assignment, active status, local-login eligibility, admin/security fields or user preferences. Keep that separation unless the IdP is intentionally made authoritative for those fields through a dedicated change.
+
 ## Role Mapping
 
 Role mapping only uses explicitly configured groups. Unknown groups are ignored.
 
 Mapped roles must exist locally with the `web` guard. If a configured mapping points to a missing role, SSO role synchronization fails closed, writes a critical `sso_role_mapping_invalid` log entry and rejects the login with the generic SSO failure response.
 
-By default, role sync does not remove existing local roles when no mapped group is present. `OIDC_SYNC_ROLES_REMOVE_UNMAPPED=true` makes the IdP authoritative and can remove roles, so enable it only deliberately.
+By default, role sync does not remove existing local roles when no mapped group is present. `OIDC_SYNC_ROLES_REMOVE_UNMAPPED=true` makes the IdP authoritative and can remove all local roles if the IdP emits no mapped groups or group claims are misconfigured, so enable it only deliberately.
 
 For Microsoft Entra ID, use dedicated application groups and ensure they are emitted directly as OIDC claims. VisitorPortal does not call Microsoft Graph or other provider APIs to resolve group overage.
 
@@ -106,6 +112,12 @@ For Microsoft Entra ID, use dedicated application groups and ensure they are emi
 The Facile OIDC adapter validates the callback through `facile-it/php-openid-client`. JWT signature validation and lifetime validation such as `exp`, `nbf` and `iat` are delegated to the library's ID-token verifier and use `OIDC_CLOCK_TOLERANCE` for clock skew.
 
 VisitorPortal additionally validates `state`, `nonce`, issuer, subject, audience and authorized party before resolving a local user.
+
+The automated real-provider smoke test covers the authorization-code redirect/callback path. It does not currently include a negative real-provider case for expired, not-yet-valid or otherwise invalid lifetime claims.
+
+## Operational Notes
+
+Concurrent first logins for the same unlinked SSO identity should be treated as a possible race during high-traffic rollouts. If that appears in production logs, retry the login once after the first request finishes and investigate whether identity creation failed on a unique constraint.
 
 ## Local Keycloak Smoke Test
 

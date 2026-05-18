@@ -1,0 +1,32 @@
+name: SSO E2E
+
+on:
+  workflow_dispatch:
+  pull_request:
+    branches: ["develop", "main"]
+
+permissions:
+  contents: read
+
+jobs:
+  sso-e2e:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Run SSO smoke test
+        run: |
+          docker compose -f docker-compose.sso-test.yml up \
+            --build \
+            --abort-on-container-exit \
+            --exit-code-from sso-smoke
+
+      - name: Dump logs on failure
+        if: failure()
+        run: docker compose -f docker-compose.sso-test.yml logs
+
+      - name: Cleanup
+        if: always()
+        run: docker compose -f docker-compose.sso-test.yml down -v
