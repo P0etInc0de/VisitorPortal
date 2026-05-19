@@ -32,7 +32,7 @@ final class SecurityStepUpController extends Controller
             return Redirect::to(app(SafeRedirectUrl::class)->sanitize(
                 $request,
                 $confirmation->intendedUrl($request),
-                route('profile.security.recovery-codes')
+                route('overview')
             ));
         }
 
@@ -90,7 +90,7 @@ final class SecurityStepUpController extends Controller
         $intendedUrl = app(SafeRedirectUrl::class)->sanitize(
             $request,
             $confirmation->intendedUrl($request),
-            route('profile.security.recovery-codes')
+            route('overview')
         );
 
         $confirmation->clearPrompt($request);

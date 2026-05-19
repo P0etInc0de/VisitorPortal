@@ -1,10 +1,11 @@
 @php
-    $authMethod = session('auth.method', 'local');
-    $mfaRequired = $user->requiresTwoFactorAuthentication($authMethod);
+    $mfaRequiredForLogin = $mfaRequiredForLogin ?? false;
+    $mfaRequiredForAdminPanel = $mfaRequiredForAdminPanel ?? false;
+    $mfaRequiredForAnyContext = $mfaRequiredForAnyContext ?? false;
     $hasTwoFactorSecret = filled($user->two_factor_secret);
     $hasConfirmedTwoFactor = $user->hasConfirmedTwoFactorAuthentication();
     $localLoginDisabled = $user->local_login_allowed === false;
-    $canEnableOptionalMfa = ! $localLoginDisabled && (config('security.mfa.optional_for_users') || $mfaRequired);
+    $canEnableOptionalMfa = ! $localLoginDisabled && (config('security.mfa.optional_for_users') || $mfaRequiredForAnyContext);
 @endphp
 
 <x-app-layout>
@@ -73,15 +74,33 @@
                 </div>
             </div>
 
-            @if ($mfaRequired)
-                <div class="mt-5 rounded-2xl border border-warning/30 bg-warning/10 p-4 text-sm leading-7 text-base-content/80">
-                    {{ __('Deine Rolle erfordert bestätigte Zwei-Faktor-Authentifizierung. Bitte richte sie ein, um fortzufahren.') }}
-                </div>
-            @elseif ($localLoginDisabled && ! $hasTwoFactorSecret)
-                <div class="mt-5 rounded-2xl border border-info/30 bg-info/10 p-4 text-sm leading-7 text-base-content/80">
-                    {{ __('Dieses Konto wird über SSO verwaltet. Optionale Zwei-Faktor-Aktivierung über das Profil ist für dieses Konto nicht verfügbar.') }}
-                </div>
-            @endif
+            <div class="mt-5 grid gap-3 text-sm leading-7 text-base-content/80">
+                @if ($mfaRequiredForLogin)
+                    <div class="rounded-2xl border border-warning/30 bg-warning/10 p-4">
+                        {{ __('Zwei-Faktor-Authentifizierung ist für deinen Login verpflichtend.') }}
+                    </div>
+                @endif
+
+                @if ($mfaRequiredForAdminPanel)
+                    <div class="rounded-2xl border border-warning/30 bg-warning/10 p-4">
+                        {{ $hasTwoFactorSecret
+                            ? __('Zwei-Faktor-Authentifizierung ist für den Adminbereich verpflichtend.')
+                            : __('Für den Adminbereich ist Zwei-Faktor-Authentifizierung erforderlich. Beim Zugriff auf den Adminbereich wirst du durch die Einrichtung geführt.') }}
+                    </div>
+                @endif
+
+                @if ($localLoginDisabled)
+                    <div class="rounded-2xl border border-info/30 bg-info/10 p-4">
+                        {{ $mfaRequiredForAdminPanel || $mfaRequiredForAnyContext
+                            ? __('Dieses Konto wird über SSO verwaltet. Für den Zugriff auf den Adminbereich kann zusätzlich lokale VisitorPortal-Zwei-Faktor-Authentifizierung erforderlich sein.')
+                            : __('Dieses Konto wird über SSO verwaltet. Optionale Zwei-Faktor-Aktivierung über das Profil ist für dieses Konto nicht verfügbar.') }}
+                    </div>
+                @elseif (! $mfaRequiredForAnyContext)
+                    <div class="rounded-2xl border border-base-300 bg-base-200/70 p-4 text-base-content/70">
+                        {{ __('Zwei-Faktor-Authentifizierung ist für dieses Konto optional.') }}
+                    </div>
+                @endif
+            </div>
 
             @if (! $hasTwoFactorSecret && $canEnableOptionalMfa)
                 <form method="POST" action="{{ route('two-factor.enable') }}" class="mt-6">
@@ -143,9 +162,9 @@
                     {{ __('Zwei-Faktor-Authentifizierung deaktivieren') }}
                 </h2>
 
-                @if ($mfaRequired)
+                @if ($mfaRequiredForAnyContext)
                     <p class="mt-3 max-w-2xl text-sm leading-7 text-base-content/70">
-                        {{ __('Zwei-Faktor-Authentifizierung ist für deine Rolle verpflichtend und kann hier nicht deaktiviert werden. Wende dich für einen Reset an einen Superadmin oder Betreiber mit Shell-Zugriff.') }}
+                        {{ __('Zwei-Faktor-Authentifizierung kann für dieses Konto nicht deaktiviert werden, weil sie für mindestens einen Sicherheitskontext verpflichtend ist.') }}
                     </p>
                 @elseif ($localLoginDisabled)
                     <p class="mt-3 max-w-2xl text-sm leading-7 text-base-content/70">

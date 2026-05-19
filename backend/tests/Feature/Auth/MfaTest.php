@@ -103,6 +103,30 @@ class MfaTest extends TestCase
         $this->assertSame($codes, $user->fresh()->recoveryCodes());
     }
 
+    public function test_fortify_recovery_code_routes_are_blocked_when_mfa_enforcement_is_disabled(): void
+    {
+        config(['security.mfa.enabled' => false]);
+
+        $user = (new PermissionHelper)->getUser();
+        $this->confirmMfa($user);
+        $codes = $user->fresh()->recoveryCodes();
+
+        $this
+            ->actingAs($user)
+            ->withSession(['auth.password_confirmed_at' => time()])
+            ->get(route('two-factor.recovery-codes'))
+            ->assertForbidden()
+            ->assertDontSee($codes[0]);
+
+        $this
+            ->actingAs($user)
+            ->withSession(['auth.password_confirmed_at' => time()])
+            ->post(route('two-factor.regenerate-recovery-codes'))
+            ->assertForbidden();
+
+        $this->assertSame($codes, $user->fresh()->recoveryCodes());
+    }
+
     public function test_admin_without_mfa_is_redirected_to_security_setup_after_login(): void
     {
         $admin = (new PermissionHelper)->getSuperAdminUser();
@@ -329,6 +353,23 @@ class MfaTest extends TestCase
         $this->assertContains($recoveryCode, $user->fresh()->recoveryCodes());
     }
 
+    public function test_recovery_code_view_rejects_recovery_code_even_with_valid_totp(): void
+    {
+        $user = (new PermissionHelper)->getUser();
+        $this->confirmMfa($user);
+        $recoveryCode = $user->fresh()->recoveryCodes()[0];
+
+        $this
+            ->actingAs($user)
+            ->post(route('security.step-up.verify', SensitiveActionConfirmation::PURPOSE_RECOVERY_CODES_VIEW), [
+                'code' => $this->currentTotp($user),
+                'recovery_code' => $recoveryCode,
+            ])
+            ->assertSessionHasErrors('recovery_code');
+
+        $this->assertContains($recoveryCode, $user->fresh()->recoveryCodes());
+    }
+
     public function test_recovery_codes_view_step_up_expires_after_ten_minutes(): void
     {
         $user = (new PermissionHelper)->getUser();
@@ -507,6 +548,26 @@ class MfaTest extends TestCase
             ->assertDontSee(__('Zwei-Faktor-Authentifizierung aktivieren'));
     }
 
+    public function test_sso_admin_with_admin_panel_mfa_requirement_sees_context_explanation(): void
+    {
+        config([
+            'security.mfa.app_required_for_auth_methods' => [],
+            'security.mfa.app_required_for_admin_panel_auth_methods' => ['sso'],
+        ]);
+
+        $admin = (new PermissionHelper)->getSuperAdminUser();
+        $admin->forceFill(['local_login_allowed' => false])->save();
+
+        $this
+            ->actingAs($admin)
+            ->withSession(['auth.method' => 'sso'])
+            ->get(route('profile.security'))
+            ->assertOk()
+            ->assertSee(__('Für den Adminbereich ist Zwei-Faktor-Authentifizierung erforderlich. Beim Zugriff auf den Adminbereich wirst du durch die Einrichtung geführt.'))
+            ->assertSee(__('Dieses Konto wird über SSO verwaltet. Für den Zugriff auf den Adminbereich kann zusätzlich lokale VisitorPortal-Zwei-Faktor-Authentifizierung erforderlich sein.'))
+            ->assertDontSee(__('Zwei-Faktor-Authentifizierung aktivieren'));
+    }
+
     public function test_two_factor_challenge_is_rate_limited(): void
     {
         $admin = (new PermissionHelper)->getSuperAdminUser();
@@ -630,6 +691,23 @@ class MfaTest extends TestCase
             ->assertRedirect(route('overview'));
     }
 
+    public function test_external_step_up_intended_url_falls_back_to_overview(): void
+    {
+        $user = (new PermissionHelper)->getUser();
+        $this->confirmMfa($user);
+
+        $this
+            ->actingAs($user)
+            ->withSession([
+                'security.step_up.purpose' => SensitiveActionConfirmation::PURPOSE_RECOVERY_CODES_VIEW,
+                'security.step_up.intended_url' => 'https://evil.example.test/profile/security/recovery-codes',
+            ])
+            ->post(route('security.step-up.verify', SensitiveActionConfirmation::PURPOSE_RECOVERY_CODES_VIEW), [
+                'code' => $this->currentTotp($user),
+            ])
+            ->assertRedirect(route('overview'));
+    }
+
     public function test_required_roles_configuration_is_respected(): void
     {
         config(['security.mfa.app_required_roles' => ['receptionist']]);
@@ -695,6 +773,25 @@ class MfaTest extends TestCase
             ->assertForbidden();
 
         $this->assertTrue($admin->fresh()->hasConfirmedTwoFactorAuthentication());
+    }
+
+    public function test_admin_panel_required_mfa_user_does_not_see_disable_button_in_profile(): void
+    {
+        config([
+            'security.mfa.app_required_for_auth_methods' => [],
+            'security.mfa.app_required_for_admin_panel_auth_methods' => ['sso'],
+        ]);
+
+        $admin = (new PermissionHelper)->getSuperAdminUser();
+        $this->confirmMfa($admin);
+
+        $this
+            ->actingAs($admin)
+            ->withSession(['auth.method' => 'local'])
+            ->get(route('profile.security'))
+            ->assertOk()
+            ->assertSee(__('Zwei-Faktor-Authentifizierung kann für dieses Konto nicht deaktiviert werden, weil sie für mindestens einen Sicherheitskontext verpflichtend ist.'))
+            ->assertDontSee('<form method="POST" action="'.route('two-factor.disable').'"', false);
     }
 
     public function test_optional_mfa_disable_logs_security_event_without_secrets(): void

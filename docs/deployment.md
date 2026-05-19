@@ -69,7 +69,7 @@ php artisan visitorportal:disable-mfa user@example.org
 Der Command fragt standardmaessig nach Bestaetigung. Fuer nicht-interaktive Runbooks kann bewusst `--force` genutzt werden.
 
 Fuer produktive Umgebungen werden getrennte persoenliche Konten fuer Alltagsarbeit und Administration empfohlen, z. B. `jane.doe@example.org` und `admin.jane.doe@example.org`.
-Recovery Codes sollten direkt nach der Einrichtung sicher gespeichert werden. Die Anzeige im Profil ist passwortbestaetigt.
+Recovery Codes sollten direkt nach der Einrichtung sicher gespeichert werden. Die Anzeige im Profil erfordert später einen frischen, zweckgebundenen App-MFA-Step-up mit TOTP; ein Recovery Code reicht nicht aus, um bestehende Codes anzuzeigen. Die Regeneration akzeptiert TOTP oder einen Recovery Code als Recovery-Szenario. SSO-only Benutzer benötigen dafür keine lokale Passwortbestätigung.
 
 ## LAMP Deployment
 

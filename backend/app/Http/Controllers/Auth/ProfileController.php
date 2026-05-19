@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\ProfileUpdateRequest;
+use App\Support\AppMfaPolicy;
 use App\Support\SecurityEventLogger;
 use App\Support\SensitiveActionConfirmation;
 use App\Support\UserPreferences;
@@ -12,8 +13,6 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cookie;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\View\View;
-use Laravel\Fortify\Actions\GenerateNewRecoveryCodes;
-use Laravel\Fortify\Fortify;
 
 class ProfileController extends Controller
 {
@@ -32,9 +31,15 @@ class ProfileController extends Controller
     public function security(Request $request): View
     {
         $this->authorize('view', $request->user());
+        $authMethod = (string) $request->session()->get('auth.method', 'local');
+        $mfaPolicy = app(AppMfaPolicy::class);
 
         return view('profile.security', [
             'user' => $request->user(),
+            'authMethod' => $authMethod,
+            'mfaRequiredForLogin' => $mfaPolicy->isRequiredForAuthMethod($request->user(), $authMethod),
+            'mfaRequiredForAdminPanel' => $mfaPolicy->isRequiredForAdminPanel($request->user(), $authMethod),
+            'mfaRequiredForAnyContext' => $mfaPolicy->isRequiredForAnyContext($request->user()),
         ]);
     }
 
@@ -72,7 +77,7 @@ class ProfileController extends Controller
         ]);
     }
 
-    public function regenerateRecoveryCodes(Request $request, GenerateNewRecoveryCodes $generateRecoveryCodes): RedirectResponse
+    public function regenerateRecoveryCodes(Request $request): RedirectResponse
     {
         $this->authorize('view', $request->user());
 
@@ -82,26 +87,9 @@ class ProfileController extends Controller
         }
 
         $confirmation = app(SensitiveActionConfirmation::class);
+        $confirmation->start($request, SensitiveActionConfirmation::PURPOSE_RECOVERY_CODES_REGENERATE, route('profile.security.recovery-codes'));
 
-        if (! $confirmation->isFresh($request, SensitiveActionConfirmation::PURPOSE_RECOVERY_CODES_REGENERATE)) {
-            $confirmation->start($request, SensitiveActionConfirmation::PURPOSE_RECOVERY_CODES_REGENERATE, route('profile.security.recovery-codes'));
-
-            return Redirect::route('security.step-up.show', SensitiveActionConfirmation::PURPOSE_RECOVERY_CODES_REGENERATE);
-        }
-
-        $stepUpMethod = (string) $request->session()->get('security.step_up.method', 'unknown');
-
-        $generateRecoveryCodes($request->user());
-        app(SecurityEventLogger::class)->log($request, 'security_recovery_codes_regenerated', [
-            'step_up_purpose' => SensitiveActionConfirmation::PURPOSE_RECOVERY_CODES_REGENERATE,
-            'step_up_method' => $stepUpMethod,
-        ]);
-        $confirmation->clearConfirmation($request, SensitiveActionConfirmation::PURPOSE_RECOVERY_CODES_REGENERATE);
-
-        return Redirect::route('profile.security.recovery-codes')
-            ->with('status', Fortify::RECOVERY_CODES_GENERATED)
-            ->with('security.recovery_codes.just_regenerated', true)
-            ->with('security.recovery_codes.step_up_method', $stepUpMethod);
+        return Redirect::route('security.step-up.show', SensitiveActionConfirmation::PURPOSE_RECOVERY_CODES_REGENERATE);
     }
 
     public function twoFactorSetup(Request $request): RedirectResponse|View
