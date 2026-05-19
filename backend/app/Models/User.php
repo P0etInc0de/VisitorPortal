@@ -4,6 +4,7 @@ namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use App\Enums\GenderEnum;
+use App\Support\AppMfaPolicy;
 use App\Support\SafeLogContext;
 use Database\Factories\UserFactory;
 use Filament\Models\Contracts\FilamentUser;
@@ -216,20 +217,7 @@ class User extends Authenticatable implements FilamentUser
 
     public function requiresTwoFactorAuthentication(?string $authMethod = null): bool
     {
-        if (! config('security.mfa.enabled')) {
-            return false;
-        }
-
-        $method = $authMethod ?: 'local';
-        $enforcedMethods = config('security.mfa.app_required_for_auth_methods', ['local']);
-
-        if (! in_array($method, $enforcedMethods, true)) {
-            return false;
-        }
-
-        return $this->roles()
-            ->whereIn('name', config('security.mfa.app_required_roles', ['admin', 'super_admin']))
-            ->exists();
+        return app(AppMfaPolicy::class)->isRequiredForAuthMethod($this, $authMethod ?: 'local');
     }
 
     public function canAccessPanel(Panel $panel): bool

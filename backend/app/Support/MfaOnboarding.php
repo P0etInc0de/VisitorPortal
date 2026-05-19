@@ -70,10 +70,7 @@ final class MfaOnboarding
             return false;
         }
 
-        $enforcedMethods = config('security.mfa.app_required_for_admin_panel_auth_methods', ['local', 'sso']);
-
-        return in_array($authMethod, $enforcedMethods, true)
-            && $user->hasAnyRole(config('security.mfa.app_required_roles', ['admin', 'super_admin']));
+        return app(AppMfaPolicy::class)->isRequiredForAdminPanel($user, $authMethod);
     }
 
     private function isAdminPanelUrl(?string $url): bool

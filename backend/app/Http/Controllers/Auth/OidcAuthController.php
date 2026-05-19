@@ -87,7 +87,7 @@ final class OidcAuthController extends Controller
 
             return redirect()
                 ->route('security.mfa.challenge')
-                ->with('warning', __('Bitte bestaetige die lokale App-MFA, um fortzufahren.'));
+                ->with('warning', __('Bitte bestätige die lokale Zwei-Faktor-Authentifizierung, um fortzufahren.'));
         }
 
         return redirect()->to(app(SafeRedirectUrl::class)->sanitize(

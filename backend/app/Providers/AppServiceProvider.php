@@ -67,8 +67,8 @@ class AppServiceProvider extends ServiceProvider
                 'auth_method' => 'local',
                 'step_up_purpose' => 'login',
                 'attempted_method' => $request->filled('recovery_code') ? 'recovery_code' : 'totp',
-                'ip_hash' => hash('sha256', (string) $request->ip()),
-                'user_agent_hash' => hash('sha256', (string) $request->userAgent()),
+                'ip_hash' => hash_hmac('sha256', (string) $request->ip(), (string) config('app.key')),
+                'user_agent_hash' => hash_hmac('sha256', (string) $request->userAgent(), (string) config('app.key')),
             ]);
         });
 

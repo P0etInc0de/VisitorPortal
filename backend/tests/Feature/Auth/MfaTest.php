@@ -59,10 +59,14 @@ class MfaTest extends TestCase
 
         $this
             ->actingAs($user)
-            ->withSession(['auth.password_confirmed_at' => time()])
-            ->get(route('two-factor.recovery-codes'))
+            ->withSession([
+                'security.step_up.confirmed_at' => now()->timestamp,
+                'security.step_up.method' => 'totp',
+                'security.step_up.confirmed_for' => SensitiveActionConfirmation::PURPOSE_RECOVERY_CODES_VIEW,
+            ])
+            ->get(route('profile.security.recovery-codes'))
             ->assertOk()
-            ->assertJsonCount(8);
+            ->assertSee($user->fresh()->recoveryCodes()[0]);
 
         $this
             ->actingAs($user)
@@ -75,6 +79,28 @@ class MfaTest extends TestCase
         $this->assertNull($user->two_factor_secret);
         $this->assertNull($user->two_factor_recovery_codes);
         $this->assertNull($user->two_factor_confirmed_at);
+    }
+
+    public function test_fortify_recovery_code_routes_do_not_expose_or_regenerate_codes(): void
+    {
+        $user = (new PermissionHelper)->getUser();
+        $this->confirmMfa($user);
+        $codes = $user->fresh()->recoveryCodes();
+
+        $this
+            ->actingAs($user)
+            ->withSession(['auth.password_confirmed_at' => time()])
+            ->get(route('two-factor.recovery-codes'))
+            ->assertForbidden()
+            ->assertDontSee($codes[0]);
+
+        $this
+            ->actingAs($user)
+            ->withSession(['auth.password_confirmed_at' => time()])
+            ->post(route('two-factor.regenerate-recovery-codes'))
+            ->assertForbidden();
+
+        $this->assertSame($codes, $user->fresh()->recoveryCodes());
     }
 
     public function test_admin_without_mfa_is_redirected_to_security_setup_after_login(): void
@@ -626,7 +652,7 @@ class MfaTest extends TestCase
             ->actingAs($user)
             ->get(route('profile.security'))
             ->assertOk()
-            ->assertDontSee(__('MFA aktivieren'));
+            ->assertDontSee(__('Zwei-Faktor-Authentifizierung aktivieren'));
 
         $this
             ->actingAs($user)
@@ -647,6 +673,51 @@ class MfaTest extends TestCase
             ->assertForbidden();
 
         $this->assertTrue($admin->fresh()->hasConfirmedTwoFactorAuthentication());
+    }
+
+    public function test_admin_panel_required_mfa_user_cannot_disable_mfa_even_when_login_mfa_is_not_required(): void
+    {
+        config([
+            'security.mfa.app_required_for_auth_methods' => [],
+            'security.mfa.app_required_for_admin_panel_auth_methods' => ['sso'],
+        ]);
+
+        $admin = (new PermissionHelper)->getSuperAdminUser();
+        $this->confirmMfa($admin);
+
+        $this
+            ->actingAs($admin)
+            ->withSession([
+                'auth.method' => 'local',
+                'auth.password_confirmed_at' => time(),
+            ])
+            ->delete(route('two-factor.disable'))
+            ->assertForbidden();
+
+        $this->assertTrue($admin->fresh()->hasConfirmedTwoFactorAuthentication());
+    }
+
+    public function test_optional_mfa_disable_logs_security_event_without_secrets(): void
+    {
+        $user = (new PermissionHelper)->getUser();
+        $this->confirmMfa($user);
+        $secret = (string) $user->fresh()->two_factor_secret;
+        $recoveryCode = $user->fresh()->recoveryCodes()[0];
+
+        Log::shouldReceive('channel')->with('web')->andReturnSelf()->byDefault();
+        Log::shouldReceive('info')
+            ->with('security_app_mfa_disabled', Mockery::on(
+                fn (array $context): bool => $context['user_id'] === $user->id
+                    && ! str_contains(json_encode($context), $secret)
+                    && ! str_contains(json_encode($context), $recoveryCode)
+            ))
+            ->once();
+
+        $this
+            ->actingAs($user)
+            ->withSession(['auth.password_confirmed_at' => time()])
+            ->delete(route('two-factor.disable'))
+            ->assertRedirect();
     }
 
     public function test_mfa_enforcement_can_be_disabled(): void

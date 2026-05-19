@@ -37,9 +37,9 @@ class DisableMfa extends Command
             'two_factor_confirmed_at' => null,
         ])->save();
 
-        Log::channel('web')->warning('MFA disabled by CLI.', [
+        Log::channel('web')->warning('security_app_mfa_disabled', [
             'user_id' => $user->id,
-            'email' => $user->email,
+            'source' => 'cli',
         ]);
 
         $this->info("MFA disabled for {$user->email}.");

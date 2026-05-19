@@ -45,6 +45,8 @@ Recovery codes are not shown on the regular profile security page. Users must ex
 
 Recovery-code viewing and regeneration use different purposes. Viewing existing codes requires a fresh TOTP app-MFA step-up (`recovery-codes:view`); a recovery code cannot be used to reveal all existing recovery codes. Regeneration uses `recovery-codes:regenerate` and accepts either TOTP or a recovery code as a recovery scenario. Regeneration replaces old codes and then shows the newly generated codes once.
 
+Fortify's default recovery-code endpoints are intentionally blocked. Recovery codes may only be viewed or regenerated through the VisitorPortal profile security flow so these purpose-specific step-up rules cannot be bypassed.
+
 Sensitive MFA events are written to the web log without codes, secrets or token material. Logged events include app-MFA step-up completion/failure, recovery-code use, recovery-code viewing and recovery-code regeneration.
 
 Mandatory MFA onboarding is the exception: it uses the fresh login or SSO session instead of `password.confirm`, then displays recovery codes immediately after the TOTP code has been confirmed.
@@ -65,7 +67,7 @@ php artisan visitorportal:disable-mfa user@example.org --force
 
 The command clears the local TOTP secret, recovery codes and confirmation timestamp, and writes a security log entry.
 
-Privileged roles that require MFA cannot disable MFA through the Fortify endpoint. A reset by a trusted operator forces them back through MFA setup.
+Privileged roles that require app MFA in any configured login or admin-panel context cannot disable MFA through the Fortify endpoint. A reset by a trusted operator forces them back through MFA setup.
 
 ## Recommended Account Model
 

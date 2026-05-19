@@ -2,8 +2,10 @@
 
 namespace App\Http\Middleware;
 
+use App\Support\AppMfaPolicy;
 use App\Support\AppMfaSession;
 use App\Support\MfaOnboarding;
+use App\Support\SecurityEventLogger;
 use Closure;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -14,7 +16,15 @@ class EnsureRequiredMfaIsConfigured
     {
         $user = $request->user();
 
-        if (! $user || ! config('security.mfa.enabled')) {
+        if (! $user) {
+            return $next($request);
+        }
+
+        if ($request->routeIs('two-factor.recovery-codes', 'two-factor.regenerate-recovery-codes')) {
+            abort(403, __('Recovery Codes werden nur über die Sicherheitsseite mit frischer Bestätigung verwaltet.'));
+        }
+
+        if (! config('security.mfa.enabled')) {
             return $next($request);
         }
 
@@ -22,14 +32,26 @@ class EnsureRequiredMfaIsConfigured
             ? (string) $request->session()->get('auth.method', 'local')
             : 'local';
 
+        $policy = app(AppMfaPolicy::class);
+
         if ($request->routeIs('two-factor.enable')
             && ! config('security.mfa.optional_for_users')
-            && ! $user->requiresTwoFactorAuthentication($authMethod)) {
-            abort(403, __('MFA kann fuer dieses Konto aktuell nicht selbst aktiviert werden.'));
+            && ! $policy->isRequiredForAnyContext($user)) {
+            abort(403, __('Zwei-Faktor-Authentifizierung kann für dieses Konto aktuell nicht selbst aktiviert werden.'));
         }
 
-        if ($request->routeIs('two-factor.disable') && $user->requiresTwoFactorAuthentication($authMethod)) {
-            abort(403, __('MFA kann fuer privilegierte Rollen nicht dauerhaft deaktiviert werden.'));
+        if ($request->routeIs('two-factor.disable') && $policy->isRequiredForAnyContext($user)) {
+            abort(403, __('Zwei-Faktor-Authentifizierung kann für verpflichtende Sicherheitskontexte nicht deaktiviert werden.'));
+        }
+
+        if ($request->routeIs('two-factor.disable')) {
+            $response = $next($request);
+
+            if ($response->isRedirection() || $response->isSuccessful()) {
+                app(SecurityEventLogger::class)->log($request, 'security_app_mfa_disabled');
+            }
+
+            return $response;
         }
 
         if (! $user->requiresTwoFactorAuthentication($authMethod)) {
@@ -59,14 +81,14 @@ class EnsureRequiredMfaIsConfigured
         }
 
         if ($request->expectsJson()) {
-            abort(403, __('Bitte bestaetige die Zwei-Faktor-Authentifizierung, um fortzufahren.'));
+            abort(403, __('Bitte bestätige die Zwei-Faktor-Authentifizierung, um fortzufahren.'));
         }
 
         $appMfa->startChallenge($request, $authMethod, $this->intendedUrl($request));
 
         return redirect()
             ->route('security.mfa.challenge')
-            ->with('warning', __('Bitte bestaetige die Zwei-Faktor-Authentifizierung, um fortzufahren.'));
+            ->with('warning', __('Bitte bestätige die Zwei-Faktor-Authentifizierung, um fortzufahren.'));
     }
 
     private function isAllowedMfaSetupRoute(Request $request): bool

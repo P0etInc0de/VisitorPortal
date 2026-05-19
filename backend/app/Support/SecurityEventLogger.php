@@ -15,8 +15,8 @@ final class SecurityEventLogger
         Log::channel('web')->info($event, [
             'user_id' => $request->user()?->getAuthIdentifier(),
             'auth_method' => (string) $request->session()->get('auth.method', 'local'),
-            'ip_hash' => hash('sha256', (string) $request->ip()),
-            'user_agent_hash' => hash('sha256', (string) $request->userAgent()),
+            'ip_hash' => hash_hmac('sha256', (string) $request->ip(), (string) config('app.key')),
+            'user_agent_hash' => hash_hmac('sha256', (string) $request->userAgent(), (string) config('app.key')),
             ...$context,
         ]);
     }

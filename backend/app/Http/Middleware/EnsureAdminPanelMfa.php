@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Support\AppMfaPolicy;
 use App\Support\AppMfaSession;
 use App\Support\MfaOnboarding;
 use Closure;
@@ -22,10 +23,7 @@ class EnsureAdminPanelMfa
             ? (string) $request->session()->get('auth.method', 'local')
             : 'local';
 
-        $enforcedMethods = config('security.mfa.app_required_for_admin_panel_auth_methods', ['local', 'sso']);
-
-        if (! in_array($authMethod, $enforcedMethods, true)
-            || ! $user->hasAnyRole(config('security.mfa.app_required_roles', ['admin', 'super_admin']))) {
+        if (! app(AppMfaPolicy::class)->isRequiredForAdminPanel($user, $authMethod)) {
             return $next($request);
         }
 
@@ -42,7 +40,7 @@ class EnsureAdminPanelMfa
 
             return redirect()
                 ->route('security.mfa.challenge')
-                ->with('warning', __('Bitte bestaetige die lokale App-MFA, um den Adminbereich zu nutzen.'));
+                ->with('warning', __('Bitte bestätige die lokale Zwei-Faktor-Authentifizierung, um den Adminbereich zu nutzen.'));
         }
 
         app(MfaOnboarding::class)->start(
