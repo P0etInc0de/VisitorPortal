@@ -9,6 +9,7 @@ use App\Http\Controllers\Controller;
 use App\Support\AppMfaSession;
 use App\Support\AuthRedirector;
 use App\Support\MfaOnboarding;
+use App\Support\SafeRedirectUrl;
 use App\Support\UserSessionPreferences;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Http\RedirectResponse;
@@ -68,7 +69,11 @@ final class OidcAuthController extends Controller
         ]);
 
         if ($user->requiresTwoFactorAuthentication('sso')) {
-            $intendedUrl = $request->session()->pull('url.intended', url(app(AuthRedirector::class)->pathFor($user)));
+            $intendedUrl = app(SafeRedirectUrl::class)->sanitize(
+                $request,
+                $request->session()->pull('url.intended'),
+                url(app(AuthRedirector::class)->pathFor($user))
+            );
 
             if (! $user->hasConfirmedTwoFactorAuthentication()) {
                 app(MfaOnboarding::class)->start($request, 'sso', $intendedUrl);
@@ -85,7 +90,11 @@ final class OidcAuthController extends Controller
                 ->with('warning', __('Bitte bestaetige die lokale App-MFA, um fortzufahren.'));
         }
 
-        return redirect()->intended(app(AuthRedirector::class)->pathFor($user));
+        return redirect()->to(app(SafeRedirectUrl::class)->sanitize(
+            $request,
+            $request->session()->pull('url.intended'),
+            url(app(AuthRedirector::class)->pathFor($user))
+        ));
     }
 
     private function abortIfSsoUnavailable(): void

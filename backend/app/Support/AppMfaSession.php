@@ -39,7 +39,7 @@ final class AppMfaSession
     {
         $request->session()->put([
             'security.mfa.challenge_auth_method' => $authMethod,
-            'security.mfa.challenge_intended_url' => $intendedUrl,
+            'security.mfa.challenge_intended_url' => app(SafeRedirectUrl::class)->sanitize($request, $intendedUrl),
         ]);
     }
 

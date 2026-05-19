@@ -7,9 +7,9 @@
     <div class="overflow-hidden rounded-3xl border border-base-300 bg-base-100 shadow-sm">
         <div class="border-b border-base-300/70 px-7 pb-6 pt-6 sm:px-9">
             <p class="text-sm font-medium uppercase tracking-[0.22em] text-base-content/45">{{ $brandName }}</p>
-            <h1 class="mt-2 text-3xl font-semibold tracking-tight text-base-content">{{ __('MFA einrichten') }}</h1>
+            <h1 class="mt-2 text-3xl font-semibold tracking-tight text-base-content">{{ __('Zwei-Faktor-Authentifizierung einrichten') }}</h1>
             <p class="mt-3 text-sm leading-7 text-base-content/70">
-                {{ __('Diese Einrichtung ist Teil des Login- und Security-Onboardings. Die normale App-Navigation ist erst nach bestaetigter MFA verfuegbar.') }}
+                {{ __('Diese Einrichtung ist Teil der Anmeldung. Die normale App-Navigation ist erst nach bestätigter Zwei-Faktor-Authentifizierung verfügbar.') }}
             </p>
         </div>
 
@@ -18,7 +18,7 @@
                 <div class="alert alert-success rounded-2xl">
                     <span>
                         @if (session('status') === 'two-factor-authentication-enabled')
-                            {{ __('MFA wurde vorbereitet. Bitte bestaetige den Code aus deiner Authenticator-App.') }}
+                            {{ __('Zwei-Faktor-Authentifizierung wurde vorbereitet. Bitte bestätige den Code aus deiner Authenticator-App.') }}
                         @else
                             {{ __(session('status')) }}
                         @endif
@@ -30,13 +30,13 @@
                 <section class="rounded-2xl border border-base-300 bg-base-200/60 p-4">
                     <h2 class="text-lg font-semibold tracking-tight text-base-content">{{ __('Authenticator-App vorbereiten') }}</h2>
                     <p class="mt-3 text-sm leading-7 text-base-content/70">
-                        {{ __('Starte die MFA-Einrichtung. Danach wird dir ein QR-Code angezeigt, den du mit deiner Authenticator-App scannst.') }}
+                        {{ __('Starte die Einrichtung. Danach wird dir ein QR-Code angezeigt, den du mit deiner Authenticator-App scannst.') }}
                     </p>
 
                     <form method="POST" action="{{ route('security.mfa.enable') }}" class="mt-5">
                         @csrf
                         <button type="submit" class="btn btn-primary rounded-2xl">
-                            {{ __('MFA-Einrichtung starten') }}
+                            {{ __('Einrichtung starten') }}
                         </button>
                     </form>
                 </section>
@@ -51,7 +51,7 @@
                             {{ __('Authenticator-App verbinden') }}
                         </h2>
                         <p class="mt-3 text-sm leading-7 text-base-content/70">
-                            {{ __('Bitte scanne den QR-Code mit deiner Authenticator-App und bestaetige anschliessend den sechsstelligen Code. MFA ist erst nach dieser Bestaetigung aktiv.') }}
+                            {{ __('Bitte scanne den QR-Code mit deiner Authenticator-App und bestätige anschließend den sechsstelligen Code. Die Zwei-Faktor-Authentifizierung ist erst nach dieser Bestätigung aktiv.') }}
                         </p>
 
                         <form method="POST" action="{{ route('security.mfa.confirm') }}" class="mt-5 grid gap-4 sm:max-w-sm">
@@ -64,7 +64,7 @@
                             </div>
 
                             <x-primary-button>
-                                {{ __('MFA bestaetigen') }}
+                                {{ __('Bestätigen') }}
                             </x-primary-button>
                         </form>
                     </div>
@@ -73,7 +73,7 @@
 
             <div class="flex flex-col gap-3 border-t border-base-300 pt-5 sm:flex-row">
                 <a href="{{ route('security.mfa.required') }}" class="btn btn-outline rounded-2xl">
-                    {{ __('Zurueck') }}
+                    {{ __('Zurück') }}
                 </a>
 
                 <form method="POST" action="{{ route('logout') }}">

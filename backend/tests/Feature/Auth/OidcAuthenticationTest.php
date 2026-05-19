@@ -280,7 +280,7 @@ class OidcAuthenticationTest extends TestCase
         $this
             ->get(route('security.mfa.setup'))
             ->assertOk()
-            ->assertSee(__('MFA-Einrichtung starten'));
+            ->assertSee(__('Einrichtung starten'));
 
         $this
             ->post(route('security.mfa.enable'))

@@ -21,10 +21,10 @@
                 </div>
             @endif
 
-            <p class="text-sm font-medium uppercase tracking-[0.22em] text-base-content/45">{{ __('Security onboarding') }}</p>
-            <h1 class="mt-2 text-3xl font-semibold tracking-tight text-base-content">{{ __('MFA erforderlich') }}</h1>
+            <p class="text-sm font-medium uppercase tracking-[0.22em] text-base-content/45">{{ __('Anmeldung fast abgeschlossen') }}</p>
+            <h1 class="mt-2 text-3xl font-semibold tracking-tight text-base-content">{{ __('Zwei-Faktor-Authentifizierung erforderlich') }}</h1>
             <p class="mt-3 text-sm leading-7 text-base-content/70">
-                {{ __('Dein Konto muss mit lokaler App-MFA abgesichert werden, bevor du VisitorPortal weiter nutzt.') }}
+                {{ __('Dein Konto muss mit lokaler Zwei-Faktor-Authentifizierung abgesichert werden, bevor du VisitorPortal weiter nutzt.') }}
             </p>
         </div>
 
@@ -42,12 +42,12 @@
             @endif
 
             <div class="rounded-2xl border border-base-300 bg-base-200/60 p-4 text-sm leading-7 text-base-content/75">
-                {{ __('Richte MFA mit einer Authenticator-App ein und bestaetige anschliessend den sechsstelligen Code. Danach wirst du zu deinem urspruenglichen Ziel weitergeleitet.') }}
+                {{ __('Richte die Zwei-Faktor-Authentifizierung mit einer Authenticator-App ein und bestätige anschließend den sechsstelligen Code. Danach wirst du zu deinem ursprünglichen Ziel weitergeleitet.') }}
             </div>
 
             <div class="flex flex-col gap-3 sm:flex-row">
                 <a href="{{ route('security.mfa.setup') }}" class="btn btn-primary rounded-2xl">
-                    {{ $hasTwoFactorSecret ? __('MFA-Einrichtung fortsetzen') : __('MFA einrichten') }}
+                    {{ $hasTwoFactorSecret ? __('Einrichtung fortsetzen') : __('Authenticator-App einrichten') }}
                 </a>
 
                 <form method="POST" action="{{ route('logout') }}">

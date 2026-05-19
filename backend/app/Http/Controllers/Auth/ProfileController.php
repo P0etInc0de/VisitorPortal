@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\ProfileUpdateRequest;
+use App\Support\SecurityEventLogger;
 use App\Support\SensitiveActionConfirmation;
 use App\Support\UserPreferences;
 use Illuminate\Http\RedirectResponse;
@@ -43,16 +44,27 @@ class ProfileController extends Controller
 
         if (! $request->user()->hasConfirmedTwoFactorAuthentication()) {
             return Redirect::route('profile.security')
-                ->with('warning', __('Recovery Codes sind erst nach bestaetigter MFA verfuegbar.'));
+                ->with('warning', __('Recovery Codes sind erst nach bestätigter Zwei-Faktor-Authentifizierung verfügbar.'));
         }
 
         $confirmation = app(SensitiveActionConfirmation::class);
+        $allowedAfterRegeneration = $request->session()->pull('security.recovery_codes.just_regenerated', false) === true;
+        $regenerationStepUpMethod = $request->session()->pull('security.recovery_codes.step_up_method', 'unknown');
 
-        if (! $confirmation->isFresh($request, 'recovery-codes')) {
-            $confirmation->start($request, 'recovery-codes', $request->fullUrl());
+        if (! $allowedAfterRegeneration && ! $confirmation->isFresh($request, SensitiveActionConfirmation::PURPOSE_RECOVERY_CODES_VIEW)) {
+            $confirmation->start($request, SensitiveActionConfirmation::PURPOSE_RECOVERY_CODES_VIEW, $request->fullUrl());
 
-            return Redirect::route('security.step-up.show', 'recovery-codes');
+            return Redirect::route('security.step-up.show', SensitiveActionConfirmation::PURPOSE_RECOVERY_CODES_VIEW);
         }
+
+        app(SecurityEventLogger::class)->log($request, 'security_recovery_codes_viewed', [
+            'step_up_purpose' => $allowedAfterRegeneration
+                ? SensitiveActionConfirmation::PURPOSE_RECOVERY_CODES_REGENERATE
+                : SensitiveActionConfirmation::PURPOSE_RECOVERY_CODES_VIEW,
+            'step_up_method' => $allowedAfterRegeneration
+                ? (string) $regenerationStepUpMethod
+                : (string) $request->session()->get('security.step_up.method', 'unknown'),
+        ]);
 
         return view('profile.recovery-codes', [
             'user' => $request->user(),
@@ -66,21 +78,30 @@ class ProfileController extends Controller
 
         if (! $request->user()->hasConfirmedTwoFactorAuthentication()) {
             return Redirect::route('profile.security')
-                ->with('warning', __('Recovery Codes sind erst nach bestaetigter MFA verfuegbar.'));
+                ->with('warning', __('Recovery Codes sind erst nach bestätigter Zwei-Faktor-Authentifizierung verfügbar.'));
         }
 
         $confirmation = app(SensitiveActionConfirmation::class);
 
-        if (! $confirmation->isFresh($request, 'recovery-codes')) {
-            $confirmation->start($request, 'recovery-codes', route('profile.security.recovery-codes'));
+        if (! $confirmation->isFresh($request, SensitiveActionConfirmation::PURPOSE_RECOVERY_CODES_REGENERATE)) {
+            $confirmation->start($request, SensitiveActionConfirmation::PURPOSE_RECOVERY_CODES_REGENERATE, route('profile.security.recovery-codes'));
 
-            return Redirect::route('security.step-up.show', 'recovery-codes');
+            return Redirect::route('security.step-up.show', SensitiveActionConfirmation::PURPOSE_RECOVERY_CODES_REGENERATE);
         }
 
+        $stepUpMethod = (string) $request->session()->get('security.step_up.method', 'unknown');
+
         $generateRecoveryCodes($request->user());
+        app(SecurityEventLogger::class)->log($request, 'security_recovery_codes_regenerated', [
+            'step_up_purpose' => SensitiveActionConfirmation::PURPOSE_RECOVERY_CODES_REGENERATE,
+            'step_up_method' => $stepUpMethod,
+        ]);
+        $confirmation->clearConfirmation($request, SensitiveActionConfirmation::PURPOSE_RECOVERY_CODES_REGENERATE);
 
         return Redirect::route('profile.security.recovery-codes')
-            ->with('status', Fortify::RECOVERY_CODES_GENERATED);
+            ->with('status', Fortify::RECOVERY_CODES_GENERATED)
+            ->with('security.recovery_codes.just_regenerated', true)
+            ->with('security.recovery_codes.step_up_method', $stepUpMethod);
     }
 
     public function twoFactorSetup(Request $request): RedirectResponse|View
@@ -89,7 +110,7 @@ class ProfileController extends Controller
 
         if (blank($request->user()->two_factor_secret)) {
             return Redirect::route('profile.security')
-                ->with('warning', __('Bitte starte die MFA-Einrichtung zuerst.'));
+                ->with('warning', __('Bitte starte die Zwei-Faktor-Einrichtung zuerst.'));
         }
 
         if ($request->user()->hasConfirmedTwoFactorAuthentication()) {

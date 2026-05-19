@@ -8,12 +8,14 @@ use App\Support\OperationalHeartbeat;
 use App\Support\SafeLogContext;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Str;
+use Laravel\Fortify\Events\TwoFactorAuthenticationFailed;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -55,6 +57,19 @@ class AppServiceProvider extends ServiceProvider
             } catch (\Throwable $exception) {
                 report($exception);
             }
+        });
+
+        Event::listen(TwoFactorAuthenticationFailed::class, function (TwoFactorAuthenticationFailed $event): void {
+            $request = request();
+
+            Log::channel('web')->info('security_app_mfa_challenge_failed', [
+                'user_id' => $event->user?->getAuthIdentifier(),
+                'auth_method' => 'local',
+                'step_up_purpose' => 'login',
+                'attempted_method' => $request->filled('recovery_code') ? 'recovery_code' : 'totp',
+                'ip_hash' => hash('sha256', (string) $request->ip()),
+                'user_agent_hash' => hash('sha256', (string) $request->userAgent()),
+            ]);
         });
 
         Gate::after(function ($user, $ability, $result, $arguments) {

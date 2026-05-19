@@ -2,6 +2,7 @@
 
 namespace App\Http\Responses;
 
+use App\Support\SafeRedirectUrl;
 use Illuminate\Http\JsonResponse;
 use Laravel\Fortify\Contracts\TwoFactorConfirmedResponse as TwoFactorConfirmedResponseContract;
 use Laravel\Fortify\Fortify;
@@ -17,7 +18,7 @@ final class TwoFactorConfirmedResponse implements TwoFactorConfirmedResponseCont
         $intendedUrl = $request->session()->pull('security.mfa.intended_url');
 
         if (is_string($intendedUrl) && $intendedUrl !== '') {
-            return redirect()->to($intendedUrl)
+            return redirect()->to(app(SafeRedirectUrl::class)->sanitize($request, $intendedUrl))
                 ->with('status', Fortify::TWO_FACTOR_AUTHENTICATION_CONFIRMED);
         }
 

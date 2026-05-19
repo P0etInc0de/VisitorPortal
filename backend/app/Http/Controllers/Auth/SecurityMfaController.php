@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Support\AppMfaChallenge;
 use App\Support\AppMfaSession;
 use App\Support\MfaOnboarding;
+use App\Support\SafeRedirectUrl;
+use App\Support\SecurityEventLogger;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Redirect;
@@ -69,6 +71,10 @@ final class SecurityMfaController extends Controller
             'totp',
             app(MfaOnboarding::class)->authMethod($request)
         );
+        app(SecurityEventLogger::class)->log($request, 'security_app_mfa_step_up_completed', [
+            'step_up_purpose' => 'required-mfa-onboarding',
+            'step_up_method' => 'totp',
+        ]);
 
         return Redirect::route('security.mfa.recovery-codes')
             ->with('status', Fortify::TWO_FACTOR_AUTHENTICATION_CONFIRMED);
@@ -89,11 +95,12 @@ final class SecurityMfaController extends Controller
 
         return view('security.mfa.challenge', [
             'action' => route('security.mfa.challenge.verify'),
-            'title' => __('Zwei-Faktor-Authentifizierung bestaetigen'),
-            'description' => __('Bitte bestaetige den Zugriff mit dem sechsstelligen Code aus deiner Authenticator-App oder einem Recovery Code.'),
-            'button' => __('Zugriff bestaetigen'),
+            'title' => __('Zwei-Faktor-Authentifizierung bestätigen'),
+            'description' => __('Bitte bestätige den Zugriff mit dem sechsstelligen Code aus deiner Authenticator-App oder einem Recovery Code.'),
+            'button' => __('Zugriff bestätigen'),
             'showLogout' => true,
             'backUrl' => null,
+            'allowedMethods' => ['totp', 'recovery_code'],
         ]);
     }
 
@@ -105,9 +112,13 @@ final class SecurityMfaController extends Controller
 
         $appMfa = app(AppMfaSession::class);
         $authMethod = $appMfa->challengeAuthMethod($request);
-        $method = $challenge->verify($request);
+        $method = $challenge->verify($request, ['totp', 'recovery_code'], 'app-mfa-session');
 
         $appMfa->markSatisfied($request, $method, $authMethod);
+        app(SecurityEventLogger::class)->log($request, 'security_app_mfa_step_up_completed', [
+            'step_up_purpose' => 'app-mfa-session',
+            'step_up_method' => $method,
+        ]);
 
         return $this->redirectAfterChallenge($request);
     }
@@ -116,13 +127,18 @@ final class SecurityMfaController extends Controller
     {
         if (! $request->user()->hasConfirmedTwoFactorAuthentication()) {
             return Redirect::route('security.mfa.required')
-                ->with('warning', __('Recovery Codes sind erst nach bestaetigter MFA verfuegbar.'));
+                ->with('warning', __('Recovery Codes sind erst nach bestätigter Zwei-Faktor-Authentifizierung verfügbar.'));
         }
 
         if (blank($request->user()->two_factor_recovery_codes)) {
             $generateRecoveryCodes($request->user());
             $request->user()->refresh();
         }
+
+        app(SecurityEventLogger::class)->log($request, 'security_recovery_codes_viewed', [
+            'step_up_purpose' => 'required-mfa-onboarding',
+            'step_up_method' => 'totp',
+        ]);
 
         return view('security.mfa.recovery-codes', [
             'user' => $request->user(),
@@ -143,7 +159,7 @@ final class SecurityMfaController extends Controller
         $onboarding->clear($request);
 
         return $intendedUrl
-            ? Redirect::to($intendedUrl)
+            ? Redirect::to(app(SafeRedirectUrl::class)->sanitize($request, $intendedUrl))
             : Redirect::route('overview');
     }
 
@@ -170,7 +186,7 @@ final class SecurityMfaController extends Controller
         $appMfa->clearChallenge($request);
 
         return $intendedUrl
-            ? Redirect::to($intendedUrl)
+            ? Redirect::to(app(SafeRedirectUrl::class)->sanitize($request, $intendedUrl))
             : Redirect::route('overview');
     }
 }

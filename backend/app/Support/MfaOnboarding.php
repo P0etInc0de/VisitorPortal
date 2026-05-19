@@ -15,7 +15,7 @@ final class MfaOnboarding
             'security.mfa.onboarding_required' => true,
             'security.mfa.authenticated_at' => now()->timestamp,
             'security.mfa.auth_method' => $authMethod,
-            'security.mfa.intended_url' => $intendedUrl,
+            'security.mfa.intended_url' => app(SafeRedirectUrl::class)->sanitize($request, $intendedUrl),
         ]);
     }
 

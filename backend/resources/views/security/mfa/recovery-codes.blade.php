@@ -1,7 +1,7 @@
 <x-guest-layout>
     <div class="overflow-hidden rounded-3xl border border-base-300 bg-base-100 shadow-sm">
         <div class="border-b border-base-300/70 px-7 pb-6 pt-6 sm:px-9">
-            <p class="text-sm font-medium uppercase tracking-[0.22em] text-base-content/45">{{ __('Security onboarding') }}</p>
+            <p class="text-sm font-medium uppercase tracking-[0.22em] text-base-content/45">{{ __('Recovery Codes speichern') }}</p>
             <h1 class="mt-2 text-3xl font-semibold tracking-tight text-base-content">{{ __('Recovery Codes') }}</h1>
             <p class="mt-3 text-sm leading-7 text-base-content/70">
                 {{ __('Bewahre diese Codes sicher auf. Jeder Code kann nur einmal verwendet werden.') }}
@@ -13,7 +13,7 @@
                 <div class="alert alert-success rounded-2xl">
                     <span>
                         @if (session('status') === 'two-factor-authentication-confirmed')
-                            {{ __('MFA wurde aktiviert. Speichere jetzt deine Recovery Codes.') }}
+                            {{ __('Zwei-Faktor-Authentifizierung wurde aktiviert. Speichere jetzt deine Recovery Codes.') }}
                         @else
                             {{ __(session('status')) }}
                         @endif

@@ -7,7 +7,7 @@
             </div>
 
             <a href="{{ route('profile.security') }}" class="btn btn-outline rounded-2xl">
-                {{ __('Zurueck zur Sicherheit') }}
+                {{ __('Zurück zur Sicherheit') }}
             </a>
         </div>
     </x-slot>

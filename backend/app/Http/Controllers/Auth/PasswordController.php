@@ -19,7 +19,7 @@ class PasswordController extends Controller
     {
         if ($request->user()->local_login_allowed === false) {
             throw ValidationException::withMessages([
-                'current_password' => __('Password login is disabled for this account. Please use SSO.'),
+                'current_password' => __('Dieses Konto wird über SSO verwaltet. Das lokale Passwort kann hier nicht geändert werden.'),
             ])->errorBag('updatePassword');
         }
 

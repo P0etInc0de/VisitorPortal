@@ -31,7 +31,7 @@ Privileged users must configure and confirm local app MFA before they can contin
 
 VisitorPortal treats configured MFA and session-satisfied MFA as separate states. `hasConfirmedTwoFactorAuthentication()` only means that local app MFA exists for the account. A separate session marker records that the current session has passed a local app-MFA challenge by TOTP or recovery code.
 
-The regular profile security page remains available for later voluntary account security management and still uses password confirmation before QR codes, secrets or recovery codes are displayed.
+The regular profile security page remains available for later voluntary account security management. Voluntary profile MFA setup still uses password confirmation before QR codes or secrets are displayed; recovery-code management uses the SSO-compatible app-MFA step-up described below.
 
 The Filament admin panel has an additional MFA middleware. By default, admin and super admin accounts need session-satisfied local app MFA before accessing `/admin` after both local and SSO logins. If local app MFA is configured but has not yet been passed in the current session, the user is redirected to `/security/mfa/challenge`. In `APP_MFA_REQUIRED_FOR_ADMIN_PANEL_AUTH_METHODS`, `sso` means VisitorPortal requires an additional local app-MFA challenge after SSO login; it does not mean MFA is only expected in the external identity provider.
 
@@ -41,7 +41,11 @@ List-style `APP_MFA_*` settings can be intentionally disabled with an empty valu
 
 Users with MFA should store their recovery codes securely. Each recovery code can be used once during the two-factor login challenge.
 
-Recovery codes are not shown on the regular profile security page. Users must explicitly open the recovery-code page and pass a fresh step-up challenge before existing codes are displayed or regenerated. This step-up currently uses the local app-MFA TOTP or a recovery code and is fresh for 10 minutes, so it also works for SSO-only users without a local password. Likewise, the QR code for voluntary profile MFA setup is only shown on a password-confirmed setup page.
+Recovery codes are not shown on the regular profile security page. Users must explicitly open the recovery-code page and pass a fresh, purpose-bound step-up challenge before existing codes are displayed or regenerated. The step-up is fresh for 10 minutes and works for SSO-only users without a local password.
+
+Recovery-code viewing and regeneration use different purposes. Viewing existing codes requires a fresh TOTP app-MFA step-up (`recovery-codes:view`); a recovery code cannot be used to reveal all existing recovery codes. Regeneration uses `recovery-codes:regenerate` and accepts either TOTP or a recovery code as a recovery scenario. Regeneration replaces old codes and then shows the newly generated codes once.
+
+Sensitive MFA events are written to the web log without codes, secrets or token material. Logged events include app-MFA step-up completion/failure, recovery-code use, recovery-code viewing and recovery-code regeneration.
 
 Mandatory MFA onboarding is the exception: it uses the fresh login or SSO session instead of `password.confirm`, then displays recovery codes immediately after the TOTP code has been confirmed.
 

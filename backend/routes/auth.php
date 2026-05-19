@@ -10,6 +10,7 @@ use App\Http\Controllers\Auth\SecurityStepUpController;
 use App\Http\Controllers\Auth\ThemePreferenceController;
 use App\Http\Controllers\Auth\VerifyEmailController;
 use App\Http\Middleware\EnsureMfaOnboardingIsAllowed;
+use App\Support\SensitiveActionConfirmation;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware('guest')->group(function () {
@@ -31,7 +32,7 @@ Route::middleware('auth')->group(function () {
     Route::get('profile/security/recovery-codes', [ProfileController::class, 'recoveryCodes'])
         ->name('profile.security.recovery-codes');
 
-    Route::post('profile/security/recovery-codes', [ProfileController::class, 'regenerateRecoveryCodes'])
+    Route::post('profile/security/recovery-codes/regenerate', [ProfileController::class, 'regenerateRecoveryCodes'])
         ->name('profile.security.recovery-codes.regenerate');
 
     Route::get('profile/security/two-factor-setup', [ProfileController::class, 'twoFactorSetup'])
@@ -66,12 +67,18 @@ Route::middleware('auth')->group(function () {
         ->name('security.mfa.challenge.verify');
 
     Route::get('security/step-up/{purpose}', [SecurityStepUpController::class, 'show'])
-        ->whereIn('purpose', ['recovery-codes'])
+        ->whereIn('purpose', [
+            SensitiveActionConfirmation::PURPOSE_RECOVERY_CODES_VIEW,
+            SensitiveActionConfirmation::PURPOSE_RECOVERY_CODES_REGENERATE,
+        ])
         ->name('security.step-up.show');
 
     Route::post('security/step-up/{purpose}', [SecurityStepUpController::class, 'verify'])
         ->middleware('throttle:two-factor')
-        ->whereIn('purpose', ['recovery-codes'])
+        ->whereIn('purpose', [
+            SensitiveActionConfirmation::PURPOSE_RECOVERY_CODES_VIEW,
+            SensitiveActionConfirmation::PURPOSE_RECOVERY_CODES_REGENERATE,
+        ])
         ->name('security.step-up.verify');
 
     Route::patch('profile', [ProfileController::class, 'update'])

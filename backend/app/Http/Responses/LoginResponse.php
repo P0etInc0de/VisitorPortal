@@ -5,6 +5,8 @@ namespace App\Http\Responses;
 use App\Support\AppMfaSession;
 use App\Support\AuthRedirector;
 use App\Support\MfaOnboarding;
+use App\Support\SafeRedirectUrl;
+use App\Support\SecurityEventLogger;
 use App\Support\UserSessionPreferences;
 use Illuminate\Support\Facades\Auth;
 use Laravel\Fortify\Contracts\LoginResponse as LoginResponseContract;
@@ -34,11 +36,24 @@ class LoginResponse implements LoginResponseContract, TwoFactorLoginResponseCont
         $request->session()->put('auth.method', $authMethod);
 
         if ($request->routeIs('two-factor.login.store')) {
+            $method = $request->filled('recovery_code') ? 'recovery_code' : 'totp';
+
             app(AppMfaSession::class)->markSatisfied(
                 $request,
-                $request->filled('recovery_code') ? 'recovery_code' : 'totp',
+                $method,
                 $authMethod
             );
+            app(SecurityEventLogger::class)->log($request, 'security_app_mfa_step_up_completed', [
+                'step_up_purpose' => 'login',
+                'step_up_method' => $method,
+            ]);
+
+            if ($method === 'recovery_code') {
+                app(SecurityEventLogger::class)->log($request, 'security_recovery_code_used', [
+                    'step_up_purpose' => 'login',
+                    'step_up_method' => 'recovery_code',
+                ]);
+            }
         } else {
             app(AppMfaSession::class)->clear($request);
         }
@@ -57,8 +72,18 @@ class LoginResponse implements LoginResponseContract, TwoFactorLoginResponseCont
                 ->with('warning', __('Bitte richte die Zwei-Faktor-Authentifizierung ein, um fortzufahren.'));
         }
 
-        return redirect()->intended(
-            app(AuthRedirector::class)->pathFor($user)
+        $redirectUrl = app(SafeRedirectUrl::class)->sanitize(
+            $request,
+            $request->session()->pull('url.intended'),
+            url(app(AuthRedirector::class)->pathFor($user))
         );
+
+        $response = redirect()->to($redirectUrl);
+
+        if (($method ?? null) === 'recovery_code') {
+            $response->with('warning', __('Ein Recovery Code wurde verwendet und ersetzt. Bitte prüfe deine neuen Recovery Codes.'));
+        }
+
+        return $response;
     }
 }

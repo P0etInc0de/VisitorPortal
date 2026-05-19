@@ -6,13 +6,17 @@ use Illuminate\Http\Request;
 
 final class SensitiveActionConfirmation
 {
+    public const PURPOSE_RECOVERY_CODES_VIEW = 'recovery-codes:view';
+
+    public const PURPOSE_RECOVERY_CODES_REGENERATE = 'recovery-codes:regenerate';
+
     private const FRESH_FOR_SECONDS = 600;
 
     public function start(Request $request, string $purpose, string $intendedUrl): void
     {
         $request->session()->put([
             'security.step_up.purpose' => $purpose,
-            'security.step_up.intended_url' => $intendedUrl,
+            'security.step_up.intended_url' => app(SafeRedirectUrl::class)->sanitize($request, $intendedUrl),
         ]);
     }
 
@@ -46,6 +50,19 @@ final class SensitiveActionConfirmation
         $request->session()->forget([
             'security.step_up.purpose',
             'security.step_up.intended_url',
+        ]);
+    }
+
+    public function clearConfirmation(Request $request, ?string $purpose = null): void
+    {
+        if ($purpose !== null && $request->session()->get('security.step_up.confirmed_for') !== $purpose) {
+            return;
+        }
+
+        $request->session()->forget([
+            'security.step_up.confirmed_at',
+            'security.step_up.method',
+            'security.step_up.confirmed_for',
         ]);
     }
 }
