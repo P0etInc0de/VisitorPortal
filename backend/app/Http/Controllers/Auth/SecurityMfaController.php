@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Support\AppMfaChallenge;
+use App\Support\AppMfaSession;
 use App\Support\MfaOnboarding;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -18,7 +20,7 @@ final class SecurityMfaController extends Controller
     public function required(Request $request): RedirectResponse|View
     {
         if ($request->user()->hasConfirmedTwoFactorAuthentication()) {
-            return $this->redirectAfterMfa($request);
+            return $this->redirectAfterConfiguredMfa($request);
         }
 
         return view('security.mfa.required', [
@@ -29,7 +31,7 @@ final class SecurityMfaController extends Controller
     public function setup(Request $request): RedirectResponse|View
     {
         if ($request->user()->hasConfirmedTwoFactorAuthentication()) {
-            return $this->redirectAfterMfa($request);
+            return $this->redirectAfterConfiguredMfa($request);
         }
 
         return view('security.mfa.setup', [
@@ -62,8 +64,52 @@ final class SecurityMfaController extends Controller
             $generateRecoveryCodes($request->user());
         }
 
+        app(AppMfaSession::class)->markSatisfied(
+            $request,
+            'totp',
+            app(MfaOnboarding::class)->authMethod($request)
+        );
+
         return Redirect::route('security.mfa.recovery-codes')
             ->with('status', Fortify::TWO_FACTOR_AUTHENTICATION_CONFIRMED);
+    }
+
+    public function challenge(Request $request): RedirectResponse|View
+    {
+        if (! $request->user()->hasConfirmedTwoFactorAuthentication()) {
+            return Redirect::route('overview');
+        }
+
+        $appMfa = app(AppMfaSession::class);
+        $authMethod = $appMfa->challengeAuthMethod($request);
+
+        if ($appMfa->isSatisfied($request, $authMethod)) {
+            return $this->redirectAfterChallenge($request);
+        }
+
+        return view('security.mfa.challenge', [
+            'action' => route('security.mfa.challenge.verify'),
+            'title' => __('Zwei-Faktor-Authentifizierung bestaetigen'),
+            'description' => __('Bitte bestaetige den Zugriff mit dem sechsstelligen Code aus deiner Authenticator-App oder einem Recovery Code.'),
+            'button' => __('Zugriff bestaetigen'),
+            'showLogout' => true,
+            'backUrl' => null,
+        ]);
+    }
+
+    public function verifyChallenge(Request $request, AppMfaChallenge $challenge): RedirectResponse
+    {
+        if (! $request->user()->hasConfirmedTwoFactorAuthentication()) {
+            return Redirect::route('overview');
+        }
+
+        $appMfa = app(AppMfaSession::class);
+        $authMethod = $appMfa->challengeAuthMethod($request);
+        $method = $challenge->verify($request);
+
+        $appMfa->markSatisfied($request, $method, $authMethod);
+
+        return $this->redirectAfterChallenge($request);
     }
 
     public function recoveryCodes(Request $request, GenerateNewRecoveryCodes $generateRecoveryCodes): RedirectResponse|View
@@ -95,6 +141,33 @@ final class SecurityMfaController extends Controller
         $intendedUrl = $onboarding->intendedUrl($request);
 
         $onboarding->clear($request);
+
+        return $intendedUrl
+            ? Redirect::to($intendedUrl)
+            : Redirect::route('overview');
+    }
+
+    private function redirectAfterConfiguredMfa(Request $request): RedirectResponse
+    {
+        $appMfa = app(AppMfaSession::class);
+        $onboarding = app(MfaOnboarding::class);
+        $authMethod = $onboarding->authMethod($request);
+
+        if ($appMfa->isSatisfied($request, $authMethod)) {
+            return $this->redirectAfterMfa($request);
+        }
+
+        $appMfa->startChallenge($request, $authMethod, $onboarding->intendedUrl($request) ?? route('overview'));
+
+        return Redirect::route('security.mfa.challenge');
+    }
+
+    private function redirectAfterChallenge(Request $request): RedirectResponse
+    {
+        $appMfa = app(AppMfaSession::class);
+        $intendedUrl = $appMfa->intendedUrl($request);
+
+        $appMfa->clearChallenge($request);
 
         return $intendedUrl
             ? Redirect::to($intendedUrl)

@@ -36,7 +36,7 @@
                     </p>
                 </div>
 
-                <form method="POST" action="{{ route('two-factor.regenerate-recovery-codes') }}">
+                <form method="POST" action="{{ route('profile.security.recovery-codes.regenerate') }}">
                     @csrf
                     <button type="submit" class="btn btn-outline rounded-2xl">
                         {{ __('Neue Codes erzeugen') }}

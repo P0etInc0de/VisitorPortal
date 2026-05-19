@@ -4,12 +4,15 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\ProfileUpdateRequest;
+use App\Support\SensitiveActionConfirmation;
 use App\Support\UserPreferences;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cookie;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\View\View;
+use Laravel\Fortify\Actions\GenerateNewRecoveryCodes;
+use Laravel\Fortify\Fortify;
 
 class ProfileController extends Controller
 {
@@ -43,10 +46,41 @@ class ProfileController extends Controller
                 ->with('warning', __('Recovery Codes sind erst nach bestaetigter MFA verfuegbar.'));
         }
 
+        $confirmation = app(SensitiveActionConfirmation::class);
+
+        if (! $confirmation->isFresh($request, 'recovery-codes')) {
+            $confirmation->start($request, 'recovery-codes', $request->fullUrl());
+
+            return Redirect::route('security.step-up.show', 'recovery-codes');
+        }
+
         return view('profile.recovery-codes', [
             'user' => $request->user(),
             'recoveryCodes' => $request->user()->recoveryCodes(),
         ]);
+    }
+
+    public function regenerateRecoveryCodes(Request $request, GenerateNewRecoveryCodes $generateRecoveryCodes): RedirectResponse
+    {
+        $this->authorize('view', $request->user());
+
+        if (! $request->user()->hasConfirmedTwoFactorAuthentication()) {
+            return Redirect::route('profile.security')
+                ->with('warning', __('Recovery Codes sind erst nach bestaetigter MFA verfuegbar.'));
+        }
+
+        $confirmation = app(SensitiveActionConfirmation::class);
+
+        if (! $confirmation->isFresh($request, 'recovery-codes')) {
+            $confirmation->start($request, 'recovery-codes', route('profile.security.recovery-codes'));
+
+            return Redirect::route('security.step-up.show', 'recovery-codes');
+        }
+
+        $generateRecoveryCodes($request->user());
+
+        return Redirect::route('profile.security.recovery-codes')
+            ->with('status', Fortify::RECOVERY_CODES_GENERATED);
     }
 
     public function twoFactorSetup(Request $request): RedirectResponse|View

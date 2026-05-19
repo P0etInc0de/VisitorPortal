@@ -42,7 +42,9 @@ class AppServiceProvider extends ServiceProvider
         });
 
         RateLimiter::for('two-factor', function (Request $request): Limit {
-            $loginId = (string) $request->session()->get('login.id', 'anonymous');
+            $loginId = (string) ($request->session()->get('login.id')
+                ?? $request->user()?->getAuthIdentifier()
+                ?? 'anonymous');
 
             return Limit::perMinute(5)->by($loginId.'|'.$request->ip());
         });

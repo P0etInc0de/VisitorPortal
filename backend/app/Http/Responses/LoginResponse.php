@@ -2,6 +2,7 @@
 
 namespace App\Http\Responses;
 
+use App\Support\AppMfaSession;
 use App\Support\AuthRedirector;
 use App\Support\MfaOnboarding;
 use App\Support\UserSessionPreferences;
@@ -31,6 +32,17 @@ class LoginResponse implements LoginResponseContract, TwoFactorLoginResponseCont
 
         $authMethod = 'local';
         $request->session()->put('auth.method', $authMethod);
+
+        if ($request->routeIs('two-factor.login.store')) {
+            app(AppMfaSession::class)->markSatisfied(
+                $request,
+                $request->filled('recovery_code') ? 'recovery_code' : 'totp',
+                $authMethod
+            );
+        } else {
+            app(AppMfaSession::class)->clear($request);
+        }
+
         app(UserSessionPreferences::class)->apply($request, $user);
 
         if ($user->requiresTwoFactorAuthentication($authMethod) && ! $user->hasConfirmedTwoFactorAuthentication()) {

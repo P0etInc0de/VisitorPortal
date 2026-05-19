@@ -152,6 +152,26 @@ class OidcAuthenticationTest extends TestCase
         $this->assertAuthenticatedAs($admin);
     }
 
+    public function test_sso_login_requires_app_mfa_challenge_when_mfa_is_already_configured(): void
+    {
+        config(['security.mfa.app_required_for_auth_methods' => ['sso']]);
+        $this->configureSso();
+        $admin = $this->adminWithSsoIdentity();
+        $this->confirmMfa($admin);
+
+        $this->get(route('auth.oidc.callback'))
+            ->assertRedirect(route('security.mfa.challenge'));
+
+        $this->assertAuthenticatedAs($admin);
+
+        $this
+            ->post(route('security.mfa.challenge.verify'), [
+                'code' => $this->currentTotp($admin),
+            ])
+            ->assertRedirect(url('/overview'))
+            ->assertSessionHas('auth.app_mfa_satisfied_for_auth_method', 'sso');
+    }
+
     public function test_sso_only_admin_with_local_login_disabled_can_complete_required_app_mfa_onboarding(): void
     {
         config(['security.mfa.app_required_for_auth_methods' => ['sso']]);
@@ -167,7 +187,7 @@ class OidcAuthenticationTest extends TestCase
         $this->completeRequiredMfaOnboarding($admin, url('/overview'));
     }
 
-    public function test_sso_admin_with_confirmed_mfa_can_access_admin_panel(): void
+    public function test_sso_admin_with_confirmed_mfa_must_complete_app_mfa_challenge_for_admin_panel(): void
     {
         $this->configureSso();
         $admin = $this->adminWithSsoIdentity();
@@ -175,6 +195,17 @@ class OidcAuthenticationTest extends TestCase
 
         $this->get(route('auth.oidc.callback'))
             ->assertRedirect(route('overview', absolute: false));
+
+        $this
+            ->get('/admin')
+            ->assertRedirect(route('security.mfa.challenge'));
+
+        $this
+            ->post(route('security.mfa.challenge.verify'), [
+                'code' => $this->currentTotp($admin),
+            ])
+            ->assertRedirect(url('/admin'))
+            ->assertSessionHas('auth.app_mfa_satisfied_for_auth_method', 'sso');
 
         $this->get('/admin')->assertOk();
     }

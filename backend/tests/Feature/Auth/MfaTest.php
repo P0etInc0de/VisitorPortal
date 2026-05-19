@@ -224,7 +224,9 @@ class MfaTest extends TestCase
 
         $this->post(route('two-factor.login'), [
             'code' => $this->currentTotp($admin),
-        ])->assertRedirect(route('overview', absolute: false));
+        ])->assertRedirect(route('overview', absolute: false))
+            ->assertSessionHas('auth.app_mfa_satisfied_for_auth_method', 'local')
+            ->assertSessionHas('auth.app_mfa_satisfied_method', 'totp');
 
         $this->assertAuthenticatedAs($admin);
     }
@@ -249,7 +251,7 @@ class MfaTest extends TestCase
         $this->assertNotContains($recoveryCode, $admin->fresh()->recoveryCodes());
     }
 
-    public function test_recovery_codes_are_only_visible_after_password_confirmation(): void
+    public function test_recovery_codes_are_only_visible_after_fresh_step_up(): void
     {
         $user = (new PermissionHelper)->getUser();
         $this->confirmMfa($user);
@@ -266,11 +268,45 @@ class MfaTest extends TestCase
         $this
             ->actingAs($user)
             ->get(route('profile.security.recovery-codes'))
-            ->assertRedirect(route('password.confirm', absolute: false));
+            ->assertRedirect(route('security.step-up.show', 'recovery-codes'));
 
         $this
             ->actingAs($user)
-            ->withSession(['auth.password_confirmed_at' => time()])
+            ->post(route('security.step-up.verify', 'recovery-codes'), [
+                'code' => $this->currentTotp($user),
+            ])
+            ->assertRedirect(route('profile.security.recovery-codes'));
+
+        $this
+            ->actingAs($user)
+            ->get(route('profile.security.recovery-codes'))
+            ->assertOk()
+            ->assertSee($recoveryCode);
+    }
+
+    public function test_sso_only_user_can_view_recovery_codes_after_app_mfa_step_up(): void
+    {
+        $user = (new PermissionHelper)->getUser();
+        $user->forceFill(['local_login_allowed' => false])->save();
+        $this->confirmMfa($user);
+
+        $recoveryCode = $user->fresh()->recoveryCodes()[0];
+
+        $this
+            ->actingAs($user)
+            ->withSession(['auth.method' => 'sso'])
+            ->get(route('profile.security.recovery-codes'))
+            ->assertRedirect(route('security.step-up.show', 'recovery-codes'));
+
+        $this
+            ->actingAs($user)
+            ->post(route('security.step-up.verify', 'recovery-codes'), [
+                'code' => $this->currentTotp($user),
+            ])
+            ->assertRedirect(route('profile.security.recovery-codes'));
+
+        $this
+            ->actingAs($user)
             ->get(route('profile.security.recovery-codes'))
             ->assertOk()
             ->assertSee($recoveryCode);
@@ -307,13 +343,25 @@ class MfaTest extends TestCase
             ->assertRedirect(route('security.mfa.required'));
     }
 
-    public function test_admin_with_confirmed_mfa_can_access_filament_admin_panel(): void
+    public function test_admin_with_confirmed_mfa_requires_app_mfa_session_for_filament_admin_panel(): void
     {
         $admin = (new PermissionHelper)->getSuperAdminUser();
         $this->confirmMfa($admin);
 
         $this
             ->actingAs($admin)
+            ->get('/admin')
+            ->assertRedirect(route('security.mfa.challenge'));
+    }
+
+    public function test_admin_with_satisfied_app_mfa_can_access_filament_admin_panel(): void
+    {
+        $admin = (new PermissionHelper)->getSuperAdminUser();
+        $this->confirmMfa($admin);
+
+        $this
+            ->actingAs($admin)
+            ->withSession($this->appMfaSatisfiedSession())
             ->get('/admin')
             ->assertOk();
     }
@@ -461,6 +509,19 @@ class MfaTest extends TestCase
             'security.mfa.authenticated_at' => now()->timestamp,
             'security.mfa.auth_method' => $authMethod,
             'security.mfa.intended_url' => $intendedUrl ?? url('/overview'),
+        ];
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function appMfaSatisfiedSession(string $authMethod = 'local'): array
+    {
+        return [
+            'auth.method' => $authMethod,
+            'auth.app_mfa_satisfied_at' => now()->timestamp,
+            'auth.app_mfa_satisfied_method' => 'totp',
+            'auth.app_mfa_satisfied_for_auth_method' => $authMethod,
         ];
     }
 

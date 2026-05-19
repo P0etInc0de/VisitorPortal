@@ -6,6 +6,7 @@ use App\Auth\Sso\Contracts\OidcAuthenticator;
 use App\Auth\Sso\SsoAuthenticationException;
 use App\Auth\Sso\SsoUserResolver;
 use App\Http\Controllers\Controller;
+use App\Support\AppMfaSession;
 use App\Support\AuthRedirector;
 use App\Support\MfaOnboarding;
 use App\Support\UserSessionPreferences;
@@ -53,6 +54,7 @@ final class OidcAuthController extends Controller
         $request->session()->put('auth.method', 'sso');
         $request->session()->put('auth.oidc.issuer', $identity->issuer);
         $request->session()->put('auth.oidc.subject', $identity->subject);
+        app(AppMfaSession::class)->clear($request);
 
         app(UserSessionPreferences::class)->apply($request, $user);
 
@@ -65,16 +67,22 @@ final class OidcAuthController extends Controller
             'role_sync_enabled' => (bool) config('sso.oidc.sync_roles', false),
         ]);
 
-        if ($user->requiresTwoFactorAuthentication('sso') && ! $user->hasConfirmedTwoFactorAuthentication()) {
-            app(MfaOnboarding::class)->start(
-                $request,
-                'sso',
-                $request->session()->pull('url.intended', url(app(AuthRedirector::class)->pathFor($user)))
-            );
+        if ($user->requiresTwoFactorAuthentication('sso')) {
+            $intendedUrl = $request->session()->pull('url.intended', url(app(AuthRedirector::class)->pathFor($user)));
+
+            if (! $user->hasConfirmedTwoFactorAuthentication()) {
+                app(MfaOnboarding::class)->start($request, 'sso', $intendedUrl);
+
+                return redirect()
+                    ->route('security.mfa.required')
+                    ->with('warning', __('Bitte richte die Zwei-Faktor-Authentifizierung ein, um fortzufahren.'));
+            }
+
+            app(AppMfaSession::class)->startChallenge($request, 'sso', $intendedUrl);
 
             return redirect()
-                ->route('security.mfa.required')
-                ->with('warning', __('Bitte richte die Zwei-Faktor-Authentifizierung ein, um fortzufahren.'));
+                ->route('security.mfa.challenge')
+                ->with('warning', __('Bitte bestaetige die lokale App-MFA, um fortzufahren.'));
         }
 
         return redirect()->intended(app(AuthRedirector::class)->pathFor($user));

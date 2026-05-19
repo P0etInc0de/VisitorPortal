@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Support\AppMfaSession;
 use App\Support\MfaOnboarding;
 use Closure;
 use Illuminate\Http\Request;
@@ -31,23 +32,41 @@ class EnsureRequiredMfaIsConfigured
             abort(403, __('MFA kann fuer privilegierte Rollen nicht dauerhaft deaktiviert werden.'));
         }
 
-        if (! $user->requiresTwoFactorAuthentication($authMethod) || $user->hasConfirmedTwoFactorAuthentication()) {
+        if (! $user->requiresTwoFactorAuthentication($authMethod)) {
             return $next($request);
         }
 
-        if ($this->isAllowedMfaSetupRoute($request)) {
+        if (! $user->hasConfirmedTwoFactorAuthentication()) {
+            if ($this->isAllowedMfaSetupRoute($request)) {
+                return $next($request);
+            }
+
+            if ($request->expectsJson()) {
+                abort(403, __('Bitte richte die Zwei-Faktor-Authentifizierung ein, um fortzufahren.'));
+            }
+
+            $this->startMfaOnboarding($request, $authMethod);
+
+            return redirect()
+                ->route('security.mfa.required')
+                ->with('warning', __('Bitte richte die Zwei-Faktor-Authentifizierung ein, um fortzufahren.'));
+        }
+
+        $appMfa = app(AppMfaSession::class);
+
+        if ($appMfa->isSatisfied($request, $authMethod) || $this->isAllowedMfaSetupRoute($request)) {
             return $next($request);
         }
 
         if ($request->expectsJson()) {
-            abort(403, __('Bitte richte die Zwei-Faktor-Authentifizierung ein, um fortzufahren.'));
+            abort(403, __('Bitte bestaetige die Zwei-Faktor-Authentifizierung, um fortzufahren.'));
         }
 
-        $this->startMfaOnboarding($request, $authMethod);
+        $appMfa->startChallenge($request, $authMethod, $this->intendedUrl($request));
 
         return redirect()
-            ->route('security.mfa.required')
-            ->with('warning', __('Bitte richte die Zwei-Faktor-Authentifizierung ein, um fortzufahren.'));
+            ->route('security.mfa.challenge')
+            ->with('warning', __('Bitte bestaetige die Zwei-Faktor-Authentifizierung, um fortzufahren.'));
     }
 
     private function isAllowedMfaSetupRoute(Request $request): bool
@@ -55,6 +74,7 @@ class EnsureRequiredMfaIsConfigured
         return $request->routeIs(
             'logout',
             'security.mfa.*',
+            'security.step-up.*',
             'password.confirm',
             'password.confirm.*',
             'password.confirmation',
@@ -77,5 +97,16 @@ class EnsureRequiredMfaIsConfigured
                 ? $request->fullUrl()
                 : (string) $request->session()->get('security.mfa.intended_url', route('overview'))
         );
+    }
+
+    private function intendedUrl(Request $request): string
+    {
+        if ($request->isMethod('GET')) {
+            return $request->fullUrl();
+        }
+
+        $url = $request->session()->get('security.mfa.challenge_intended_url');
+
+        return is_string($url) && $url !== '' ? $url : route('overview');
     }
 }

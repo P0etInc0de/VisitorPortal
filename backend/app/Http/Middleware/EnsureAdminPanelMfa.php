@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Support\AppMfaSession;
 use App\Support\MfaOnboarding;
 use Closure;
 use Illuminate\Http\Request;
@@ -24,15 +25,30 @@ class EnsureAdminPanelMfa
         $enforcedMethods = config('security.mfa.app_required_for_admin_panel_auth_methods', ['local', 'sso']);
 
         if (! in_array($authMethod, $enforcedMethods, true)
-            || ! $user->hasAnyRole(config('security.mfa.app_required_roles', ['admin', 'super_admin']))
-            || $user->hasConfirmedTwoFactorAuthentication()) {
+            || ! $user->hasAnyRole(config('security.mfa.app_required_roles', ['admin', 'super_admin']))) {
             return $next($request);
+        }
+
+        $intendedUrl = $request->isMethod('GET') ? $request->fullUrl() : route('overview');
+
+        if ($user->hasConfirmedTwoFactorAuthentication()) {
+            $appMfa = app(AppMfaSession::class);
+
+            if ($appMfa->isSatisfied($request, $authMethod)) {
+                return $next($request);
+            }
+
+            $appMfa->startChallenge($request, $authMethod, $intendedUrl);
+
+            return redirect()
+                ->route('security.mfa.challenge')
+                ->with('warning', __('Bitte bestaetige die lokale App-MFA, um den Adminbereich zu nutzen.'));
         }
 
         app(MfaOnboarding::class)->start(
             $request,
             $authMethod,
-            $request->isMethod('GET') ? $request->fullUrl() : route('overview')
+            $intendedUrl
         );
 
         return redirect()

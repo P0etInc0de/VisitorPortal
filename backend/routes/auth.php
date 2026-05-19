@@ -6,6 +6,7 @@ use App\Http\Controllers\Auth\OidcAuthController;
 use App\Http\Controllers\Auth\PasswordController;
 use App\Http\Controllers\Auth\ProfileController;
 use App\Http\Controllers\Auth\SecurityMfaController;
+use App\Http\Controllers\Auth\SecurityStepUpController;
 use App\Http\Controllers\Auth\ThemePreferenceController;
 use App\Http\Controllers\Auth\VerifyEmailController;
 use App\Http\Middleware\EnsureMfaOnboardingIsAllowed;
@@ -28,8 +29,10 @@ Route::middleware('auth')->group(function () {
     Route::get('profile/security', [ProfileController::class, 'security'])->name('profile.security');
 
     Route::get('profile/security/recovery-codes', [ProfileController::class, 'recoveryCodes'])
-        ->middleware('password.confirm')
         ->name('profile.security.recovery-codes');
+
+    Route::post('profile/security/recovery-codes', [ProfileController::class, 'regenerateRecoveryCodes'])
+        ->name('profile.security.recovery-codes.regenerate');
 
     Route::get('profile/security/two-factor-setup', [ProfileController::class, 'twoFactorSetup'])
         ->middleware('password.confirm')
@@ -54,6 +57,22 @@ Route::middleware('auth')->group(function () {
         Route::match(['get', 'post'], 'security/mfa/continue', [SecurityMfaController::class, 'complete'])
             ->name('security.mfa.continue');
     });
+
+    Route::get('security/mfa/challenge', [SecurityMfaController::class, 'challenge'])
+        ->name('security.mfa.challenge');
+
+    Route::post('security/mfa/challenge', [SecurityMfaController::class, 'verifyChallenge'])
+        ->middleware('throttle:two-factor')
+        ->name('security.mfa.challenge.verify');
+
+    Route::get('security/step-up/{purpose}', [SecurityStepUpController::class, 'show'])
+        ->whereIn('purpose', ['recovery-codes'])
+        ->name('security.step-up.show');
+
+    Route::post('security/step-up/{purpose}', [SecurityStepUpController::class, 'verify'])
+        ->middleware('throttle:two-factor')
+        ->whereIn('purpose', ['recovery-codes'])
+        ->name('security.step-up.verify');
 
     Route::patch('profile', [ProfileController::class, 'update'])
         ->name('profile.update');
