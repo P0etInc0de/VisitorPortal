@@ -11,6 +11,7 @@ final readonly class AppMfaChallenge
 {
     public function __construct(
         private TwoFactorAuthenticationProvider $provider,
+        private RecoveryCodeManager $recoveryCodes,
         private SecurityEventLogger $securityEvents,
     ) {}
 
@@ -36,11 +37,7 @@ final readonly class AppMfaChallenge
                 ]);
             }
 
-            $recoveryCode = collect($user->recoveryCodes())
-                ->first(fn (string $code): bool => hash_equals($code, (string) $request->input('recovery_code')));
-
-            if ($recoveryCode) {
-                $user->replaceRecoveryCode($recoveryCode);
+            if ($this->recoveryCodes->consume($user, (string) $request->input('recovery_code'))) {
                 $this->securityEvents->log($request, 'security_recovery_code_used', [
                     'step_up_purpose' => $purpose,
                     'step_up_method' => 'recovery_code',

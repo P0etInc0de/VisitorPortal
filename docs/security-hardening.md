@@ -33,13 +33,13 @@ VisitorPortal treats configured MFA and session-satisfied MFA as separate states
 
 The regular profile security page remains available for later voluntary account security management. Voluntary profile MFA setup still uses password confirmation before QR codes or secrets are displayed; recovery-code management uses the SSO-compatible app-MFA step-up described below.
 
-The Filament admin panel has an additional MFA middleware. By default, admin and super admin accounts need session-satisfied local app MFA before accessing `/admin` after both local and SSO logins. If local app MFA is configured but has not yet been passed in the current session, the user is redirected to `/security/mfa/challenge`. In `APP_MFA_REQUIRED_FOR_ADMIN_PANEL_AUTH_METHODS`, `sso` means VisitorPortal requires an additional local app-MFA challenge after SSO login; it does not mean MFA is only expected in the external identity provider.
+The Filament admin panel has an additional MFA middleware. By default, admin and super admin accounts need session-satisfied local app MFA before accessing `/admin` after both local and SSO logins. `APP_MFA_REQUIRED_FOR_ADMIN_PANEL_AUTH_METHODS` means that the admin panel requires an App-MFA-confirmed session; it does not mean every navigation into `/admin` prompts again. If local app MFA was already confirmed during login or by an app-MFA challenge in the same session, the user can move between the user area and admin panel without entering MFA again. If local app MFA is configured but has not yet been passed in the current session, the user is redirected to `/security/mfa/challenge`. In `APP_MFA_REQUIRED_FOR_ADMIN_PANEL_AUTH_METHODS`, `sso` means VisitorPortal requires an additional local app-MFA challenge after SSO login; it does not mean MFA is only expected in the external identity provider.
 
 List-style `APP_MFA_*` settings can be intentionally disabled with an empty value or `none`.
 
 ## Recovery Process
 
-Users with MFA should store their recovery codes securely. Each recovery code can be used once during the two-factor login challenge.
+Users with MFA should store their recovery codes securely. Each recovery code can be used once during any MFA fallback path: local login, SSO/app-MFA challenge, admin-panel app-MFA challenge and purpose-bound step-up flows. After successful use, the code is removed from the active recovery-code list. Other unused recovery codes remain valid, and explicit regeneration creates a new full active list.
 
 Recovery codes are not shown on the regular profile security page. Users must explicitly open the recovery-code page and pass a fresh, purpose-bound step-up challenge before existing codes are displayed or regenerated. The step-up is fresh for 10 minutes and works for SSO-only users without a local password.
 
@@ -53,7 +53,7 @@ Mandatory MFA onboarding is the exception: it uses the fresh login or SSO sessio
 
 `MFA_ENABLED=false` disables role-based enforcement. It does not silently bypass already configured MFA; users with confirmed MFA are still challenged during login.
 
-Operators with shell access can disable MFA for a user without exposing secrets:
+`visitorportal:disable-mfa` is a break-glass and support tool for trusted operators with server shell access. It can disable MFA even when MFA is mandatory for the affected user's login or admin-panel context, so it must only be used for account recovery or support cases. Operators can disable MFA for a user without exposing secrets:
 
 ```bash
 php artisan visitorportal:disable-mfa user@example.org
@@ -65,7 +65,7 @@ The command asks for confirmation by default. For non-interactive operator runbo
 php artisan visitorportal:disable-mfa user@example.org --force
 ```
 
-The command clears the local TOTP secret, recovery codes and confirmation timestamp, and writes a security log entry.
+The command clears the local TOTP secret, recovery codes and confirmation timestamp, and writes a security log entry. If MFA is mandatory for that user, the next protected access forces the user back through MFA setup.
 
 Privileged roles that require app MFA in any configured login or admin-panel context cannot disable MFA through the Fortify endpoint. A reset by a trusted operator forces them back through MFA setup.
 

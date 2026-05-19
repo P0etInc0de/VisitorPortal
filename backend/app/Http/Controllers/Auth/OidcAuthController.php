@@ -62,7 +62,7 @@ final class OidcAuthController extends Controller
         Log::channel('web')->info('sso_login_success', [
             'user_id' => $user->id,
             'issuer' => $identity->issuer,
-            'subject_hash' => hash('sha256', $identity->subject),
+            'subject_hash' => hash_hmac('sha256', $identity->subject, (string) config('app.key')),
             'email_domain' => $identity->email !== null ? str($identity->email)->afterLast('@')->lower()->toString() : null,
             'provisioning_mode' => config('sso.oidc.provisioning_mode'),
             'role_sync_enabled' => (bool) config('sso.oidc.sync_roles', false),

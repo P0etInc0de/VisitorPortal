@@ -7,8 +7,10 @@ use App\Auth\Sso\DTO\OidcIdentity;
 use App\Models\User;
 use App\Models\UserIdentity;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Log;
 use Laravel\Fortify\Actions\EnableTwoFactorAuthentication;
 use Laravel\Fortify\Fortify;
+use Mockery;
 use PragmaRX\Google2FA\Google2FA;
 use Tests\Support\FakeOidcAuthenticator;
 use Tests\Support\PermissionHelper;
@@ -73,6 +75,18 @@ class OidcAuthenticationTest extends TestCase
             claims: [],
         );
         $this->app->bind(OidcAuthenticator::class, fn () => new FakeOidcAuthenticator($identity));
+        $expectedSubjectHash = hash_hmac('sha256', 'subject-123', (string) config('app.key'));
+
+        Log::shouldReceive('channel')->with('web')->andReturnSelf()->byDefault();
+        Log::shouldReceive('info')
+            ->with('sso_login_success', Mockery::on(
+                fn (array $context): bool => $context['user_id'] === $user->id
+                    && $context['issuer'] === 'https://idp.example.test'
+                    && $context['subject_hash'] === $expectedSubjectHash
+                    && $context['subject_hash'] !== hash('sha256', 'subject-123')
+                    && ! str_contains(json_encode($context), 'subject-123')
+            ))
+            ->once();
 
         $this->get(route('auth.oidc.callback'))
             ->assertRedirect(route('overview', absolute: false));
@@ -208,6 +222,62 @@ class OidcAuthenticationTest extends TestCase
             ->assertSessionHas('auth.app_mfa_satisfied_for_auth_method', 'sso');
 
         $this->get('/admin')->assertOk();
+    }
+
+    public function test_sso_admin_panel_recovery_code_challenge_is_one_time_use(): void
+    {
+        $this->configureSso();
+        $admin = $this->adminWithSsoIdentity();
+        $this->confirmMfa($admin);
+        $recoveryCodes = $admin->fresh()->recoveryCodes();
+        $usedRecoveryCode = $recoveryCodes[0];
+        $otherRecoveryCode = $recoveryCodes[1];
+
+        $this->get(route('auth.oidc.callback'))
+            ->assertRedirect(route('overview', absolute: false));
+
+        $this
+            ->get('/admin')
+            ->assertRedirect(route('security.mfa.challenge'));
+
+        $this
+            ->post(route('security.mfa.challenge.verify'), [
+                'recovery_code' => $usedRecoveryCode,
+            ])
+            ->assertRedirect(url('/admin'))
+            ->assertSessionHas('auth.app_mfa_satisfied_for_auth_method', 'sso')
+            ->assertSessionHas('auth.app_mfa_satisfied_method', 'recovery_code');
+
+        $activeCodes = $admin->fresh()->recoveryCodes();
+
+        $this->assertNotContains($usedRecoveryCode, $activeCodes);
+        $this->assertContains($otherRecoveryCode, $activeCodes);
+        $this->assertCount(count($recoveryCodes) - 1, $activeCodes);
+
+        $this->post('/logout');
+
+        $this->get(route('auth.oidc.callback'))
+            ->assertRedirect(route('overview', absolute: false));
+
+        $this
+            ->get('/admin')
+            ->assertRedirect(route('security.mfa.challenge'));
+
+        $this
+            ->post(route('security.mfa.challenge.verify'), [
+                'recovery_code' => $usedRecoveryCode,
+            ])
+            ->assertSessionHasErrors('recovery_code');
+
+        $this->assertContains($otherRecoveryCode, $admin->fresh()->recoveryCodes());
+
+        $this
+            ->post(route('security.mfa.challenge.verify'), [
+                'recovery_code' => $otherRecoveryCode,
+            ])
+            ->assertRedirect(url('/admin'));
+
+        $this->assertNotContains($otherRecoveryCode, $admin->fresh()->recoveryCodes());
     }
 
     public function test_sso_admin_is_not_blocked_in_admin_panel_when_admin_panel_policy_is_local_only(): void

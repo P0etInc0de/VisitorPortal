@@ -36,7 +36,9 @@ class LoginResponse implements LoginResponseContract, TwoFactorLoginResponseCont
         $request->session()->put('auth.method', $authMethod);
 
         if ($request->routeIs('two-factor.login.store')) {
-            $method = $request->filled('recovery_code') ? 'recovery_code' : 'totp';
+            $method = $request->session()->pull('auth.two_factor_login_method', 'totp') === 'recovery_code'
+                ? 'recovery_code'
+                : 'totp';
 
             app(AppMfaSession::class)->markSatisfied(
                 $request,
@@ -81,7 +83,7 @@ class LoginResponse implements LoginResponseContract, TwoFactorLoginResponseCont
         $response = redirect()->to($redirectUrl);
 
         if (($method ?? null) === 'recovery_code') {
-            $response->with('warning', __('Ein Recovery Code wurde verwendet und ersetzt. Bitte prüfe deine neuen Recovery Codes.'));
+            $response->with('warning', __('Ein Recovery Code wurde verwendet und aus deiner Liste entfernt. Bitte prüfe deine verbleibenden Recovery Codes oder erzeuge neue.'));
         }
 
         return $response;

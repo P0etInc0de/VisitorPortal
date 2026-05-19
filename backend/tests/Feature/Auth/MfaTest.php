@@ -289,7 +289,9 @@ class MfaTest extends TestCase
         $admin = (new PermissionHelper)->getSuperAdminUser();
         $this->confirmMfa($admin);
 
-        $recoveryCode = $admin->fresh()->recoveryCodes()[0];
+        $recoveryCodes = $admin->fresh()->recoveryCodes();
+        $recoveryCode = $recoveryCodes[0];
+        $otherRecoveryCode = $recoveryCodes[1];
 
         $this->post('/login', [
             'email' => $admin->email,
@@ -302,6 +304,64 @@ class MfaTest extends TestCase
 
         $this->assertAuthenticatedAs($admin);
         $this->assertNotContains($recoveryCode, $admin->fresh()->recoveryCodes());
+        $this->assertContains($otherRecoveryCode, $admin->fresh()->recoveryCodes());
+        $this->assertCount(count($recoveryCodes) - 1, $admin->fresh()->recoveryCodes());
+
+        $this->post('/logout');
+
+        $this->post('/login', [
+            'email' => $admin->email,
+            'password' => 'password',
+        ])->assertRedirect(route('two-factor.login'));
+
+        $this
+            ->post(route('two-factor.login'), [
+                'recovery_code' => $recoveryCode,
+            ])
+            ->assertRedirect(route('two-factor.login'))
+            ->assertSessionHasErrors('recovery_code');
+
+        $this->assertGuest();
+
+        $this->post(route('two-factor.login'), [
+            'recovery_code' => $otherRecoveryCode,
+        ])->assertRedirect(route('overview', absolute: false));
+
+        $this->assertAuthenticatedAs($admin);
+        $this->assertNotContains($otherRecoveryCode, $admin->fresh()->recoveryCodes());
+    }
+
+    public function test_login_totp_with_extra_invalid_recovery_code_logs_totp_only(): void
+    {
+        $admin = (new PermissionHelper)->getSuperAdminUser();
+        $this->confirmMfa($admin);
+
+        Log::shouldReceive('channel')->with('web')->andReturnSelf()->byDefault();
+        Log::shouldReceive('info')
+            ->with('security_app_mfa_step_up_completed', Mockery::on(
+                fn (array $context): bool => $context['user_id'] === $admin->id
+                    && $context['step_up_purpose'] === 'login'
+                    && $context['step_up_method'] === 'totp'
+            ))
+            ->once();
+        Log::shouldReceive('info')
+            ->with('security_recovery_code_used', Mockery::any())
+            ->never();
+
+        $this->post('/login', [
+            'email' => $admin->email,
+            'password' => 'password',
+        ])->assertRedirect(route('two-factor.login'));
+
+        $this
+            ->post(route('two-factor.login'), [
+                'code' => $this->currentTotp($admin),
+                'recovery_code' => 'not-a-valid-recovery-code',
+            ])
+            ->assertRedirect(route('overview', absolute: false))
+            ->assertSessionHas('auth.app_mfa_satisfied_method', 'totp');
+
+        $this->assertAuthenticatedAs($admin);
     }
 
     public function test_recovery_codes_are_only_visible_after_fresh_step_up(): void
@@ -335,6 +395,42 @@ class MfaTest extends TestCase
             ->get(route('profile.security.recovery-codes'))
             ->assertOk()
             ->assertSee($recoveryCode);
+    }
+
+    public function test_consumed_recovery_codes_are_hidden_from_recovery_code_page(): void
+    {
+        $user = (new PermissionHelper)->getUser();
+        $this->confirmMfa($user);
+        $recoveryCodes = $user->fresh()->recoveryCodes();
+        $usedRecoveryCode = $recoveryCodes[0];
+        $remainingRecoveryCode = $recoveryCodes[1];
+
+        $this
+            ->actingAs($user)
+            ->withSession($this->appMfaChallengeSession())
+            ->post(route('security.mfa.challenge.verify'), [
+                'recovery_code' => $usedRecoveryCode,
+            ])
+            ->assertRedirect(route('overview'));
+
+        $activeCodes = $user->fresh()->recoveryCodes();
+
+        $this->assertNotContains($usedRecoveryCode, $activeCodes);
+        $this->assertContains($remainingRecoveryCode, $activeCodes);
+        $this->assertCount(count($recoveryCodes) - 1, $activeCodes);
+
+        $this
+            ->actingAs($user)
+            ->withSession([
+                'security.step_up.confirmed_at' => now()->timestamp,
+                'security.step_up.method' => 'totp',
+                'security.step_up.confirmed_for' => SensitiveActionConfirmation::PURPOSE_RECOVERY_CODES_VIEW,
+            ])
+            ->get(route('profile.security.recovery-codes'))
+            ->assertOk()
+            ->assertSee(__('Diese Anzeige wurde durch eine frische Sicherheitsbestätigung freigeschaltet und ist nur kurzzeitig verfügbar.'))
+            ->assertDontSee($usedRecoveryCode)
+            ->assertSee($remainingRecoveryCode);
     }
 
     public function test_recovery_code_cannot_be_used_to_view_existing_recovery_codes(): void
@@ -445,7 +541,8 @@ class MfaTest extends TestCase
     {
         $user = (new PermissionHelper)->getUser();
         $this->confirmMfa($user);
-        $usedRecoveryCode = $user->fresh()->recoveryCodes()[0];
+        $oldRecoveryCodes = $user->fresh()->recoveryCodes();
+        $usedRecoveryCode = $oldRecoveryCodes[0];
 
         $this
             ->actingAs($user)
@@ -459,7 +556,25 @@ class MfaTest extends TestCase
             ])
             ->assertRedirect(route('profile.security.recovery-codes'));
 
-        $this->assertNotContains($usedRecoveryCode, $user->fresh()->recoveryCodes());
+        $newRecoveryCodes = $user->fresh()->recoveryCodes();
+
+        $this->assertCount(8, $newRecoveryCodes);
+        $this->assertNotSame($oldRecoveryCodes, $newRecoveryCodes);
+        $this->assertNotContains($usedRecoveryCode, $newRecoveryCodes);
+
+        $this
+            ->actingAs($user)
+            ->post(route('profile.security.recovery-codes.regenerate'))
+            ->assertRedirect(route('security.step-up.show', SensitiveActionConfirmation::PURPOSE_RECOVERY_CODES_REGENERATE));
+
+        $this
+            ->actingAs($user)
+            ->post(route('security.step-up.verify', SensitiveActionConfirmation::PURPOSE_RECOVERY_CODES_REGENERATE), [
+                'recovery_code' => $usedRecoveryCode,
+            ])
+            ->assertSessionHasErrors('recovery_code');
+
+        $this->assertSame($newRecoveryCodes, $user->fresh()->recoveryCodes());
     }
 
     public function test_recovery_code_security_events_are_logged_without_codes_or_secrets(): void
@@ -587,6 +702,50 @@ class MfaTest extends TestCase
         $this->post(route('two-factor.login'), [
             'code' => '000000',
         ])->assertStatus(429);
+    }
+
+    public function test_app_mfa_challenge_recovery_code_is_one_time_use_and_keeps_other_codes(): void
+    {
+        $admin = (new PermissionHelper)->getSuperAdminUser();
+        $this->confirmMfa($admin);
+        $recoveryCodes = $admin->fresh()->recoveryCodes();
+        $usedRecoveryCode = $recoveryCodes[0];
+        $otherRecoveryCode = $recoveryCodes[1];
+
+        $this
+            ->actingAs($admin)
+            ->withSession($this->appMfaChallengeSession())
+            ->post(route('security.mfa.challenge.verify'), [
+                'recovery_code' => $usedRecoveryCode,
+            ])
+            ->assertRedirect(route('overview'))
+            ->assertSessionHas('auth.app_mfa_satisfied_method', 'recovery_code');
+
+        $activeCodes = $admin->fresh()->recoveryCodes();
+
+        $this->assertNotContains($usedRecoveryCode, $activeCodes);
+        $this->assertContains($otherRecoveryCode, $activeCodes);
+        $this->assertCount(count($recoveryCodes) - 1, $activeCodes);
+
+        $this
+            ->actingAs($admin)
+            ->withSession($this->appMfaChallengeSession())
+            ->post(route('security.mfa.challenge.verify'), [
+                'recovery_code' => $usedRecoveryCode,
+            ])
+            ->assertSessionHasErrors('recovery_code');
+
+        $this->assertContains($otherRecoveryCode, $admin->fresh()->recoveryCodes());
+
+        $this
+            ->actingAs($admin)
+            ->withSession($this->appMfaChallengeSession())
+            ->post(route('security.mfa.challenge.verify'), [
+                'recovery_code' => $otherRecoveryCode,
+            ])
+            ->assertRedirect(route('overview'));
+
+        $this->assertNotContains($otherRecoveryCode, $admin->fresh()->recoveryCodes());
     }
 
     public function test_admin_without_mfa_cannot_access_filament_admin_panel(): void
@@ -877,6 +1036,18 @@ class MfaTest extends TestCase
             'auth.app_mfa_satisfied_at' => now()->timestamp,
             'auth.app_mfa_satisfied_method' => 'totp',
             'auth.app_mfa_satisfied_for_auth_method' => $authMethod,
+        ];
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function appMfaChallengeSession(string $authMethod = 'local', ?string $intendedUrl = null): array
+    {
+        return [
+            'auth.method' => $authMethod,
+            'security.mfa.challenge_auth_method' => $authMethod,
+            'security.mfa.challenge_intended_url' => $intendedUrl ?? route('overview'),
         ];
     }
 

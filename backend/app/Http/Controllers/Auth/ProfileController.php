@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Auth;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\ProfileUpdateRequest;
 use App\Support\AppMfaPolicy;
+use App\Support\RecoveryCodeManager;
 use App\Support\SecurityEventLogger;
 use App\Support\SensitiveActionConfirmation;
 use App\Support\UserPreferences;
@@ -73,7 +74,7 @@ class ProfileController extends Controller
 
         return view('profile.recovery-codes', [
             'user' => $request->user(),
-            'recoveryCodes' => $request->user()->recoveryCodes(),
+            'recoveryCodes' => app(RecoveryCodeManager::class)->activeCodes($request->user()),
         ]);
     }
 

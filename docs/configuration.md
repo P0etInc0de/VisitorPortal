@@ -55,7 +55,8 @@ Docker-Hinweis:
 
 - Lokale Authentifizierung laeuft ueber Laravel Fortify.
 - MFA ist fuer normale Nutzer optional und fuer Rollen aus `APP_MFA_REQUIRED_ROLES` verpflichtend, wenn die Login-Art in `APP_MFA_REQUIRED_FOR_AUTH_METHODS` enthalten ist.
-- Das Filament-Adminpanel prueft zusaetzlich bestaetigte App-MFA fuer Rollen aus `APP_MFA_REQUIRED_ROLES`, wenn die Login-Art in `APP_MFA_REQUIRED_FOR_ADMIN_PANEL_AUTH_METHODS` enthalten ist.
+- Das Filament-Adminpanel verlangt eine App-MFA-bestaetigte Session fuer Rollen aus `APP_MFA_REQUIRED_ROLES`, wenn die Login-Art in `APP_MFA_REQUIRED_FOR_ADMIN_PANEL_AUTH_METHODS` enthalten ist.
+- `APP_MFA_REQUIRED_FOR_ADMIN_PANEL_AUTH_METHODS` bedeutet nicht, dass bei jedem Wechsel in den Adminbereich erneut MFA abgefragt wird. Wurde App-MFA bereits beim Login oder durch eine App-MFA-Challenge in derselben Session bestaetigt, darf der Benutzer ohne zweite Abfrage zwischen Userbereich und Adminbereich wechseln.
 - Der Wert `sso` in diesen `APP_MFA_*`-Settings bedeutet: VisitorPortal verlangt auch nach SSO-Login zusaetzlich lokale App-MFA. Das beschreibt nicht die MFA-Erwartung im externen Identity Provider.
 - Listenartige `APP_MFA_*`-Settings koennen mit einem leeren Wert oder `none` bewusst deaktiviert werden.
 - Der QR-Code und das Secret einer freiwilligen, noch unbestätigten Profil-MFA-Einrichtung werden weiterhin nur nach erneuter Passwortbestätigung angezeigt.
@@ -67,6 +68,12 @@ Docker-Hinweis:
 - Auto-Provisioning und Rollen-Sync sind standardmaessig deaktiviert.
 - Auto-provisionierte SSO-Nutzer erhalten `local_login_allowed=false`, damit lokale Passwortwege den IdP nicht umgehen.
 - Details stehen in `docs/sso.md`.
+
+Adminpanel-MFA-Beispiele:
+- Lokaler Admin meldet sich mit Passwort und App-MFA an. Die Session ist bereits App-MFA-bestaetigt; der Wechsel in den Adminbereich erfordert keine zweite MFA-Abfrage.
+- SSO-Admin meldet sich per SSO an. Wenn `sso` in `APP_MFA_REQUIRED_FOR_ADMIN_PANEL_AUTH_METHODS` enthalten ist und diese Session noch keine lokale VisitorPortal-App-MFA bestaetigt hat, erscheint beim Zugriff auf `/admin` eine App-MFA-Challenge.
+- Admin ohne eingerichtete App-MFA wird beim Zugriff auf `/admin` durch die MFA-Einrichtung gefuehrt.
+- Nach erfolgreicher App-MFA-Challenge darf der Benutzer innerhalb derselben Session zwischen Userbereich und Adminbereich wechseln, ohne erneut MFA einzugeben.
 
 ## Organisation und Standorte
 - Eine Installation ist für genau eine Organisation/Firma gedacht.
