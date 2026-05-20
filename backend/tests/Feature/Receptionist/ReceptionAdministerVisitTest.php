@@ -16,6 +16,7 @@ use Illuminate\Support\Carbon;
 use Illuminate\Validation\ValidationException;
 use Livewire\Livewire;
 use Spatie\LaravelPdf\Facades\Pdf;
+use Spatie\LaravelPdf\PdfBuilder;
 use Tests\Support\PermissionHelper;
 use Tests\Support\VisitHelper;
 use Tests\TestCase;
@@ -801,7 +802,7 @@ class ReceptionAdministerVisitTest extends TestCase
                 'checked_in_by_user_id' => $receptionist->id,
             ]);
 
-            $pdfBuilder = \Mockery::mock(\Spatie\LaravelPdf\PdfBuilder::class);
+            $pdfBuilder = \Mockery::mock(PdfBuilder::class);
             $pdfContent = "%PDF-1.4\n/MediaBox [0 0 242.88 154.08]\n%%EOF";
 
             Pdf::shouldReceive('view')
