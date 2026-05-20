@@ -5,12 +5,8 @@
 
 <x-guest-layout>
     <div class="overflow-hidden rounded-3xl border border-base-300 bg-base-100 shadow-sm">
-        <div class="border-b border-base-300/70 px-7 pb-6 pt-6 sm:px-9">
-            <p class="text-sm font-medium uppercase tracking-[0.22em] text-base-content/45">{{ $brandName }}</p>
+        <div class="border-b border-base-300/70 px-7 pb-6 pt-6 text-center sm:px-9">
             <h1 class="mt-2 text-3xl font-semibold tracking-tight text-base-content">{{ __('Zwei-Faktor-Authentifizierung einrichten') }}</h1>
-            <p class="mt-3 text-sm leading-7 text-base-content/70">
-                {{ __('Diese Einrichtung ist Teil der Anmeldung. Die normale App-Navigation ist erst nach bestätigter Zwei-Faktor-Authentifizierung verfügbar.') }}
-            </p>
         </div>
 
         <div class="grid gap-5 p-7 sm:p-9">
@@ -47,19 +43,12 @@
                     </div>
 
                     <div>
-                        <h2 class="text-xl font-semibold tracking-tight text-base-content">
-                            {{ __('Authenticator-App verbinden') }}
-                        </h2>
-                        <p class="mt-3 text-sm leading-7 text-base-content/70">
-                            {{ __('Bitte scanne den QR-Code mit deiner Authenticator-App und bestätige anschließend den sechsstelligen Code. Die Zwei-Faktor-Authentifizierung ist erst nach dieser Bestätigung aktiv.') }}
-                        </p>
-
-                        <form method="POST" action="{{ route('security.mfa.confirm') }}" class="mt-5 grid gap-4 sm:max-w-sm">
+                        <form method="POST" action="{{ route('security.mfa.confirm') }}" class="grid gap-4 sm:max-w-sm">
                             @csrf
 
                             <div>
                                 <x-input-label for="code" :value="__('Sechsstelliger Code')" />
-                                <x-totp-code-input id="code" class="mt-1 w-full" type="text" name="code" required autofocus />
+                                <x-totp-code-input id="code" class="mt-1 h-12 w-full rounded-xl border border-base-300 bg-base-100 px-4 text-base-content shadow-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20" type="text" name="code" required autofocus />
                                 <x-input-error :messages="$errors->confirmTwoFactorAuthentication->get('code')" class="mt-2" />
                             </div>
 
