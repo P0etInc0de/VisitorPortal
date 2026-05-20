@@ -4,7 +4,6 @@
     $logoDarkPath = config('branding.logo_dark');
     $hasLogoLight = is_string($logoLightPath) && $logoLightPath !== '' && file_exists(public_path($logoLightPath));
     $hasLogoDark = is_string($logoDarkPath) && $logoDarkPath !== '' && file_exists(public_path($logoDarkPath));
-    $hasTwoFactorSecret = filled($user->two_factor_secret);
 @endphp
 
 <x-guest-layout>
@@ -32,12 +31,12 @@
             @endif
 
             <div class="rounded-2xl border border-base-300 bg-base-200/60 p-4 text-sm leading-7 text-base-content/75">
-                {{ __('Richte die Zwei-Faktor-Authentifizierung mit einer Authenticator-App ein.') }}
+                {{ __('Bitte richte die Zwei-Faktor-Authentifizierung mit einer Authenticator-App ein. Danach wirst du weitergeleitet.') }}
             </div>
 
             <div class="flex flex-col gap-3 sm:flex-row">
                 <a href="{{ route('security.mfa.setup') }}" class="btn btn-primary rounded-2xl">
-                    {{ $hasTwoFactorSecret ? __('Einrichtung fortsetzen') : __('Authenticator-App einrichten') }}
+                    {{ __('Einrichten starten') }}
                 </a>
 
                 <form method="POST" action="{{ route('logout') }}">

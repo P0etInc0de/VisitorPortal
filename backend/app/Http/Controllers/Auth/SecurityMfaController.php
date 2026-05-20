@@ -30,10 +30,15 @@ final class SecurityMfaController extends Controller
         ]);
     }
 
-    public function setup(Request $request): RedirectResponse|View
+    public function setup(Request $request, EnableTwoFactorAuthentication $enable): RedirectResponse|View
     {
         if ($request->user()->hasConfirmedTwoFactorAuthentication()) {
             return $this->redirectAfterConfiguredMfa($request);
+        }
+
+        if (blank($request->user()->two_factor_secret)) {
+            $enable($request->user());
+            $request->user()->refresh();
         }
 
         return view('security.mfa.setup', [

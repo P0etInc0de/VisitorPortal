@@ -350,11 +350,8 @@ class OidcAuthenticationTest extends TestCase
         $this
             ->get(route('security.mfa.setup'))
             ->assertOk()
-            ->assertSee(__('Einrichtung starten'));
-
-        $this
-            ->post(route('security.mfa.enable'))
-            ->assertRedirect(route('security.mfa.setup'));
+            ->assertSee(__('Bitte Scanne den QR-Code mit deiner Authenticator-App, gebe den sechsstelligen Code ein und bestätige.'))
+            ->assertSee('name="code"', false);
 
         $user->refresh();
 
