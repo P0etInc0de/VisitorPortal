@@ -1,4 +1,10 @@
 x-app-environment: &app-environment
+  DB_CONNECTION: mariadb
+  DB_HOST: db
+  DB_PORT: "3306"
+  DB_DATABASE: visitorportal
+  DB_USERNAME: visitor
+  DB_PASSWORD: visitor_pw
   DB_QUEUE_RETRY_AFTER: "180"
   HEALTH_CACHE_STORE: database
   HEALTH_QUEUE_STALE_AFTER: "300"
@@ -77,19 +83,19 @@ services:
       start_period: 180s
 
   db:
-    image: mysql:8.0.45
+    image: mariadb:11.4
     container_name: besucherportal-db
     environment:
-      MYSQL_DATABASE: visitorportal
-      MYSQL_USER: visitor
-      MYSQL_PASSWORD: visitor_pw
-      MYSQL_ROOT_PASSWORD: root_pw
+      MARIADB_DATABASE: visitorportal
+      MARIADB_USER: visitor
+      MARIADB_PASSWORD: visitor_pw
+      MARIADB_ROOT_PASSWORD: root_pw
     ports:
       - "3306:3306"
     volumes:
       - dbdata:/var/lib/mysql
     healthcheck:
-      test: [ "CMD", "mysqladmin" ,"ping", "-h", "localhost" ]
+      test: [ "CMD", "mariadb-admin" ,"ping", "-h", "localhost" ]
       interval: 10s
       timeout: 20s
       retries: 3
@@ -103,7 +109,7 @@ services:
       - "1025:1025"
 
   node:
-    image: node:20.19.6-alpine
+    image: node:24-alpine
     container_name: besucherportal-node
     working_dir: /var/www/html/backend
     volumes:
@@ -115,7 +121,7 @@ services:
     command: sh -lc "npm install && npm run dev -- --host 0.0.0.0 --port 5173"
 
   gotenberg:
-    image: gotenberg/gotenberg:8.30.1
+    image: gotenberg/gotenberg:8.32.0
     container_name: besucherportal-gotenberg
     restart: unless-stopped
     ports:

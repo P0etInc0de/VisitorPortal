@@ -43,19 +43,20 @@ Visitor master records are organization-wide contacts. Site isolation applies to
 
 ## Tech Stack
 
-- PHP 8.2+
+- PHP 8.4
 - Laravel 12
 - Laravel Livewire
-- MySQL 8
+- MariaDB 11.4 by default (`pdo_mysql` driver)
 - Blade
 - Tailwind CSS 4
 - daisyUI 5
 - Alpine.js
+- Node.js 24 for frontend build tooling
 - Filament 5
 - Spatie Laravel Permission
 - Filament Shield
 - Spatie Laravel PDF
-- Gotenberg for PDF generation
+- Gotenberg 8.32 for PDF generation
 - Mailhog for local/demo email testing
 - Docker and Docker Compose v2
 - GitHub Actions
@@ -176,7 +177,7 @@ Build frontend assets:
 docker compose run --rm node npm run build
 ```
 
-The GitHub Actions workflow runs PHP setup, Pint, migrations, and tests against MySQL.
+The GitHub Actions workflow runs PHP setup, Pint, migrations, and tests against MariaDB.
 
 ## Configuration And White Labeling
 

@@ -31,7 +31,7 @@ ensure_writable_paths() {
 }
 
 wait_for_database() {
-    case "${DB_CONNECTION:-mysql}" in
+    case "${DB_CONNECTION:-mariadb}" in
         mysql|mariadb)
             ;;
         *)

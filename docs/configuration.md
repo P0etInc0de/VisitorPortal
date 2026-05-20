@@ -35,6 +35,7 @@ Vorlagen:
 
 Docker-Hinweis:
 - `DB_HOST` ist der Service-Name aus `docker-compose.yml` (bei uns `db`), nicht `127.0.0.1`.
+- `DB_CONNECTION` ist standardmaessig `mariadb`; Laravel nutzt dafuer intern den mysql-kompatiblen PDO-Treiber.
 - `MAIL_HOST` ist der Service-Name (bei uns `mailhog`), Port `1025`.
 
 ## Wichtige Variablen (LAMP / Server)

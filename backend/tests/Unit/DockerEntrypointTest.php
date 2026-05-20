@@ -11,7 +11,7 @@ class DockerEntrypointTest extends TestCase
         $script = file_get_contents(dirname(base_path()).'/docker/app/entrypoint.sh');
 
         $this->assertIsString($script);
-        $this->assertStringContainsString('case "${DB_CONNECTION:-mysql}" in', $script);
+        $this->assertStringContainsString('case "${DB_CONNECTION:-mariadb}" in', $script);
         $this->assertStringContainsString('mysql|mariadb)', $script);
         $this->assertStringContainsString('skipping MySQL/MariaDB wait', $script);
     }

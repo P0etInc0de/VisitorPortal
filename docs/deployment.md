@@ -4,11 +4,12 @@ Diese Anleitung beschreibt den produktionssicheren Bootstrap ohne Demo-Daten. De
 
 ## Voraussetzungen
 
-- PHP 8.2+ mit `pdo_mysql`, `mbstring`, `intl`, `zip`, `fileinfo`.
-- MySQL 8 oder kompatible Datenbank.
+- PHP 8.4 mit `pdo_mysql`, `mbstring`, `intl`, `zip`, `fileinfo`.
+- MariaDB 11.4 als Standarddatenbank. Laravel nutzt dafuer den mysql-kompatiblen `pdo_mysql`-Treiber.
 - Composer für LAMP-Deployments.
+- Node.js 24 fuer LAMP-Deployments, wenn Frontend-Assets auf dem Zielsystem gebaut werden.
 - Ein SMTP-Server für produktive E-Mails.
-- Gotenberg für Badge-PDFs.
+- Gotenberg 8.32 fuer Badge-PDFs.
 - HTTPS vor der Anwendung, typischerweise über Reverse Proxy oder Webserver.
 - Fuer Docker-Deployments: aktuelle Docker Engine oder Docker Desktop mit Docker Compose v2.
 
@@ -80,6 +81,8 @@ Recovery Codes sollten direkt nach der Einrichtung sicher gespeichert werden. Di
 
 ```bash
 composer install --no-dev --optimize-autoloader
+npm ci
+npm run build
 php artisan key:generate --force
 php artisan visitorportal:install
 php artisan storage:link
@@ -159,7 +162,7 @@ Produktiv muss `MAIL_MAILER=smtp` mit echten SMTP-Daten gesetzt sein. Teste nach
 
 ## Gotenberg
 
-`GOTENBERG_URL` muss für Badge-PDFs erreichbar sein. In Docker ist der Default `http://gotenberg:3000`.
+`GOTENBERG_URL` muss fuer Badge-PDFs erreichbar sein. In Docker ist der Default `http://gotenberg:3000` und die Compose-Dateien verwenden Gotenberg 8.32.
 
 ## Storage Und Uploads
 
