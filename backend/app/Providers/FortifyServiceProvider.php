@@ -8,6 +8,8 @@ use App\Actions\Fortify\ResetUserPassword;
 use App\Http\Controllers\Auth\PasswordResetLinkController as LocalPasswordResetLinkController;
 use App\Http\Responses\LoginResponse;
 use App\Http\Responses\PasswordConfirmedResponse;
+use App\Http\Responses\TwoFactorConfirmedResponse;
+use App\Support\NormalizingTwoFactorAuthenticationProvider;
 use Illuminate\Http\Request;
 use Illuminate\Support\ServiceProvider;
 use Laravel\Fortify\Actions\AttemptToAuthenticate;
@@ -17,6 +19,8 @@ use Laravel\Fortify\Actions\PrepareAuthenticatedSession;
 use Laravel\Fortify\Contracts\LoginResponse as LoginResponseContract;
 use Laravel\Fortify\Contracts\PasswordConfirmedResponse as PasswordConfirmedResponseContract;
 use Laravel\Fortify\Contracts\RedirectsIfTwoFactorAuthenticatable;
+use Laravel\Fortify\Contracts\TwoFactorAuthenticationProvider as TwoFactorAuthenticationProviderContract;
+use Laravel\Fortify\Contracts\TwoFactorConfirmedResponse as TwoFactorConfirmedResponseContract;
 use Laravel\Fortify\Contracts\TwoFactorLoginResponse as TwoFactorLoginResponseContract;
 use Laravel\Fortify\Features;
 use Laravel\Fortify\Fortify;
@@ -28,7 +32,9 @@ class FortifyServiceProvider extends ServiceProvider
     {
         $this->app->singleton(LoginResponseContract::class, LoginResponse::class);
         $this->app->singleton(TwoFactorLoginResponseContract::class, LoginResponse::class);
+        $this->app->singleton(TwoFactorAuthenticationProviderContract::class, NormalizingTwoFactorAuthenticationProvider::class);
         $this->app->singleton(PasswordConfirmedResponseContract::class, PasswordConfirmedResponse::class);
+        $this->app->singleton(TwoFactorConfirmedResponseContract::class, TwoFactorConfirmedResponse::class);
         $this->app->bind(FortifyPasswordResetLinkController::class, LocalPasswordResetLinkController::class);
     }
 

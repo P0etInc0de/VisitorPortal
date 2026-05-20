@@ -15,6 +15,8 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Carbon;
 use Illuminate\Validation\ValidationException;
 use Livewire\Livewire;
+use Spatie\LaravelPdf\Facades\Pdf;
+use Spatie\LaravelPdf\PdfBuilder;
 use Tests\Support\PermissionHelper;
 use Tests\Support\VisitHelper;
 use Tests\TestCase;
@@ -423,6 +425,87 @@ class ReceptionAdministerVisitTest extends TestCase
         }
     }
 
+    public function test_all_visits_hides_operational_actions_for_completed_visits(): void
+    {
+        Carbon::setTestNow(Carbon::create(2026, 5, 1, 14, 39, 24, config('app.timezone')));
+
+        try {
+            $receptionist = (new PermissionHelper)->getReceptionistUser();
+            $employee = User::factory()->create();
+            $responsibleUser = User::factory()->create();
+            $visitor = Visitor::factory()->create(['first_name' => 'Clara', 'name' => 'Completed']);
+            $visit = (new VisitHelper)->makeVisit(
+                $employee->id,
+                'Completed All Visits',
+                VisitStatusEnum::Completed,
+                $responsibleUser->id,
+                new Collection([$visitor])
+            );
+            $visit->visitors()->updateExistingPivot($visitor->id, [
+                'checked_in_at' => now()->subMinutes(30),
+                'checked_in_by_user_id' => $receptionist->id,
+                'checked_out_at' => now()->subMinutes(5),
+                'checked_out_by_user_id' => $receptionist->id,
+            ]);
+
+            $component = Livewire::actingAs($receptionist)
+                ->test(AllVisitsPage::class)
+                ->assertSee('Completed All Visits')
+                ->assertSee('Clara Completed')
+                ->assertSee(__('Ausgecheckt'))
+                ->assertDontSee(__('Erneut einchecken'))
+                ->assertDontSee(__('Check-out'));
+
+            $html = $component->html();
+
+            $this->assertStringNotContainsString('data-testid="all-visits-participant-id-card-button"', $html);
+            $this->assertStringNotContainsString(route('reception.participants.badge', [$visit, $visitor]), $html);
+            $this->assertStringNotContainsString('wire:click="checkIn('.$visit->id.', '.$visitor->id.')"', $html);
+            $this->assertStringNotContainsString('wire:click="checkOut('.$visit->id.', '.$visitor->id.')"', $html);
+        } finally {
+            Carbon::setTestNow();
+        }
+    }
+
+    public function test_all_visits_shows_operational_actions_for_planned_visits(): void
+    {
+        Carbon::setTestNow(Carbon::create(2026, 5, 1, 14, 39, 24, config('app.timezone')));
+
+        try {
+            $receptionist = (new PermissionHelper)->getReceptionistUser();
+            $employee = User::factory()->create();
+            $responsibleUser = User::factory()->create();
+            $visitors = new Collection([
+                Visitor::factory()->create(['first_name' => 'Paula', 'name' => 'Planned']),
+                Visitor::factory()->create(['first_name' => 'Rhea', 'name' => 'Recheck']),
+            ]);
+            $visit = (new VisitHelper)->makeVisit(
+                $employee->id,
+                'Planned All Visits',
+                VisitStatusEnum::Planned,
+                $responsibleUser->id,
+                $visitors
+            );
+            $visit->visitors()->updateExistingPivot($visitors[1]->id, [
+                'checked_in_at' => now()->subMinutes(30),
+                'checked_in_by_user_id' => $receptionist->id,
+                'checked_out_at' => now()->subMinutes(5),
+                'checked_out_by_user_id' => $receptionist->id,
+            ]);
+
+            $component = Livewire::actingAs($receptionist)
+                ->test(AllVisitsPage::class)
+                ->assertSee('Paula Planned')
+                ->assertSee('Rhea Recheck')
+                ->assertSee(__('Check-in'))
+                ->assertSee(__('Erneut einchecken'));
+
+            $this->assertSame(2, substr_count($component->html(), 'data-testid="all-visits-participant-id-card-button"'));
+        } finally {
+            Carbon::setTestNow();
+        }
+    }
+
     public function test_dashboard_check_in_updates_participant_state(): void
     {
         Carbon::setTestNow(Carbon::create(2026, 5, 1, 14, 39, 24, config('app.timezone')));
@@ -698,7 +781,64 @@ class ReceptionAdministerVisitTest extends TestCase
 
     public function test_reception_can_create_id_cards(): void
     {
-        $this->markTestSkipped('Ausweis-Erstellung ist noch nicht implementiert.');
+        Carbon::setTestNow(Carbon::create(2026, 5, 1, 14, 39, 24, config('app.timezone')));
+
+        try {
+            $receptionist = (new PermissionHelper)->getReceptionistUser();
+            $employee = User::factory()->create();
+            $responsibleUser = User::factory()->create();
+            $visitor = Visitor::factory()->create(['first_name' => 'Ada', 'name' => 'Lovelace']);
+            $visit = (new VisitHelper)->makeVisit(
+                $employee->id,
+                'Badge PDF Visit',
+                VisitStatusEnum::Planned,
+                $responsibleUser->id,
+                new Collection([$visitor])
+            );
+            $checkedInAt = now()->subMinutes(10);
+
+            $visit->visitors()->updateExistingPivot($visitor->id, [
+                'checked_in_at' => $checkedInAt,
+                'checked_in_by_user_id' => $receptionist->id,
+            ]);
+
+            $pdfBuilder = \Mockery::mock(PdfBuilder::class);
+            $pdfContent = "%PDF-1.4\n/MediaBox [0 0 242.88 154.08]\n%%EOF";
+
+            Pdf::shouldReceive('view')
+                ->once()
+                ->with('pdf.visitor_badge', \Mockery::on(fn (array $data): bool => $data['visit']->is($visit)
+                    && $data['visitor']->is($visitor)))
+                ->andReturn($pdfBuilder);
+            $pdfBuilder->shouldReceive('driver')->once()->with('gotenberg')->andReturnSelf();
+            $pdfBuilder->shouldReceive('paperSize')->once()->with(242.88, 153.12, 'pt')->andReturnSelf();
+            $pdfBuilder->shouldReceive('margins')->once()->with(0, 0, 0, 0, 'pt')->andReturnSelf();
+            $pdfBuilder->shouldReceive('scale')->once()->with(1)->andReturnSelf();
+            $pdfBuilder->shouldReceive('generatePdfContent')->once()->andReturn($pdfContent);
+
+            $response = $this->actingAs($receptionist)
+                ->post(route('reception.participants.badge', [$visit, $visitor]));
+
+            $response->assertOk();
+            $response->assertHeader('Content-Type', 'application/pdf');
+            $this->assertStringStartsWith('attachment;', $response->headers->get('Content-Disposition'));
+            $this->assertStringContainsString('Ada_Lovelace.pdf', $response->headers->get('Content-Disposition'));
+            $this->assertStringContainsString('/MediaBox [0 1 242.88 154.08]', $response->getContent());
+
+            $this->assertDatabaseHas('visit_visitor', [
+                'visit_id' => $visit->id,
+                'visitor_id' => $visitor->id,
+                'badge_printed_at' => now()->format('Y-m-d H:i:s'),
+                'checked_in_at' => $checkedInAt->format('Y-m-d H:i:s'),
+                'checked_out_at' => null,
+            ]);
+            $this->assertDatabaseHas('visits', [
+                'id' => $visit->id,
+                'status' => VisitStatusEnum::Planned->value,
+            ]);
+        } finally {
+            Carbon::setTestNow();
+        }
     }
 
     public function test_reception_can_view_own_user_permissions(): void

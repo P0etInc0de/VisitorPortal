@@ -4,10 +4,10 @@ FROM mcr.microsoft.com/playwright:v1.56.1-noble
 
 WORKDIR /app/backend
 
-COPY backend/tests/e2e/package.json backend/tests/e2e/package-lock.json ./
+COPY backend/package.json backend/package-lock.json ./
 RUN npm ci --no-audit --no-fund
 
-COPY backend/playwright.config.ts ./
+COPY backend/playwright.config.ts backend/tsconfig.json ./
 COPY backend/tests/e2e ./tests/e2e
 
-CMD ["npm", "run", "test:sso"]
+CMD ["npm", "run", "test:e2e:sso"]

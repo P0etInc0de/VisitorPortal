@@ -53,7 +53,7 @@ class SsoAuthModeTest extends TestCase
         $this->post('/login', [
             'email' => $user->email,
             'password' => 'password',
-        ])->assertRedirect(route('profile.security', absolute: false));
+        ])->assertRedirect(route('security.mfa.required', absolute: false));
 
         $this->assertAuthenticatedAs($user);
     }

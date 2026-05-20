@@ -4,6 +4,8 @@ namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use App\Enums\GenderEnum;
+use App\Support\AppMfaPolicy;
+use App\Support\RecoveryCodeManager;
 use App\Support\SafeLogContext;
 use Database\Factories\UserFactory;
 use Filament\Models\Contracts\FilamentUser;
@@ -216,20 +218,20 @@ class User extends Authenticatable implements FilamentUser
 
     public function requiresTwoFactorAuthentication(?string $authMethod = null): bool
     {
-        if (! config('security.mfa.enabled')) {
-            return false;
+        return app(AppMfaPolicy::class)->isRequiredForAuthMethod($this, $authMethod ?: 'local');
+    }
+
+    public function replaceRecoveryCode($code): void
+    {
+        if (! app(RecoveryCodeManager::class)->consume($this, (string) $code)) {
+            throw ValidationException::withMessages([
+                'recovery_code' => [__('The provided two factor recovery code was invalid.')],
+            ]);
         }
 
-        $method = $authMethod ?: 'local';
-        $enforcedMethods = config('security.mfa.app_required_for_auth_methods', ['local']);
-
-        if (! in_array($method, $enforcedMethods, true)) {
-            return false;
+        if (app()->bound('request') && request()->hasSession()) {
+            request()->session()->put('auth.two_factor_login_method', 'recovery_code');
         }
-
-        return $this->roles()
-            ->whereIn('name', config('security.mfa.app_required_roles', ['admin', 'super_admin']))
-            ->exists();
     }
 
     public function canAccessPanel(Panel $panel): bool

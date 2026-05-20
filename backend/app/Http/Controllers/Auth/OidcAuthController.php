@@ -6,7 +6,10 @@ use App\Auth\Sso\Contracts\OidcAuthenticator;
 use App\Auth\Sso\SsoAuthenticationException;
 use App\Auth\Sso\SsoUserResolver;
 use App\Http\Controllers\Controller;
+use App\Support\AppMfaSession;
 use App\Support\AuthRedirector;
+use App\Support\MfaOnboarding;
+use App\Support\SafeRedirectUrl;
 use App\Support\UserSessionPreferences;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Http\RedirectResponse;
@@ -52,25 +55,46 @@ final class OidcAuthController extends Controller
         $request->session()->put('auth.method', 'sso');
         $request->session()->put('auth.oidc.issuer', $identity->issuer);
         $request->session()->put('auth.oidc.subject', $identity->subject);
+        app(AppMfaSession::class)->clear($request);
 
         app(UserSessionPreferences::class)->apply($request, $user);
 
         Log::channel('web')->info('sso_login_success', [
             'user_id' => $user->id,
             'issuer' => $identity->issuer,
-            'subject_hash' => hash('sha256', $identity->subject),
+            'subject_hash' => hash_hmac('sha256', $identity->subject, (string) config('app.key')),
             'email_domain' => $identity->email !== null ? str($identity->email)->afterLast('@')->lower()->toString() : null,
             'provisioning_mode' => config('sso.oidc.provisioning_mode'),
             'role_sync_enabled' => (bool) config('sso.oidc.sync_roles', false),
         ]);
 
-        if ($user->requiresTwoFactorAuthentication('sso') && ! $user->hasConfirmedTwoFactorAuthentication()) {
+        if ($user->requiresTwoFactorAuthentication('sso')) {
+            $intendedUrl = app(SafeRedirectUrl::class)->sanitize(
+                $request,
+                $request->session()->pull('url.intended'),
+                url(app(AuthRedirector::class)->pathFor($user))
+            );
+
+            if (! $user->hasConfirmedTwoFactorAuthentication()) {
+                app(MfaOnboarding::class)->start($request, 'sso', $intendedUrl);
+
+                return redirect()
+                    ->route('security.mfa.required')
+                    ->with('warning', __('Bitte richte die Zwei-Faktor-Authentifizierung ein, um fortzufahren.'));
+            }
+
+            app(AppMfaSession::class)->startChallenge($request, 'sso', $intendedUrl);
+
             return redirect()
-                ->route('profile.security')
-                ->with('warning', __('Bitte richte die Zwei-Faktor-Authentifizierung ein, um fortzufahren.'));
+                ->route('security.mfa.challenge')
+                ->with('warning', __('Bitte bestätige die lokale Zwei-Faktor-Authentifizierung, um fortzufahren.'));
         }
 
-        return redirect()->intended(app(AuthRedirector::class)->pathFor($user));
+        return redirect()->to(app(SafeRedirectUrl::class)->sanitize(
+            $request,
+            $request->session()->pull('url.intended'),
+            url(app(AuthRedirector::class)->pathFor($user))
+        ));
     }
 
     private function abortIfSsoUnavailable(): void

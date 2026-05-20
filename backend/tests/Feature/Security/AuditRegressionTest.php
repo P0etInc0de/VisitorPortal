@@ -428,6 +428,12 @@ class AuditRegressionTest extends TestCase
         ]);
 
         $this->actingAs($admin)
+            ->withSession([
+                'auth.method' => 'local',
+                'auth.app_mfa_satisfied_at' => now()->timestamp,
+                'auth.app_mfa_satisfied_method' => 'totp',
+                'auth.app_mfa_satisfied_for_auth_method' => 'local',
+            ])
             ->delete(route('monitors.slides.destroy', [$otherMonitor, $slide]))
             ->assertNotFound();
 

@@ -7,7 +7,7 @@
             </div>
 
             <a href="{{ route('profile.security') }}" class="btn btn-outline rounded-2xl">
-                {{ __('Zurueck zur Sicherheit') }}
+                {{ __('Zurück zur Sicherheit') }}
             </a>
         </div>
     </x-slot>
@@ -25,6 +25,10 @@
             </div>
         @endif
 
+        <div class="alert alert-info rounded-3xl">
+            <span>{{ __('Diese Anzeige wurde durch eine frische Sicherheitsbestätigung freigeschaltet und ist nur kurzzeitig verfügbar.') }}</span>
+        </div>
+
         <section class="rounded-3xl border border-base-300 bg-base-100 p-5 shadow-sm sm:p-6">
             <div class="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
                 <div>
@@ -36,7 +40,7 @@
                     </p>
                 </div>
 
-                <form method="POST" action="{{ route('two-factor.regenerate-recovery-codes') }}">
+                <form method="POST" action="{{ route('profile.security.recovery-codes.regenerate') }}">
                     @csrf
                     <button type="submit" class="btn btn-outline rounded-2xl">
                         {{ __('Neue Codes erzeugen') }}
@@ -45,9 +49,11 @@
             </div>
 
             <div class="mt-5 grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
-                @foreach ($recoveryCodes as $code)
+                @forelse ($recoveryCodes as $code)
                     <code class="rounded-2xl border border-base-300 bg-base-200 px-4 py-3 text-sm">{{ $code }}</code>
-                @endforeach
+                @empty
+                    <p class="text-sm text-base-content/70">{{ __('Es sind keine aktiven Recovery Codes vorhanden. Erzeuge neue Codes, um wieder Ersatzcodes zu haben.') }}</p>
+                @endforelse
             </div>
         </section>
     </div>

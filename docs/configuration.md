@@ -18,6 +18,7 @@ Vorlagen:
 - APP_MFA_REQUIRED_ROLES (Default: `admin,super_admin`)
 - APP_MFA_REQUIRED_FOR_AUTH_METHODS (Default: `local`)
 - APP_MFA_REQUIRED_FOR_ADMIN_PANEL_AUTH_METHODS (Default: `local,sso`)
+- APP_MFA_SESSION_TTL_MINUTES (Default: `720`)
 - AUTH_MODE (`local`, `local_and_sso`, `sso_only`)
 - SSO_ENABLED (`true`/`false`)
 - OIDC_ISSUER_URL, OIDC_CLIENT_ID, OIDC_CLIENT_SECRET
@@ -34,6 +35,7 @@ Vorlagen:
 
 Docker-Hinweis:
 - `DB_HOST` ist der Service-Name aus `docker-compose.yml` (bei uns `db`), nicht `127.0.0.1`.
+- `DB_CONNECTION` ist standardmaessig `mariadb`; Laravel nutzt dafuer intern den mysql-kompatiblen PDO-Treiber.
 - `MAIL_HOST` ist der Service-Name (bei uns `mailhog`), Port `1025`.
 
 ## Wichtige Variablen (LAMP / Server)
@@ -55,10 +57,13 @@ Docker-Hinweis:
 
 - Lokale Authentifizierung laeuft ueber Laravel Fortify.
 - MFA ist fuer normale Nutzer optional und fuer Rollen aus `APP_MFA_REQUIRED_ROLES` verpflichtend, wenn die Login-Art in `APP_MFA_REQUIRED_FOR_AUTH_METHODS` enthalten ist.
-- Das Filament-Adminpanel prueft zusaetzlich bestaetigte App-MFA fuer Rollen aus `APP_MFA_REQUIRED_ROLES`, wenn die Login-Art in `APP_MFA_REQUIRED_FOR_ADMIN_PANEL_AUTH_METHODS` enthalten ist.
+- Das Filament-Adminpanel verlangt eine App-MFA-bestaetigte Session fuer Rollen aus `APP_MFA_REQUIRED_ROLES`, wenn die Login-Art in `APP_MFA_REQUIRED_FOR_ADMIN_PANEL_AUTH_METHODS` enthalten ist.
+- `APP_MFA_REQUIRED_FOR_ADMIN_PANEL_AUTH_METHODS` bedeutet nicht, dass bei jedem Wechsel in den Adminbereich erneut MFA abgefragt wird. Wurde App-MFA bereits beim Login oder durch eine App-MFA-Challenge in derselben Session bestaetigt, darf der Benutzer ohne zweite Abfrage zwischen Userbereich und Adminbereich wechseln.
+- `APP_MFA_SESSION_TTL_MINUTES` begrenzt, wie lange eine lokale App-MFA-Bestaetigung innerhalb derselben Web-Session gueltig bleibt. Nach Ablauf muss die App-MFA-Challenge erneut bestanden werden; endet die Web-Session frueher, endet auch die App-MFA-Bestaetigung frueher.
 - Der Wert `sso` in diesen `APP_MFA_*`-Settings bedeutet: VisitorPortal verlangt auch nach SSO-Login zusaetzlich lokale App-MFA. Das beschreibt nicht die MFA-Erwartung im externen Identity Provider.
 - Listenartige `APP_MFA_*`-Settings koennen mit einem leeren Wert oder `none` bewusst deaktiviert werden.
-- Recovery Codes und der QR-Code einer unbestaetigten MFA-Einrichtung werden nur nach erneuter Passwortbestaetigung angezeigt.
+- Der QR-Code und das Secret einer freiwilligen, noch unbestätigten Profil-MFA-Einrichtung werden weiterhin nur nach erneuter Passwortbestätigung angezeigt.
+- Recovery Codes werden im Profil nur nach frischem, zweckgebundenem App-MFA-Step-up angezeigt. Für SSO-only Benutzer ist dafür keine lokale Passwortbestätigung erforderlich. Die Anzeige akzeptiert TOTP, aber keinen Recovery Code; die Regeneration akzeptiert TOTP oder Recovery Code.
 - `MFA_ENABLED=false` deaktiviert die Rollen-Erzwingung, bestehende bestaetigte MFA wird beim Login aber weiterhin abgefragt.
 - E-Mail-Verifikation ist in diesem Schritt bewusst nicht erzwungen. `MustVerifyEmail` ist nicht am User-Model aktiv.
 - Optionales SSO laeuft ueber generisches OpenID Connect. Es ist standardmaessig deaktiviert und wird ueber `config/sso.php` sowie die Tabelle `user_identities` gesteuert.
@@ -66,6 +71,12 @@ Docker-Hinweis:
 - Auto-Provisioning und Rollen-Sync sind standardmaessig deaktiviert.
 - Auto-provisionierte SSO-Nutzer erhalten `local_login_allowed=false`, damit lokale Passwortwege den IdP nicht umgehen.
 - Details stehen in `docs/sso.md`.
+
+Adminpanel-MFA-Beispiele:
+- Lokaler Admin meldet sich mit Passwort und App-MFA an. Die Session ist bereits App-MFA-bestaetigt; der Wechsel in den Adminbereich erfordert keine zweite MFA-Abfrage.
+- SSO-Admin meldet sich per SSO an. Wenn `sso` in `APP_MFA_REQUIRED_FOR_ADMIN_PANEL_AUTH_METHODS` enthalten ist und diese Session noch keine lokale VisitorPortal-App-MFA bestaetigt hat, erscheint beim Zugriff auf `/admin` eine App-MFA-Challenge.
+- Admin ohne eingerichtete App-MFA wird beim Zugriff auf `/admin` durch die MFA-Einrichtung gefuehrt.
+- Nach erfolgreicher App-MFA-Challenge darf der Benutzer innerhalb derselben Session zwischen Userbereich und Adminbereich wechseln, ohne erneut MFA einzugeben.
 
 ## Organisation und Standorte
 - Eine Installation ist für genau eine Organisation/Firma gedacht.

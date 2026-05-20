@@ -141,15 +141,15 @@ docker compose --env-file .env.demo -f docker-compose.demo.yml exec app php arti
 Das Demo-Compose startet:
 
 - App-Container mit Apache/PHP/Laravel
-- MySQL 8
+- MariaDB 11.4
 - Queue Worker
 - Scheduler
 - Mailhog
-- Gotenberg fuer PDF-Ausweise
+- Gotenberg 8.32 fuer PDF-Ausweise
 
 Persistente Volumes:
 
-- `dbdata`: MySQL-Daten
+- `dbdata`: MariaDB-Daten
 - `app_storage`: Laravel Storage
 
 ## Entwickler-Setup
@@ -178,6 +178,7 @@ Docker-first is the recommended setup. If you run Artisan directly in WSL/Ubuntu
 
 Required examples:
 
+- pdo_mysql
 - dom
 - mbstring
 - xml
@@ -187,19 +188,19 @@ Ubuntu/WSL:
 
 ```bash
 sudo apt update
-sudo apt install php-xml php-mbstring
+sudo apt install php-mysql php-xml php-mbstring
 ```
 
 For version-specific PHP installations:
 
 ```bash
-sudo apt install php8.3-xml php8.3-mbstring
+sudo apt install php8.4-mysql php8.4-xml php8.4-mbstring
 ```
 
 Check:
 
 ```bash
-php -m | grep -E 'dom|mbstring|xml|xmlwriter'
+php -m | grep -E 'PDO|pdo_mysql|dom|mbstring|xml|xmlwriter'
 ```
 
 ## Nuetzliche Docker-Befehle

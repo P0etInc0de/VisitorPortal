@@ -74,10 +74,10 @@ Run dependency checks regularly:
 docker compose exec web composer audit
 ```
 
-For frontend dependencies, run npm audit in a compatible Node environment:
+For frontend dependencies, run npm audit in the Docker Node 24 environment:
 
 ```bash
-npm audit
+docker compose run --rm node npm audit --audit-level=moderate
 ```
 
 Dependency scans do not replace manual security review.

@@ -1,4 +1,4 @@
-name: Laravel CI (MySQL)
+name: Laravel CI (MariaDB)
 
 on:
   push:
@@ -11,17 +11,17 @@ jobs:
     runs-on: ubuntu-latest
 
     services:
-      mysql:
-        image: mysql:8.0.45
+      mariadb:
+        image: mariadb:11.4
         env:
-          MYSQL_DATABASE: visitorportal_test
-          MYSQL_USER: visitor
-          MYSQL_PASSWORD: visitor_pw
-          MYSQL_ROOT_PASSWORD: root_pw
+          MARIADB_DATABASE: visitorportal_test
+          MARIADB_USER: visitor
+          MARIADB_PASSWORD: visitor_pw
+          MARIADB_ROOT_PASSWORD: root_pw
         ports:
           - 3306:3306
         options: >-
-          --health-cmd="mysqladmin ping -h 127.0.0.1 -proot_pw"
+          --health-cmd="mariadb-admin ping -h 127.0.0.1 -proot_pw"
           --health-interval=10s
           --health-timeout=5s
           --health-retries=10
@@ -36,14 +36,14 @@ jobs:
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
-          php-version: "8.3"
+          php-version: "8.4"
           extensions: mbstring, pdo_mysql, intl, zip, dom, xml, xmlwriter, gmp
           coverage: none
 
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: "20"
+          node-version: "24"
           cache: "npm"
           cache-dependency-path: backend/package-lock.json
 
@@ -80,16 +80,21 @@ jobs:
       - name: Directory Permissions
         run: chmod -R 777 storage bootstrap/cache
 
-      - name: Wait for MySQL
+      - name: Wait for MariaDB
         run: |
-          for i in {1..30}; do
-            mysqladmin ping -h 127.0.0.1 -uroot -proot_pw && break
-            sleep 2
-          done
+          php -r '
+          for ($i = 1; $i <= 30; $i++) {
+              $socket = @fsockopen("127.0.0.1", 3306, $errno, $errstr, 2);
+              if ($socket) { fclose($socket); exit(0); }
+              sleep(2);
+          }
+          fwrite(STDERR, "MariaDB did not become reachable.\n");
+          exit(1);
+          '
 
       - name: Run migrations
         env:
-          DB_CONNECTION: mysql
+          DB_CONNECTION: mariadb
           DB_HOST: 127.0.0.1
           DB_PORT: 3306
           DB_DATABASE: visitorportal_test
@@ -99,7 +104,7 @@ jobs:
 
       - name: Execute tests
         env:
-          DB_CONNECTION: mysql
+          DB_CONNECTION: mariadb
           DB_HOST: 127.0.0.1
           DB_PORT: 3306
           DB_DATABASE: visitorportal_test

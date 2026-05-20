@@ -1,9 +1,11 @@
 @php
-    $authMethod = session('auth.method', 'local');
-    $mfaRequired = $user->requiresTwoFactorAuthentication($authMethod);
+    $mfaRequiredForLogin = $mfaRequiredForLogin ?? false;
+    $mfaRequiredForAdminPanel = $mfaRequiredForAdminPanel ?? false;
+    $mfaRequiredForAnyContext = $mfaRequiredForAnyContext ?? false;
     $hasTwoFactorSecret = filled($user->two_factor_secret);
     $hasConfirmedTwoFactor = $user->hasConfirmedTwoFactorAuthentication();
-    $canEnableOptionalMfa = config('security.mfa.optional_for_users') || $mfaRequired;
+    $localLoginDisabled = $user->local_login_allowed === false;
+    $canEnableOptionalMfa = ! $localLoginDisabled && (config('security.mfa.optional_for_users') || $mfaRequiredForAnyContext);
 @endphp
 
 <x-app-layout>
@@ -15,7 +17,7 @@
             </div>
 
             <a href="{{ route('profile.edit') }}" class="btn btn-outline rounded-2xl">
-                {{ __('Zurueck zum Profil') }}
+                {{ __('Zurück zum Profil') }}
             </a>
         </div>
     </x-slot>
@@ -32,13 +34,13 @@
                 <span>
                     @switch(session('status'))
                         @case('two-factor-authentication-enabled')
-                            {{ __('MFA wurde vorbereitet. Bitte bestaetige den Code aus deiner Authenticator-App.') }}
+                            {{ __('Zwei-Faktor-Authentifizierung wurde vorbereitet. Bitte bestätige den Code aus deiner Authenticator-App.') }}
                             @break
                         @case('two-factor-authentication-confirmed')
-                            {{ __('MFA wurde aktiviert.') }}
+                            {{ __('Zwei-Faktor-Authentifizierung wurde aktiviert.') }}
                             @break
                         @case('two-factor-authentication-disabled')
-                            {{ __('MFA wurde deaktiviert.') }}
+                            {{ __('Zwei-Faktor-Authentifizierung wurde deaktiviert.') }}
                             @break
                         @case('recovery-codes-generated')
                             {{ __('Neue Recovery Codes wurden erstellt.') }}
@@ -57,7 +59,7 @@
                         {{ __('Zwei-Faktor-Authentifizierung') }}
                     </h2>
                     <p class="mt-3 text-sm leading-7 text-base-content/70">
-                        {{ __('MFA schuetzt dein Konto mit einem zusaetzlichen Einmalcode aus einer Authenticator-App.') }}
+                        {{ __('Die Zwei-Faktor-Authentifizierung schützt dein Konto mit einem zusätzlichen Einmalcode aus einer Authenticator-App.') }}
                     </p>
                 </div>
 
@@ -65,29 +67,51 @@
                     @if ($hasConfirmedTwoFactor)
                         {{ __('Aktiv') }}
                     @elseif ($hasTwoFactorSecret)
-                        {{ __('Bestaetigung offen') }}
+                        {{ __('Bestätigung offen') }}
                     @else
                         {{ __('Nicht eingerichtet') }}
                     @endif
                 </div>
             </div>
 
-            @if ($mfaRequired)
-                <div class="mt-5 rounded-2xl border border-warning/30 bg-warning/10 p-4 text-sm leading-7 text-base-content/80">
-                    {{ __('Deine Rolle erfordert bestaetigte MFA. Bitte richte MFA ein, um fortzufahren.') }}
-                </div>
-            @endif
+            <div class="mt-5 grid gap-3 text-sm leading-7 text-base-content/80">
+                @if ($mfaRequiredForLogin)
+                    <div class="rounded-2xl border border-warning/30 bg-warning/10 p-4">
+                        {{ __('Zwei-Faktor-Authentifizierung ist für deinen Login verpflichtend.') }}
+                    </div>
+                @endif
+
+                @if ($mfaRequiredForAdminPanel)
+                    <div class="rounded-2xl border border-warning/30 bg-warning/10 p-4">
+                        {{ $hasTwoFactorSecret
+                            ? __('Zwei-Faktor-Authentifizierung ist für den Adminbereich verpflichtend.')
+                            : __('Für den Adminbereich ist Zwei-Faktor-Authentifizierung erforderlich. Beim Zugriff auf den Adminbereich wirst du durch die Einrichtung geführt.') }}
+                    </div>
+                @endif
+
+                @if ($localLoginDisabled)
+                    <div class="rounded-2xl border border-info/30 bg-info/10 p-4">
+                        {{ $mfaRequiredForAdminPanel || $mfaRequiredForAnyContext
+                            ? __('Dieses Konto wird über SSO verwaltet. Für den Zugriff auf den Adminbereich kann zusätzlich lokale VisitorPortal-Zwei-Faktor-Authentifizierung erforderlich sein.')
+                            : __('Dieses Konto wird über SSO verwaltet. Optionale Zwei-Faktor-Aktivierung über das Profil ist für dieses Konto nicht verfügbar.') }}
+                    </div>
+                @elseif (! $mfaRequiredForAnyContext)
+                    <div class="rounded-2xl border border-base-300 bg-base-200/70 p-4 text-base-content/70">
+                        {{ __('Zwei-Faktor-Authentifizierung ist für dieses Konto optional.') }}
+                    </div>
+                @endif
+            </div>
 
             @if (! $hasTwoFactorSecret && $canEnableOptionalMfa)
                 <form method="POST" action="{{ route('two-factor.enable') }}" class="mt-6">
                     @csrf
                     <x-primary-button>
-                        {{ __('MFA aktivieren') }}
+                        {{ __('Zwei-Faktor-Authentifizierung aktivieren') }}
                     </x-primary-button>
                 </form>
-            @elseif (! $hasTwoFactorSecret)
+            @elseif (! $localLoginDisabled && ! $hasTwoFactorSecret)
                 <div class="mt-5 rounded-2xl border border-base-300 bg-base-200/70 p-4 text-sm leading-7 text-base-content/70">
-                    {{ __('MFA kann fuer dein Konto aktuell nicht selbst aktiviert werden.') }}
+                    {{ __('Zwei-Faktor-Authentifizierung kann für dein Konto aktuell nicht selbst aktiviert werden.') }}
                 </div>
             @endif
         </section>
@@ -97,16 +121,20 @@
                 <div class="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
                     <div>
                         <h2 class="text-xl font-semibold tracking-tight text-base-content">
-                            {{ __('MFA-Bestaetigung offen') }}
+                            {{ __('Zwei-Faktor-Bestätigung offen') }}
                         </h2>
                         <p class="mt-3 max-w-2xl text-sm leading-7 text-base-content/70">
-                            {{ __('Der QR-Code und das MFA-Secret werden nur nach erneuter Passwortbestaetigung angezeigt. Oeffne die Einrichtung, um den QR-Code zu scannen und den sechsstelligen Code zu bestaetigen.') }}
+                            {{ $localLoginDisabled
+                                ? __('Dieses Konto wird über SSO verwaltet. Bitte nutze das verpflichtende Sicherheits-Onboarding, falls Zwei-Faktor-Authentifizierung für dein Konto erforderlich ist.')
+                                : __('Der QR-Code und das Zwei-Faktor-Secret werden nur nach erneuter Passwortbestätigung angezeigt. Öffne die Einrichtung, um den QR-Code zu scannen und den sechsstelligen Code zu bestätigen.') }}
                         </p>
                     </div>
 
-                    <a href="{{ route('profile.security.two-factor-setup') }}" class="btn btn-primary rounded-2xl">
-                        {{ __('MFA-Einrichtung fortsetzen') }}
-                    </a>
+                    @unless ($localLoginDisabled)
+                        <a href="{{ route('profile.security.two-factor-setup') }}" class="btn btn-primary rounded-2xl">
+                            {{ __('Einrichtung fortsetzen') }}
+                        </a>
+                    @endunless
                 </div>
             </section>
         @endif
@@ -131,23 +159,27 @@
 
             <section class="rounded-3xl border border-error/30 bg-error/5 p-5 shadow-sm sm:p-6">
                 <h2 class="text-xl font-semibold tracking-tight text-base-content">
-                    {{ __('MFA deaktivieren') }}
+                    {{ __('Zwei-Faktor-Authentifizierung deaktivieren') }}
                 </h2>
 
-                @if ($mfaRequired)
+                @if ($mfaRequiredForAnyContext)
                     <p class="mt-3 max-w-2xl text-sm leading-7 text-base-content/70">
-                        {{ __('MFA ist fuer deine Rolle verpflichtend und kann hier nicht deaktiviert werden. Wende dich fuer einen Reset an einen Superadmin oder Betreiber mit Shell-Zugriff.') }}
+                        {{ __('Zwei-Faktor-Authentifizierung kann für dieses Konto nicht deaktiviert werden, weil sie für mindestens einen Sicherheitskontext verpflichtend ist.') }}
+                    </p>
+                @elseif ($localLoginDisabled)
+                    <p class="mt-3 max-w-2xl text-sm leading-7 text-base-content/70">
+                        {{ __('Dieses Konto wird über SSO verwaltet. Änderungen an der Zwei-Faktor-Konfiguration sind im Profil nicht verfügbar.') }}
                     </p>
                 @else
                     <p class="mt-3 max-w-2xl text-sm leading-7 text-base-content/70">
-                        {{ __('Wenn du MFA deaktivierst, ist dein Konto nur noch durch dein Passwort geschuetzt.') }}
+                        {{ __('Wenn du die Zwei-Faktor-Authentifizierung deaktivierst, ist dein Konto nur noch durch dein Passwort geschützt.') }}
                     </p>
 
                     <form method="POST" action="{{ route('two-factor.disable') }}" class="mt-5">
                         @csrf
                         @method('DELETE')
                         <button type="submit" class="btn btn-error rounded-2xl">
-                            {{ __('MFA deaktivieren') }}
+                            {{ __('Zwei-Faktor-Authentifizierung deaktivieren') }}
                         </button>
                     </form>
                 @endif

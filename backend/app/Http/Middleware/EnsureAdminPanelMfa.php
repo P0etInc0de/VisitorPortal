@@ -2,6 +2,9 @@
 
 namespace App\Http\Middleware;
 
+use App\Support\AppMfaPolicy;
+use App\Support\AppMfaSession;
+use App\Support\MfaOnboarding;
 use Closure;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -20,16 +23,34 @@ class EnsureAdminPanelMfa
             ? (string) $request->session()->get('auth.method', 'local')
             : 'local';
 
-        $enforcedMethods = config('security.mfa.app_required_for_admin_panel_auth_methods', ['local', 'sso']);
-
-        if (! in_array($authMethod, $enforcedMethods, true)
-            || ! $user->hasAnyRole(config('security.mfa.app_required_roles', ['admin', 'super_admin']))
-            || $user->hasConfirmedTwoFactorAuthentication()) {
+        if (! app(AppMfaPolicy::class)->isRequiredForAdminPanel($user, $authMethod)) {
             return $next($request);
         }
 
+        $intendedUrl = $request->isMethod('GET') ? $request->fullUrl() : route('overview');
+
+        if ($user->hasConfirmedTwoFactorAuthentication()) {
+            $appMfa = app(AppMfaSession::class);
+
+            if ($appMfa->isSatisfied($request, $authMethod)) {
+                return $next($request);
+            }
+
+            $appMfa->startChallenge($request, $authMethod, $intendedUrl);
+
+            return redirect()
+                ->route('security.mfa.challenge')
+                ->with('warning', __('Bitte bestätige die lokale Zwei-Faktor-Authentifizierung, um den Adminbereich zu nutzen.'));
+        }
+
+        app(MfaOnboarding::class)->start(
+            $request,
+            $authMethod,
+            $intendedUrl
+        );
+
         return redirect()
-            ->route('profile.security')
+            ->route('security.mfa.required')
             ->with('warning', __('Bitte richte die Zwei-Faktor-Authentifizierung ein, um den Adminbereich zu nutzen.'));
     }
 }

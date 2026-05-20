@@ -11,8 +11,8 @@
             @csrf
 
             <div>
-                <x-input-label for="code" :value="__('Authenticator Code')" />
-                <x-text-input id="code" class="mt-1 w-full" type="text" name="code" inputmode="numeric" autocomplete="one-time-code" autofocus />
+                <x-input-label for="code" :value="__('Authenticator-Code')" />
+                <x-totp-code-input id="code" class="mt-1 w-full" type="text" name="code" autofocus />
                 <x-input-error :messages="$errors->get('code')" class="mt-2" />
             </div>
 

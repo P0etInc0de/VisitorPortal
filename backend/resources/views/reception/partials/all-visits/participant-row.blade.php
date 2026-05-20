@@ -9,6 +9,7 @@
     $displayName = $displayName !== '' ? $displayName : '—';
 
     $badgeUrl = $participant['badge_url'] ?? null;
+    $canPrintBadge = (bool) ($participant['can_print_badge'] ?? false);
     $rawStatusLabel = $participant['status_label'] ?? ($participant['status']['label'] ?? ($participant['status'] ?? null));
     $statusLabel = $rawStatusLabel ? preg_replace('/^\s*[•·]\s*/u', '', (string) $rawStatusLabel) : '—';
     $statusClass = trim((string) ($participant['status_class'] ?? ($participant['status']['class'] ?? '')));
@@ -49,7 +50,7 @@
 
     @if ($showParticipantControls)
         <div class="flex min-w-0 items-center">
-            @if ($badgeUrl)
+            @if ($canPrintBadge && $badgeUrl)
                 <form
                     method="POST"
                     action="{{ $badgeUrl }}"
@@ -60,6 +61,7 @@
                     <button
                         type="submit"
                         class="btn btn-outline btn-sm w-auto justify-center px-2 text-center"
+                        data-testid="all-visits-participant-id-card-button"
                         x-on:click="$dispatch('av-capture-scroll'); $wire.printBadge({{ (int) ($participant['visit_id'] ?? $visitId) }}, {{ (int) $participant['visitor_id'] }})"
                     >{{ __('Ausweis') }}</button>
                 </form>

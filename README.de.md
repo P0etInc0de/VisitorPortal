@@ -41,19 +41,20 @@ Besucher-Stammdaten sind organisationsweite Kontakte. Die Standortisolation gilt
 
 ## Tech Stack
 
-- PHP 8.2+
+- PHP 8.4
 - Laravel 12
 - Laravel Livewire
-- MySQL 8
+- MariaDB 11.4 als Standard (`pdo_mysql`-Treiber)
 - Blade
 - Tailwind CSS 4
 - daisyUI 5
 - Alpine.js
+- Node.js 24 fuer Frontend-Build-Tools
 - Filament 5
 - Spatie Laravel Permission
 - Filament Shield
 - Spatie Laravel PDF
-- Gotenberg für PDF-Erzeugung
+- Gotenberg 8.32 fuer PDF-Erzeugung
 - Mailhog für lokale und Demo-E-Mail-Tests
 - Docker und Docker Compose v2
 - GitHub Actions
@@ -174,7 +175,7 @@ Frontend-Assets bauen:
 docker compose run --rm node npm run build
 ```
 
-Der GitHub-Actions-Workflow richtet PHP ein, führt Pint aus, migriert die Datenbank und startet die Tests gegen MySQL.
+Der GitHub-Actions-Workflow richtet PHP ein, fuehrt Pint aus, migriert die Datenbank und startet die Tests gegen MariaDB.
 
 ## Konfiguration Und White Labeling
 

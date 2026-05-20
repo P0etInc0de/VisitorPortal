@@ -5,7 +5,7 @@ VisitorPortal does not include an active monitoring system. Operators are respon
 ## Recommended checks
 
 - HTTP check: GET `/up`
-- Container state: app, queue, scheduler, db, gotenberg
+- Container state: app, queue, scheduler, db (MariaDB), gotenberg
 - Docker health status
 - Queue backlog
 - Failed jobs

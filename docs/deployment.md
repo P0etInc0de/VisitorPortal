@@ -4,11 +4,12 @@ Diese Anleitung beschreibt den produktionssicheren Bootstrap ohne Demo-Daten. De
 
 ## Voraussetzungen
 
-- PHP 8.2+ mit `pdo_mysql`, `mbstring`, `intl`, `zip`, `fileinfo`.
-- MySQL 8 oder kompatible Datenbank.
+- PHP 8.4 mit `pdo_mysql`, `mbstring`, `intl`, `zip`, `fileinfo`.
+- MariaDB 11.4 als Standarddatenbank. Laravel nutzt dafuer den mysql-kompatiblen `pdo_mysql`-Treiber.
 - Composer für LAMP-Deployments.
+- Node.js 24 fuer LAMP-Deployments, wenn Frontend-Assets auf dem Zielsystem gebaut werden.
 - Ein SMTP-Server für produktive E-Mails.
-- Gotenberg für Badge-PDFs.
+- Gotenberg 8.32 fuer Badge-PDFs.
 - HTTPS vor der Anwendung, typischerweise über Reverse Proxy oder Webserver.
 - Fuer Docker-Deployments: aktuelle Docker Engine oder Docker Desktop mit Docker Compose v2.
 
@@ -56,9 +57,10 @@ MFA_OPTIONAL_FOR_USERS=true
 APP_MFA_REQUIRED_ROLES=admin,super_admin
 APP_MFA_REQUIRED_FOR_AUTH_METHODS=local
 APP_MFA_REQUIRED_FOR_ADMIN_PANEL_AUTH_METHODS=local,sso
+APP_MFA_SESSION_TTL_MINUTES=720
 ```
 
-`APP_MFA_REQUIRED_FOR_AUTH_METHODS` steuert, nach welchen Login-Arten VisitorPortal fuer diese Rollen lokale App-MFA verlangt. `APP_MFA_REQUIRED_FOR_ADMIN_PANEL_AUTH_METHODS` steuert die zusaetzliche App-MFA-Pflicht beim Zugriff auf das Admin Panel. Der Wert `sso` bedeutet hier, dass VisitorPortal auch nach SSO-Login zusaetzlich lokale App-MFA verlangt, nicht dass MFA nur im externen Identity Provider erwartet wird.
+`APP_MFA_REQUIRED_FOR_AUTH_METHODS` steuert, nach welchen Login-Arten VisitorPortal fuer diese Rollen lokale App-MFA verlangt. `APP_MFA_REQUIRED_FOR_ADMIN_PANEL_AUTH_METHODS` steuert die zusaetzliche App-MFA-Pflicht beim Zugriff auf das Admin Panel. Der Wert `sso` bedeutet hier, dass VisitorPortal auch nach SSO-Login zusaetzlich lokale App-MFA verlangt, nicht dass MFA nur im externen Identity Provider erwartet wird. `APP_MFA_SESSION_TTL_MINUTES` begrenzt die lokale App-MFA-Bestaetigung innerhalb der laufenden Web-Session; endet die Session frueher, endet auch die App-MFA-Bestaetigung frueher.
 
 Wenn ein Benutzer keinen Zugriff mehr auf seine Authenticator-App hat, kann ein Betreiber mit Shell-Zugriff MFA zuruecksetzen:
 
@@ -69,7 +71,7 @@ php artisan visitorportal:disable-mfa user@example.org
 Der Command fragt standardmaessig nach Bestaetigung. Fuer nicht-interaktive Runbooks kann bewusst `--force` genutzt werden.
 
 Fuer produktive Umgebungen werden getrennte persoenliche Konten fuer Alltagsarbeit und Administration empfohlen, z. B. `jane.doe@example.org` und `admin.jane.doe@example.org`.
-Recovery Codes sollten direkt nach der Einrichtung sicher gespeichert werden. Die Anzeige im Profil ist passwortbestaetigt.
+Recovery Codes sollten direkt nach der Einrichtung sicher gespeichert werden. Die Anzeige im Profil erfordert später einen frischen, zweckgebundenen App-MFA-Step-up mit TOTP; ein Recovery Code reicht nicht aus, um bestehende Codes anzuzeigen. Die Regeneration akzeptiert TOTP oder einen Recovery Code als Recovery-Szenario. SSO-only Benutzer benötigen dafür keine lokale Passwortbestätigung.
 
 ## LAMP Deployment
 
@@ -79,6 +81,8 @@ Recovery Codes sollten direkt nach der Einrichtung sicher gespeichert werden. Di
 
 ```bash
 composer install --no-dev --optimize-autoloader
+npm ci
+npm run build
 php artisan key:generate --force
 php artisan visitorportal:install
 php artisan storage:link
@@ -158,7 +162,7 @@ Produktiv muss `MAIL_MAILER=smtp` mit echten SMTP-Daten gesetzt sein. Teste nach
 
 ## Gotenberg
 
-`GOTENBERG_URL` muss für Badge-PDFs erreichbar sein. In Docker ist der Default `http://gotenberg:3000`.
+`GOTENBERG_URL` muss fuer Badge-PDFs erreichbar sein. In Docker ist der Default `http://gotenberg:3000` und die Compose-Dateien verwenden Gotenberg 8.32.
 
 ## Storage Und Uploads
 

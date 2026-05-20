@@ -1,6 +1,6 @@
 # syntax=docker/dockerfile:1
 
-FROM php:8.3.31-apache AS php-base
+FROM php:8.4-apache AS php-base
 
 RUN a2enmod rewrite headers \
     && apt-get update \
@@ -26,7 +26,7 @@ RUN a2enmod rewrite headers \
         zip \
     && rm -rf /var/lib/apt/lists/*
 
-COPY --from=composer:2.8.12 /usr/bin/composer /usr/bin/composer
+COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 COPY docker/apache/000-default.conf /etc/apache2/sites-available/000-default.conf
 COPY docker/app/php.ini /usr/local/etc/php/conf.d/besucherportal.ini
 
@@ -47,7 +47,7 @@ COPY backend ./
 RUN composer dump-autoload --no-dev --optimize --no-interaction \
     && php artisan package:discover --ansi
 
-FROM node:20.19.6-alpine AS assets
+FROM node:24-alpine AS assets
 
 WORKDIR /app/backend
 COPY backend/package.json backend/package-lock.json ./

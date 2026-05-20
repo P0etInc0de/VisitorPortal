@@ -6,9 +6,10 @@
     "keywords": ["visitor-management", "visitor-portal", "laravel", "livewire"],
     "license": "GPL-3.0-or-later",
     "require": {
-        "php": "^8.2",
+        "php": "^8.4",
         "bezhansalleh/filament-shield": "^4.1",
         "facile-it/php-openid-client": "^0.4.0",
+        "fakerphp/faker": "^1.23",
         "filament/filament": "^5.0",
         "laravel/fortify": "^1.37",
         "laravel/framework": "^12.0",
@@ -17,7 +18,6 @@
         "spatie/laravel-permission": "^6.25"
     },
     "require-dev": {
-        "fakerphp/faker": "^1.23",
         "laravel/pail": "^1.2.2",
         "laravel/pint": "^1.24",
         "laravel/sail": "^1.41",
