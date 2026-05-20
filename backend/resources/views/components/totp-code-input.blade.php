@@ -1,10 +1,16 @@
 @props(['disabled' => false])
 
-<x-text-input
+<input
     data-totp-code-input
     @disabled($disabled)
-    {{ $attributes->merge(['inputmode' => 'numeric', 'autocomplete' => 'one-time-code']) }}
-/>
+    {{ $attributes->merge([
+        'type' => 'text',
+        'name' => 'code',
+        'inputmode' => 'numeric',
+        'autocomplete' => 'one-time-code',
+        'class' => 'mt-1 block h-12 w-full rounded-xl border border-base-300 bg-base-100 px-4 text-base-content shadow-sm placeholder:text-base-content/40 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20',
+    ]) }}
+>
 
 @once
     <script>

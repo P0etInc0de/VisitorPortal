@@ -32,16 +32,7 @@
 
                         <div>
                             <x-input-label for="code" :value="__('Sechsstelliger Code')" />
-                            <input
-                                id="code"
-                                class="mt-1 block h-12 w-full rounded-xl border border-base-300 bg-base-100 px-4 text-base-content shadow-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
-                                type="text"
-                                name="code"
-                                inputmode="numeric"
-                                autocomplete="one-time-code"
-                                required
-                                autofocus
-                            >
+                            <x-totp-code-input id="code" class="mt-1 w-full" type="text" name="code" required autofocus />
                             <x-input-error :messages="$errors->confirmTwoFactorAuthentication->get('code')" class="mt-2" />
                         </div>
 

@@ -7,7 +7,9 @@ use App\Support\RecoveryCodeManager;
 use App\Support\SensitiveActionConfirmation;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Testing\TestResponse;
 use Laravel\Fortify\Actions\EnableTwoFactorAuthentication;
+use Laravel\Fortify\Contracts\TwoFactorAuthenticationProvider;
 use Laravel\Fortify\Fortify;
 use Mockery;
 use PragmaRX\Google2FA\Google2FA;
@@ -17,6 +19,25 @@ use Tests\TestCase;
 class MfaTest extends TestCase
 {
     use RefreshDatabase;
+
+    private const MFA_SAMPLE_CODES = [
+        'Beispiel: 123 456',
+        '123 456',
+        '123456',
+    ];
+
+    private const ROBUST_TOTP_INPUT_MARKUP = [
+        'data-totp-code-input',
+        'name="code"',
+        'h-12',
+        'rounded-xl',
+        'border-base-300',
+        'bg-base-100',
+        'text-base-content',
+        'focus:border-primary',
+        'focus:ring-2',
+        'focus:ring-primary/20',
+    ];
 
     public function test_normal_user_without_mfa_can_login_when_mfa_is_optional(): void
     {
@@ -184,6 +205,132 @@ class MfaTest extends TestCase
         $this
             ->post(route('security.mfa.continue'))
             ->assertRedirect(url('/overview'));
+    }
+
+    public function test_mfa_pages_render_robust_totp_code_input_without_sample_codes(): void
+    {
+        $admin = (new PermissionHelper)->getSuperAdminUser();
+        $this->confirmMfa($admin);
+
+        $loginUser = (new PermissionHelper)->getUser();
+        $this->confirmMfa($loginUser);
+
+        $profileSetupUser = (new PermissionHelper)->getUser();
+        app(EnableTwoFactorAuthentication::class)($profileSetupUser);
+        $profileSetupUser->refresh();
+
+        $requiredSetupUser = (new PermissionHelper)->getSuperAdminUser();
+
+        $this->post('/login', [
+            'email' => $loginUser->email,
+            'password' => 'password',
+        ])->assertRedirect(route('two-factor.login'));
+
+        $responses = [
+            'Login-MFA-Challenge' => $this->get(route('two-factor.login')),
+            'App-MFA-Challenge' => $this
+                ->actingAs($admin)
+                ->withSession($this->appMfaChallengeSession())
+                ->get(route('security.mfa.challenge')),
+            'Adminpanel-/SSO-App-MFA-Challenge' => $this
+                ->actingAs($admin)
+                ->withSession($this->appMfaChallengeSession('sso', url('/admin')))
+                ->get(route('security.mfa.challenge')),
+            'Recovery-Code-Step-up' => $this
+                ->actingAs($admin)
+                ->get(route('security.step-up.show', SensitiveActionConfirmation::PURPOSE_RECOVERY_CODES_VIEW)),
+            'Profil-MFA-Setup' => $this
+                ->actingAs($profileSetupUser)
+                ->withSession(['auth.password_confirmed_at' => time()])
+                ->get(route('profile.security.two-factor-setup')),
+            'Pflicht-MFA-Setup' => $this
+                ->actingAs($requiredSetupUser)
+                ->withSession($this->mfaOnboardingSession())
+                ->get(route('security.mfa.setup')),
+        ];
+
+        foreach ($responses as $page => $response) {
+            $this->assertMfaResponseHasRobustTotpInput($response, $page);
+        }
+    }
+
+    public function test_mfa_error_messages_are_translated_in_german_ui(): void
+    {
+        $admin = (new PermissionHelper)->getSuperAdminUser();
+        $admin->forceFill(['locale' => 'de'])->save();
+        $this->confirmMfa($admin);
+
+        $this
+            ->withCookie('locale', 'de')
+            ->post('/login', [
+                'email' => $admin->email,
+                'password' => 'password',
+            ])
+            ->assertRedirect(route('two-factor.login'));
+
+        $this
+            ->withCookie('locale', 'de')
+            ->post(route('two-factor.login'), [
+                'code' => '000000',
+            ])
+            ->assertRedirect(route('two-factor.login'))
+            ->assertSessionHasErrors([
+                'code' => 'Der eingegebene Zwei-Faktor-Code ist ungültig.',
+            ]);
+
+        $this
+            ->withCookie('locale', 'de')
+            ->get(route('two-factor.login'))
+            ->assertOk()
+            ->assertSee('Der eingegebene Zwei-Faktor-Code ist ungültig.')
+            ->assertDontSee('The provided two factor authentication code was invalid.');
+
+        $this
+            ->withCookie('locale', 'de')
+            ->post(route('two-factor.login'), [
+                'recovery_code' => 'not-a-valid-recovery-code',
+            ])
+            ->assertRedirect(route('two-factor.login'))
+            ->assertSessionHasErrors([
+                'recovery_code' => 'Der eingegebene Recovery Code ist ungültig.',
+            ]);
+
+        $this
+            ->withCookie('locale', 'de')
+            ->get(route('two-factor.login'))
+            ->assertOk()
+            ->assertSee('Der eingegebene Recovery Code ist ungültig.')
+            ->assertDontSee('The provided two factor authentication code was invalid.')
+            ->assertDontSee('The provided two factor recovery code was invalid.');
+    }
+
+    public function test_mfa_challenge_passes_grouped_totp_to_provider_normalized(): void
+    {
+        $user = (new PermissionHelper)->getUser();
+        $this->confirmMfa($user);
+        $capturedCode = null;
+
+        $this->mock(TwoFactorAuthenticationProvider::class, function ($mock) use (&$capturedCode): void {
+            $mock
+                ->shouldReceive('verify')
+                ->once()
+                ->with(Mockery::type('string'), Mockery::on(function ($code) use (&$capturedCode): bool {
+                    $capturedCode = $code;
+
+                    return true;
+                }))
+                ->andReturnTrue();
+        });
+
+        $this
+            ->actingAs($user)
+            ->withSession($this->appMfaChallengeSession())
+            ->post(route('security.mfa.challenge.verify'), [
+                'code' => '123 456',
+            ])
+            ->assertRedirect(route('overview'));
+
+        $this->assertSame('123456', $capturedCode);
     }
 
     public function test_admin_with_unconfirmed_mfa_remains_limited_to_setup_routes(): void
@@ -1236,5 +1383,24 @@ class MfaTest extends TestCase
     private function spaceRecoveryCode(string $code): string
     {
         return substr($code, 0, 4).' '.substr($code, 4, 6).' - '.substr($code, 11, 3).' '.substr($code, 14);
+    }
+
+    private function assertMfaResponseHasRobustTotpInput(TestResponse $response, string $page): void
+    {
+        $status = $response->baseResponse->getStatusCode();
+
+        $this->assertSame(
+            200,
+            $status,
+            sprintf('%s returned HTTP %d%s', $page, $status, $response->headers->get('Location') ? ' and redirected to '.$response->headers->get('Location') : '')
+        );
+
+        foreach (self::ROBUST_TOTP_INPUT_MARKUP as $fragment) {
+            $response->assertSee($fragment, false);
+        }
+
+        foreach (self::MFA_SAMPLE_CODES as $sampleCode) {
+            $response->assertDontSee($sampleCode, false);
+        }
     }
 }

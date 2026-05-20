@@ -3,6 +3,7 @@
     "private": true,
     "type": "module",
     "scripts": {
+        "test:mfa": "playwright test tests/e2e/mfa-code-input.spec.ts --project=chromium",
         "test:sso": "playwright test tests/e2e/sso-login.spec.ts --project=chromium"
     },
     "dependencies": {

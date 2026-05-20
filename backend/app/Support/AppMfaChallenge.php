@@ -67,9 +67,12 @@ final readonly class AppMfaChallenge
         $key = $attemptedMethod === 'recovery_code'
             ? 'recovery_code'
             : 'code';
+        $message = $attemptedMethod === 'recovery_code'
+            ? __('The provided two factor recovery code was invalid.')
+            : __('The provided two factor authentication code was invalid.');
 
         throw ValidationException::withMessages([
-            $key => [__('The provided two factor authentication code was invalid.')],
+            $key => [$message],
         ]);
     }
 
