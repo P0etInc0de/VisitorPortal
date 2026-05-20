@@ -285,6 +285,26 @@ class MfaTest extends TestCase
         $this->assertAuthenticatedAs($admin);
     }
 
+    public function test_login_totp_accepts_grouped_code_with_space(): void
+    {
+        $admin = (new PermissionHelper)->getSuperAdminUser();
+        $this->confirmMfa($admin);
+
+        $this->post('/login', [
+            'email' => $admin->email,
+            'password' => 'password',
+        ])->assertRedirect(route('two-factor.login'));
+
+        $this
+            ->post(route('two-factor.login'), [
+                'code' => $this->groupTotp($this->currentTotp($admin)),
+            ])
+            ->assertRedirect(route('overview', absolute: false))
+            ->assertSessionHas('auth.app_mfa_satisfied_method', 'totp');
+
+        $this->assertAuthenticatedAs($admin);
+    }
+
     public function test_admin_can_login_with_recovery_code_once(): void
     {
         $admin = (new PermissionHelper)->getSuperAdminUser();
@@ -396,6 +416,24 @@ class MfaTest extends TestCase
             ->get(route('profile.security.recovery-codes'))
             ->assertOk()
             ->assertSee($recoveryCode);
+    }
+
+    public function test_step_up_totp_accepts_multiple_whitespace(): void
+    {
+        $user = (new PermissionHelper)->getUser();
+        $this->confirmMfa($user);
+
+        $this
+            ->actingAs($user)
+            ->get(route('profile.security.recovery-codes'))
+            ->assertRedirect(route('security.step-up.show', SensitiveActionConfirmation::PURPOSE_RECOVERY_CODES_VIEW));
+
+        $this
+            ->actingAs($user)
+            ->post(route('security.step-up.verify', SensitiveActionConfirmation::PURPOSE_RECOVERY_CODES_VIEW), [
+                'code' => $this->groupTotpWithMultipleWhitespace($this->currentTotp($user)),
+            ])
+            ->assertRedirect(route('profile.security.recovery-codes'));
     }
 
     public function test_consumed_recovery_codes_are_hidden_from_recovery_code_page(): void
@@ -597,6 +635,32 @@ class MfaTest extends TestCase
         $this->assertSame($newRecoveryCodes, $user->fresh()->recoveryCodes());
     }
 
+    public function test_recovery_code_step_up_accepts_recovery_code_with_whitespace(): void
+    {
+        $user = (new PermissionHelper)->getUser();
+        $this->confirmMfa($user);
+        $oldRecoveryCodes = $user->fresh()->recoveryCodes();
+        $usedRecoveryCode = $oldRecoveryCodes[0];
+
+        $this
+            ->actingAs($user)
+            ->post(route('profile.security.recovery-codes.regenerate'))
+            ->assertRedirect(route('security.step-up.show', SensitiveActionConfirmation::PURPOSE_RECOVERY_CODES_REGENERATE));
+
+        $this
+            ->actingAs($user)
+            ->post(route('security.step-up.verify', SensitiveActionConfirmation::PURPOSE_RECOVERY_CODES_REGENERATE), [
+                'recovery_code' => $this->spaceRecoveryCode($usedRecoveryCode),
+            ])
+            ->assertRedirect(route('profile.security.recovery-codes'));
+
+        $newRecoveryCodes = $user->fresh()->recoveryCodes();
+
+        $this->assertCount(8, $newRecoveryCodes);
+        $this->assertNotSame($oldRecoveryCodes, $newRecoveryCodes);
+        $this->assertNotContains($usedRecoveryCode, $newRecoveryCodes);
+    }
+
     public function test_recovery_code_security_events_are_logged_without_codes_or_secrets(): void
     {
         $user = (new PermissionHelper)->getUser();
@@ -766,6 +830,36 @@ class MfaTest extends TestCase
             ->assertRedirect(route('overview'));
 
         $this->assertNotContains($otherRecoveryCode, $admin->fresh()->recoveryCodes());
+    }
+
+    public function test_app_mfa_challenge_rejects_totp_with_letters(): void
+    {
+        $admin = (new PermissionHelper)->getSuperAdminUser();
+        $this->confirmMfa($admin);
+
+        $this
+            ->actingAs($admin)
+            ->withSession($this->appMfaChallengeSession())
+            ->post(route('security.mfa.challenge.verify'), [
+                'code' => 'abc123',
+            ])
+            ->assertSessionHasErrors('code')
+            ->assertSessionMissing('auth.app_mfa_satisfied_at');
+    }
+
+    public function test_app_mfa_challenge_rejects_totp_with_wrong_length(): void
+    {
+        $admin = (new PermissionHelper)->getSuperAdminUser();
+        $this->confirmMfa($admin);
+
+        $this
+            ->actingAs($admin)
+            ->withSession($this->appMfaChallengeSession())
+            ->post(route('security.mfa.challenge.verify'), [
+                'code' => '12345',
+            ])
+            ->assertSessionHasErrors('code')
+            ->assertSessionMissing('auth.app_mfa_satisfied_at');
     }
 
     public function test_admin_without_mfa_cannot_access_filament_admin_panel(): void
@@ -1093,5 +1187,20 @@ class MfaTest extends TestCase
         $secret = Fortify::currentEncrypter()->decrypt($user->fresh()->two_factor_secret);
 
         return app(Google2FA::class)->getCurrentOtp($secret);
+    }
+
+    private function groupTotp(string $code): string
+    {
+        return substr($code, 0, 3).' '.substr($code, 3);
+    }
+
+    private function groupTotpWithMultipleWhitespace(string $code): string
+    {
+        return substr($code, 0, 2).'  '.substr($code, 2, 2)."\t".substr($code, 4);
+    }
+
+    private function spaceRecoveryCode(string $code): string
+    {
+        return substr($code, 0, 4).' '.substr($code, 4, 6).' - '.substr($code, 11, 3).' '.substr($code, 14);
     }
 }

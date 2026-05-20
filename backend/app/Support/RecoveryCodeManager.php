@@ -8,6 +8,8 @@ use Laravel\Fortify\Fortify;
 
 final class RecoveryCodeManager
 {
+    public function __construct(private readonly MfaCodeNormalizer $normalizer) {}
+
     /**
      * @return list<string>
      */
@@ -24,7 +26,13 @@ final class RecoveryCodeManager
 
     public function consume(User $user, string $recoveryCode): bool
     {
-        return DB::transaction(function () use ($user, $recoveryCode): bool {
+        $normalizedRecoveryCode = $this->normalizer->normalizeRecoveryCode($recoveryCode);
+
+        if ($normalizedRecoveryCode === null) {
+            return false;
+        }
+
+        return DB::transaction(function () use ($user, $normalizedRecoveryCode): bool {
             $lockedUser = User::query()
                 ->whereKey($user->getKey())
                 ->lockForUpdate()
@@ -39,8 +47,8 @@ final class RecoveryCodeManager
 
             $remainingCodes = array_values(array_filter(
                 $codes,
-                function (string $code) use ($recoveryCode, &$matched): bool {
-                    if (hash_equals($code, $recoveryCode)) {
+                function (string $code) use ($normalizedRecoveryCode, &$matched): bool {
+                    if (hash_equals($code, $normalizedRecoveryCode)) {
                         $matched = true;
 
                         return false;

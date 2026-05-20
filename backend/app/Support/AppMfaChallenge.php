@@ -11,6 +11,7 @@ final readonly class AppMfaChallenge
 {
     public function __construct(
         private TwoFactorAuthenticationProvider $provider,
+        private MfaCodeNormalizer $normalizer,
         private RecoveryCodeManager $recoveryCodes,
         private SecurityEventLogger $securityEvents,
     ) {}
@@ -27,8 +28,11 @@ final readonly class AppMfaChallenge
 
         $user = $request->user();
         $allowedMethods = array_values(array_intersect($allowedMethods, ['totp', 'recovery_code']));
+        $totpCode = $this->normalizer->normalizeTotp($request->input('code'));
+        $recoveryCodeInput = $request->input('recovery_code');
+        $hasRecoveryCodeInput = $this->normalizer->hasInput($recoveryCodeInput);
 
-        if ($request->filled('recovery_code')) {
+        if ($hasRecoveryCodeInput) {
             if (! in_array('recovery_code', $allowedMethods, true)) {
                 $this->logFailure($request, $purpose, 'recovery_code');
 
@@ -37,7 +41,7 @@ final readonly class AppMfaChallenge
                 ]);
             }
 
-            if ($this->recoveryCodes->consume($user, (string) $request->input('recovery_code'))) {
+            if ($this->recoveryCodes->consume($user, (string) $recoveryCodeInput)) {
                 $this->securityEvents->log($request, 'security_recovery_code_used', [
                     'step_up_purpose' => $purpose,
                     'step_up_method' => 'recovery_code',
@@ -47,14 +51,14 @@ final readonly class AppMfaChallenge
             }
         }
 
-        if (in_array('totp', $allowedMethods, true) && $request->filled('code') && $this->provider->verify(
+        if (in_array('totp', $allowedMethods, true) && $totpCode !== null && $this->provider->verify(
             Fortify::currentEncrypter()->decrypt($user->two_factor_secret),
-            (string) $request->input('code')
+            $totpCode
         )) {
             return 'totp';
         }
 
-        $attemptedMethod = $request->filled('recovery_code') && ! $request->filled('code')
+        $attemptedMethod = $hasRecoveryCodeInput && ! $this->normalizer->hasInput($request->input('code'))
             ? 'recovery_code'
             : 'totp';
 
