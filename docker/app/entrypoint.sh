@@ -31,10 +31,14 @@ ensure_writable_paths() {
 }
 
 wait_for_database() {
-    if [ "${DB_CONNECTION:-mysql}" != "mysql" ]; then
-        info "DB_CONNECTION is '${DB_CONNECTION:-unset}', skipping MySQL wait."
-        return 0
-    fi
+    case "${DB_CONNECTION:-mysql}" in
+        mysql|mariadb)
+            ;;
+        *)
+            info "DB_CONNECTION is '${DB_CONNECTION:-unset}', skipping MySQL/MariaDB wait."
+            return 0
+            ;;
+    esac
 
     DB_HOST_VALUE="${DB_HOST:-db}"
     DB_PORT_VALUE="${DB_PORT:-3306}"

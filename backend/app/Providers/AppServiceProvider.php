@@ -4,6 +4,7 @@ namespace App\Providers;
 
 use App\Auth\Sso\Contracts\OidcAuthenticator;
 use App\Auth\Sso\Facile\FacileOidcAuthenticator;
+use App\Support\MfaCodeNormalizer;
 use App\Support\OperationalHeartbeat;
 use App\Support\SafeLogContext;
 use Illuminate\Cache\RateLimiting\Limit;
@@ -66,7 +67,7 @@ class AppServiceProvider extends ServiceProvider
                 'user_id' => $event->user?->getAuthIdentifier(),
                 'auth_method' => 'local',
                 'step_up_purpose' => 'login',
-                'attempted_method' => $request->filled('recovery_code') ? 'recovery_code' : 'totp',
+                'attempted_method' => $this->attemptedMfaMethod($request),
                 'ip_hash' => hash_hmac('sha256', (string) $request->ip(), (string) config('app.key')),
                 'user_agent_hash' => hash_hmac('sha256', (string) $request->userAgent(), (string) config('app.key')),
             ]);
@@ -77,5 +78,19 @@ class AppServiceProvider extends ServiceProvider
                 Log::channel('web')->info('Authorization failed.', SafeLogContext::authorization($user, $ability, $arguments));
             }
         });
+    }
+
+    private function attemptedMfaMethod(Request $request): string
+    {
+        $normalizer = app(MfaCodeNormalizer::class);
+        $hasTotpInput = $normalizer->hasInput($request->input('code'));
+        $hasRecoveryCodeInput = $normalizer->hasInput($request->input('recovery_code'));
+
+        return match (true) {
+            $hasTotpInput && $hasRecoveryCodeInput => 'mixed',
+            $hasRecoveryCodeInput => 'recovery_code',
+            $hasTotpInput => 'totp',
+            default => 'unknown',
+        };
     }
 }

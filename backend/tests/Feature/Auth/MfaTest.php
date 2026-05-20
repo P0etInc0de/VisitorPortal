@@ -385,6 +385,42 @@ class MfaTest extends TestCase
         $this->assertAuthenticatedAs($admin);
     }
 
+    public function test_failed_login_mfa_with_totp_and_recovery_code_logs_mixed_attempt_method(): void
+    {
+        $admin = (new PermissionHelper)->getSuperAdminUser();
+        $this->confirmMfa($admin);
+        $invalidTotp = 'abc123';
+        $invalidRecoveryCode = 'not-a-valid-recovery-code';
+        $secret = (string) $admin->fresh()->two_factor_secret;
+
+        Log::shouldReceive('channel')->with('web')->andReturnSelf()->byDefault();
+        Log::shouldReceive('info')
+            ->with('security_app_mfa_challenge_failed', Mockery::on(
+                fn (array $context): bool => $context['user_id'] === $admin->id
+                    && $context['step_up_purpose'] === 'login'
+                    && $context['attempted_method'] === 'mixed'
+                    && ! str_contains(json_encode($context), $invalidTotp)
+                    && ! str_contains(json_encode($context), $invalidRecoveryCode)
+                    && ! str_contains(json_encode($context), $secret)
+            ))
+            ->once();
+
+        $this->post('/login', [
+            'email' => $admin->email,
+            'password' => 'password',
+        ])->assertRedirect(route('two-factor.login'));
+
+        $this
+            ->post(route('two-factor.login'), [
+                'code' => $invalidTotp,
+                'recovery_code' => $invalidRecoveryCode,
+            ])
+            ->assertRedirect(route('two-factor.login'))
+            ->assertSessionHasErrors('recovery_code');
+
+        $this->assertGuest();
+    }
+
     public function test_recovery_codes_are_only_visible_after_fresh_step_up(): void
     {
         $user = (new PermissionHelper)->getUser();
