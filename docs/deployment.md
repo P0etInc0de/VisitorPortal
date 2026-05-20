@@ -56,9 +56,10 @@ MFA_OPTIONAL_FOR_USERS=true
 APP_MFA_REQUIRED_ROLES=admin,super_admin
 APP_MFA_REQUIRED_FOR_AUTH_METHODS=local
 APP_MFA_REQUIRED_FOR_ADMIN_PANEL_AUTH_METHODS=local,sso
+APP_MFA_SESSION_TTL_MINUTES=720
 ```
 
-`APP_MFA_REQUIRED_FOR_AUTH_METHODS` steuert, nach welchen Login-Arten VisitorPortal fuer diese Rollen lokale App-MFA verlangt. `APP_MFA_REQUIRED_FOR_ADMIN_PANEL_AUTH_METHODS` steuert die zusaetzliche App-MFA-Pflicht beim Zugriff auf das Admin Panel. Der Wert `sso` bedeutet hier, dass VisitorPortal auch nach SSO-Login zusaetzlich lokale App-MFA verlangt, nicht dass MFA nur im externen Identity Provider erwartet wird.
+`APP_MFA_REQUIRED_FOR_AUTH_METHODS` steuert, nach welchen Login-Arten VisitorPortal fuer diese Rollen lokale App-MFA verlangt. `APP_MFA_REQUIRED_FOR_ADMIN_PANEL_AUTH_METHODS` steuert die zusaetzliche App-MFA-Pflicht beim Zugriff auf das Admin Panel. Der Wert `sso` bedeutet hier, dass VisitorPortal auch nach SSO-Login zusaetzlich lokale App-MFA verlangt, nicht dass MFA nur im externen Identity Provider erwartet wird. `APP_MFA_SESSION_TTL_MINUTES` begrenzt die lokale App-MFA-Bestaetigung innerhalb der laufenden Web-Session; endet die Session frueher, endet auch die App-MFA-Bestaetigung frueher.
 
 Wenn ein Benutzer keinen Zugriff mehr auf seine Authenticator-App hat, kann ein Betreiber mit Shell-Zugriff MFA zuruecksetzen:
 

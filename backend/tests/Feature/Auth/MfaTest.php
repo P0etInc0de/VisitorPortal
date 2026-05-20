@@ -3,6 +3,7 @@
 namespace Tests\Feature\Auth;
 
 use App\Models\User;
+use App\Support\RecoveryCodeManager;
 use App\Support\SensitiveActionConfirmation;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Log;
@@ -433,6 +434,25 @@ class MfaTest extends TestCase
             ->assertSee($remainingRecoveryCode);
     }
 
+    public function test_recovery_code_manager_consumes_code_once_with_locked_reload(): void
+    {
+        $user = (new PermissionHelper)->getUser();
+        $this->confirmMfa($user);
+        $recoveryCodes = $user->fresh()->recoveryCodes();
+        $usedRecoveryCode = $recoveryCodes[0];
+        $remainingRecoveryCode = $recoveryCodes[1];
+        $manager = app(RecoveryCodeManager::class);
+
+        $this->assertTrue($manager->consume($user, $usedRecoveryCode));
+        $this->assertFalse($manager->consume($user, $usedRecoveryCode));
+
+        $activeCodes = $user->fresh()->recoveryCodes();
+
+        $this->assertNotContains($usedRecoveryCode, $activeCodes);
+        $this->assertContains($remainingRecoveryCode, $activeCodes);
+        $this->assertCount(count($recoveryCodes) - 1, $activeCodes);
+    }
+
     public function test_recovery_code_cannot_be_used_to_view_existing_recovery_codes(): void
     {
         $user = (new PermissionHelper)->getUser();
@@ -781,6 +801,23 @@ class MfaTest extends TestCase
             ->assertOk();
     }
 
+    public function test_expired_app_mfa_session_requires_new_admin_panel_challenge(): void
+    {
+        config(['security.mfa.app_session_ttl_minutes' => 1]);
+
+        $admin = (new PermissionHelper)->getSuperAdminUser();
+        $this->confirmMfa($admin);
+
+        $this
+            ->actingAs($admin)
+            ->withSession($this->appMfaSatisfiedSession(satisfiedAt: now()->subSeconds(61)->timestamp))
+            ->get('/admin')
+            ->assertRedirect(route('security.mfa.challenge'))
+            ->assertSessionMissing('auth.app_mfa_satisfied_at')
+            ->assertSessionMissing('auth.app_mfa_satisfied_method')
+            ->assertSessionMissing('auth.app_mfa_satisfied_for_auth_method');
+    }
+
     public function test_admin_panel_app_mfa_uses_auth_method_configuration(): void
     {
         config([
@@ -1029,11 +1066,11 @@ class MfaTest extends TestCase
     /**
      * @return array<string, mixed>
      */
-    private function appMfaSatisfiedSession(string $authMethod = 'local'): array
+    private function appMfaSatisfiedSession(string $authMethod = 'local', ?int $satisfiedAt = null): array
     {
         return [
             'auth.method' => $authMethod,
-            'auth.app_mfa_satisfied_at' => now()->timestamp,
+            'auth.app_mfa_satisfied_at' => $satisfiedAt ?? now()->timestamp,
             'auth.app_mfa_satisfied_method' => 'totp',
             'auth.app_mfa_satisfied_for_auth_method' => $authMethod,
         ];

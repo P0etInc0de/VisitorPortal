@@ -25,11 +25,12 @@ MFA_OPTIONAL_FOR_USERS=true
 APP_MFA_REQUIRED_ROLES=admin,super_admin
 APP_MFA_REQUIRED_FOR_AUTH_METHODS=local
 APP_MFA_REQUIRED_FOR_ADMIN_PANEL_AUTH_METHODS=local,sso
+APP_MFA_SESSION_TTL_MINUTES=720
 ```
 
 Privileged users must configure and confirm local app MFA before they can continue using the portal after the configured login methods. Required MFA setup uses the dedicated `/security/mfa/required` onboarding flow without normal app navigation and without Fortify password confirmation, so SSO-only users without a local password can complete mandatory app MFA. After confirmation, the onboarding flow shows the recovery codes once and then continues to the originally requested URL.
 
-VisitorPortal treats configured MFA and session-satisfied MFA as separate states. `hasConfirmedTwoFactorAuthentication()` only means that local app MFA exists for the account. A separate session marker records that the current session has passed a local app-MFA challenge by TOTP or recovery code.
+VisitorPortal treats configured MFA and session-satisfied MFA as separate states. `hasConfirmedTwoFactorAuthentication()` only means that local app MFA exists for the account. A separate session marker records that the current session has passed a local app-MFA challenge by TOTP or recovery code. `APP_MFA_SESSION_TTL_MINUTES` limits this marker within the current web session; if the web session ends earlier, the app-MFA confirmation ends with it.
 
 The regular profile security page remains available for later voluntary account security management. Voluntary profile MFA setup still uses password confirmation before QR codes or secrets are displayed; recovery-code management uses the SSO-compatible app-MFA step-up described below.
 
@@ -39,7 +40,7 @@ List-style `APP_MFA_*` settings can be intentionally disabled with an empty valu
 
 ## Recovery Process
 
-Users with MFA should store their recovery codes securely. Each recovery code can be used once during any MFA fallback path: local login, SSO/app-MFA challenge, admin-panel app-MFA challenge and purpose-bound step-up flows. After successful use, the code is removed from the active recovery-code list. Other unused recovery codes remain valid, and explicit regeneration creates a new full active list.
+Users with MFA should store their recovery codes securely. Each recovery code can be used once during any MFA fallback path: local login, SSO/app-MFA challenge, admin-panel app-MFA challenge and purpose-bound step-up flows. After successful use, the code is removed from the active recovery-code list in a database transaction with a row lock, so parallel requests cannot consume the same code twice. Other unused recovery codes remain valid, and explicit regeneration creates a new full active list.
 
 Recovery codes are not shown on the regular profile security page. Users must explicitly open the recovery-code page and pass a fresh, purpose-bound step-up challenge before existing codes are displayed or regenerated. The step-up is fresh for 10 minutes and works for SSO-only users without a local password.
 

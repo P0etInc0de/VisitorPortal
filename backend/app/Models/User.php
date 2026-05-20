@@ -224,7 +224,9 @@ class User extends Authenticatable implements FilamentUser
     public function replaceRecoveryCode($code): void
     {
         if (! app(RecoveryCodeManager::class)->consume($this, (string) $code)) {
-            return;
+            throw ValidationException::withMessages([
+                'recovery_code' => [__('The provided two factor recovery code was invalid.')],
+            ]);
         }
 
         if (app()->bound('request') && request()->hasSession()) {

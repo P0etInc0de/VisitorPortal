@@ -18,6 +18,7 @@ Vorlagen:
 - APP_MFA_REQUIRED_ROLES (Default: `admin,super_admin`)
 - APP_MFA_REQUIRED_FOR_AUTH_METHODS (Default: `local`)
 - APP_MFA_REQUIRED_FOR_ADMIN_PANEL_AUTH_METHODS (Default: `local,sso`)
+- APP_MFA_SESSION_TTL_MINUTES (Default: `720`)
 - AUTH_MODE (`local`, `local_and_sso`, `sso_only`)
 - SSO_ENABLED (`true`/`false`)
 - OIDC_ISSUER_URL, OIDC_CLIENT_ID, OIDC_CLIENT_SECRET
@@ -57,6 +58,7 @@ Docker-Hinweis:
 - MFA ist fuer normale Nutzer optional und fuer Rollen aus `APP_MFA_REQUIRED_ROLES` verpflichtend, wenn die Login-Art in `APP_MFA_REQUIRED_FOR_AUTH_METHODS` enthalten ist.
 - Das Filament-Adminpanel verlangt eine App-MFA-bestaetigte Session fuer Rollen aus `APP_MFA_REQUIRED_ROLES`, wenn die Login-Art in `APP_MFA_REQUIRED_FOR_ADMIN_PANEL_AUTH_METHODS` enthalten ist.
 - `APP_MFA_REQUIRED_FOR_ADMIN_PANEL_AUTH_METHODS` bedeutet nicht, dass bei jedem Wechsel in den Adminbereich erneut MFA abgefragt wird. Wurde App-MFA bereits beim Login oder durch eine App-MFA-Challenge in derselben Session bestaetigt, darf der Benutzer ohne zweite Abfrage zwischen Userbereich und Adminbereich wechseln.
+- `APP_MFA_SESSION_TTL_MINUTES` begrenzt, wie lange eine lokale App-MFA-Bestaetigung innerhalb derselben Web-Session gueltig bleibt. Nach Ablauf muss die App-MFA-Challenge erneut bestanden werden; endet die Web-Session frueher, endet auch die App-MFA-Bestaetigung frueher.
 - Der Wert `sso` in diesen `APP_MFA_*`-Settings bedeutet: VisitorPortal verlangt auch nach SSO-Login zusaetzlich lokale App-MFA. Das beschreibt nicht die MFA-Erwartung im externen Identity Provider.
 - Listenartige `APP_MFA_*`-Settings koennen mit einem leeren Wert oder `none` bewusst deaktiviert werden.
 - Der QR-Code und das Secret einer freiwilligen, noch unbestätigten Profil-MFA-Einrichtung werden weiterhin nur nach erneuter Passwortbestätigung angezeigt.

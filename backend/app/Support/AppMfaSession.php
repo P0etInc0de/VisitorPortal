@@ -20,8 +20,21 @@ final class AppMfaSession
         $satisfiedAt = $request->session()->get('auth.app_mfa_satisfied_at');
         $satisfiedFor = $request->session()->get('auth.app_mfa_satisfied_for_auth_method');
 
-        return is_int($satisfiedAt)
-            && $satisfiedFor === ($authMethod ?? $this->authMethod($request));
+        if (! is_int($satisfiedAt) || $satisfiedFor !== ($authMethod ?? $this->authMethod($request))) {
+            return false;
+        }
+
+        if ($satisfiedAt + $this->ttlSeconds() < now()->timestamp) {
+            $request->session()->forget([
+                'auth.app_mfa_satisfied_at',
+                'auth.app_mfa_satisfied_method',
+                'auth.app_mfa_satisfied_for_auth_method',
+            ]);
+
+            return false;
+        }
+
+        return true;
     }
 
     public function clear(Request $request): void
@@ -66,5 +79,10 @@ final class AppMfaSession
     private function authMethod(Request $request): string
     {
         return (string) $request->session()->get('auth.method', 'local');
+    }
+
+    private function ttlSeconds(): int
+    {
+        return max(1, (int) config('security.mfa.app_session_ttl_minutes', 720)) * 60;
     }
 }
