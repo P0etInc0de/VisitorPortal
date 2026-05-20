@@ -125,7 +125,7 @@ services:
       bash -lc "
       timeout 120 sh -c 'until curl -fsS http://keycloak:8080/realms/visitorportal/.well-known/openid-configuration >/dev/null; do sleep 2; done' &&
       timeout 120 sh -c 'until curl -fsS http://web/login >/dev/null; do sleep 2; done' &&
-      npm run test:sso
+      npm run test:e2e:sso
       "
     depends_on:
       web:

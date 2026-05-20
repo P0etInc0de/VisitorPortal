@@ -371,6 +371,49 @@ class MultiSiteAccessTest extends TestCase
         $this->assertSame($newHost->id, $visit->user_id);
     }
 
+    public function test_visit_edit_keeps_current_inactive_site_selectable(): void
+    {
+        $activeSite = Site::factory()->create(['name' => 'Active Alpha']);
+        $otherActiveSite = Site::factory()->create(['name' => 'Active Beta']);
+        $currentInactiveSite = Site::factory()->create([
+            'name' => 'Inactive Current',
+            'is_active' => false,
+        ]);
+        $otherInactiveSite = Site::factory()->create([
+            'name' => 'Inactive Other',
+            'is_active' => false,
+        ]);
+        $actor = (new PermissionHelper)->getIndividualUser([
+            'EditAny:Visit',
+            'ViewAny:Visit',
+        ], 'global-visit-editor');
+        $host = User::factory()->create(['site_id' => $currentInactiveSite->id]);
+
+        $actor->forceFill(['site_id' => $activeSite->id])->save();
+
+        $visit = Visit::factory()->create([
+            'site_id' => $currentInactiveSite->id,
+            'user_id' => $host->id,
+            'responsible_user_id' => $host->id,
+            'status' => VisitStatusEnum::Planned->value,
+        ]);
+
+        $response = $this->actingAs($actor)
+            ->get(route('portal.visits.edit', $visit))
+            ->assertOk()
+            ->assertSee('Active Alpha')
+            ->assertSee('Active Beta')
+            ->assertSee('Inactive Current')
+            ->assertDontSee('Inactive Other');
+
+        $this->assertMatchesRegularExpression(
+            '/<option\s+value="'.$currentInactiveSite->id.'"\s+selected>\s*Inactive Current\s*<\/option>/i',
+            $response->getContent()
+        );
+
+        $this->assertFalse($otherInactiveSite->is_active);
+    }
+
     public function test_welcome_monitor_redirect_uses_assigned_site_monitor(): void
     {
         $primarySite = Site::factory()->create();

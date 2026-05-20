@@ -22,7 +22,7 @@ The SSO E2E stack uses dedicated Docker images for the web application and the P
 
 The web test image installs Composer dependencies and builds Vite assets at image build time. The running web container only prepares writable storage paths, runs database migrations, synchronizes permissions and starts Apache.
 
-The smoke test image installs only the Playwright E2E dependencies from `backend/tests/e2e/package.json` at image build time. The running smoke container only waits for the app and executes the SSO test.
+The smoke test image installs the Playwright E2E dependencies from the root `backend/package.json` at image build time. The running smoke container only waits for the app and executes the SSO test.
 
 This keeps the test stack reproducible and avoids writing `vendor`, `node_modules` or `public/build` into the host checkout.
 

@@ -248,7 +248,7 @@ class VisitController extends Controller
                 ->select('id', 'name')
                 ->where(function ($query) use ($currentSiteId): void {
                     $query->active()
-                        ->when($currentSiteId, fn ($query) => $query->orWhereKey($currentSiteId));
+                        ->when($currentSiteId, fn ($query) => $query->orWhere('sites.id', $currentSiteId));
                 })
                 ->orderBy('name')
                 ->get();
@@ -265,7 +265,7 @@ class VisitController extends Controller
             ->where(function ($query) use ($assignedSiteIds, $currentSiteId): void {
                 $query->active()
                     ->whereIn('id', $assignedSiteIds->all())
-                    ->when($currentSiteId, fn ($query) => $query->orWhereKey($currentSiteId));
+                    ->when($currentSiteId, fn ($query) => $query->orWhere('sites.id', $currentSiteId));
             })
             ->orderByRaw('CASE WHEN id = ? THEN 0 ELSE 1 END', [(int) $actor->site_id])
             ->orderBy('name')
