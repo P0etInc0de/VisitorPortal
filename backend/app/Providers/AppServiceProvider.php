@@ -6,6 +6,7 @@ use App\Auth\Sso\Contracts\OidcAuthenticator;
 use App\Auth\Sso\Facile\FacileOidcAuthenticator;
 use App\Support\MfaCodeNormalizer;
 use App\Support\OperationalHeartbeat;
+use App\Support\RasterImageUpload;
 use App\Support\SafeLogContext;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
@@ -34,6 +35,10 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        if (config('livewire.temporary_file_upload.rules') === null) {
+            config(['livewire.temporary_file_upload.rules' => ['required', 'file', 'max:'.RasterImageUpload::maxSizeKilobytes()]]);
+        }
+
         RateLimiter::for('password-reset', function (Request $request): Limit {
             $email = Str::lower((string) $request->input('email'));
             $key = ($email !== '' ? $email : 'anonymous').'|'.$request->ip();

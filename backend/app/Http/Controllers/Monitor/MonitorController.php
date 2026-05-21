@@ -7,6 +7,7 @@ use App\Http\Requests\Monitor\UpdateMonitorFallbackPageRequest;
 use App\Http\Requests\Monitor\UpdateMonitorRequest;
 use App\Models\Monitor;
 use App\Models\MonitorSlide;
+use App\Support\RasterImageUpload;
 use App\Tasks\WelcomeMonitorAutoGeneration;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
@@ -67,7 +68,7 @@ class MonitorController extends Controller
 
             Log::info('User ID '.auth()->id()." deleted background image for Monitor ID: {$monitor->id}");
         } elseif (! empty($request->file('image'))) {
-            $path = $request->file('image')->store('images', 'public');
+            $path = RasterImageUpload::store($request->file('image'));
 
             if ($imagePath != null) {
                 Storage::disk('public')->delete($imagePath);
@@ -129,7 +130,7 @@ class MonitorController extends Controller
                     Storage::disk('public')->delete($monitor->fallback_image_path);
                 }
 
-                $imagePath = $request->file('image')->store('images', 'public');
+                $imagePath = RasterImageUpload::store($request->file('image'));
             }
 
             if (blank($imagePath)) {

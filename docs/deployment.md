@@ -170,6 +170,17 @@ Produktiv muss `MAIL_MAILER=smtp` mit echten SMTP-Daten gesetzt sein. Teste nach
 php artisan storage:link
 ```
 
+Branding-, Logo- und Monitorbilder sind Anzeige-Assets. Je nach Storage-Disk und `storage:link` koennen hochgeladene Monitorbilder oeffentlich unter `/storage/...` abrufbar sein. Betreiber duerfen dort keine vertraulichen, personenbezogenen oder sensiblen Informationen einbetten. JPEG-, PNG- und WebP-Uploads werden vor dem Speichern serverseitig validiert und von EXIF-/Metadaten bereinigt; SVG ist in den Monitor-Uploadformularen nicht erlaubt.
+
+Die Upload-Grenzen sind bewusst grosszuegig fuer grosse Displays:
+
+```env
+UPLOAD_IMAGE_MAX_SIZE_KB=20480
+UPLOAD_IMAGE_MAX_WIDTH=20000
+UPLOAD_IMAGE_MAX_HEIGHT=20000
+UPLOAD_IMAGE_MAX_PIXELS=150000000
+```
+
 Backups müssen `backend/storage` und die Datenbank enthalten.
 
 ## Retention

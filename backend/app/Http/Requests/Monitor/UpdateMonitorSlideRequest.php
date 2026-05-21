@@ -4,6 +4,7 @@ namespace App\Http\Requests\Monitor;
 
 use App\Models\Monitor;
 use App\Models\MonitorSlide;
+use App\Support\RasterImageUpload;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 
@@ -48,7 +49,7 @@ class UpdateMonitorSlideRequest extends FormRequest
             'show_time' => 'boolean',
             'subheading' => 'string|nullable',
             'background_source' => 'required|in:inherit,preset-1,preset-2,preset-3,upload',
-            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:20000',
+            'image' => RasterImageUpload::rules(),
             'deleteImage' => 'boolean',
         ];
     }
