@@ -1,3 +1,7 @@
+<p align="center">
+  <img width="4677" height="3307" alt="BannerHeroEN" src="https://github.com/user-attachments/assets/45113cb1-c6d5-4b9c-a2f2-9e952686be4e" />
+</p>
+
 # VisitorPortal
 
 [Deutsch](README.de.md)
