@@ -32,3 +32,10 @@ if (config('privacy.purge_enabled')) {
         ->withoutOverlapping()
         ->description('PurgeExpiredVisits');
 }
+
+if (config('privacy.technical_retention.enabled')) {
+    Schedule::command('privacy:purge-technical-data')
+        ->daily()
+        ->name('privacy-purge-technical-data')
+        ->withoutOverlapping();
+}

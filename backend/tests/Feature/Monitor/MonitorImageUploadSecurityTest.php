@@ -104,10 +104,9 @@ class MonitorImageUploadSecurityTest extends TestCase
         Storage::fake('public');
 
         $monitor = $this->monitor();
-        $upload = UploadedFile::fake()->createWithContent(
-            'too-large.jpg',
-            $this->jpegWithExifMetadata().str_repeat('A', (20 * 1024 * 1024) + 1),
-        );
+        $upload = UploadedFile::fake()
+            ->createWithContent('too-large.jpg', $this->jpegWithExifMetadata())
+            ->size(20481);
 
         $response = $this->uploadMonitorImage($monitor, $upload);
 

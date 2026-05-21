@@ -194,14 +194,27 @@ php artisan visits:purge-expired
 
 Der Scheduler führt den Command aus, wenn `PRIVACY_PURGE_ENABLED=true` gesetzt ist.
 
-Technische Daten müssen Betreiber zusätzlich berücksichtigen:
+Technische Datenschutz-Retention läuft zusätzlich über:
 
 ```bash
-php artisan session:prune
-php artisan queue:prune-failed
+php artisan privacy:purge-technical-data --dry-run
+php artisan privacy:purge-technical-data
 ```
 
-Logs und Backups brauchen eigene Aufbewahrungsfristen außerhalb der Anwendung. `DATA_RETENTION_RUN_LOG_DAYS` steuert die Aufbewahrung der Retention-Laufprotokolle.
+Der Scheduler führt diesen Command täglich aus, wenn `PRIVACY_TECHNICAL_RETENTION_ENABLED=true` gesetzt ist. Er bereinigt alte Database-Sessions, `failed_jobs`, `job_batches`, eindeutig abgelaufene Health-Heartbeat-Cache-Zeilen und alte Daily-Logdateien unter `storage/logs`. Die Ausgabe enthält nur Zählwerte und keine Session-, Job- oder Log-Inhalte.
+
+Konfigurierbare technische Retention:
+
+```env
+PRIVACY_TECHNICAL_RETENTION_ENABLED=true
+PRIVACY_SESSION_RETENTION_DAYS=30
+PRIVACY_FAILED_JOB_RETENTION_DAYS=30
+PRIVACY_JOB_BATCH_RETENTION_DAYS=30
+PRIVACY_LOG_RETENTION_DAYS=30
+PRIVACY_HEALTH_CACHE_RETENTION_DAYS=7
+```
+
+Single-Log-Dateien wie `storage/logs/laravel.log` werden nicht blind gelöscht; nutze dafür Logrotation des Host-/Container-Betriebs. Backups, Docker-Volumes und Datenbank-Backups werden durch diesen Command nicht gelöscht. Externe Logsysteme, Reverse-Proxies, Docker-Daemon-Logs, Host-Systemlogs und SIEM-/Monitoring-Systeme brauchen eigene Retention-Regeln. `DATA_RETENTION_RUN_LOG_DAYS` steuert nur die Aufbewahrung der fachlichen Retention-Laufprotokolle.
 
 ## Datenschutzinformation
 
