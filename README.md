@@ -2,6 +2,10 @@
   <img width="2048" height="1024" alt="visitorportal_hero_cropped" src="https://github.com/user-attachments/assets/25e2fa64-5b75-4bda-a036-dff75b8fd519" />
 </p>
 
+REPLACE IMAGGE!!!
+VISITOR-BAGE IS GERMAN!
+
+
 # VisitorPortal
 
 [Deutsch](README.de.md)
