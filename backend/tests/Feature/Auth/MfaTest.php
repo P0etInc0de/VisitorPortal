@@ -199,6 +199,12 @@ class MfaTest extends TestCase
         $this
             ->get(route('security.mfa.recovery-codes'))
             ->assertOk()
+            ->assertSee('pb-2 pt-6 text-center', false)
+            ->assertDontSee('border-b border-base-300/70', false)
+            ->assertDontSee(__('Recovery Codes speichern'))
+            ->assertSee(__('Zwei-Faktor-Authentifizierung wurde aktiviert. Speichere jetzt deine Recovery Codes. Bewahre diese Codes sicher auf!'))
+            ->assertSee(__('Jeder Code kann nur einmal verwendet werden.'))
+            ->assertSee('alert alert-success rounded-2xl', false)
             ->assertSee($recoveryCode)
             ->assertSee(__('Weiter'));
 
