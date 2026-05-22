@@ -165,6 +165,43 @@ class CheckInOutBoardTest extends TestCase
         }
     }
 
+    public function test_checked_out_participants_are_sorted_after_regular_actions(): void
+    {
+        Carbon::setTestNow(Carbon::create(2026, 4, 30, 10, 0, 0, config('app.timezone')));
+
+        try {
+            $user = (new PermissionHelper)->getReceptionistUser();
+            $checkedOutVisitor = Visitor::factory()->create(['first_name' => 'Alice', 'name' => 'Recheck']);
+            $plannedVisitor = Visitor::factory()->create(['first_name' => 'Zoe', 'name' => 'Planned']);
+            $visit = Visit::factory()->create([
+                'title' => 'Shared Training',
+                'user_id' => $user->id,
+                'responsible_user_id' => $user->id,
+                'status' => VisitStatusEnum::Planned->value,
+                'scheduled_from' => now()->copy()->setTime(10, 15),
+                'scheduled_until' => now()->copy()->setTime(11, 0),
+            ]);
+
+            $visit->visitors()->attach($checkedOutVisitor->id, [
+                'checked_in_at' => now()->copy()->setTime(9, 0),
+                'checked_out_at' => now()->copy()->setTime(9, 30),
+                'checked_in_by_user_id' => $user->id,
+                'checked_out_by_user_id' => $user->id,
+            ]);
+            $visit->visitors()->attach($plannedVisitor->id);
+
+            Livewire::actingAs($user)
+                ->test(CheckInOutBoard::class)
+                ->assertSeeInOrder([
+                    'Zoe Planned',
+                    'Alice Recheck',
+                    __('Erneut einchecken'),
+                ]);
+        } finally {
+            Carbon::setTestNow();
+        }
+    }
+
     public function test_ended_visit_only_keeps_active_checked_in_participants_visible_for_checkout(): void
     {
         Carbon::setTestNow(Carbon::create(2026, 4, 30, 10, 0, 0, config('app.timezone')));
@@ -414,7 +451,7 @@ class CheckInOutBoardTest extends TestCase
             ->test(CheckInOutBoard::class)
             ->assertSee(__('Ansprechpartner'))
             ->assertSee('lg:max-h-[calc(100dvh-13.5rem)]', false)
-            ->assertSee('lg:-mr-4 lg:pr-4', false)
+            ->assertSee('lg:-mr-5 lg:pr-5', false)
             ->assertSee('whitespace-nowrap', false)
             ->assertSee(__('Namen suchen'))
             ->assertSee(__('Keine Treffer'))

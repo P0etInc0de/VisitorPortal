@@ -266,6 +266,7 @@ class CheckInOutBoard extends Component
                 return $results->filter(fn (array $result) => $this->participantMatchesSearch($result, $search));
             })
             ->sortBy([
+                ['sort_bucket', 'asc'],
                 ['sort_timestamp', 'asc'],
                 ['display_name', 'asc'],
             ])
@@ -310,6 +311,7 @@ class CheckInOutBoard extends Component
             'email' => $canViewContactDetails ? $visitor->email : null,
             'phone' => $canViewContactDetails ? $visitor->phone : null,
             'scheduled_from_timestamp' => $scheduledFrom?->timestamp ?? PHP_INT_MAX,
+            'sort_bucket' => filled($pivot?->checked_out_at) ? 1 : 0,
             'sort_timestamp' => $this->participantSortTimestamp($visit, $visitor),
             'sort_distance_seconds' => $sortDistanceSeconds,
             'is_past' => $scheduledFrom && $scheduledFrom->lt($referenceNow) ? 1 : 0,

@@ -246,7 +246,7 @@
 
         <div class="lg:sticky lg:top-6 lg:col-span-1">
             <article class="rounded-3xl border border-base-300 bg-base-100 p-6 sm:p-7 shadow-sm">
-                <div class="lg:max-h-[calc(100dvh-13.5rem)] lg:overflow-y-auto lg:overscroll-contain lg:-mr-4 lg:pr-4">
+                <div class="lg:max-h-[calc(100dvh-13.5rem)] lg:overflow-y-auto lg:overscroll-contain lg:-mr-5 lg:pr-5">
                     <div class="mb-4">
                         <h2 class="mb-4 text-xl font-bold text-base-content">{{ __('Walk-in') }}</h2>
                         <p class="mt-1 text-sm text-base-content/70">{{ __('Unangemeldeten Gast schnell anlegen und direkt einchecken.') }}</p>
