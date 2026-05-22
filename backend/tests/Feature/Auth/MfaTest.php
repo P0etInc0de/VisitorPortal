@@ -175,6 +175,8 @@ class MfaTest extends TestCase
         $this
             ->get(route('security.mfa.setup'))
             ->assertOk()
+            ->assertSee('justify-self-center', false)
+            ->assertSee('[&_svg]:max-w-full', false)
             ->assertSee(__('Bitte Scanne den QR-Code mit deiner Authenticator-App, gebe den sechsstelligen Code ein und bestätige.'))
             ->assertSee('name="code"', false)
             ->assertDontSee(__('Authenticator-App vorbereiten'));
@@ -258,6 +260,12 @@ class MfaTest extends TestCase
 
         foreach ($responses as $page => $response) {
             $this->assertMfaResponseHasRobustTotpInput($response, $page);
+        }
+
+        foreach (['Profil-MFA-Setup', 'Pflicht-MFA-Setup'] as $page) {
+            $responses[$page]
+                ->assertSee('justify-self-center', false)
+                ->assertSee('[&_svg]:max-w-full', false);
         }
     }
 

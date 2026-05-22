@@ -18,7 +18,7 @@
             @endif
 
             <section class="grid gap-6 lg:grid-cols-[14rem_1fr] lg:items-start">
-                <div class="rounded-3xl border border-base-300 bg-white p-4 text-gray-900">
+                <div class="max-w-full justify-self-center overflow-hidden rounded-3xl border border-base-300 bg-white p-4 text-gray-900 [&_svg]:h-auto [&_svg]:max-w-full lg:justify-self-stretch">
                     {!! $user->twoFactorQrCodeSvg() !!}
                 </div>
 
