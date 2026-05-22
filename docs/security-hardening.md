@@ -110,3 +110,22 @@ Auto-provisioned SSO users have local password login disabled by default. Passwo
 The default CSP is Livewire/Alpine compatible and therefore allows `unsafe-inline` and `unsafe-eval` for scripts/styles. This is a conscious compatibility trade-off, not a strict CSP profile.
 
 In `APP_ENV=local`, the CSP also allows the Vite dev server at `http://localhost:5173` and `ws://localhost:5173` so local hot reload works. Production does not include these development origins.
+
+## Branding And Monitor Image Uploads
+
+Branding, logo and welcome-monitor image uploads are treated as public display assets, not as a private document store. Depending on the configured storage disk and `php artisan storage:link`, uploaded monitor backgrounds can be publicly reachable under `/storage/...`. Do not upload confidential, personal or otherwise sensitive information as branding, logo or monitor images.
+
+Raster image uploads are validated server-side. The accepted upload MIME types are `image/jpeg`, `image/png` and `image/webp`; SVG is not accepted through the monitor upload forms. The shipped SVG branding files are trusted operator-managed static assets configured by path, not user uploads.
+
+The 20 MB upload limit is intentionally retained for large displays. Additional defensive limits reject pathological dimensions and decompression-bomb style images:
+
+```env
+UPLOAD_IMAGE_MAX_SIZE_KB=20480
+UPLOAD_IMAGE_MAX_WIDTH=20000
+UPLOAD_IMAGE_MAX_HEIGHT=20000
+UPLOAD_IMAGE_MAX_PIXELS=150000000
+```
+
+Width/height and total pixels are both checked. For example, `20000 x 2000` is allowed by the pixel guard, while `20000 x 20000` is rejected because it exceeds `UPLOAD_IMAGE_MAX_PIXELS`.
+
+Uploaded JPEG, PNG and WebP files are normalized before they are stored publicly. EXIF/XMP/text/profile-style metadata chunks are removed where the format supports them, including GPS and camera metadata in JPEG EXIF blocks. The original uploaded file is not stored directly.

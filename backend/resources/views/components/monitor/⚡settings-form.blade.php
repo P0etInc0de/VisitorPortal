@@ -1,6 +1,7 @@
 <?php
 
 use App\Models\Monitor;
+use App\Support\RasterImageUpload;
 use App\Tasks\WelcomeMonitorAutoGeneration;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Support\Facades\Log;
@@ -140,7 +141,7 @@ new class extends Component {
                 Storage::disk('public')->delete($this->existingImagePath);
             }
 
-            $imagePath = $this->image->store('images', 'public');
+            $imagePath = RasterImageUpload::store($this->image);
             $validated['backgroundSource'] = 'upload';
         }
 
@@ -236,7 +237,7 @@ new class extends Component {
             'headerTextIsLight' => ['boolean'],
             'contentCardStyle' => ['required', 'in:solid,transparent,none'],
             'monitorDisplayMode' => ['required', 'in:'.implode(',', Monitor::displayModes())],
-            'image' => ['nullable', 'image', 'mimes:jpeg,jpg,png,webp', 'max:20000'],
+            'image' => RasterImageUpload::rules(),
         ];
     }
 

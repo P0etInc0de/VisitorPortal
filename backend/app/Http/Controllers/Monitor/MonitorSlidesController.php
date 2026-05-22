@@ -9,6 +9,7 @@ use App\Models\Monitor;
 use App\Models\MonitorSlide;
 use App\Models\Visit;
 use App\Models\Visitor;
+use App\Support\RasterImageUpload;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
@@ -239,7 +240,7 @@ class MonitorSlidesController extends Controller
                     Storage::disk('public')->delete($originalImagePath);
                 }
 
-                $imagePath = $request->file('image')->store('images', 'public');
+                $imagePath = RasterImageUpload::store($request->file('image'));
             }
 
             if (blank($imagePath)) {

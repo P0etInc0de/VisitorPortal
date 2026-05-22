@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Monitor;
 
+use App\Support\RasterImageUpload;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 
@@ -30,7 +31,7 @@ class UpdateMonitorFallbackPageRequest extends FormRequest
             'show_logo' => 'boolean',
             'show_date' => 'boolean',
             'background_source' => 'required|in:inherit,preset-1,preset-2,preset-3,upload',
-            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:20000',
+            'image' => RasterImageUpload::rules(),
             'deleteImage' => 'boolean',
         ];
     }
