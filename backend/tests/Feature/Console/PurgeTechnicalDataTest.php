@@ -134,8 +134,8 @@ class PurgeTechnicalDataTest extends TestCase
 
     public function test_old_daily_log_files_are_deleted_and_current_logs_remain(): void
     {
-        $oldDailyLog = $this->writeDailyLog('laravel-2026-04-01.log', 'old daily log content');
-        $currentDailyLog = $this->writeDailyLog('laravel-2026-05-21.log', 'current daily log content', now()->timestamp);
+        $oldDailyLog = $this->writeDailyLog('laravel-2026-04-01.log', 'old daily log content', now()->timestamp);
+        $currentDailyLog = $this->writeDailyLog('laravel-2026-05-21.log', 'current daily log content', now()->subDays(90)->timestamp);
         $singleLog = $this->writeLog('laravel.log', 'single log content', now()->subDays(90)->timestamp);
 
         $exitCode = Artisan::call('privacy:purge-technical-data');
@@ -146,6 +146,20 @@ class PurgeTechnicalDataTest extends TestCase
         $this->assertFileDoesNotExist($oldDailyLog);
         $this->assertFileExists($currentDailyLog);
         $this->assertFileExists($singleLog);
+    }
+
+    public function test_rotated_log_without_date_falls_back_to_mtime(): void
+    {
+        $oldRotatedLog = $this->writeLog('laravel.log.1', 'old rotated log content', now()->subDays(90)->timestamp);
+        $currentRotatedLog = $this->writeLog('laravel.log.2', 'current rotated log content', now()->timestamp);
+
+        $exitCode = Artisan::call('privacy:purge-technical-data');
+        $output = Artisan::output();
+
+        $this->assertSame(Command::SUCCESS, $exitCode);
+        $this->assertStringContainsString('daily_logs: status=checked, matched=1, deleted=1', $output);
+        $this->assertFileDoesNotExist($oldRotatedLog);
+        $this->assertFileExists($currentRotatedLog);
     }
 
     public function test_command_is_idempotent(): void

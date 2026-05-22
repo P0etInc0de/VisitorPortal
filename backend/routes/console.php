@@ -35,7 +35,7 @@ if (config('privacy.purge_enabled')) {
 
 if (config('privacy.technical_retention.enabled')) {
     Schedule::command('privacy:purge-technical-data')
-        ->daily()
+        ->dailyAt('03:45')
         ->name('privacy-purge-technical-data')
         ->withoutOverlapping();
 }

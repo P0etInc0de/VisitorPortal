@@ -63,6 +63,113 @@ class MonitorImageUploadSecurityTest extends TestCase
         $this->assertStringNotContainsString('tEXt', $storedImage);
     }
 
+    public function test_valid_webp_under_20_mb_is_accepted_and_metadata_is_removed(): void
+    {
+        Storage::fake('public');
+
+        $monitor = $this->monitor();
+        $upload = UploadedFile::fake()->createWithContent('monitor.webp', $this->webpImage(includeMetadata: true));
+
+        $response = $this->uploadMonitorImage($monitor, $upload);
+
+        $response->assertRedirect(route('monitors.edit', $monitor));
+        $response->assertSessionHasNoErrors();
+
+        $monitor->refresh();
+
+        $this->assertNotNull($monitor->image_path);
+        $this->assertStringEndsWith('.webp', $monitor->image_path);
+        Storage::disk('public')->assertExists($monitor->image_path);
+
+        $storedImage = Storage::disk('public')->get($monitor->image_path);
+
+        $this->assertStringStartsWith('RIFF', $storedImage);
+        $this->assertStringContainsString('WEBP', $storedImage);
+        $this->assertStringNotContainsString('EXIF', $storedImage);
+        $this->assertStringNotContainsString('WebP metadata GPS=48.137154', $storedImage);
+    }
+
+    public function test_invalid_webp_is_rejected(): void
+    {
+        Storage::fake('public');
+
+        $monitor = $this->monitor();
+        $upload = UploadedFile::fake()->createWithContent('monitor.webp', $this->invalidWebpImage());
+
+        $response = $this->uploadMonitorImage($monitor, $upload);
+
+        $response->assertRedirect(route('monitors.edit', $monitor));
+        $response->assertSessionHasErrors('image');
+
+        $monitor->refresh();
+
+        $this->assertNull($monitor->image_path);
+        $this->assertEmpty(Storage::disk('public')->allFiles('images'));
+    }
+
+    public function test_fallback_page_image_upload_uses_normalized_raster_storage(): void
+    {
+        Storage::fake('public');
+
+        $monitor = $this->monitor();
+        $upload = UploadedFile::fake()->createWithContent('fallback.png', $this->pngImage(1, 1, includeMetadata: true));
+
+        $response = $this
+            ->actingAs($this->monitorUser())
+            ->put(route('monitors.fallback.update', $monitor), [
+                'heading' => 'Welcome to VisitorPortal',
+                'subheading' => 'Bitte melden Sie sich am Empfang.',
+                'show_logo' => '1',
+                'show_date' => '1',
+                'background_source' => 'upload',
+                'image' => $upload,
+            ]);
+
+        $response->assertRedirect(route('monitors.edit', $monitor).'#monitor-pages');
+        $response->assertSessionHasNoErrors();
+
+        $monitor->refresh();
+
+        $this->assertNotNull($monitor->fallback_image_path);
+        $this->assertStringEndsWith('.png', $monitor->fallback_image_path);
+        Storage::disk('public')->assertExists($monitor->fallback_image_path);
+        $this->assertStringNotContainsString('VisitorPortal metadata', Storage::disk('public')->get($monitor->fallback_image_path));
+    }
+
+    public function test_monitor_slide_image_upload_uses_normalized_raster_storage(): void
+    {
+        Storage::fake('public');
+
+        $monitor = $this->monitor();
+        $upload = UploadedFile::fake()->createWithContent('slide.webp', $this->webpImage(includeMetadata: true));
+
+        $response = $this
+            ->actingAs($this->monitorUser())
+            ->post(route('monitors.slides.store', $monitor), [
+                'heading' => 'Herzlich willkommen!',
+                'subheading' => 'Schön, dass Sie da sind!',
+                'slide_number' => 1,
+                'is_active' => '1',
+                'show_logo' => '1',
+                'show_date' => '1',
+                'background_source' => 'upload',
+                'monitor_display_mode' => Monitor::DISPLAY_TITLE_FIRST_INITIAL_LAST_NAME,
+                'visitors' => json_encode([]),
+                'image' => $upload,
+            ]);
+
+        $response->assertRedirect(route('monitors.edit', $monitor).'#monitor-pages');
+        $response->assertSessionHasNoErrors();
+
+        $slide = $monitor->monitorSlides()->sole();
+
+        $this->assertSame('upload', $slide->background_source);
+        $this->assertNotNull($slide->image_path);
+        $this->assertStringEndsWith('.webp', $slide->image_path);
+        Storage::disk('public')->assertExists($slide->image_path);
+        $this->assertStringNotContainsString('WebP metadata GPS=48.137154', Storage::disk('public')->get($slide->image_path));
+    }
+
     public function test_invalid_mime_type_is_rejected(): void
     {
         Storage::fake('public');
@@ -231,5 +338,42 @@ class MonitorImageUploadSecurityTest extends TestCase
     private function pngChunk(string $type, string $data): string
     {
         return pack('N', strlen($data)).$type.$data.pack('N', hexdec(hash('crc32b', $type.$data)));
+    }
+
+    private function webpImage(bool $includeMetadata = false): string
+    {
+        $webp = base64_decode('UklGRiIAAABXRUJQVlA4IBYAAAAwAQCdASoBAAEADsD+JaQAA3AAAAAA', true);
+        $this->assertIsString($webp);
+
+        if (! $includeMetadata) {
+            return $webp;
+        }
+
+        return $this->webpContainer([
+            substr($webp, 12),
+            $this->webpChunk('EXIF', 'WebP metadata GPS=48.137154'),
+        ]);
+    }
+
+    private function invalidWebpImage(): string
+    {
+        return $this->webpContainer([
+            $this->webpChunk('VP8 ', 'invalid-webp-payload'),
+        ]);
+    }
+
+    /**
+     * @param  array<int, string>  $chunks
+     */
+    private function webpContainer(array $chunks): string
+    {
+        $payload = 'WEBP'.implode('', $chunks);
+
+        return 'RIFF'.pack('V', strlen($payload)).$payload;
+    }
+
+    private function webpChunk(string $type, string $data): string
+    {
+        return $type.pack('V', strlen($data)).$data.(strlen($data) % 2 ? "\0" : '');
     }
 }

@@ -260,11 +260,34 @@ class PurgeTechnicalData extends Command
             return false;
         }
 
-        if (! preg_match('/^[A-Za-z0-9_.-]+-\d{4}-\d{2}-\d{2}\.log$/', $file->getFilename())) {
+        if (! preg_match('/^[A-Za-z0-9_.-]+\.log(?:\.\d+)?$|^[A-Za-z0-9_.-]+-\d{4}-\d{2}-\d{2}\.log$/', $file->getFilename())) {
+            return false;
+        }
+
+        $date = $this->dailyLogDateFromFilename($file->getFilename());
+
+        if ($date instanceof Carbon) {
+            return $date->endOfDay()->lessThan($cutoff);
+        }
+
+        if (preg_match('/^[A-Za-z0-9_.-]+\.log$/', $file->getFilename())) {
             return false;
         }
 
         return Carbon::createFromTimestamp($file->getMTime())->lessThan($cutoff);
+    }
+
+    private function dailyLogDateFromFilename(string $filename): ?Carbon
+    {
+        if (! preg_match('/^[A-Za-z0-9_.-]+-(\d{4}-\d{2}-\d{2})\.log$/', $filename, $matches)) {
+            return null;
+        }
+
+        try {
+            return Carbon::createFromFormat('Y-m-d', $matches[1])->startOfDay();
+        } catch (\Throwable) {
+            return null;
+        }
     }
 
     /**
