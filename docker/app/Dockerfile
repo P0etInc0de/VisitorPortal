@@ -51,7 +51,9 @@ FROM node:24-alpine AS assets
 
 WORKDIR /app/backend
 COPY backend/package.json backend/package-lock.json ./
-RUN npm ci --no-audit --no-fund
+# Avoid a BuildKit/npm race where esbuild validates its binary before unpacking is fully settled.
+RUN npm ci --no-audit --no-fund --ignore-scripts \
+    && npm rebuild esbuild --foreground-scripts
 
 COPY --from=vendor /var/www/html/backend/vendor/laravel/framework/src/Illuminate/Pagination/resources/views ./vendor/laravel/framework/src/Illuminate/Pagination/resources/views
 COPY backend/resources ./resources
