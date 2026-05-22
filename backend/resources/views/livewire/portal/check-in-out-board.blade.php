@@ -245,13 +245,13 @@
         </div>
 
         <div class="lg:sticky lg:top-6 lg:col-span-1">
-            <article class="rounded-3xl border border-base-300 bg-base-100 p-6 sm:p-7 shadow-sm lg:flex lg:max-h-[calc(100dvh-10rem)] lg:flex-col">
-                <div class="mb-4 lg:shrink-0">
-                    <h2 class="mb-4 text-xl font-bold text-base-content">{{ __('Walk-in') }}</h2>
-                    <p class="mt-1 text-sm text-base-content/70">{{ __('Unangemeldeten Gast schnell anlegen und direkt einchecken.') }}</p>
-                </div>
+            <article class="rounded-3xl border border-base-300 bg-base-100 p-6 sm:p-7 shadow-sm">
+                <div class="lg:max-h-[calc(100dvh-13.5rem)] lg:overflow-y-auto lg:overscroll-contain lg:-mr-4 lg:pr-4">
+                    <div class="mb-4">
+                        <h2 class="mb-4 text-xl font-bold text-base-content">{{ __('Walk-in') }}</h2>
+                        <p class="mt-1 text-sm text-base-content/70">{{ __('Unangemeldeten Gast schnell anlegen und direkt einchecken.') }}</p>
+                    </div>
 
-                <div class="lg:min-h-0 lg:flex-1 lg:overflow-y-auto lg:overscroll-contain lg:pr-4 lg:mr-2">
                     <form wire:submit.prevent="registerWalkIn" class="flex flex-col gap-4">
                         @if ($walkInContactHint)
                             <p class="rounded-2xl bg-base-200/70 px-4 py-3 text-sm text-base-content/70">{{ $walkInContactHint }}</p>
