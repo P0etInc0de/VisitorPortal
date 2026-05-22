@@ -135,7 +135,7 @@
                 </div>
             </div>
 
-            <div class="space-y-5">
+            <div class="grid gap-6">
                 <label class="form-control">
                     <div class="label px-0 pb-2">
                         <span class="label-text text-sm font-medium text-base-content">
