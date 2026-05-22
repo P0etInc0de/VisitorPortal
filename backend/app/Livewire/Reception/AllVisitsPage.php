@@ -201,7 +201,7 @@ class AllVisitsPage extends Component
             'week' => __('Diese Woche'),
             'next-week' => __('Nächste Woche'),
             'custom' => __('Benutzerdefiniert'),
-            ...($this->canViewArchive() ? ['all' => __('Archiv')] : []),
+            ...($this->canViewArchive() ? ['all' => __('Alle')] : []),
         ];
     }
 
