@@ -266,9 +266,7 @@ class CheckInOutBoard extends Component
                 return $results->filter(fn (array $result) => $this->participantMatchesSearch($result, $search));
             })
             ->sortBy([
-                ['sort_distance_seconds', 'asc'],
-                ['is_past', 'asc'],
-                ['scheduled_from_timestamp', 'asc'],
+                ['sort_timestamp', 'asc'],
                 ['display_name', 'asc'],
             ])
             ->take(20)
@@ -312,6 +310,7 @@ class CheckInOutBoard extends Component
             'email' => $canViewContactDetails ? $visitor->email : null,
             'phone' => $canViewContactDetails ? $visitor->phone : null,
             'scheduled_from_timestamp' => $scheduledFrom?->timestamp ?? PHP_INT_MAX,
+            'sort_timestamp' => $this->participantSortTimestamp($visit, $visitor),
             'sort_distance_seconds' => $sortDistanceSeconds,
             'is_past' => $scheduledFrom && $scheduledFrom->lt($referenceNow) ? 1 : 0,
             'status_label' => $status['label'],
@@ -332,6 +331,25 @@ class CheckInOutBoard extends Component
 
         return $this->visitIsInCheckInWindow($visit, $referenceNow, $windowEnd)
             || (filled($pivot?->checked_in_at) && blank($pivot?->checked_out_at));
+    }
+
+    private function participantSortTimestamp(Visit $visit, Visitor $visitor): int
+    {
+        $pivot = $visitor->pivot;
+        $scheduledFrom = $visit->scheduled_from;
+        $scheduledUntil = $visit->scheduled_until;
+
+        if (
+            filled($pivot?->checked_in_at)
+            && blank($pivot?->checked_out_at)
+            && $scheduledFrom instanceof Carbon
+            && $scheduledUntil instanceof Carbon
+            && $scheduledFrom->isSameDay($scheduledUntil)
+        ) {
+            return $scheduledUntil->timestamp;
+        }
+
+        return $scheduledFrom?->timestamp ?? PHP_INT_MAX;
     }
 
     private function visitIsInCheckInWindow(Visit $visit, Carbon $referenceNow, Carbon $windowEnd): bool

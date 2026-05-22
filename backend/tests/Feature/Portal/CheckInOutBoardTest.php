@@ -110,52 +110,55 @@ class CheckInOutBoardTest extends TestCase
         }
     }
 
-    public function test_check_in_out_board_sorts_results_by_proximity_to_now(): void
+    public function test_check_in_out_board_sorts_planned_by_start_and_checked_in_by_end(): void
     {
         Carbon::setTestNow(Carbon::create(2026, 4, 30, 10, 0, 0, config('app.timezone')));
 
         try {
             $user = (new PermissionHelper)->getReceptionistUser();
 
-            $nearFutureVisitor = Visitor::factory()->create(['first_name' => 'Nora', 'name' => 'Nahe']);
-            $runningVisitor = Visitor::factory()->create(['first_name' => 'Paul', 'name' => 'Laufend']);
-            $farFutureVisitor = Visitor::factory()->create(['first_name' => 'Zoe', 'name' => 'Spaeter']);
+            $plannedSoonVisitor = Visitor::factory()->create(['first_name' => 'Nora', 'name' => 'Nahe']);
+            $checkedInVisitor = Visitor::factory()->create(['first_name' => 'Paul', 'name' => 'Laufend']);
+            $plannedLaterVisitor = Visitor::factory()->create(['first_name' => 'Zoe', 'name' => 'Spaeter']);
 
-            $nearFutureVisit = Visit::factory()->create([
-                'title' => 'Besuch in 1h',
+            $plannedSoonVisit = Visit::factory()->create([
+                'title' => 'Geplanter Besuch 10:15',
                 'user_id' => $user->id,
                 'responsible_user_id' => $user->id,
                 'status' => VisitStatusEnum::Planned->value,
-                'scheduled_from' => now()->copy()->addHour(),
-                'scheduled_until' => now()->copy()->addHours(2),
+                'scheduled_from' => now()->copy()->setTime(10, 15),
+                'scheduled_until' => now()->copy()->setTime(11, 0),
             ]);
-            $runningVisit = Visit::factory()->create([
-                'title' => 'Laufender Besuch',
+            $checkedInVisit = Visit::factory()->create([
+                'title' => 'Eingecheckter Besuch bis 10:30',
                 'user_id' => $user->id,
                 'responsible_user_id' => $user->id,
                 'status' => VisitStatusEnum::Planned->value,
-                'scheduled_from' => now()->copy()->subHours(2),
-                'scheduled_until' => now()->copy()->addMinutes(30),
+                'scheduled_from' => now()->copy()->setTime(8, 0),
+                'scheduled_until' => now()->copy()->setTime(10, 30),
             ]);
-            $farFutureVisit = Visit::factory()->create([
-                'title' => 'Besuch morgen',
+            $plannedLaterVisit = Visit::factory()->create([
+                'title' => 'Geplanter Besuch 11:00',
                 'user_id' => $user->id,
                 'responsible_user_id' => $user->id,
                 'status' => VisitStatusEnum::Planned->value,
-                'scheduled_from' => now()->copy()->addHours(20),
-                'scheduled_until' => now()->copy()->addHours(21),
+                'scheduled_from' => now()->copy()->setTime(11, 0),
+                'scheduled_until' => now()->copy()->setTime(12, 0),
             ]);
 
-            $nearFutureVisit->visitors()->attach($nearFutureVisitor->id);
-            $runningVisit->visitors()->attach($runningVisitor->id);
-            $farFutureVisit->visitors()->attach($farFutureVisitor->id);
+            $plannedSoonVisit->visitors()->attach($plannedSoonVisitor->id);
+            $checkedInVisit->visitors()->attach($checkedInVisitor->id, [
+                'checked_in_at' => now()->copy()->setTime(8, 30),
+                'checked_in_by_user_id' => $user->id,
+            ]);
+            $plannedLaterVisit->visitors()->attach($plannedLaterVisitor->id);
 
             Livewire::actingAs($user)
                 ->test(CheckInOutBoard::class)
                 ->assertSeeInOrder([
-                    'Besuch in 1h',
-                    'Laufender Besuch',
-                    'Besuch morgen',
+                    'Geplanter Besuch 10:15',
+                    'Eingecheckter Besuch bis 10:30',
+                    'Geplanter Besuch 11:00',
                 ]);
         } finally {
             Carbon::setTestNow();
@@ -410,7 +413,8 @@ class CheckInOutBoardTest extends TestCase
         Livewire::actingAs($user)
             ->test(CheckInOutBoard::class)
             ->assertSee(__('Ansprechpartner'))
-            ->assertSee('lg:max-h-[calc(100dvh-8rem)]', false)
+            ->assertSee('lg:max-h-[calc(100dvh-3rem)]', false)
+            ->assertSee('lg:[scrollbar-gutter:stable]', false)
             ->assertSee('whitespace-nowrap', false)
             ->assertSee(__('Namen suchen'))
             ->assertSee(__('Keine Treffer'))
