@@ -269,7 +269,8 @@ class CheckInOutBoardTest extends TestCase
             ->call('checkIn', $visit->id, $visitor->id)
             ->assertSee(__('Eingecheckt'))
             ->assertSee(__('Check-in').':')
-            ->assertSee('26.04.2026 17:00');
+            ->assertSee('26.04.2026 17:00')
+            ->assertDontSee(__('Teilnehmender wurde eingecheckt.'));
 
         $pivot = DB::table('visit_visitor')
             ->where('visit_id', $visit->id)
@@ -307,7 +308,8 @@ class CheckInOutBoardTest extends TestCase
             ->test(CheckInOutBoard::class)
             ->call('checkOut', $visit->id, $visitor->id)
             ->assertSee(__('Ausgecheckt'))
-            ->assertSee(__('Check-out').':');
+            ->assertSee(__('Check-out').':')
+            ->assertDontSee(__('Teilnehmender wurde ausgecheckt.'));
 
         $pivot = DB::table('visit_visitor')
             ->where('visit_id', $visit->id)

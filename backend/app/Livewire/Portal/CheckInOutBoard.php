@@ -61,8 +61,6 @@ class CheckInOutBoard extends Component
         [$visit, $visitor, $user] = $this->resolveActionContext($visitId, $visitorId);
 
         $this->visitActionService()->checkInParticipant($visit, $visitor, $user);
-
-        session()->flash('status', __('Teilnehmender wurde eingecheckt.'));
     }
 
     public function checkOut(int $visitId, int $visitorId): void
@@ -73,8 +71,6 @@ class CheckInOutBoard extends Component
         [$visit, $visitor, $user] = $this->resolveActionContext($visitId, $visitorId);
 
         $this->visitActionService()->checkOutParticipant($visit, $visitor, $user);
-
-        session()->flash('status', __('Teilnehmender wurde ausgecheckt.'));
     }
 
     public function printBadge(int $visitId, int $visitorId): void
