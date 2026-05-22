@@ -117,6 +117,51 @@ class DashboardTest extends TestCase
         }
     }
 
+    public function test_navigation_shows_authenticated_user_full_name(): void
+    {
+        $user = (new PermissionHelper)->getReceptionistUser();
+        $user->forceFill([
+            'first_name' => 'Avery',
+            'name' => 'Stone',
+            'email' => 'avery.stone@example.org',
+        ])->save();
+
+        $this->actingAs($user)
+            ->get(route('overview'))
+            ->assertOk()
+            ->assertSee('Avery Stone');
+    }
+
+    public function test_dashboard_shows_host_full_name_for_upcoming_visits(): void
+    {
+        Carbon::setTestNow(Carbon::create(2026, 4, 30, 11, 2, 0, config('app.timezone')));
+
+        try {
+            $user = (new PermissionHelper)->getReceptionistUser();
+            $user->forceFill([
+                'first_name' => 'Ada',
+                'name' => 'Lovelace',
+            ])->save();
+
+            Visit::factory()->create([
+                'title' => 'Host Full Name Besuch',
+                'user_id' => $user->id,
+                'responsible_user_id' => $user->id,
+                'status' => VisitStatusEnum::Planned->value,
+                'scheduled_from' => now()->copy()->addDay()->setTime(15, 30),
+                'scheduled_until' => now()->copy()->addDay()->setTime(16, 30),
+            ]);
+
+            $this->actingAs($user)
+                ->get(route('overview'))
+                ->assertOk()
+                ->assertSee('Host: Ada Lovelace')
+                ->assertDontSee('Host: Lovelace');
+        } finally {
+            Carbon::setTestNow();
+        }
+    }
+
     public function test_dashboard_formats_next_visit_for_today(): void
     {
         Carbon::setTestNow(Carbon::create(2026, 4, 30, 11, 2, 0, config('app.timezone')));

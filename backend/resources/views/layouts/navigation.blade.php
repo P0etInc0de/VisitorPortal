@@ -8,6 +8,7 @@
     $navBrandLabel = __('Visitor portal');
 
     $user = Auth::user();
+    $userDisplayName = trim((string) ($user?->fullName ?? '')) ?: $user?->email;
 
     $roleNames = collect(method_exists($user, 'getRoleNames') ? $user->getRoleNames() : [__('Mitarbeitende')])
         ->map(fn ($role) => (string) $role)
@@ -274,7 +275,7 @@
 
     <div class="border-t border-base-300/70 px-3 py-3">
         <div class="rounded-2xl border border-base-300/80 bg-base-100/85 px-4 py-4">
-            <div class="font-semibold">{{ $user->name }}</div>
+            <div class="font-semibold">{{ $userDisplayName }}</div>
             <div class="mt-1 text-sm text-base-content/65">{{ $user->email }}</div>
         </div>
 
@@ -368,7 +369,7 @@
 
         <div class="border-t border-base-300 px-4 py-4">
             <div class="rounded-2xl border border-base-300/80 bg-base-100/80 px-4 py-4">
-                <p class="text-sm font-semibold">{{ $user->name }}</p>
+                <p class="text-sm font-semibold">{{ $userDisplayName }}</p>
                 <p class="mt-1 text-sm text-base-content/65">{{ $user->email }}</p>
             </div>
 

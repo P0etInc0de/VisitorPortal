@@ -5,7 +5,9 @@ FROM mcr.microsoft.com/playwright:v1.56.1-noble
 WORKDIR /app/backend
 
 COPY backend/package.json backend/package-lock.json ./
-RUN npm ci --no-audit --no-fund
+# Avoid a BuildKit/npm race where esbuild validates its binary before unpacking is fully settled.
+RUN npm ci --no-audit --no-fund --ignore-scripts \
+    && npm rebuild esbuild --foreground-scripts
 
 COPY backend/playwright.config.ts backend/tsconfig.json ./
 COPY backend/tests/e2e ./tests/e2e

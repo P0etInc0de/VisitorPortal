@@ -28,7 +28,7 @@ class OverviewController extends Controller
 
         $baseQuery = Visit::query()
             ->with([
-                'host:id,name',
+                'host:id,first_name,name',
                 'visitors' => fn ($query) => $query->orderBy('first_name')->orderBy('name'),
             ])
             ->where('user_id', $user->id)
@@ -72,12 +72,14 @@ class OverviewController extends Controller
                 $visibleParticipantCount = $previewNames->count();
                 $remainingParticipantCount = max($visit->participant_count - $visibleParticipantCount, 0);
 
+                $hostName = trim((string) $visit->host?->fullName);
+
                 return [
                     'visit' => $visit,
                     'time' => $visit->scheduled_from?->format('H:i') ?? '–',
                     'date' => $visit->scheduled_from?->format('d.m.') ?? '–',
                     'title' => $visit->display_title,
-                    'host' => $visit->host?->name ?? __('Nicht gesetzt'),
+                    'host' => $hostName !== '' ? $hostName : __('Nicht gesetzt'),
                     'note' => $visit->notes,
                     'participant_preview' => $previewNames,
                     'remaining_participants' => $remainingParticipantCount,
