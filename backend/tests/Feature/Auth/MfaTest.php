@@ -200,6 +200,7 @@ class MfaTest extends TestCase
             ->get(route('security.mfa.recovery-codes'))
             ->assertOk()
             ->assertSee('pb-2 pt-6 text-center', false)
+            ->assertSee('mt-5 border-t border-base-300/70', false)
             ->assertDontSee('border-b border-base-300/70', false)
             ->assertDontSee(__('Recovery Codes speichern'))
             ->assertSee(__('Zwei-Faktor-Authentifizierung wurde aktiviert. Speichere jetzt deine Recovery Codes. Bewahre diese Codes sicher auf!'))

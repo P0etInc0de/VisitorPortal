@@ -2,6 +2,7 @@
     <div class="overflow-hidden rounded-3xl border border-base-300 bg-base-100 shadow-sm">
         <div class="px-7 pb-2 pt-6 text-center sm:px-9">
             <h1 class="text-3xl font-semibold tracking-tight text-base-content">{{ __('Recovery Codes') }}</h1>
+            <div class="mt-5 border-t border-base-300/70"></div>
         </div>
 
         <div class="grid gap-5 p-7 sm:p-9">
