@@ -29,4 +29,14 @@ return [
     'walk_in_confidential_default' => (bool) env('PRIVACY_WALK_IN_CONFIDENTIAL_DEFAULT', true),
     'notice_url' => env('PRIVACY_NOTICE_URL'),
     'run_log_retention_days' => (int) env('DATA_RETENTION_RUN_LOG_DAYS', 1095),
+
+    'technical_retention' => [
+        'enabled' => (bool) env('PRIVACY_TECHNICAL_RETENTION_ENABLED', true),
+        'session_days' => (int) env('PRIVACY_SESSION_RETENTION_DAYS', 30),
+        'failed_job_days' => (int) env('PRIVACY_FAILED_JOB_RETENTION_DAYS', 30),
+        'job_batch_days' => (int) env('PRIVACY_JOB_BATCH_RETENTION_DAYS', 30),
+        'log_days' => (int) env('PRIVACY_LOG_RETENTION_DAYS', 30),
+        'health_cache_days' => (int) env('PRIVACY_HEALTH_CACHE_RETENTION_DAYS', 7),
+        'log_path' => storage_path('logs'),
+    ],
 ];

@@ -5,17 +5,17 @@ Diese Anleitung beschreibt den produktionssicheren Bootstrap ohne Demo-Daten. De
 ## Voraussetzungen
 
 - PHP 8.4 mit `pdo_mysql`, `mbstring`, `intl`, `zip`, `fileinfo`.
-- MariaDB 11.4 als Standarddatenbank. Laravel nutzt dafuer den mysql-kompatiblen `pdo_mysql`-Treiber.
+- MariaDB 11.4 als Standarddatenbank. Laravel nutzt dafür den mysql-kompatiblen `pdo_mysql`-Treiber.
 - Composer für LAMP-Deployments.
-- Node.js 24 fuer LAMP-Deployments, wenn Frontend-Assets auf dem Zielsystem gebaut werden.
+- Node.js 24 für LAMP-Deployments, wenn Frontend-Assets auf dem Zielsystem gebaut werden.
 - Ein SMTP-Server für produktive E-Mails.
-- Gotenberg 8.32 fuer Badge-PDFs.
+- Gotenberg 8.32 für Badge-PDFs.
 - HTTPS vor der Anwendung, typischerweise über Reverse Proxy oder Webserver.
-- Fuer Docker-Deployments: aktuelle Docker Engine oder Docker Desktop mit Docker Compose v2.
+- Für Docker-Deployments: aktuelle Docker Engine oder Docker Desktop mit Docker Compose v2.
 
 ## Production Bootstrap
 
-1. `.env` aus `backend/.env.production.example` ableiten und echte Secrets setzen. Fuer Docker-Deployments liegt diese `.env` im Projektroot neben `docker-compose.prod.yml`; fuer LAMP-Deployments liegt sie als `backend/.env` im Laravel-Verzeichnis.
+1. `.env` aus `backend/.env.production.example` ableiten und echte Secrets setzen. Für Docker-Deployments liegt diese `.env` im Projektroot neben `docker-compose.prod.yml`; für LAMP-Deployments liegt sie als `backend/.env` im Laravel-Verzeichnis.
 2. `APP_KEY` erzeugen und sicher speichern.
 3. Migrationen ausführen.
 4. Rollen und Permissions synchronisieren.
@@ -47,7 +47,7 @@ php artisan visitorportal:install
 
 ## MFA Und Admin-Konten
 
-Produktive Installationen sollten MFA aktiviert lassen. Standardmaessig muessen `admin` und `super_admin` MFA einrichten und bestaetigen, bevor sie das Portal weiter nutzen koennen. Der Filament-Adminbereich prueft bestaetigte MFA zusaetzlich.
+Produktive Installationen sollten MFA aktiviert lassen. Standardmäßig müssen `admin` und `super_admin` MFA einrichten und bestätigen, bevor sie das Portal weiter nutzen können. Der Filament-Adminbereich prüft bestätigte MFA zusätzlich.
 
 Empfohlene produktive Werte:
 
@@ -60,7 +60,7 @@ APP_MFA_REQUIRED_FOR_ADMIN_PANEL_AUTH_METHODS=local,sso
 APP_MFA_SESSION_TTL_MINUTES=720
 ```
 
-`APP_MFA_REQUIRED_FOR_AUTH_METHODS` steuert, nach welchen Login-Arten VisitorPortal fuer diese Rollen lokale App-MFA verlangt. `APP_MFA_REQUIRED_FOR_ADMIN_PANEL_AUTH_METHODS` steuert die zusaetzliche App-MFA-Pflicht beim Zugriff auf das Admin Panel. Der Wert `sso` bedeutet hier, dass VisitorPortal auch nach SSO-Login zusaetzlich lokale App-MFA verlangt, nicht dass MFA nur im externen Identity Provider erwartet wird. `APP_MFA_SESSION_TTL_MINUTES` begrenzt die lokale App-MFA-Bestaetigung innerhalb der laufenden Web-Session; endet die Session frueher, endet auch die App-MFA-Bestaetigung frueher.
+`APP_MFA_REQUIRED_FOR_AUTH_METHODS` steuert, nach welchen Login-Arten VisitorPortal für diese Rollen lokale App-MFA verlangt. `APP_MFA_REQUIRED_FOR_ADMIN_PANEL_AUTH_METHODS` steuert die zusätzliche App-MFA-Pflicht beim Zugriff auf das Admin Panel. Der Wert `sso` bedeutet hier, dass VisitorPortal auch nach SSO-Login zusätzlich lokale App-MFA verlangt, nicht dass MFA nur im externen Identity Provider erwartet wird. `APP_MFA_SESSION_TTL_MINUTES` begrenzt die lokale App-MFA-Bestätigung innerhalb der laufenden Web-Session; endet die Session früher, endet auch die App-MFA-Bestätigung früher.
 
 Wenn ein Benutzer keinen Zugriff mehr auf seine Authenticator-App hat, kann ein Betreiber mit Shell-Zugriff MFA zuruecksetzen:
 
@@ -68,9 +68,9 @@ Wenn ein Benutzer keinen Zugriff mehr auf seine Authenticator-App hat, kann ein 
 php artisan visitorportal:disable-mfa user@example.org
 ```
 
-Der Command fragt standardmaessig nach Bestaetigung. Fuer nicht-interaktive Runbooks kann bewusst `--force` genutzt werden.
+Der Command fragt standardmäßig nach Bestätigung. Für nicht-interaktive Runbooks kann bewusst `--force` genutzt werden.
 
-Fuer produktive Umgebungen werden getrennte persoenliche Konten fuer Alltagsarbeit und Administration empfohlen, z. B. `jane.doe@example.org` und `admin.jane.doe@example.org`.
+Für produktive Umgebungen werden getrennte persönliche Konten für Alltagsarbeit und Administration empfohlen, z. B. `jane.doe@example.org` und `admin.jane.doe@example.org`.
 Recovery Codes sollten direkt nach der Einrichtung sicher gespeichert werden. Die Anzeige im Profil erfordert später einen frischen, zweckgebundenen App-MFA-Step-up mit TOTP; ein Recovery Code reicht nicht aus, um bestehende Codes anzuzeigen. Die Regeneration akzeptiert TOTP oder einen Recovery Code als Recovery-Szenario. SSO-only Benutzer benötigen dafür keine lokale Passwortbestätigung.
 
 ## LAMP Deployment
@@ -121,7 +121,7 @@ Produktiv muss ein Queue Worker laufen, weil Benachrichtigungen und geplante Auf
 php artisan queue:work --sleep=3 --tries=3 --timeout=120 --max-time=3600 --max-jobs=1000 --memory=128
 ```
 
-Setze `DB_QUEUE_RETRY_AFTER=180`. Der Retry-After-Wert muss groesser als der Worker-Timeout sein.
+Setze `DB_QUEUE_RETRY_AFTER=180`. Der Retry-After-Wert muss größer als der Worker-Timeout sein.
 
 ## Scheduler
 
@@ -162,7 +162,7 @@ Produktiv muss `MAIL_MAILER=smtp` mit echten SMTP-Daten gesetzt sein. Teste nach
 
 ## Gotenberg
 
-`GOTENBERG_URL` muss fuer Badge-PDFs erreichbar sein. In Docker ist der Default `http://gotenberg:3000` und die Compose-Dateien verwenden Gotenberg 8.32.
+`GOTENBERG_URL` muss für Badge-PDFs erreichbar sein. In Docker ist der Default `http://gotenberg:3000` und die Compose-Dateien verwenden Gotenberg 8.32.
 
 ## Storage Und Uploads
 
@@ -170,9 +170,9 @@ Produktiv muss `MAIL_MAILER=smtp` mit echten SMTP-Daten gesetzt sein. Teste nach
 php artisan storage:link
 ```
 
-Branding-, Logo- und Monitorbilder sind Anzeige-Assets. Je nach Storage-Disk und `storage:link` koennen hochgeladene Monitorbilder oeffentlich unter `/storage/...` abrufbar sein. Betreiber duerfen dort keine vertraulichen, personenbezogenen oder sensiblen Informationen einbetten. JPEG-, PNG- und WebP-Uploads werden vor dem Speichern serverseitig validiert und von EXIF-/Metadaten bereinigt; SVG ist in den Monitor-Uploadformularen nicht erlaubt.
+Branding-, Logo- und Monitorbilder sind Anzeige-Assets. Je nach Storage-Disk und `storage:link` können hochgeladene Monitorbilder öffentlich unter `/storage/...` abrufbar sein. Betreiber dürfen dort keine vertraulichen, personenbezogenen oder sensiblen Informationen einbetten. JPEG-, PNG- und WebP-Uploads werden vor dem Speichern serverseitig validiert und von EXIF-/Metadaten bereinigt; SVG ist in den Monitor-Uploadformularen nicht erlaubt.
 
-Die Upload-Grenzen sind bewusst grosszuegig fuer grosse Displays:
+Die Upload-Grenzen sind bewusst großzügig für große Displays:
 
 ```env
 UPLOAD_IMAGE_MAX_SIZE_KB=20480
@@ -194,14 +194,27 @@ php artisan visits:purge-expired
 
 Der Scheduler führt den Command aus, wenn `PRIVACY_PURGE_ENABLED=true` gesetzt ist.
 
-Technische Daten müssen Betreiber zusätzlich berücksichtigen:
+Technische Datenschutz-Retention läuft zusätzlich über:
 
 ```bash
-php artisan session:prune
-php artisan queue:prune-failed
+php artisan privacy:purge-technical-data --dry-run
+php artisan privacy:purge-technical-data
 ```
 
-Logs und Backups brauchen eigene Aufbewahrungsfristen außerhalb der Anwendung. `DATA_RETENTION_RUN_LOG_DAYS` steuert die Aufbewahrung der Retention-Laufprotokolle.
+Der Scheduler führt diesen Command täglich aus, wenn `PRIVACY_TECHNICAL_RETENTION_ENABLED=true` gesetzt ist. Er bereinigt alte Database-Sessions, `failed_jobs`, `job_batches`, eindeutig abgelaufene Health-Heartbeat-Cache-Zeilen und alte Daily-Logdateien unter `storage/logs`. Er bereinigt keine externen Logs. Die Ausgabe enthält nur Zählwerte und keine Session-, Job- oder Log-Inhalte.
+
+Konfigurierbare technische Retention:
+
+```env
+PRIVACY_TECHNICAL_RETENTION_ENABLED=true
+PRIVACY_SESSION_RETENTION_DAYS=30
+PRIVACY_FAILED_JOB_RETENTION_DAYS=30
+PRIVACY_JOB_BATCH_RETENTION_DAYS=30
+PRIVACY_LOG_RETENTION_DAYS=30
+PRIVACY_HEALTH_CACHE_RETENTION_DAYS=7
+```
+
+Single-Log-Dateien wie `storage/logs/laravel.log` werden nicht blind gelöscht; nutze dafür Logrotation des Host-/Container-Betriebs. Backups, Docker-Volumes und Datenbank-Backups werden durch diesen Command nicht gelöscht. Externe Logsysteme, Reverse-Proxies, Docker-Daemon-Logs, Host-Systemlogs und SIEM-/Monitoring-Systeme brauchen eigene Retention-Regeln. `DATA_RETENTION_RUN_LOG_DAYS` steuert nur die Aufbewahrung der fachlichen Retention-Laufprotokolle.
 
 ## Datenschutzinformation
 
@@ -238,7 +251,7 @@ php artisan up
 - `SESSION_ENCRYPT=true`
 - `TRUSTED_PROXIES` korrekt gesetzt
 - SMTP produktiv konfiguriert
-- MFA fuer privilegierte Rollen aktiv
+- MFA für privilegierte Rollen aktiv
 - Recovery Codes sicher gespeichert
 - MFA-Reset-Prozess bekannt und auf Betreiber beschraenkt
 - Queue Worker aktiv

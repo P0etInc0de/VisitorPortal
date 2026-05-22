@@ -386,6 +386,7 @@ final class RasterImageUpload
             $chunkData = substr($content, $chunkDataStart, $chunkLength);
 
             if (in_array($chunkType, ['VP8 ', 'VP8L', 'ANMF'], true)) {
+                self::ensureValidWebpImageChunk($chunkType, $chunkData);
                 $seenImageChunk = true;
             }
 
@@ -410,6 +411,20 @@ final class RasterImageUpload
     private static function readUInt16BigEndian(string $content, int $offset): int
     {
         return unpack('n', substr($content, $offset, 2))[1];
+    }
+
+    private static function ensureValidWebpImageChunk(string $chunkType, string $chunkData): void
+    {
+        $isValid = match ($chunkType) {
+            'VP8 ' => strlen($chunkData) >= 10 && substr($chunkData, 3, 3) === "\x9D\x01\x2A",
+            'VP8L' => strlen($chunkData) >= 5 && $chunkData[0] === "\x2F",
+            'ANMF' => strlen($chunkData) >= 16,
+            default => false,
+        };
+
+        if (! $isValid) {
+            throw new InvalidArgumentException(__('Die hochgeladene Datei ist kein gültiges Bild.'));
+        }
     }
 
     private static function readUInt32BigEndian(string $content, int $offset): int
