@@ -40,6 +40,7 @@ test.describe('MFA code input', () => {
 
                 await page.goto('/security/mfa/challenge');
                 await validateTotpInput(page, 'App-MFA-Challenge', theme);
+                await validateRecoveryDisclosure(page, 'App-MFA-Challenge');
 
                 await page.goto('/security/step-up/recovery-codes:view');
                 await validateTotpInput(page, 'Recovery-Code-Step-up', theme);
@@ -48,6 +49,7 @@ test.describe('MFA code input', () => {
                 await applyPreferences(context, theme);
                 await login(page, fixtureUsers.loginChallenge);
                 await validateTotpInput(page, 'Login-MFA-Challenge', theme);
+                await validateRecoveryDisclosure(page, 'Login-MFA-Challenge');
                 await submitGroupedCode(page);
 
                 await context.clearCookies();
@@ -112,6 +114,23 @@ async function validateTotpInput(page: Page, label: string, theme: Theme): Promi
     expect(styles.color, `${label} code input has visible text color`).not.toBe('rgba(0, 0, 0, 0)');
 
     return input;
+}
+
+async function validateRecoveryDisclosure(page: Page, label: string): Promise<void> {
+    const toggle = page.getByTestId('mfa-recovery-toggle').first();
+    const input = page.locator('input[name="recovery_code"]').first();
+    const recoveryCode = 'abcdEF1234-ZYX987wvuT';
+
+    await expect(toggle, `${label} recovery toggle is visible`).toBeVisible();
+    await expect(input, `${label} recovery input is hidden before click`).toBeHidden();
+
+    await toggle.click();
+
+    await expect(input, `${label} recovery input is visible after click`).toBeVisible();
+    await expect(input, `${label} recovery input is enabled after click`).toBeEnabled();
+    await input.fill(recoveryCode);
+    await expect(input, `${label} recovery input can be filled`).toHaveValue(recoveryCode);
+    await input.fill('');
 }
 
 async function submitGroupedCode(page: Page): Promise<void> {
