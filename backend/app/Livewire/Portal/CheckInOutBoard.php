@@ -60,6 +60,10 @@ class CheckInOutBoard extends Component
 
         [$visit, $visitor, $user] = $this->resolveActionContext($visitId, $visitorId);
 
+        if (! $this->visitIsInCheckInWindow($visit, now(), now()->copy()->addHours(48))) {
+            return;
+        }
+
         $this->visitActionService()->checkInParticipant($visit, $visitor, $user);
     }
 
@@ -202,7 +206,6 @@ class CheckInOutBoard extends Component
     {
         $actor = $this->actor();
         $canViewContactDetails = $actor->can('ViewContactDetails:Visitor');
-        $todayStart = now()->startOfDay();
         $windowEnd = now()->copy()->addHours(48);
         $referenceNow = now();
         $search = trim($this->search);
@@ -218,8 +221,15 @@ class CheckInOutBoard extends Component
                 'responsibleUser:id,first_name,name',
                 'visitors' => fn ($query) => $query->orderBy('first_name')->orderBy('name'),
             ])
-            ->where('status', '!=', VisitStatusEnum::Canceled->value)
-            ->whereBetween('scheduled_from', [$todayStart, $windowEnd])
+            ->where('status', VisitStatusEnum::Planned->value)
+            ->where('scheduled_from', '<=', $windowEnd)
+            ->where(function ($query) use ($referenceNow): void {
+                $query->where('scheduled_until', '>=', $referenceNow)
+                    ->orWhereHas('visitors', function ($query): void {
+                        $query->whereNotNull('visit_visitor.checked_in_at')
+                            ->whereNull('visit_visitor.checked_out_at');
+                    });
+            })
             ->when($search !== '', function ($query) use ($search, $canViewContactDetails) {
                 $query->where(function ($query) use ($search, $canViewContactDetails) {
                     $query->where('title', 'like', '%'.$search.'%')
@@ -247,16 +257,17 @@ class CheckInOutBoard extends Component
             ->get();
 
         return $visits
-            ->flatMap(function (Visit $visit) use ($referenceNow, $canViewContactDetails) {
-                return $visit->visitors->map(fn (Visitor $visitor) => $this->mapParticipantResult($visit, $visitor, $referenceNow, $canViewContactDetails));
+            ->flatMap(function (Visit $visit) use ($referenceNow, $windowEnd, $canViewContactDetails) {
+                return $visit->visitors
+                    ->filter(fn (Visitor $visitor) => $this->participantShouldBeListed($visit, $visitor, $referenceNow, $windowEnd))
+                    ->map(fn (Visitor $visitor) => $this->mapParticipantResult($visit, $visitor, $referenceNow, $canViewContactDetails));
             })
             ->when($search !== '', function (Collection $results) use ($search) {
                 return $results->filter(fn (array $result) => $this->participantMatchesSearch($result, $search));
             })
             ->sortBy([
-                ['sort_distance_seconds', 'asc'],
-                ['is_past', 'asc'],
-                ['scheduled_from_timestamp', 'asc'],
+                ['sort_bucket', 'asc'],
+                ['sort_timestamp', 'asc'],
                 ['display_name', 'asc'],
             ])
             ->take(20)
@@ -271,6 +282,7 @@ class CheckInOutBoard extends Component
         $pivot = $visit->visitors->firstWhere('id', $visitor->id)?->pivot;
         $status = $this->resolveParticipantStatus((string) $visit->status, $pivot);
         $canOperate = $this->visitActionService()->canOperate($visit);
+        $canCheckIn = $canOperate && $this->visitIsInCheckInWindow($visit, $referenceNow, $referenceNow->copy()->addHours(48));
         $displayName = trim(implode(' ', array_filter([
             $visitor->title,
             $visitor->first_name,
@@ -299,6 +311,8 @@ class CheckInOutBoard extends Component
             'email' => $canViewContactDetails ? $visitor->email : null,
             'phone' => $canViewContactDetails ? $visitor->phone : null,
             'scheduled_from_timestamp' => $scheduledFrom?->timestamp ?? PHP_INT_MAX,
+            'sort_bucket' => filled($pivot?->checked_out_at) ? 1 : 0,
+            'sort_timestamp' => $this->participantSortTimestamp($visit, $visitor),
             'sort_distance_seconds' => $sortDistanceSeconds,
             'is_past' => $scheduledFrom && $scheduledFrom->lt($referenceNow) ? 1 : 0,
             'status_label' => $status['label'],
@@ -307,10 +321,45 @@ class CheckInOutBoard extends Component
             'checked_out_label' => $this->formatActionTimestamp($pivot?->checked_out_at),
             'badge_ready' => filled($pivot?->badge_printed_at),
             'can_print_badge' => $canOperate,
-            'can_check_in' => $canOperate && (blank($pivot?->checked_in_at) || filled($pivot?->checked_out_at)),
+            'can_check_in' => $canCheckIn && (blank($pivot?->checked_in_at) || filled($pivot?->checked_out_at)),
             'check_in_label' => filled($pivot?->checked_out_at) ? __('Erneut einchecken') : __('Check-in'),
             'can_check_out' => $canOperate && filled($pivot?->checked_in_at) && blank($pivot?->checked_out_at),
         ];
+    }
+
+    private function participantShouldBeListed(Visit $visit, Visitor $visitor, Carbon $referenceNow, Carbon $windowEnd): bool
+    {
+        $pivot = $visitor->pivot;
+
+        return $this->visitIsInCheckInWindow($visit, $referenceNow, $windowEnd)
+            || (filled($pivot?->checked_in_at) && blank($pivot?->checked_out_at));
+    }
+
+    private function participantSortTimestamp(Visit $visit, Visitor $visitor): int
+    {
+        $pivot = $visitor->pivot;
+        $scheduledFrom = $visit->scheduled_from;
+        $scheduledUntil = $visit->scheduled_until;
+
+        if (
+            filled($pivot?->checked_in_at)
+            && blank($pivot?->checked_out_at)
+            && $scheduledFrom instanceof Carbon
+            && $scheduledUntil instanceof Carbon
+            && $scheduledFrom->isSameDay($scheduledUntil)
+        ) {
+            return $scheduledUntil->timestamp;
+        }
+
+        return $scheduledFrom?->timestamp ?? PHP_INT_MAX;
+    }
+
+    private function visitIsInCheckInWindow(Visit $visit, Carbon $referenceNow, Carbon $windowEnd): bool
+    {
+        return $visit->scheduled_from instanceof Carbon
+            && $visit->scheduled_until instanceof Carbon
+            && $visit->scheduled_from->lte($windowEnd)
+            && $visit->scheduled_until->gte($referenceNow);
     }
 
     private function participantMatchesSearch(array $result, string $search): bool

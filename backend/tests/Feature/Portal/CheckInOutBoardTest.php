@@ -19,7 +19,7 @@ class CheckInOutBoardTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_check_in_out_board_shows_only_today_and_next_48_hours(): void
+    public function test_check_in_out_board_shows_only_visits_check_in_window_and_next_48_hours(): void
     {
         Carbon::setTestNow(Carbon::create(2026, 4, 30, 10, 0, 0, config('app.timezone')));
 
@@ -33,6 +33,10 @@ class CheckInOutBoardTest extends TestCase
             $todayVisitor = Visitor::factory()->create([
                 'first_name' => 'Tina',
                 'name' => 'Today',
+            ]);
+            $endedTodayVisitor = Visitor::factory()->create([
+                'first_name' => 'Edgar',
+                'name' => 'Ended',
             ]);
             $futureVisitor = Visitor::factory()->create([
                 'first_name' => 'Fiona',
@@ -59,6 +63,14 @@ class CheckInOutBoardTest extends TestCase
                 'scheduled_from' => now()->copy()->setTime(12, 0),
                 'scheduled_until' => now()->copy()->setTime(13, 0),
             ]);
+            $endedTodayVisit = Visit::factory()->create([
+                'title' => 'Beendeter Besuch heute',
+                'user_id' => $user->id,
+                'responsible_user_id' => $user->id,
+                'status' => VisitStatusEnum::Planned->value,
+                'scheduled_from' => now()->copy()->setTime(8, 0),
+                'scheduled_until' => now()->copy()->setTime(9, 0),
+            ]);
             $futureVisit = Visit::factory()->create([
                 'title' => 'Baldiger Besuch',
                 'user_id' => $user->id,
@@ -78,6 +90,7 @@ class CheckInOutBoardTest extends TestCase
 
             $yesterdayVisit->visitors()->attach($yesterdayVisitor->id);
             $todayVisit->visitors()->attach($todayVisitor->id);
+            $endedTodayVisit->visitors()->attach($endedTodayVisitor->id);
             $futureVisit->visitors()->attach($futureVisitor->id);
             $tooFarVisit->visitors()->attach($tooFarVisitor->id);
 
@@ -87,61 +100,166 @@ class CheckInOutBoardTest extends TestCase
                 ->assertSee('Heutiger Besuch')
                 ->assertSee('Baldiger Besuch')
                 ->assertDontSee('Vergangener Besuch')
+                ->assertDontSee('Beendeter Besuch heute')
                 ->assertDontSee('Zu ferner Besuch')
                 ->assertDontSee('Yara Yesterday')
+                ->assertDontSee('Edgar Ended')
                 ->assertDontSee('Farah TooFar');
         } finally {
             Carbon::setTestNow();
         }
     }
 
-    public function test_check_in_out_board_sorts_results_by_proximity_to_now(): void
+    public function test_check_in_out_board_sorts_planned_by_start_and_checked_in_by_end(): void
     {
         Carbon::setTestNow(Carbon::create(2026, 4, 30, 10, 0, 0, config('app.timezone')));
 
         try {
             $user = (new PermissionHelper)->getReceptionistUser();
 
-            $nearFutureVisitor = Visitor::factory()->create(['first_name' => 'Nora', 'name' => 'Nahe']);
-            $recentPastVisitor = Visitor::factory()->create(['first_name' => 'Paul', 'name' => 'Vorbei']);
-            $farFutureVisitor = Visitor::factory()->create(['first_name' => 'Zoe', 'name' => 'Spaeter']);
+            $plannedSoonVisitor = Visitor::factory()->create(['first_name' => 'Nora', 'name' => 'Nahe']);
+            $checkedInVisitor = Visitor::factory()->create(['first_name' => 'Paul', 'name' => 'Laufend']);
+            $plannedLaterVisitor = Visitor::factory()->create(['first_name' => 'Zoe', 'name' => 'Spaeter']);
 
-            $nearFutureVisit = Visit::factory()->create([
-                'title' => 'Besuch in 1h',
+            $plannedSoonVisit = Visit::factory()->create([
+                'title' => 'Geplanter Besuch 10:15',
                 'user_id' => $user->id,
                 'responsible_user_id' => $user->id,
                 'status' => VisitStatusEnum::Planned->value,
-                'scheduled_from' => now()->copy()->addHour(),
-                'scheduled_until' => now()->copy()->addHours(2),
+                'scheduled_from' => now()->copy()->setTime(10, 15),
+                'scheduled_until' => now()->copy()->setTime(11, 0),
             ]);
-            $recentPastVisit = Visit::factory()->create([
-                'title' => 'Besuch vor 2h',
+            $checkedInVisit = Visit::factory()->create([
+                'title' => 'Eingecheckter Besuch bis 10:30',
                 'user_id' => $user->id,
                 'responsible_user_id' => $user->id,
                 'status' => VisitStatusEnum::Planned->value,
-                'scheduled_from' => now()->copy()->subHours(2),
-                'scheduled_until' => now()->copy()->subHour(),
+                'scheduled_from' => now()->copy()->setTime(8, 0),
+                'scheduled_until' => now()->copy()->setTime(10, 30),
             ]);
-            $farFutureVisit = Visit::factory()->create([
-                'title' => 'Besuch morgen',
+            $plannedLaterVisit = Visit::factory()->create([
+                'title' => 'Geplanter Besuch 11:00',
                 'user_id' => $user->id,
                 'responsible_user_id' => $user->id,
                 'status' => VisitStatusEnum::Planned->value,
-                'scheduled_from' => now()->copy()->addHours(20),
-                'scheduled_until' => now()->copy()->addHours(21),
+                'scheduled_from' => now()->copy()->setTime(11, 0),
+                'scheduled_until' => now()->copy()->setTime(12, 0),
             ]);
 
-            $nearFutureVisit->visitors()->attach($nearFutureVisitor->id);
-            $recentPastVisit->visitors()->attach($recentPastVisitor->id);
-            $farFutureVisit->visitors()->attach($farFutureVisitor->id);
+            $plannedSoonVisit->visitors()->attach($plannedSoonVisitor->id);
+            $checkedInVisit->visitors()->attach($checkedInVisitor->id, [
+                'checked_in_at' => now()->copy()->setTime(8, 30),
+                'checked_in_by_user_id' => $user->id,
+            ]);
+            $plannedLaterVisit->visitors()->attach($plannedLaterVisitor->id);
 
             Livewire::actingAs($user)
                 ->test(CheckInOutBoard::class)
                 ->assertSeeInOrder([
-                    'Besuch in 1h',
-                    'Besuch vor 2h',
-                    'Besuch morgen',
+                    'Geplanter Besuch 10:15',
+                    'Eingecheckter Besuch bis 10:30',
+                    'Geplanter Besuch 11:00',
                 ]);
+        } finally {
+            Carbon::setTestNow();
+        }
+    }
+
+    public function test_checked_out_participants_are_sorted_after_regular_actions(): void
+    {
+        Carbon::setTestNow(Carbon::create(2026, 4, 30, 10, 0, 0, config('app.timezone')));
+
+        try {
+            $user = (new PermissionHelper)->getReceptionistUser();
+            $checkedOutVisitor = Visitor::factory()->create(['first_name' => 'Alice', 'name' => 'Recheck']);
+            $plannedVisitor = Visitor::factory()->create(['first_name' => 'Zoe', 'name' => 'Planned']);
+            $visit = Visit::factory()->create([
+                'title' => 'Shared Training',
+                'user_id' => $user->id,
+                'responsible_user_id' => $user->id,
+                'status' => VisitStatusEnum::Planned->value,
+                'scheduled_from' => now()->copy()->setTime(10, 15),
+                'scheduled_until' => now()->copy()->setTime(11, 0),
+            ]);
+
+            $visit->visitors()->attach($checkedOutVisitor->id, [
+                'checked_in_at' => now()->copy()->setTime(9, 0),
+                'checked_out_at' => now()->copy()->setTime(9, 30),
+                'checked_in_by_user_id' => $user->id,
+                'checked_out_by_user_id' => $user->id,
+            ]);
+            $visit->visitors()->attach($plannedVisitor->id);
+
+            Livewire::actingAs($user)
+                ->test(CheckInOutBoard::class)
+                ->assertSeeInOrder([
+                    'Zoe Planned',
+                    'Alice Recheck',
+                    __('Erneut einchecken'),
+                ]);
+        } finally {
+            Carbon::setTestNow();
+        }
+    }
+
+    public function test_ended_visit_only_keeps_active_checked_in_participants_visible_for_checkout(): void
+    {
+        Carbon::setTestNow(Carbon::create(2026, 4, 30, 10, 0, 0, config('app.timezone')));
+
+        try {
+            $user = (new PermissionHelper)->getReceptionistUser();
+            $activeVisitor = Visitor::factory()->create(['first_name' => 'Ava', 'name' => 'Active']);
+            $noShowVisitor = Visitor::factory()->create(['first_name' => 'Nina', 'name' => 'NoShow']);
+            $visit = Visit::factory()->create([
+                'title' => 'Ended With Active Checkout',
+                'user_id' => $user->id,
+                'responsible_user_id' => $user->id,
+                'status' => VisitStatusEnum::Planned->value,
+                'scheduled_from' => now()->copy()->subHours(3),
+                'scheduled_until' => now()->copy()->subHour(),
+            ]);
+
+            $visit->visitors()->attach($activeVisitor->id, [
+                'checked_in_at' => now()->copy()->subHours(2),
+                'checked_in_by_user_id' => $user->id,
+            ]);
+            $visit->visitors()->attach($noShowVisitor->id);
+
+            Livewire::actingAs($user)
+                ->test(CheckInOutBoard::class)
+                ->assertSee('Ava Active')
+                ->assertSee(__('Check-out'))
+                ->assertDontSee('Nina NoShow');
+        } finally {
+            Carbon::setTestNow();
+        }
+    }
+
+    public function test_check_in_is_ignored_after_visit_window_ended(): void
+    {
+        Carbon::setTestNow(Carbon::create(2026, 4, 30, 10, 0, 0, config('app.timezone')));
+
+        try {
+            $user = (new PermissionHelper)->getReceptionistUser();
+            $visitor = Visitor::factory()->create();
+            $visit = Visit::factory()->create([
+                'user_id' => $user->id,
+                'responsible_user_id' => $user->id,
+                'status' => VisitStatusEnum::Planned->value,
+                'scheduled_from' => now()->copy()->subHours(3),
+                'scheduled_until' => now()->copy()->subHour(),
+            ]);
+            $visit->visitors()->attach($visitor->id);
+
+            Livewire::actingAs($user)
+                ->test(CheckInOutBoard::class)
+                ->call('checkIn', $visit->id, $visitor->id);
+
+            $this->assertDatabaseHas('visit_visitor', [
+                'visit_id' => $visit->id,
+                'visitor_id' => $visitor->id,
+                'checked_in_at' => null,
+            ]);
         } finally {
             Carbon::setTestNow();
         }
@@ -332,6 +450,9 @@ class CheckInOutBoardTest extends TestCase
         Livewire::actingAs($user)
             ->test(CheckInOutBoard::class)
             ->assertSee(__('Ansprechpartner'))
+            ->assertSee('lg:max-h-[calc(100dvh-13.5rem)]', false)
+            ->assertSee('lg:-mr-5 lg:pr-5', false)
+            ->assertSee('whitespace-nowrap', false)
             ->assertSee(__('Namen suchen'))
             ->assertSee(__('Keine Treffer'))
             ->assertDontSeeHtml('<select class="select select-bordered w-full');
