@@ -53,7 +53,7 @@ class ExtractTranslations extends Command
 
             $content = @file_get_contents($path);
 
-            // Rexex such nach: __( und beliebigem Text in Anführungszeichen
+            // Match translation calls with quoted string literals.
             preg_match_all("/__\\(\s*['\"](.*?)['\"]/", $content, $matches);
 
             foreach ($matches[1] as $key) {
