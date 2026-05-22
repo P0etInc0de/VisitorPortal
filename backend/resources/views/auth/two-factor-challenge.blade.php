@@ -29,7 +29,13 @@
 
                 <div class="mt-3">
                     <x-input-label for="recovery_code" :value="__('Recovery Code')" />
-                    <x-text-input id="recovery_code" class="mt-1 w-full" type="text" name="recovery_code" autocomplete="one-time-code" />
+                    <input
+                        id="recovery_code"
+                        class="mt-1 block h-12 w-full rounded-xl border border-base-300 bg-base-100 px-4 text-base-content shadow-sm placeholder:text-base-content/40 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+                        type="text"
+                        name="recovery_code"
+                        autocomplete="one-time-code"
+                    >
                     <x-input-error :messages="$errors->get('recovery_code')" class="mt-2" />
                 </div>
             </details>

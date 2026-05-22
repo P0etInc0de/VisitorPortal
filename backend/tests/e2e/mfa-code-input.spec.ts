@@ -118,6 +118,7 @@ async function validateTotpInput(page: Page, label: string, theme: Theme): Promi
 
 async function validateRecoveryDisclosure(page: Page, label: string): Promise<void> {
     const toggle = page.getByTestId('mfa-recovery-toggle').first();
+    const codeInput = page.locator('input[name="code"]').first();
     const input = page.locator('input[name="recovery_code"]').first();
     const recoveryCode = 'abcdEF1234-ZYX987wvuT';
 
@@ -128,9 +129,48 @@ async function validateRecoveryDisclosure(page: Page, label: string): Promise<vo
 
     await expect(input, `${label} recovery input is visible after click`).toBeVisible();
     await expect(input, `${label} recovery input is enabled after click`).toBeEnabled();
+    await expectInputVisualMatch(page, codeInput, input, label);
     await input.fill(recoveryCode);
     await expect(input, `${label} recovery input can be filled`).toHaveValue(recoveryCode);
     await input.fill('');
+}
+
+async function expectInputVisualMatch(page: Page, expected: Locator, actual: Locator, label: string): Promise<void> {
+    const styles = await page.evaluate(() => {
+        const code = document.querySelector<HTMLInputElement>('input[name="code"]');
+        const recovery = document.querySelector<HTMLInputElement>('input[name="recovery_code"]');
+
+        if (! code || ! recovery) {
+            throw new Error('Code inputs not found for visual comparison');
+        }
+
+        const relevantStyles = (element: HTMLInputElement) => {
+            const computed = window.getComputedStyle(element);
+            const bounds = element.getBoundingClientRect();
+
+            return {
+                backgroundColor: computed.backgroundColor,
+                borderColor: computed.borderTopColor,
+                borderRadius: computed.borderTopLeftRadius,
+                borderWidth: computed.borderTopWidth,
+                boxShadow: computed.boxShadow,
+                color: computed.color,
+                height: Math.round(bounds.height),
+                paddingLeft: computed.paddingLeft,
+                paddingRight: computed.paddingRight,
+                width: Math.round(bounds.width),
+            };
+        };
+
+        return {
+            code: relevantStyles(code),
+            recovery: relevantStyles(recovery),
+        };
+    });
+
+    await expect(expected, `${label} authenticator input visible for style comparison`).toBeVisible();
+    await expect(actual, `${label} recovery input visible for style comparison`).toBeVisible();
+    expect(styles.recovery, `${label} recovery input matches authenticator input visuals`).toEqual(styles.code);
 }
 
 async function submitGroupedCode(page: Page): Promise<void> {
