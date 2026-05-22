@@ -254,6 +254,38 @@ class MfaTest extends TestCase
         }
     }
 
+    public function test_recovery_code_input_is_hidden_behind_disclosure_on_mfa_challenges(): void
+    {
+        $admin = (new PermissionHelper)->getSuperAdminUser();
+        $this->confirmMfa($admin);
+
+        $loginUser = (new PermissionHelper)->getUser();
+        $this->confirmMfa($loginUser);
+
+        $this->post('/login', [
+            'email' => $loginUser->email,
+            'password' => 'password',
+        ])->assertRedirect(route('two-factor.login'));
+
+        $responses = [
+            $this->get(route('two-factor.login')),
+            $this
+                ->actingAs($admin)
+                ->withSession($this->appMfaChallengeSession())
+                ->get(route('security.mfa.challenge')),
+        ];
+
+        foreach ($responses as $response) {
+            $response
+                ->assertOk()
+                ->assertSee('data-testid="mfa-recovery-toggle"', false)
+                ->assertSee('<details', false)
+                ->assertSee('Recovery Code', false)
+                ->assertDontSee('Alternativ kannst du einen Recovery Code verwenden.')
+                ->assertDontSee('oder einem Recovery Code');
+        }
+    }
+
     public function test_mfa_error_messages_are_translated_in_german_ui(): void
     {
         $admin = (new PermissionHelper)->getSuperAdminUser();

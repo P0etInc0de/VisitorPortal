@@ -122,6 +122,6 @@ final class SecurityStepUpController extends Controller
             return __('Aus Sicherheitsgründen musst du deine Zwei-Faktor-Authentifizierung mit deiner Authenticator-App erneut bestätigen, bevor deine Recovery Codes angezeigt werden.');
         }
 
-        return __('Bestätige diese Änderung mit deiner Authenticator-App oder einem Recovery Code. Danach werden deine alten Recovery Codes ersetzt.');
+        return __('Bestätige diese Änderung mit deiner Authenticator-App. Danach werden deine alten Recovery Codes ersetzt.');
     }
 }

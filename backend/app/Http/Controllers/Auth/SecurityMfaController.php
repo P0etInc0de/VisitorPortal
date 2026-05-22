@@ -101,7 +101,7 @@ final class SecurityMfaController extends Controller
         return view('security.mfa.challenge', [
             'action' => route('security.mfa.challenge.verify'),
             'title' => __('Zwei-Faktor-Authentifizierung bestätigen'),
-            'description' => __('Bitte bestätige den Zugriff mit dem sechsstelligen Code aus deiner Authenticator-App oder einem Recovery Code.'),
+            'description' => __('Bitte bestätige den Zugriff mit dem sechsstelligen Code aus deiner Authenticator-App.'),
             'button' => __('Zugriff bestätigen'),
             'showLogout' => true,
             'backUrl' => null,
