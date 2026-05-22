@@ -245,36 +245,37 @@
         </div>
 
         <div class="lg:sticky lg:top-6 lg:col-span-1">
-            <article class="rounded-3xl border border-base-300 bg-base-100 p-6 sm:p-7 shadow-sm lg:max-h-[calc(100dvh-3rem)] lg:overflow-y-auto lg:overscroll-contain lg:[scrollbar-gutter:stable]">
-                <div class="mb-4">
+            <article class="rounded-3xl border border-base-300 bg-base-100 p-6 sm:p-7 shadow-sm lg:flex lg:max-h-[calc(100dvh-10rem)] lg:flex-col">
+                <div class="mb-4 lg:shrink-0">
                     <h2 class="mb-4 text-xl font-bold text-base-content">{{ __('Walk-in') }}</h2>
                     <p class="mt-1 text-sm text-base-content/70">{{ __('Unangemeldeten Gast schnell anlegen und direkt einchecken.') }}</p>
                 </div>
 
-                <form wire:submit.prevent="registerWalkIn" class="flex flex-col gap-4">
-                    @if ($walkInContactHint)
-                        <p class="rounded-2xl bg-base-200/70 px-4 py-3 text-sm text-base-content/70">{{ $walkInContactHint }}</p>
-                    @endif
-
-                    <div class="flex flex-col gap-4">
-                        @if ($siteOptions->count() > 1)
-                            <div>
-                                <label class="label px-0 pb-2"><span class="label-text font-medium">{{ __('Standort') }} *</span></label>
-                                <select
-                                    class="select select-bordered w-full @error('walkInSiteId') select-error @enderror"
-                                    wire:model.live="walkInSiteId"
-                                    x-model="walkInSiteId"
-                                    @change="selectWalkInSite($event.target.value)"
-                                >
-                                    @foreach ($siteOptions as $site)
-                                        <option value="{{ $site->id }}">{{ $site->name }}</option>
-                                    @endforeach
-                                </select>
-                                @error('walkInSiteId')
-                                    <div class="mt-2 text-sm text-error">{{ $message }}</div>
-                                @enderror
-                            </div>
+                <div class="lg:min-h-0 lg:flex-1 lg:overflow-y-auto lg:overscroll-contain lg:pr-4 lg:mr-2">
+                    <form wire:submit.prevent="registerWalkIn" class="flex flex-col gap-4">
+                        @if ($walkInContactHint)
+                            <p class="rounded-2xl bg-base-200/70 px-4 py-3 text-sm text-base-content/70">{{ $walkInContactHint }}</p>
                         @endif
+
+                        <div class="flex flex-col gap-4">
+                            @if ($siteOptions->count() > 1)
+                                <div>
+                                    <label class="label px-0 pb-2"><span class="label-text font-medium">{{ __('Standort') }} *</span></label>
+                                    <select
+                                        class="select select-bordered w-full @error('walkInSiteId') select-error @enderror"
+                                        wire:model.live="walkInSiteId"
+                                        x-model="walkInSiteId"
+                                        @change="selectWalkInSite($event.target.value)"
+                                    >
+                                        @foreach ($siteOptions as $site)
+                                            <option value="{{ $site->id }}">{{ $site->name }}</option>
+                                        @endforeach
+                                    </select>
+                                    @error('walkInSiteId')
+                                        <div class="mt-2 text-sm text-error">{{ $message }}</div>
+                                    @enderror
+                                </div>
+                            @endif
 
                         <div>
                             <label class="label px-0 pb-2"><span class="label-text font-medium">{{ __('Ansprechpartner') }} *</span></label>
@@ -380,16 +381,17 @@
                         </label>
                     </div>
 
-                    <div class="grid gap-3 pt-2">
-                        <button type="submit" class="btn btn-primary w-full rounded-xl whitespace-nowrap" wire:loading.attr="disabled" wire:target="registerWalkIn">
-                            {{ __('Anlegen & Check-in') }}
-                        </button>
+                        <div class="grid gap-3 pt-2">
+                            <button type="submit" class="btn btn-primary w-full rounded-xl whitespace-nowrap" wire:loading.attr="disabled" wire:target="registerWalkIn">
+                                {{ __('Anlegen & Check-in') }}
+                            </button>
 
-                        <button type="button" class="btn btn-outline w-full rounded-xl whitespace-nowrap" wire:click="registerWalkIn(true)" wire:loading.attr="disabled" wire:target="registerWalkIn">
-                            {{ __('Mit Ausweis') }}
-                        </button>
-                    </div>
-                </form>
+                            <button type="button" class="btn btn-outline w-full rounded-xl whitespace-nowrap" wire:click="registerWalkIn(true)" wire:loading.attr="disabled" wire:target="registerWalkIn">
+                                {{ __('Mit Ausweis') }}
+                            </button>
+                        </div>
+                    </form>
+                </div>
             </article>
         </div>
     </div>
