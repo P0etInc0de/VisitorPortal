@@ -140,7 +140,7 @@
                 <div class="mb-4 flex items-start justify-between gap-4">
                     <div>
                         <h2 class="mb-4 text-xl font-bold text-base-content">{{ __('Heute & anstehend') }}</h2>
-                        <p class="-mt-2 mb-3 text-sm text-base-content/65">{{ __('Besuche von heute sowie Termine bis zu 48 Stunden im Voraus.') }}</p>
+                        <p class="-mt-2 mb-3 text-sm text-base-content/65">{{ __('Eincheckbare Termine bis zu 48 Stunden im Voraus und aktive Check-outs.') }}</p>
                         <p class="mt-1 text-sm text-base-content/70">{{ trans_choice(':count Treffer|:count Treffer', count($results), ['count' => count($results)]) }}</p>
                     </div>
                 </div>
@@ -244,7 +244,7 @@
             </article>
         </div>
 
-        <div class="lg:col-span-1 sticky top-6">
+        <div class="lg:sticky lg:top-6 lg:col-span-1 lg:max-h-[calc(100dvh-8rem)] lg:overflow-y-auto lg:overscroll-contain">
             <article class="rounded-3xl border border-base-300 bg-base-100 p-6 sm:p-7 shadow-sm">
                 <div class="mb-4">
                     <h2 class="mb-4 text-xl font-bold text-base-content">{{ __('Walk-in') }}</h2>
@@ -380,12 +380,12 @@
                         </label>
                     </div>
 
-                    <div class="flex flex-wrap gap-3 pt-2">
-                        <button type="submit" class="btn btn-primary flex-1 rounded-xl" wire:loading.attr="disabled" wire:target="registerWalkIn">
+                    <div class="grid gap-3 pt-2">
+                        <button type="submit" class="btn btn-primary w-full rounded-xl whitespace-nowrap" wire:loading.attr="disabled" wire:target="registerWalkIn">
                             {{ __('Anlegen & Check-in') }}
                         </button>
 
-                        <button type="button" class="btn btn-outline flex-1 rounded-xl" wire:click="registerWalkIn(true)" wire:loading.attr="disabled" wire:target="registerWalkIn">
+                        <button type="button" class="btn btn-outline w-full rounded-xl whitespace-nowrap" wire:click="registerWalkIn(true)" wire:loading.attr="disabled" wire:target="registerWalkIn">
                             {{ __('Mit Ausweis') }}
                         </button>
                     </div>
