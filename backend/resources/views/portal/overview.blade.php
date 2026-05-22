@@ -54,7 +54,7 @@
                 </div>
 
                 <div class="lg:min-h-0 lg:flex-1 lg:overflow-y-auto lg:overscroll-contain">
-                    <div class="grid gap-3 px-4 pb-1 sm:px-[1.05rem] sm:pb-1">
+                    <div class="grid gap-3 px-4 pb-4 sm:px-[1.05rem] sm:pb-[1.05rem] lg:pb-1">
                         @forelse ($visits as $visit)
                             <article class="grid gap-3 rounded-[1.1rem] border border-base-300 bg-base-100/95 p-4 xl:grid-cols-[5rem_minmax(0,1fr)_auto] xl:items-start xl:gap-3.5">
                                 <div class="flex flex-col self-stretch">
