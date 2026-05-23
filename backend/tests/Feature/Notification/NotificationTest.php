@@ -28,8 +28,7 @@ class NotificationTest extends TestCase
     {
         $user = User::factory()->create();
         $visit = Visit::factory()->create([
-            'user_id' => $user->id,
-            'responsible_user_id' => $user->id,
+            'host_user_id' => $user->id,
         ]);
         $visitor = Visitor::factory()->create();
 
@@ -77,8 +76,7 @@ class NotificationTest extends TestCase
         $host = User::factory()->create();
         $receptionist = (new PermissionHelper)->getReceptionistUser();
         $visit = Visit::factory()->create([
-            'user_id' => $host->id,
-            'responsible_user_id' => $host->id,
+            'host_user_id' => $host->id,
         ]);
         $visitor = Visitor::factory()->create([
             'first_name' => 'Mira',
@@ -106,8 +104,7 @@ class NotificationTest extends TestCase
         $host = User::factory()->create(['is_active' => false]);
         $receptionist = (new PermissionHelper)->getReceptionistUser();
         $visit = Visit::factory()->create([
-            'user_id' => $host->id,
-            'responsible_user_id' => $host->id,
+            'host_user_id' => $host->id,
             'status' => VisitStatusEnum::Planned->value,
         ]);
         $visitor = Visitor::factory()->create([
@@ -159,22 +156,24 @@ class NotificationTest extends TestCase
         );
     }
 
-    public function test_daily_visitor_reminder_skips_inactive_responsible_users(): void
+    public function test_daily_visitor_reminder_sends_to_active_hosts_only(): void
     {
         Notification::fake();
         Carbon::setTestNow('2026-05-17 07:00:00');
 
         try {
-            $activeResponsibleUser = User::factory()->create(['is_active' => true]);
-            $inactiveResponsibleUser = User::factory()->create(['is_active' => false]);
+            $activeHost = User::factory()->create(['is_active' => true]);
+            $inactiveHost = User::factory()->create(['is_active' => false]);
+            $substituteUser = User::factory()->create(['is_active' => true]);
             $activeVisit = Visit::factory()->create([
-                'responsible_user_id' => $activeResponsibleUser->id,
+                'host_user_id' => $activeHost->id,
+                'substitute_user_id' => $substituteUser->id,
                 'scheduled_from' => now()->copy()->setTime(10, 0),
                 'scheduled_until' => now()->copy()->setTime(11, 0),
                 'status' => VisitStatusEnum::Planned->value,
             ]);
             $inactiveVisit = Visit::factory()->create([
-                'responsible_user_id' => $inactiveResponsibleUser->id,
+                'host_user_id' => $inactiveHost->id,
                 'scheduled_from' => now()->copy()->setTime(10, 0),
                 'scheduled_until' => now()->copy()->setTime(11, 0),
                 'status' => VisitStatusEnum::Planned->value,
@@ -185,8 +184,9 @@ class NotificationTest extends TestCase
 
             (new DailyVisitorReminder)();
 
-            Notification::assertSentTo($activeResponsibleUser, VisitReminderDaily::class);
-            Notification::assertNotSentTo($inactiveResponsibleUser, VisitReminderDaily::class);
+            Notification::assertSentTo($activeHost, VisitReminderDaily::class);
+            Notification::assertNotSentTo($inactiveHost, VisitReminderDaily::class);
+            Notification::assertNotSentTo($substituteUser, VisitReminderDaily::class);
         } finally {
             Carbon::setTestNow();
         }

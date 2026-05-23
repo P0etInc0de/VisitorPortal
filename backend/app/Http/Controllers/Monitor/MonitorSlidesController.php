@@ -39,7 +39,7 @@ class MonitorSlidesController extends Controller
             ->whereDate('visits.scheduled_until', '>=', Carbon::today())
             ->with('visitors')
             ->orderBy('visits.scheduled_from')
-            ->with('responsibleUser')
+            ->with('host')
             ->get();
         $todayVisitors = $todayVisits->pluck('visitors')->collapse()->unique('id');
 
@@ -86,7 +86,7 @@ class MonitorSlidesController extends Controller
             ->whereDate('visits.scheduled_from', '<=', Carbon::today())
             ->whereDate('visits.scheduled_until', '>=', Carbon::today())
             ->orderBy('visits.scheduled_from')
-            ->with('responsibleUser')
+            ->with('host')
             ->with('visitors')
             ->get();
         $todayVisitors = $todayVisits->pluck('visitors')->collapse()->unique('id');

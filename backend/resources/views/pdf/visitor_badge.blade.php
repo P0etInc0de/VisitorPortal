@@ -89,7 +89,7 @@ SVG;
     $badgeBackgroundDataUri = 'data:image/svg+xml,'.rawurlencode($badgeBackgroundSvg);
 
     $visitorFullName = trim(implode(' ', array_filter([$visitor->title ?? null, $visitor->first_name ?? null, $visitor->name ?? null]))) ?: '-';
-    $responsibleFullName = trim(($visit->responsibleUser?->first_name ?? '').' '.($visit->responsibleUser?->name ?? ''));
+    $hostFullName = trim(($visit->host?->first_name ?? '').' '.($visit->host?->name ?? ''));
     $visitDate = $visit->scheduled_from->format('d.m.Y');
     $visitTimeSeparator = __('bis');
     $visitTimeSuffix = __('Uhr');
@@ -392,7 +392,7 @@ SVG;
 
         <div class="detail-row row-host">
             <div class="detail-label">{{ __('Betreuer:') }}</div>
-            <div class="detail-value">{{ $responsibleFullName !== '' ? $responsibleFullName : '-' }}</div>
+            <div class="detail-value">{{ $hostFullName !== '' ? $hostFullName : '-' }}</div>
         </div>
         <div class="separator separator-host"></div>
 

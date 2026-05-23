@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\Livewire\Portal\VisitShowPage;
 use App\Models\RecurringVisitSeries;
+use App\Models\User;
 use App\Models\Visit;
 use App\Models\Visitor;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -49,7 +50,7 @@ class VisitManagementTest extends TestCase
             ->assertSee('User Admin');
 
         $this->assertMatchesRegularExpression(
-            '/<input[^>]+name="user_id"[^>]+value="'.$user->id.'"/i',
+            '/<input[^>]+name="host_user_id"[^>]+value="'.$user->id.'"/i',
             $response->getContent()
         );
         $response->assertDontSee('Clara Bergmann');
@@ -79,8 +80,8 @@ class VisitManagementTest extends TestCase
             ->actingAs($user)
             ->post(route('portal.visits.store'), [
                 'title' => 'Technik-Rundgang',
-                'user_id' => $user->id,
-                'responsible_user_id' => $user->id,
+                'host_user_id' => $user->id,
+                'substitute_user_id' => $user->id,
                 'scheduled_from' => now()->addDay()->setTime(9, 0)->format('Y-m-d H:i:s'),
                 'scheduled_until' => now()->addDay()->setTime(10, 0)->format('Y-m-d H:i:s'),
                 'status' => 'planned',
@@ -94,7 +95,7 @@ class VisitManagementTest extends TestCase
                     ],
                 ],
             ])
-            ->assertSessionHasErrors('responsible_user_id');
+            ->assertSessionHasErrors('substitute_user_id');
     }
 
     public function test_visit_can_be_created_with_multiple_participants(): void
@@ -105,7 +106,7 @@ class VisitManagementTest extends TestCase
             ->actingAs($user)
             ->post(route('portal.visits.store'), [
                 'title' => 'Technik-Rundgang',
-                'user_id' => $user->id,
+                'host_user_id' => $user->id,
                 'scheduled_from' => now()->addDay()->setTime(9, 0)->format('Y-m-d H:i:s'),
                 'scheduled_until' => now()->addDay()->setTime(10, 0)->format('Y-m-d H:i:s'),
                 'status' => 'planned',
@@ -135,6 +136,9 @@ class VisitManagementTest extends TestCase
         $this->assertDatabaseHas('visits', [
             'id' => $visit->id,
             'title' => 'Technik-Rundgang',
+            'host_user_id' => $user->id,
+            'substitute_user_id' => null,
+            'created_by_user_id' => $user->id,
         ]);
 
         $this->assertDatabaseCount('visitors', 2);
@@ -154,7 +158,7 @@ class VisitManagementTest extends TestCase
             ->actingAs($user)
             ->post(route('portal.visits.store'), [
                 'title' => 'Shared phone visit',
-                'user_id' => $user->id,
+                'host_user_id' => $user->id,
                 'scheduled_from' => now()->addDay()->setTime(9, 0)->format('Y-m-d H:i:s'),
                 'scheduled_until' => now()->addDay()->setTime(10, 0)->format('Y-m-d H:i:s'),
                 'status' => 'planned',
@@ -190,7 +194,7 @@ class VisitManagementTest extends TestCase
             ->actingAs($user)
             ->post(route('portal.visits.store'), [
                 'title' => 'Wöchentliche Sicherheitsrunde',
-                'user_id' => $user->id,
+                'host_user_id' => $user->id,
                 'scheduled_from' => '2026-05-01 09:00:00',
                 'scheduled_until' => '2026-05-01 10:00:00',
                 'status' => 'planned',
@@ -230,7 +234,7 @@ class VisitManagementTest extends TestCase
             ->actingAs($user)
             ->post(route('portal.visits.store'), [
                 'title' => 'Regeltermin',
-                'user_id' => $user->id,
+                'host_user_id' => $user->id,
                 'scheduled_from' => '2026-05-01 09:00:00',
                 'scheduled_until' => '2026-05-01 10:00:00',
                 'status' => 'planned',
@@ -255,7 +259,7 @@ class VisitManagementTest extends TestCase
             ->actingAs($user)
             ->patch(route('portal.visits.update', $selectedVisit), [
                 'title' => 'Neue Zukunftsserie',
-                'user_id' => $user->id,
+                'host_user_id' => $user->id,
                 'scheduled_from' => '2026-05-08 12:00:00',
                 'scheduled_until' => '2026-05-08 13:00:00',
                 'status' => 'planned',
@@ -289,7 +293,7 @@ class VisitManagementTest extends TestCase
                 ->actingAs($user)
                 ->post(route('portal.visits.store'), [
                     'title' => 'Endlose Wartung',
-                    'user_id' => $user->id,
+                    'host_user_id' => $user->id,
                     'scheduled_from' => '2026-05-01 09:00:00',
                     'scheduled_until' => '2026-05-01 10:00:00',
                     'status' => 'planned',
@@ -330,20 +334,20 @@ class VisitManagementTest extends TestCase
 
         Visit::factory()->create([
             'title' => 'Eigener Host-Besuch',
-            'user_id' => $user->id,
-            'responsible_user_id' => $otherUser->id,
+            'host_user_id' => $user->id,
+            'substitute_user_id' => $otherUser->id,
         ]);
 
         Visit::factory()->create([
             'title' => 'Eigener Vertretungs-Besuch',
-            'user_id' => $otherUser->id,
-            'responsible_user_id' => $user->id,
+            'host_user_id' => $otherUser->id,
+            'substitute_user_id' => $user->id,
         ]);
 
         Visit::factory()->create([
             'title' => 'Fremder Besuch',
-            'user_id' => $otherUser->id,
-            'responsible_user_id' => $otherUser->id,
+            'host_user_id' => $otherUser->id,
+            'substitute_user_id' => null,
         ]);
 
         $this
@@ -356,14 +360,45 @@ class VisitManagementTest extends TestCase
             ->assertDontSee('Fremder Besuch');
     }
 
+    public function test_visit_user_relations_are_semantically_separate(): void
+    {
+        $host = User::factory()->create();
+        $substitute = User::factory()->create();
+        $createdBy = User::factory()->create();
+        $visit = Visit::factory()->create([
+            'host_user_id' => $host->id,
+            'substitute_user_id' => $substitute->id,
+            'created_by_user_id' => $createdBy->id,
+        ])->load(['host', 'substituteUser', 'createdBy']);
+
+        $this->assertTrue($visit->host->is($host));
+        $this->assertTrue($visit->substituteUser->is($substitute));
+        $this->assertTrue($visit->createdBy->is($createdBy));
+    }
+
+    public function test_created_by_does_not_grant_visit_visibility(): void
+    {
+        $createdBy = (new PermissionHelper)->getUserUser();
+        $host = User::factory()->create();
+        $substitute = User::factory()->create();
+        $visit = Visit::factory()->create([
+            'host_user_id' => $host->id,
+            'substitute_user_id' => $substitute->id,
+            'created_by_user_id' => $createdBy->id,
+        ]);
+
+        $this->assertFalse(Visit::query()->visibleTo($createdBy)->whereKey($visit->id)->exists());
+        $this->assertFalse($createdBy->can('view', $visit));
+    }
+
     public function test_my_visits_page_hides_participant_id_card_and_action_columns(): void
     {
         $user = (new PermissionHelper)->getUser();
         $visitor = Visitor::factory()->create();
         $visit = Visit::factory()->create([
             'title' => 'Eigener Besuch mit Teilnehmenden',
-            'user_id' => $user->id,
-            'responsible_user_id' => $user->id,
+            'host_user_id' => $user->id,
+            'substitute_user_id' => null,
         ]);
 
         $visit->visitors()->sync([$visitor->id]);
@@ -385,8 +420,8 @@ class VisitManagementTest extends TestCase
     {
         $user = (new PermissionHelper)->getUserUser();
         $visit = Visit::factory()->create([
-            'user_id' => $user->id,
-            'responsible_user_id' => $user->id,
+            'host_user_id' => $user->id,
+            'substitute_user_id' => null,
             'scheduled_from' => now()->addDay(),
             'scheduled_until' => now()->addDay()->addHour(),
         ]);

@@ -144,8 +144,8 @@ class MyVisitsPage extends Component
                 },
             ])
             ->where(function ($query) use ($user) {
-                $query->where('user_id', $user->id)
-                    ->orWhere('responsible_user_id', $user->id);
+                $query->where('host_user_id', $user->id)
+                    ->orWhere('substitute_user_id', $user->id);
             })
             ->when($from && $until, function ($query) use ($from, $until) {
                 $query->whereBetween('scheduled_from', [$from, $until]);

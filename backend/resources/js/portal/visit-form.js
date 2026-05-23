@@ -7,15 +7,15 @@ export const visitForm = (config) => ({
     participants: config.participants ?? [],
     existingVisitors: config.existingVisitors ?? [],
     hostUserOptions: config.hostUserOptions ?? config.userOptions ?? [],
-    responsibleUserOptions: config.responsibleUserOptions ?? config.userOptions ?? [],
+    substituteUserOptions: config.substituteUserOptions ?? config.userOptions ?? [],
     siteOptions: config.siteOptions ?? [],
     siteId: config.siteId ?? '',
     hostId: config.hostId ?? '',
-    responsibleUserId: config.responsibleUserId ?? '',
+    substituteUserId: config.substituteUserId ?? '',
     userDropdownOpen: null,
     userSearch: {
         host: '',
-        responsible: '',
+        substitute: '',
     },
     recurrenceEnabled: Boolean(config.recurrenceEnabled),
     recurrenceFrequency: config.recurrenceFrequency ?? '',
@@ -51,7 +51,7 @@ export const visitForm = (config) => ({
     },
 
     userLabel(field) {
-        const selectedId = field === 'host' ? this.hostId : this.responsibleUserId;
+        const selectedId = field === 'host' ? this.hostId : this.substituteUserId;
         const user = this.userOptionsForField(field)
             .filter((option) => this.userCanAccessSelectedSite(option))
             .find((option) => String(option.id) === String(selectedId));
@@ -60,7 +60,7 @@ export const visitForm = (config) => ({
     },
 
     userOptionsForField(field) {
-        return field === 'host' ? this.hostUserOptions : this.responsibleUserOptions;
+        return field === 'host' ? this.hostUserOptions : this.substituteUserOptions;
     },
 
     openUserDropdown(field) {
@@ -83,11 +83,11 @@ export const visitForm = (config) => ({
         if (field === 'host') {
             this.hostId = String(user.id);
 
-            if (String(this.responsibleUserId) === String(user.id)) {
-                this.responsibleUserId = '';
+            if (String(this.substituteUserId) === String(user.id)) {
+                this.substituteUserId = '';
             }
         } else {
-            this.responsibleUserId = String(user.id);
+            this.substituteUserId = String(user.id);
         }
 
         this.userSearch[field] = '';
@@ -113,10 +113,10 @@ export const visitForm = (config) => ({
             this.hostId = firstHost ? String(firstHost.id) : '';
         }
 
-        const responsibleUser = this.responsibleUserOptions.find((user) => String(user.id) === String(this.responsibleUserId));
+        const substituteUser = this.substituteUserOptions.find((user) => String(user.id) === String(this.substituteUserId));
 
-        if (!responsibleUser || !this.userCanAccessSelectedSite(responsibleUser) || String(this.responsibleUserId) === String(this.hostId)) {
-            this.responsibleUserId = '';
+        if (!substituteUser || !this.userCanAccessSelectedSite(substituteUser) || String(this.substituteUserId) === String(this.hostId)) {
+            this.substituteUserId = '';
         }
     },
 
@@ -125,15 +125,15 @@ export const visitForm = (config) => ({
         this.$nextTick(() => this.$refs[`${field}UserSearch`]?.focus());
     },
 
-    clearResponsibleUser() {
-        this.responsibleUserId = '';
-        this.userSearch.responsible = '';
+    clearSubstituteUser() {
+        this.substituteUserId = '';
+        this.userSearch.substitute = '';
         this.userDropdownOpen = null;
     },
 
     filteredUsers(field) {
         const term = (this.userSearch[field] ?? '').trim().toLowerCase();
-        const excludedId = field === 'host' ? this.responsibleUserId : this.hostId;
+        const excludedId = field === 'host' ? this.substituteUserId : this.hostId;
 
         return this.userOptionsForField(field)
             .filter((user) => this.userCanAccessSelectedSite(user))

@@ -22,8 +22,8 @@ class DashboardTest extends TestCase
 
             Visit::factory()->create([
                 'title' => 'Vergangener Besuch',
-                'user_id' => $user->id,
-                'responsible_user_id' => $user->id,
+                'host_user_id' => $user->id,
+                'substitute_user_id' => null,
                 'status' => VisitStatusEnum::Planned->value,
                 'scheduled_from' => now()->copy()->subDay()->setTime(10, 0),
                 'scheduled_until' => now()->copy()->subDay()->setTime(11, 0),
@@ -31,8 +31,8 @@ class DashboardTest extends TestCase
 
             Visit::factory()->create([
                 'title' => 'Heute schon vorbei',
-                'user_id' => $user->id,
-                'responsible_user_id' => $user->id,
+                'host_user_id' => $user->id,
+                'substitute_user_id' => null,
                 'status' => VisitStatusEnum::Planned->value,
                 'scheduled_from' => now()->copy()->setTime(9, 0),
                 'scheduled_until' => now()->copy()->setTime(10, 0),
@@ -40,8 +40,8 @@ class DashboardTest extends TestCase
 
             Visit::factory()->create([
                 'title' => 'Laufender Besuch',
-                'user_id' => $user->id,
-                'responsible_user_id' => $user->id,
+                'host_user_id' => $user->id,
+                'substitute_user_id' => null,
                 'status' => VisitStatusEnum::Planned->value,
                 'scheduled_from' => now()->copy()->setTime(11, 0),
                 'scheduled_until' => now()->copy()->setTime(12, 0),
@@ -49,8 +49,8 @@ class DashboardTest extends TestCase
 
             Visit::factory()->create([
                 'title' => 'Besuch in 2 Tagen',
-                'user_id' => $user->id,
-                'responsible_user_id' => $user->id,
+                'host_user_id' => $user->id,
+                'substitute_user_id' => null,
                 'status' => VisitStatusEnum::Planned->value,
                 'scheduled_from' => now()->copy()->addDays(2)->setTime(13, 0),
                 'scheduled_until' => now()->copy()->addDays(2)->setTime(14, 0),
@@ -58,8 +58,8 @@ class DashboardTest extends TestCase
 
             Visit::factory()->create([
                 'title' => 'Besuch in 31 Tagen',
-                'user_id' => $user->id,
-                'responsible_user_id' => $user->id,
+                'host_user_id' => $user->id,
+                'substitute_user_id' => null,
                 'status' => VisitStatusEnum::Planned->value,
                 'scheduled_from' => now()->copy()->addDays(31)->setTime(13, 0),
                 'scheduled_until' => now()->copy()->addDays(31)->setTime(14, 0),
@@ -67,8 +67,8 @@ class DashboardTest extends TestCase
 
             Visit::factory()->create([
                 'title' => 'Entwurf in 3 Tagen',
-                'user_id' => $user->id,
-                'responsible_user_id' => $user->id,
+                'host_user_id' => $user->id,
+                'substitute_user_id' => null,
                 'status' => VisitStatusEnum::Draft->value,
                 'scheduled_from' => now()->copy()->addDays(3)->setTime(11, 0),
                 'scheduled_until' => now()->copy()->addDays(3)->setTime(12, 0),
@@ -98,8 +98,8 @@ class DashboardTest extends TestCase
             foreach (range(1, 16) as $offset) {
                 Visit::factory()->create([
                     'title' => sprintf('Limit Besuch %02d', $offset),
-                    'user_id' => $user->id,
-                    'responsible_user_id' => $user->id,
+                    'host_user_id' => $user->id,
+                    'substitute_user_id' => null,
                     'status' => VisitStatusEnum::Planned->value,
                     'scheduled_from' => now()->copy()->addDays($offset)->setTime(10, 0),
                     'scheduled_until' => now()->copy()->addDays($offset)->setTime(11, 0),
@@ -145,8 +145,8 @@ class DashboardTest extends TestCase
 
             Visit::factory()->create([
                 'title' => 'Host Full Name Besuch',
-                'user_id' => $user->id,
-                'responsible_user_id' => $user->id,
+                'host_user_id' => $user->id,
+                'substitute_user_id' => null,
                 'status' => VisitStatusEnum::Planned->value,
                 'scheduled_from' => now()->copy()->addDay()->setTime(15, 30),
                 'scheduled_until' => now()->copy()->addDay()->setTime(16, 30),
@@ -171,8 +171,8 @@ class DashboardTest extends TestCase
 
             Visit::factory()->create([
                 'title' => 'Laufender Termin',
-                'user_id' => $user->id,
-                'responsible_user_id' => $user->id,
+                'host_user_id' => $user->id,
+                'substitute_user_id' => null,
                 'status' => VisitStatusEnum::Planned->value,
                 'scheduled_from' => now()->copy()->setTime(10, 30),
                 'scheduled_until' => now()->copy()->setTime(12, 30),
@@ -180,8 +180,8 @@ class DashboardTest extends TestCase
 
             Visit::factory()->create([
                 'title' => 'Termin heute',
-                'user_id' => $user->id,
-                'responsible_user_id' => $user->id,
+                'host_user_id' => $user->id,
+                'substitute_user_id' => null,
                 'status' => VisitStatusEnum::Planned->value,
                 'scheduled_from' => now()->copy()->setTime(13, 0),
                 'scheduled_until' => now()->copy()->setTime(14, 0),
@@ -206,8 +206,8 @@ class DashboardTest extends TestCase
 
             Visit::factory()->create([
                 'title' => 'Termin morgen',
-                'user_id' => $user->id,
-                'responsible_user_id' => $user->id,
+                'host_user_id' => $user->id,
+                'substitute_user_id' => null,
                 'status' => VisitStatusEnum::Planned->value,
                 'scheduled_from' => now()->copy()->addDay()->setTime(9, 30),
                 'scheduled_until' => now()->copy()->addDay()->setTime(10, 30),
@@ -232,8 +232,8 @@ class DashboardTest extends TestCase
 
             Visit::factory()->create([
                 'title' => 'Termin spaeter',
-                'user_id' => $user->id,
-                'responsible_user_id' => $user->id,
+                'host_user_id' => $user->id,
+                'substitute_user_id' => null,
                 'status' => VisitStatusEnum::Planned->value,
                 'scheduled_from' => now()->copy()->addDays(2)->setTime(13, 0),
                 'scheduled_until' => now()->copy()->addDays(2)->setTime(14, 0),
@@ -257,8 +257,8 @@ class DashboardTest extends TestCase
 
             Visit::factory()->create([
                 'title' => 'Heute gestartet',
-                'user_id' => $user->id,
-                'responsible_user_id' => $user->id,
+                'host_user_id' => $user->id,
+                'substitute_user_id' => null,
                 'status' => VisitStatusEnum::Planned->value,
                 'scheduled_from' => now()->copy()->setTime(9, 0),
                 'scheduled_until' => now()->copy()->setTime(10, 0),
@@ -266,8 +266,8 @@ class DashboardTest extends TestCase
 
             Visit::factory()->create([
                 'title' => 'Heute spaeter',
-                'user_id' => $user->id,
-                'responsible_user_id' => $user->id,
+                'host_user_id' => $user->id,
+                'substitute_user_id' => null,
                 'status' => VisitStatusEnum::Planned->value,
                 'scheduled_from' => now()->copy()->setTime(15, 0),
                 'scheduled_until' => now()->copy()->setTime(16, 0),
@@ -275,8 +275,8 @@ class DashboardTest extends TestCase
 
             Visit::factory()->create([
                 'title' => 'Morgen',
-                'user_id' => $user->id,
-                'responsible_user_id' => $user->id,
+                'host_user_id' => $user->id,
+                'substitute_user_id' => null,
                 'status' => VisitStatusEnum::Planned->value,
                 'scheduled_from' => now()->copy()->addDay()->setTime(9, 0),
                 'scheduled_until' => now()->copy()->addDay()->setTime(10, 0),

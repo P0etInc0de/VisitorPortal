@@ -39,8 +39,8 @@ class RecurringVisitSeries extends Model
     protected $fillable = [
         'title',
         'site_id',
-        'user_id',
-        'responsible_user_id',
+        'host_user_id',
+        'substitute_user_id',
         'created_by_user_id',
         'status',
         'is_confidential',
@@ -119,7 +119,7 @@ class RecurringVisitSeries extends Model
 
     public function host(): BelongsTo
     {
-        return $this->belongsTo(User::class, 'user_id');
+        return $this->belongsTo(User::class, 'host_user_id');
     }
 
     public function site(): BelongsTo
@@ -127,12 +127,12 @@ class RecurringVisitSeries extends Model
         return $this->belongsTo(Site::class);
     }
 
-    public function responsibleUser(): BelongsTo
+    public function substituteUser(): BelongsTo
     {
-        return $this->belongsTo(User::class, 'responsible_user_id');
+        return $this->belongsTo(User::class, 'substitute_user_id');
     }
 
-    public function creator(): BelongsTo
+    public function createdBy(): BelongsTo
     {
         return $this->belongsTo(User::class, 'created_by_user_id');
     }

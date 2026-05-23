@@ -3,7 +3,6 @@
 namespace Tests\Feature\Visit;
 
 use App\Enums\VisitStatusEnum;
-use App\Models\Visit;
 use App\Models\Visitor;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\Support\PermissionHelper;
@@ -21,19 +20,19 @@ class UserAdministerVisitTest extends TestCase
     {
         $user = (new PermissionHelper)->getUser();
 
-        $responsibleUser = (new PermissionHelper)->getUser();
+        $substituteUser = (new PermissionHelper)->getUser();
 
         $visitors = Visitor::factory(3)->create();
 
         $visitTitle = 'Test Visit';
 
         // create the visit
-        $visit = (new VisitHelper)->makeVisit($user->id, $visitTitle, VisitStatusEnum::Planned, $responsibleUser->id, $visitors);
+        $visit = (new VisitHelper)->makeVisit($user->id, $visitTitle, VisitStatusEnum::Planned, $substituteUser->id, $visitors);
 
         // check if visit is present in database
         $this->assertDatabaseHas('visits', [
             'title' => $visitTitle,
-            'responsible_user_id' => $responsibleUser->id,
+            'substitute_user_id' => $substituteUser->id,
         ]);
 
     }
@@ -46,10 +45,10 @@ class UserAdministerVisitTest extends TestCase
 
         $user = (new PermissionHelper)->getUser();
 
-        $responsibleUser = (new PermissionHelper)->getUser();
+        $substituteUser = (new PermissionHelper)->getUser();
 
         // create visit
-        $visit = (new VisitHelper)->makeVisit($user->id, $visitTitle, VisitStatusEnum::Planned, $responsibleUser->id);
+        $visit = (new VisitHelper)->makeVisit($user->id, $visitTitle, VisitStatusEnum::Planned, $substituteUser->id);
 
         // cancel the visit
         $this->actingAs($user)->post(route('portal.visits.cancel', $visit));
@@ -71,7 +70,7 @@ class UserAdministerVisitTest extends TestCase
         $user = (new PermissionHelper)->getUser();
         $participant = Visitor::Factory()->create(['created_by_user_id' => $user->id]);
 
-        $responsibleUser = (new PermissionHelper)->getUser();
+        $substituteUser = (new PermissionHelper)->getUser();
 
         // create updated fields
         $updatedVisitTitle = 'Updated Visit Title';
@@ -80,12 +79,12 @@ class UserAdministerVisitTest extends TestCase
         $updatedVisitNotes = 'Updated Visit Notes';
 
         // create visit
-        $visit = (new VisitHelper)->makeVisit($user->id, $visitTitle, VisitStatusEnum::Planned, $responsibleUser->id);
+        $visit = (new VisitHelper)->makeVisit($user->id, $visitTitle, VisitStatusEnum::Planned, $substituteUser->id);
 
         // send update form
         $response = $this->actingAs($user)
             ->patch(route('portal.visits.update', $visit), [
-                'user_id' => $user->id,
+                'host_user_id' => $user->id,
                 'title' => $updatedVisitTitle,
                 'scheduled_from' => $updatedScheduledFrom,
                 'scheduled_until' => $updatedScheduledUntil,
@@ -106,29 +105,5 @@ class UserAdministerVisitTest extends TestCase
             'scheduled_until' => $updatedScheduledUntil,
             'notes' => $updatedVisitNotes,
         ]);
-    }
-
-    private function makeVisit(
-        int $user_id,
-        string $title,
-        VisitStatusEnum $status,
-        int $responsible_user_id,
-        ?Collection $visitors = null
-    ): Visit {
-
-        // create a visit
-        $visit = Visit::factory()->create([
-            'title' => $title,
-            'status' => $status,
-            'responsible_user_id' => $responsible_user_id,
-            'user_id' => $user_id,
-        ]);
-
-        // check if visitors parameter is passed and add them, if so
-        if ($visitors && $visitors->isNotEmpty()) {
-            $visit->visitors()->sync($visitors->pluck('id')->toArray());
-        }
-
-        return $visit;
     }
 }

@@ -25,7 +25,7 @@ class VisitController extends Controller
 
         return $this->formView(new Visit([
             'site_id' => auth()->user()?->site_id,
-            'user_id' => auth()->id(),
+            'host_user_id' => auth()->id(),
             'status' => VisitStatusEnum::Planned->value,
         ]), false);
     }
@@ -52,8 +52,8 @@ class VisitController extends Controller
         $this->authorize('view', $visit);
 
         $visit->load([
-            'host:id,name',
-            'responsibleUser:id,name',
+            'host:id,first_name,name',
+            'substituteUser:id,first_name,name',
             'recurringSeries',
             'visitors' => fn ($query) => $query->orderBy('first_name')->orderBy('name'),
         ]);
@@ -173,7 +173,7 @@ class VisitController extends Controller
     {
         $visit->loadMissing([
             'host:id,first_name,name,title',
-            'responsibleUser:id,first_name,name,title',
+            'substituteUser:id,first_name,name,title',
             'recurringSeries',
             'visitors' => fn ($query) => $query->orderBy('first_name')->orderBy('name'),
         ]);
@@ -183,7 +183,7 @@ class VisitController extends Controller
 
         $siteOptions = $this->selectableSites($actor, $visit);
         $hostUsers = $this->selectableHostUsers($actor);
-        $responsibleUsers = $this->selectableResponsibleUsers($actor);
+        $substituteUsers = $this->selectableSubstituteUsers($actor);
 
         $existingVisitors = Visitor::query()
             ->visibleTo($actor)
@@ -232,7 +232,7 @@ class VisitController extends Controller
             'formAction' => $isEdit ? route('portal.visits.update', $visit) : route('portal.visits.store'),
             'formMethod' => $isEdit ? 'PATCH' : 'POST',
             'hostUsers' => $hostUsers,
-            'responsibleUsers' => $responsibleUsers,
+            'substituteUsers' => $substituteUsers,
             'siteOptions' => $siteOptions,
             'existingVisitors' => $existingVisitors,
             'initialParticipants' => $initialParticipants,
@@ -291,7 +291,7 @@ class VisitController extends Controller
         return $query->whereKey($actor->id)->get();
     }
 
-    private function selectableResponsibleUsers(User $actor)
+    private function selectableSubstituteUsers(User $actor)
     {
         $query = $this->selectableUsersQuery();
 

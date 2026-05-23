@@ -5,6 +5,7 @@ namespace AdminPanel;
 use App\Enums\VisitStatusEnum;
 use App\Filament\Resources\Visits\Pages\CreateVisit;
 use App\Filament\Resources\Visits\Pages\EditVisit;
+use App\Filament\Resources\Visits\Pages\ViewVisit;
 use App\Models\Site;
 use App\Models\User;
 use App\Models\Visit;
@@ -28,7 +29,7 @@ class AdminAdministerVisitsTest extends TestCase
 
         $employee = User::factory()->create();
 
-        $responsibleUser = User::factory()->create();
+        $substituteUser = User::factory()->create();
 
         $visitors = Visitor::factory()->count(3)->create();
 
@@ -39,9 +40,9 @@ class AdminAdministerVisitsTest extends TestCase
             ->test(CreateVisit::class)
             ->assertOk()
             ->fillForm([
-                'user_id' => $employee->id,
+                'host_user_id' => $employee->id,
                 'title' => 'Test Title',
-                'responsible_user_id' => $responsibleUser->id,
+                'substitute_user_id' => $substituteUser->id,
                 'scheduled_from' => $scheduledFrom,
                 'scheduled_until' => $scheduledUntil,
                 'status' => VisitStatusEnum::Planned->value,
@@ -53,9 +54,9 @@ class AdminAdministerVisitsTest extends TestCase
             ->assertHasNoFormErrors();
 
         $this->assertDatabaseHas('visits', [
-            'user_id' => $employee->id,
+            'host_user_id' => $employee->id,
             'title' => 'Test Title',
-            'responsible_user_id' => $responsibleUser->id,
+            'substitute_user_id' => $substituteUser->id,
             'scheduled_from' => $scheduledFrom,
             'scheduled_until' => $scheduledUntil,
             'status' => VisitStatusEnum::Planned->value,
@@ -71,22 +72,22 @@ class AdminAdministerVisitsTest extends TestCase
         $site = Site::factory()->create();
         $otherSite = Site::factory()->create();
         $employee = User::factory()->create(['site_id' => $otherSite->id]);
-        $responsibleUser = User::factory()->create(['site_id' => $otherSite->id]);
+        $substituteUser = User::factory()->create(['site_id' => $otherSite->id]);
 
         Livewire::actingAs($admin)
             ->test(CreateVisit::class)
             ->assertOk()
             ->fillForm([
                 'site_id' => $site->id,
-                'user_id' => $employee->id,
+                'host_user_id' => $employee->id,
                 'title' => 'Invalid Site Host',
-                'responsible_user_id' => $responsibleUser->id,
+                'substitute_user_id' => $substituteUser->id,
                 'scheduled_from' => now()->addDay()->format('Y-m-d H:i:00'),
                 'scheduled_until' => now()->addDay()->addHour()->format('Y-m-d H:i:00'),
                 'status' => VisitStatusEnum::Planned->value,
             ])
             ->call('create')
-            ->assertHasFormErrors(['user_id', 'responsible_user_id']);
+            ->assertHasFormErrors(['host_user_id', 'substitute_user_id']);
 
         $this->assertDatabaseMissing('visits', [
             'title' => 'Invalid Site Host',
@@ -99,19 +100,19 @@ class AdminAdministerVisitsTest extends TestCase
         $primarySite = Site::factory()->create();
         $assignedSite = Site::factory()->create();
         $employee = User::factory()->create(['site_id' => $primarySite->id]);
-        $responsibleUser = User::factory()->create(['site_id' => $primarySite->id]);
+        $substituteUser = User::factory()->create(['site_id' => $primarySite->id]);
 
         $employee->sites()->syncWithoutDetaching([$assignedSite->id]);
-        $responsibleUser->sites()->syncWithoutDetaching([$assignedSite->id]);
+        $substituteUser->sites()->syncWithoutDetaching([$assignedSite->id]);
 
         Livewire::actingAs($admin)
             ->test(CreateVisit::class)
             ->assertOk()
             ->fillForm([
                 'site_id' => $assignedSite->id,
-                'user_id' => $employee->id,
+                'host_user_id' => $employee->id,
                 'title' => 'Assigned Site Admin Visit',
-                'responsible_user_id' => $responsibleUser->id,
+                'substitute_user_id' => $substituteUser->id,
                 'scheduled_from' => now()->addDay()->format('Y-m-d H:i:00'),
                 'scheduled_until' => now()->addDay()->addHour()->format('Y-m-d H:i:00'),
                 'status' => VisitStatusEnum::Planned->value,
@@ -122,8 +123,8 @@ class AdminAdministerVisitsTest extends TestCase
         $this->assertDatabaseHas('visits', [
             'title' => 'Assigned Site Admin Visit',
             'site_id' => $assignedSite->id,
-            'user_id' => $employee->id,
-            'responsible_user_id' => $responsibleUser->id,
+            'host_user_id' => $employee->id,
+            'substitute_user_id' => $substituteUser->id,
         ]);
     }
 
@@ -133,26 +134,27 @@ class AdminAdministerVisitsTest extends TestCase
         $primarySite = Site::factory()->create();
         $assignedSite = Site::factory()->create();
         $originalHost = User::factory()->create(['site_id' => $assignedSite->id]);
+        $originalSubstitute = User::factory()->create(['site_id' => $assignedSite->id]);
         $employee = User::factory()->create(['site_id' => $primarySite->id]);
-        $responsibleUser = User::factory()->create(['site_id' => $primarySite->id]);
+        $substituteUser = User::factory()->create(['site_id' => $primarySite->id]);
         $visit = Visit::factory()->create([
             'site_id' => $assignedSite->id,
-            'user_id' => $originalHost->id,
-            'responsible_user_id' => $originalHost->id,
+            'host_user_id' => $originalHost->id,
+            'substitute_user_id' => $originalSubstitute->id,
             'status' => VisitStatusEnum::Planned->value,
         ]);
 
         $employee->sites()->syncWithoutDetaching([$assignedSite->id]);
-        $responsibleUser->sites()->syncWithoutDetaching([$assignedSite->id]);
+        $substituteUser->sites()->syncWithoutDetaching([$assignedSite->id]);
 
         Livewire::actingAs($admin)
             ->test(EditVisit::class, ['record' => $visit->id])
             ->assertOk()
             ->fillForm([
                 'site_id' => $assignedSite->id,
-                'user_id' => $employee->id,
+                'host_user_id' => $employee->id,
                 'title' => 'Updated Assigned Site Admin Visit',
-                'responsible_user_id' => $responsibleUser->id,
+                'substitute_user_id' => $substituteUser->id,
                 'scheduled_from' => now()->addDay()->format('Y-m-d H:i:00'),
                 'scheduled_until' => now()->addDay()->addHour()->format('Y-m-d H:i:00'),
                 'status' => VisitStatusEnum::Planned->value,
@@ -163,8 +165,8 @@ class AdminAdministerVisitsTest extends TestCase
         $visit->refresh();
 
         $this->assertSame($assignedSite->id, $visit->site_id);
-        $this->assertSame($employee->id, $visit->user_id);
-        $this->assertSame($responsibleUser->id, $visit->responsible_user_id);
+        $this->assertSame($employee->id, $visit->host_user_id);
+        $this->assertSame($substituteUser->id, $visit->substitute_user_id);
     }
 
     public function test_admin_cannot_create_visit_for_inactive_site(): void
@@ -172,16 +174,16 @@ class AdminAdministerVisitsTest extends TestCase
         $admin = (new PermissionHelper)->getSuperAdminUser();
         $inactiveSite = Site::factory()->create(['is_active' => false]);
         $employee = User::factory()->create(['site_id' => $inactiveSite->id]);
-        $responsibleUser = User::factory()->create(['site_id' => $inactiveSite->id]);
+        $substituteUser = User::factory()->create(['site_id' => $inactiveSite->id]);
 
         Livewire::actingAs($admin)
             ->test(CreateVisit::class)
             ->assertOk()
             ->fillForm([
                 'site_id' => $inactiveSite->id,
-                'user_id' => $employee->id,
+                'host_user_id' => $employee->id,
                 'title' => 'Inactive Site Visit',
-                'responsible_user_id' => $responsibleUser->id,
+                'substitute_user_id' => $substituteUser->id,
                 'scheduled_from' => now()->addDay()->format('Y-m-d H:i:00'),
                 'scheduled_until' => now()->addDay()->addHour()->format('Y-m-d H:i:00'),
                 'status' => VisitStatusEnum::Planned->value,
@@ -201,7 +203,7 @@ class AdminAdministerVisitsTest extends TestCase
 
         $employee = User::factory()->create();
 
-        $responsibleUser = User::factory()->create();
+        $substituteUser = User::factory()->create();
 
         $visitors = Visitor::factory()->count(3)->create();
 
@@ -212,9 +214,9 @@ class AdminAdministerVisitsTest extends TestCase
             ->test(CreateVisit::class)
             ->assertOk()
             ->fillForm([
-                'user_id' => $employee->id,
+                'host_user_id' => $employee->id,
                 'title' => 'Test Title',
-                'responsible_user_id' => $responsibleUser->id,
+                'substitute_user_id' => $substituteUser->id,
                 'scheduled_from' => $scheduledFrom,
                 'scheduled_until' => $scheduledUntil,
                 'status' => VisitStatusEnum::Planned->value,
@@ -227,9 +229,9 @@ class AdminAdministerVisitsTest extends TestCase
             ->assertHasNoFormErrors();
 
         $this->assertDatabaseHas('visits', [
-            'user_id' => $employee->id,
+            'host_user_id' => $employee->id,
             'title' => 'Test Title',
-            'responsible_user_id' => $responsibleUser->id,
+            'substitute_user_id' => $substituteUser->id,
             'status' => VisitStatusEnum::Planned->value,
             'notes' => 'Test Visit',
             'canceled_at' => null,
@@ -239,9 +241,9 @@ class AdminAdministerVisitsTest extends TestCase
 
         // ensure to get the correct visit
         $visit = Visit::where([
-            'user_id' => $employee->id,
+            'host_user_id' => $employee->id,
             'title' => 'Test Title',
-            'responsible_user_id' => $responsibleUser->id,
+            'substitute_user_id' => $substituteUser->id,
         ])->latest()->first();
 
         foreach ($visitors as $visitor) {
@@ -254,7 +256,7 @@ class AdminAdministerVisitsTest extends TestCase
         // create updated values
         $updatedUserId = User::factory()->create()->id;
         $updatedTitle = 'New Test Title';
-        $updatedResponsibleUserId = User::factory()->create()->id;
+        $updatedSubstituteUserId = User::factory()->create()->id;
         $updatedScheduledFrom = now()->addDays(2)->format('Y-m-d H:i:00');
         $updatedScheduledUntil = now()->addDays(3)->format('Y-m-d H:i:00');
         $updatedStatus = VisitStatusEnum::Completed->value;
@@ -265,9 +267,9 @@ class AdminAdministerVisitsTest extends TestCase
             ->test(EditVisit::class, ['record' => $visit->id])
             ->assertOk()
             ->fillForm([
-                'user_id' => $updatedUserId,
+                'host_user_id' => $updatedUserId,
                 'title' => $updatedTitle,
-                'responsible_user_id' => $updatedResponsibleUserId,
+                'substitute_user_id' => $updatedSubstituteUserId,
                 'scheduled_from' => $updatedScheduledFrom,
                 'scheduled_until' => $updatedScheduledUntil,
                 'status' => $updatedStatus,
@@ -279,9 +281,9 @@ class AdminAdministerVisitsTest extends TestCase
             ->assertHasNoFormErrors();
 
         $this->assertDatabaseHas('visits', [
-            'user_id' => $updatedUserId,
+            'host_user_id' => $updatedUserId,
             'title' => $updatedTitle,
-            'responsible_user_id' => $updatedResponsibleUserId,
+            'substitute_user_id' => $updatedSubstituteUserId,
             'scheduled_from' => $updatedScheduledFrom,
             'scheduled_until' => $updatedScheduledUntil,
             'status' => $updatedStatus,
@@ -296,7 +298,7 @@ class AdminAdministerVisitsTest extends TestCase
 
         $employee = User::factory()->create();
 
-        $responsibleUser = User::factory()->create();
+        $substituteUser = User::factory()->create();
 
         $visitors = Visitor::factory()->count(3)->create();
 
@@ -307,9 +309,9 @@ class AdminAdministerVisitsTest extends TestCase
             ->test(CreateVisit::class)
             ->assertOk()
             ->fillForm([
-                'user_id' => $employee->id,
+                'host_user_id' => $employee->id,
                 'title' => 'Test Title',
-                'responsible_user_id' => $responsibleUser->id,
+                'substitute_user_id' => $substituteUser->id,
                 'scheduled_from' => $scheduledFrom,
                 'scheduled_until' => $scheduledUntil,
                 'status' => VisitStatusEnum::Planned->value,
@@ -323,9 +325,9 @@ class AdminAdministerVisitsTest extends TestCase
 
         // ensure the visit previously existed
         $this->assertDatabaseHas('visits', [
-            'user_id' => $employee->id,
+            'host_user_id' => $employee->id,
             'title' => 'Test Title',
-            'responsible_user_id' => $responsibleUser->id,
+            'substitute_user_id' => $substituteUser->id,
             'status' => VisitStatusEnum::Planned->value,
             'notes' => 'Test Visit',
             'canceled_at' => null,
@@ -335,9 +337,9 @@ class AdminAdministerVisitsTest extends TestCase
 
         // ensure to get the correct visit
         $visit = Visit::where([
-            'user_id' => $employee->id,
+            'host_user_id' => $employee->id,
             'title' => 'Test Title',
-            'responsible_user_id' => $responsibleUser->id,
+            'substitute_user_id' => $substituteUser->id,
         ])->latest()->first();
 
         // check if pivot is filled accordingly
@@ -357,9 +359,9 @@ class AdminAdministerVisitsTest extends TestCase
 
         // check if visit is missing in db
         $this->assertDatabaseMissing('visits', [
-            'user_id' => $employee->id,
+            'host_user_id' => $employee->id,
             'title' => 'Test Title',
-            'responsible_user_id' => $responsibleUser->id,
+            'substitute_user_id' => $substituteUser->id,
             'status' => VisitStatusEnum::Planned->value,
             'notes' => 'Test Visit',
             'canceled_at' => null,
@@ -372,14 +374,14 @@ class AdminAdministerVisitsTest extends TestCase
         $admin = (new PermissionHelper)->getSuperAdminUser();
 
         $employee = User::factory()->create();
-        $responsibleUser = User::factory()->create();
+        $substituteUser = User::factory()->create();
 
         Livewire::actingAs($admin)
             ->test(CreateVisit::class)
             ->fillForm([
-                'user_id' => $employee->id,
+                'host_user_id' => $employee->id,
                 'title' => 'No Visitors Visit',
-                'responsible_user_id' => $responsibleUser->id,
+                'substitute_user_id' => $substituteUser->id,
                 'scheduled_from' => now()->addDay()->format('Y-m-d H:i:00'),
                 'scheduled_until' => now()->addDays(2)->format('Y-m-d H:i:00'),
                 'status' => VisitStatusEnum::Planned->value,
@@ -388,6 +390,27 @@ class AdminAdministerVisitsTest extends TestCase
             ->assertHasNoFormErrors();
 
         $this->assertDatabaseCount('visit_visitor', 0);
+    }
+
+    public function test_admin_visit_infolist_shows_host_substitute_and_created_by(): void
+    {
+        $admin = (new PermissionHelper)->getSuperAdminUser();
+        $host = User::factory()->create(['first_name' => 'Ada', 'name' => 'Avery']);
+        $substitute = User::factory()->create(['first_name' => 'Rita', 'name' => 'Reed']);
+        $createdBy = User::factory()->create(['first_name' => 'Casey', 'name' => 'Creator']);
+        $visit = Visit::factory()->create([
+            'host_user_id' => $host->id,
+            'substitute_user_id' => $substitute->id,
+            'created_by_user_id' => $createdBy->id,
+        ]);
+
+        Livewire::actingAs($admin)
+            ->test(ViewVisit::class, ['record' => $visit->id])
+            ->assertOk()
+            ->assertSee('Ada Avery')
+            ->assertSee('Rita Reed')
+            ->assertSee(__('Erstellt von'))
+            ->assertSee('Casey Creator');
     }
 
     public function test_admin_cannot_create_visit_without_required_fields(): void
@@ -400,7 +423,6 @@ class AdminAdministerVisitsTest extends TestCase
             ->call('create')
             ->assertHasFormErrors([
                 'title',
-                'responsible_user_id',
                 'scheduled_from',
                 'scheduled_until',
                 'status',
@@ -412,7 +434,7 @@ class AdminAdministerVisitsTest extends TestCase
         $admin = (new PermissionHelper)->getSuperAdminUser();
 
         $employee = User::factory()->create();
-        $responsibleUser = User::factory()->create();
+        $substituteUser = User::factory()->create();
 
         $visitor = Visitor::factory()->create();
         $anotherVisitor = Visitor::factory()->create();
@@ -420,9 +442,9 @@ class AdminAdministerVisitsTest extends TestCase
         Livewire::actingAs($admin)
             ->test(CreateVisit::class)
             ->fillForm([
-                'user_id' => $employee->id,
+                'host_user_id' => $employee->id,
                 'title' => 'Duplicate Visitor Test',
-                'responsible_user_id' => $responsibleUser->id,
+                'substitute_user_id' => $substituteUser->id,
                 'scheduled_from' => now()->addDay()->format('Y-m-d H:i:00'),
                 'scheduled_until' => now()->addDays(2)->format('Y-m-d H:i:00'),
                 'status' => VisitStatusEnum::Planned->value,

@@ -27,12 +27,12 @@ class VisitForm
                     ->required()
                     ->live()
                     ->afterStateUpdated(function (callable $set): void {
-                        $set('user_id', null);
-                        $set('responsible_user_id', null);
+                        $set('host_user_id', null);
+                        $set('substitute_user_id', null);
                     })
                     ->rules([new ActiveSite])
                     ->preload(),
-                Select::make('user_id')
+                Select::make('host_user_id')
                     ->label(__('Host'))
                     ->options(fn (callable $get): array => self::userOptionsForSite((int) ($get('site_id') ?: self::defaultActiveSiteId())))
                     ->default(auth()->id())
@@ -43,13 +43,13 @@ class VisitForm
                     ->rules(fn (callable $get): array => [
                         new UserCanAccessSite((int) ($get('site_id') ?: self::defaultActiveSiteId()), __('Der Host ist dem ausgewählten Standort nicht zugeordnet.')),
                     ]),
-                Select::make('responsible_user_id')
+                Select::make('substitute_user_id')
                     ->label(__('Vertretung'))
                     ->options(fn (callable $get): array => self::userOptionsForSite((int) ($get('site_id') ?: self::defaultActiveSiteId())))
                     ->searchable()
                     ->preload()
-                    ->different('user_id')
-                    ->required()
+                    ->different('host_user_id')
+                    ->nullable()
                     ->rules(fn (callable $get): array => [
                         new UserCanAccessSite((int) ($get('site_id') ?: self::defaultActiveSiteId()), __('Die Vertretung ist dem ausgewählten Standort nicht zugeordnet.')),
                     ]),

@@ -45,7 +45,7 @@
 
                     @include('portal.visits.partials.user-select', [
                         'field' => 'host',
-                        'name' => 'user_id',
+                        'name' => 'host_user_id',
                         'label' => __('Host'),
                         'gridClass' => 'xl:col-span-5',
                         'selectedModel' => 'hostId',
@@ -56,12 +56,12 @@
                     ])
 
                     @include('portal.visits.partials.user-select', [
-                        'field' => 'responsible',
-                        'name' => 'responsible_user_id',
+                        'field' => 'substitute',
+                        'name' => 'substitute_user_id',
                         'label' => __('Vertretung'),
                         'gridClass' => 'xl:col-span-4',
-                        'selectedModel' => 'responsibleUserId',
-                        'initialValue' => $responsibleUserIdValue,
+                        'selectedModel' => 'substituteUserId',
+                        'initialValue' => $substituteUserIdValue,
                         'placeholder' => '-',
                         'required' => false,
                         'allowEmpty' => true,

@@ -24,7 +24,7 @@ class VisitParticipantActionController extends Controller
         $this->authorize('view', $visit);
         $this->authorize('print', Visitor::class);
 
-        $visit->loadMissing('responsibleUser');
+        $visit->loadMissing('host');
         $participant = $visitActionService->printBadge($visit, $visitor);
 
         Log::channel('web')->info('Visit participant badge downloaded', [

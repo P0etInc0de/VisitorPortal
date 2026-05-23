@@ -137,7 +137,7 @@ class VisitShowPage extends Component
                 ? $this->visit->scheduled_from->format('H:i').($this->visit->scheduled_until ? ' bis '.$this->visit->scheduled_until->format('H:i') : '')
                 : '–',
             'host' => $this->displayUserName($this->visit->host),
-            'reception' => $this->displayUserName($this->visit->responsibleUser),
+            'substitute' => $this->displayUserName($this->visit->substituteUser),
             'participants' => $this->visit->participant_count,
         ];
     }
@@ -265,7 +265,7 @@ class VisitShowPage extends Component
     {
         $this->visit->load([
             'host:id,first_name,name',
-            'responsibleUser:id,first_name,name',
+            'substituteUser:id,first_name,name',
             'recurringSeries',
             'visitors' => fn ($query) => $query->orderBy('first_name')->orderBy('name'),
         ]);

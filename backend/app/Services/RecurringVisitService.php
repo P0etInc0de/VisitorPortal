@@ -21,7 +21,7 @@ class RecurringVisitService
             $participants = $this->resolveParticipants($payload['participants'] ?? [], $creator);
 
             if (! $this->recurrenceEnabled($payload)) {
-                $visit = $this->createVisit($payload);
+                $visit = $this->createVisit($payload, $creator);
                 $this->syncResolvedParticipants($visit, $participants);
 
                 return $visit;
@@ -88,8 +88,8 @@ class RecurringVisitService
         return RecurringVisitSeries::query()->create([
             'title' => $payload['title'],
             'site_id' => $this->siteIdFromPayload($payload),
-            'user_id' => (int) $payload['user_id'],
-            'responsible_user_id' => (int) (($payload['responsible_user_id'] ?? null) ?: $payload['user_id']),
+            'host_user_id' => (int) $payload['host_user_id'],
+            'substitute_user_id' => $this->nullableUserId($payload['substitute_user_id'] ?? null),
             'created_by_user_id' => $creator->id,
             'status' => $payload['status'],
             'is_confidential' => (bool) ($payload['is_confidential'] ?? false),
@@ -167,8 +167,9 @@ class RecurringVisitService
             'recurrence_original_scheduled_from' => $occurrenceStart,
             'recurrence_is_modified' => false,
             'title' => $series->title,
-            'user_id' => $series->user_id,
-            'responsible_user_id' => $series->responsible_user_id,
+            'host_user_id' => $series->host_user_id,
+            'substitute_user_id' => $series->substitute_user_id,
+            'created_by_user_id' => $series->created_by_user_id,
             'site_id' => $series->site_id,
             'scheduled_from' => $occurrenceStart,
             'scheduled_until' => $occurrenceStart->copy()->addMinutes($series->duration_minutes),
@@ -182,13 +183,14 @@ class RecurringVisitService
         return $visit;
     }
 
-    private function createVisit(array $payload): Visit
+    private function createVisit(array $payload, User $creator): Visit
     {
         return Visit::query()->create([
             'title' => $payload['title'],
             'site_id' => $this->siteIdFromPayload($payload),
-            'user_id' => (int) $payload['user_id'],
-            'responsible_user_id' => (int) (($payload['responsible_user_id'] ?? null) ?: $payload['user_id']),
+            'host_user_id' => (int) $payload['host_user_id'],
+            'substitute_user_id' => $this->nullableUserId($payload['substitute_user_id'] ?? null),
+            'created_by_user_id' => $creator->id,
             'scheduled_from' => $payload['scheduled_from'],
             'scheduled_until' => $payload['scheduled_until'],
             'status' => $payload['status'],
@@ -202,8 +204,8 @@ class RecurringVisitService
         $visit->update([
             'title' => $payload['title'],
             'site_id' => $this->siteIdFromPayload($payload),
-            'user_id' => (int) $payload['user_id'],
-            'responsible_user_id' => (int) (($payload['responsible_user_id'] ?? null) ?: $payload['user_id']),
+            'host_user_id' => (int) $payload['host_user_id'],
+            'substitute_user_id' => $this->nullableUserId($payload['substitute_user_id'] ?? null),
             'scheduled_from' => $payload['scheduled_from'],
             'scheduled_until' => $payload['scheduled_until'],
             'status' => $payload['status'],
@@ -233,8 +235,8 @@ class RecurringVisitService
         $series->update([
             'title' => $payload['title'],
             'site_id' => $this->siteIdFromPayload($payload),
-            'user_id' => (int) $payload['user_id'],
-            'responsible_user_id' => (int) (($payload['responsible_user_id'] ?? null) ?: $payload['user_id']),
+            'host_user_id' => (int) $payload['host_user_id'],
+            'substitute_user_id' => $this->nullableUserId($payload['substitute_user_id'] ?? null),
             'status' => $payload['status'],
             'is_confidential' => (bool) ($payload['is_confidential'] ?? false),
             'notes' => $payload['notes'] ?? null,
@@ -274,8 +276,8 @@ class RecurringVisitService
                 $targetVisit->update([
                     'title' => $payload['title'],
                     'site_id' => $series->site_id,
-                    'user_id' => (int) $payload['user_id'],
-                    'responsible_user_id' => (int) (($payload['responsible_user_id'] ?? null) ?: $payload['user_id']),
+                    'host_user_id' => (int) $payload['host_user_id'],
+                    'substitute_user_id' => $this->nullableUserId($payload['substitute_user_id'] ?? null),
                     'scheduled_from' => $occurrenceStart,
                     'scheduled_until' => $occurrenceStart->copy()->addMinutes($series->duration_minutes),
                     'status' => $payload['status'],
@@ -302,6 +304,11 @@ class RecurringVisitService
     private function siteIdFromPayload(array $payload): int
     {
         return (int) $payload['site_id'];
+    }
+
+    private function nullableUserId(mixed $value): ?int
+    {
+        return filled($value) ? (int) $value : null;
     }
 
     private function generationTarget(RecurringVisitSeries $series): ?Carbon

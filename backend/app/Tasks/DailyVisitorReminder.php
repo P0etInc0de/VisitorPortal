@@ -27,11 +27,11 @@ class DailyVisitorReminder
         $visitsOfToday = Visit::query()
             ->where('visits.status', '=', VisitStatusEnum::Planned->value)
             ->whereDate('scheduled_from', Carbon::today())
-            ->with('responsibleUser', 'visitors')
+            ->with('host', 'visitors')
             ->get();
 
-        $visitsOfToday->groupBy('responsible_user_id')->each(function ($visitCollection) {
-            $user = $visitCollection->first()->responsibleUser;
+        $visitsOfToday->groupBy('host_user_id')->each(function ($visitCollection) {
+            $user = $visitCollection->first()->host;
 
             if (! $user?->is_active) {
                 return;
