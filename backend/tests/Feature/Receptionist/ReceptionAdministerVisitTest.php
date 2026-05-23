@@ -63,7 +63,7 @@ class ReceptionAdministerVisitTest extends TestCase
 
         try {
             $receptionist = (new PermissionHelper)->getReceptionistUser();
-            $employee = User::factory()->create();
+            $employee = User::factory()->create(['first_name' => 'Edith', 'name' => 'Edwards']);
             $responsibleUser = User::factory()->create();
             $visitors = new Collection([
                 Visitor::factory()->create(['first_name' => 'Alice', 'name' => 'Alpha']),
@@ -85,6 +85,7 @@ class ReceptionAdministerVisitTest extends TestCase
                 ->test(DashboardPage::class)
                 ->assertSee('sm:grid-cols-[minmax(0,1fr)_auto]', false)
                 ->assertSee('w-fit justify-self-start whitespace-nowrap', false)
+                ->assertSee('Host: Edith Edwards')
                 ->assertSee('Alice Alpha')
                 ->assertSee('Charlie Gamma')
                 ->assertDontSee('Diana Delta')

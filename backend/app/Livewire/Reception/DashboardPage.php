@@ -120,7 +120,7 @@ class DashboardPage extends Component
         return Visit::query()
             ->visibleTo($user)
             ->with([
-                'host:id,name',
+                'host:id,first_name,name',
                 'visitors' => function ($query) {
                     $query->orderBy('first_name')->orderBy('name');
                 },
@@ -200,7 +200,7 @@ class DashboardPage extends Component
                 'date' => optional($visit->scheduled_from)->format('d.m.'),
                 'is_recurring' => filled($visit->recurring_visit_series_id),
                 'recurrence_is_modified' => (bool) $visit->recurrence_is_modified,
-                'host' => $visit->host?->name ?: '-',
+                'host' => trim((string) ($visit->host?->fullName ?? '')) ?: '-',
                 'notes' => $visit->notes,
                 'visible_participants' => $participants->take(3)->values(),
                 'hidden_participants' => $participants->slice(3)->values(),
