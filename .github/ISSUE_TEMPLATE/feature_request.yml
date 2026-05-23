@@ -1,0 +1,87 @@
+name: Feature request
+description: Suggest a new feature or improvement.
+title: "[Feature]: "
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Please describe the problem first, not only the desired implementation.
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem
+      description: What problem should this solve?
+      placeholder: "Example: Reception needs a clearer overview of visitors expected today."
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed solution
+      description: What should be changed or added?
+    validations:
+      required: true
+
+  - type: dropdown
+    id: area
+    attributes:
+      label: Affected area
+      multiple: true
+      options:
+        - Portal dashboard / My visits
+        - Reception / Check-in-out
+        - All visits / Visit management
+        - Visitor badge / PDF / Gotenberg
+        - Welcome monitor
+        - Admin panel / Filament
+        - Authentication / SSO / MFA
+        - Notifications / Mail
+        - Privacy / Retention
+        - Demo data / Seeders
+        - Docker / Operations
+        - Documentation
+        - UI / UX
+        - Other
+    validations:
+      required: true
+
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: Acceptance criteria
+      description: What must be true for this issue to be done?
+      placeholder: |
+        - ...
+        - ...
+        - ...
+    validations:
+      required: false
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+      description: Are there simpler or safer alternatives?
+    validations:
+      required: false
+
+  - type: textarea
+    id: screenshots
+    attributes:
+      label: Screenshots, sketches, or examples
+      description: Optional, but helpful for UI, dashboard, monitor, badge, and workflow changes.
+    validations:
+      required: false
+
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Checklist
+      options:
+        - label: This request does not require storing unnecessary personal data.
+          required: true
+        - label: I searched existing issues before opening this one.
+          required: true
