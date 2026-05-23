@@ -40,6 +40,21 @@ class VisitorBadgeViewTest extends TestCase
         $this->assertStringNotContainsString('Firma:', $html);
     }
 
+    public function test_badge_uses_host_as_supervisor_when_substitute_exists(): void
+    {
+        config()->set('branding.badge_design', 'standard');
+
+        $html = $this->renderBadge(
+            hostFirstName: 'Ada',
+            hostLastName: 'Avery',
+            responsibleFirstName: 'Rita',
+            responsibleLastName: 'Reed'
+        );
+
+        $this->assertStringContainsString('Ada Avery', $html);
+        $this->assertStringNotContainsString('Rita Reed', $html);
+    }
+
     public function test_badge_accent_color_is_configurable(): void
     {
         config()->set('branding.badge_design', 'standard');
@@ -116,21 +131,30 @@ class VisitorBadgeViewTest extends TestCase
         $this->assertStringNotContainsString('class="badge-photo', $html);
     }
 
-    private function renderBadge(): string
-    {
+    private function renderBadge(
+        string $hostFirstName = 'Hanna',
+        string $hostLastName = 'Host',
+        string $responsibleFirstName = 'Erika',
+        string $responsibleLastName = 'Empfang'
+    ): string {
         $visitor = new Visitor;
         $visitor->title = 'Dr.';
         $visitor->first_name = 'Anna';
         $visitor->name = 'Ausweis';
         $visitor->company = 'VisitorPortal GmbH';
 
+        $host = new User;
+        $host->first_name = $hostFirstName;
+        $host->name = $hostLastName;
+
         $responsibleUser = new User;
-        $responsibleUser->first_name = 'Erika';
-        $responsibleUser->name = 'Empfang';
+        $responsibleUser->first_name = $responsibleFirstName;
+        $responsibleUser->name = $responsibleLastName;
 
         $visit = new Visit;
         $visit->scheduled_from = Carbon::create(2026, 5, 14, 9, 0, 0, config('app.timezone'));
         $visit->scheduled_until = Carbon::create(2026, 5, 14, 10, 0, 0, config('app.timezone'));
+        $visit->setRelation('host', $host);
         $visit->setRelation('responsibleUser', $responsibleUser);
 
         return view('pdf.visitor_badge', [
