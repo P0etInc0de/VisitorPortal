@@ -66,12 +66,12 @@ class MultiSiteAccessTest extends TestCase
         $visibleVisit = Visit::factory()->create([
             'site_id' => $assignedSite->id,
             'host_user_id' => $assignedHost->id,
-            'substitute_user_id' => $assignedHost->id,
+            'substitute_user_id' => null,
         ]);
         $hiddenVisit = Visit::factory()->create([
             'site_id' => $otherSite->id,
             'host_user_id' => $otherHost->id,
-            'substitute_user_id' => $otherHost->id,
+            'substitute_user_id' => null,
         ]);
         $visibleVisit->visitors()->attach($visibleVisitor->id);
         $hiddenVisit->visitors()->attach($hiddenVisitor->id);
@@ -210,7 +210,7 @@ class MultiSiteAccessTest extends TestCase
                 'title' => 'Assigned Site Visit',
                 'site_id' => $assignedSite->id,
                 'host_user_id' => $assignedHost->id,
-                'substitute_user_id' => $assignedHost->id,
+                'substitute_user_id' => null,
                 'scheduled_from' => now()->addHour(),
                 'scheduled_until' => now()->addHours(2),
                 'status' => VisitStatusEnum::Planned->value,
@@ -219,7 +219,7 @@ class MultiSiteAccessTest extends TestCase
                 'title' => 'Foreign Site Visit',
                 'site_id' => $otherSite->id,
                 'host_user_id' => $otherHost->id,
-                'substitute_user_id' => $otherHost->id,
+                'substitute_user_id' => null,
                 'scheduled_from' => now()->addHour(),
                 'scheduled_until' => now()->addHours(2),
                 'status' => VisitStatusEnum::Planned->value,
@@ -346,7 +346,7 @@ class MultiSiteAccessTest extends TestCase
             'title' => 'Assigned site update',
             'site_id' => $assignedSite->id,
             'host_user_id' => $originalHost->id,
-            'substitute_user_id' => $originalHost->id,
+            'substitute_user_id' => null,
             'status' => VisitStatusEnum::Planned->value,
         ]);
         $visit->visitors()->attach($visitor->id);
@@ -394,7 +394,7 @@ class MultiSiteAccessTest extends TestCase
         $visit = Visit::factory()->create([
             'site_id' => $currentInactiveSite->id,
             'host_user_id' => $host->id,
-            'substitute_user_id' => $host->id,
+            'substitute_user_id' => null,
             'status' => VisitStatusEnum::Planned->value,
         ]);
 

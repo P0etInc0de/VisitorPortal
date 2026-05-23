@@ -21,7 +21,7 @@ class OverviewNotificationTest extends TestCase
         $user = (new PermissionHelper)->getReceptionistUser();
         $visit = Visit::factory()->create([
             'host_user_id' => $user->id,
-            'substitute_user_id' => $user->id,
+            'substitute_user_id' => null,
         ]);
         $visitor = Visitor::factory()->create([
             'first_name' => 'Mira',
@@ -43,7 +43,7 @@ class OverviewNotificationTest extends TestCase
         $user = (new PermissionHelper)->getReceptionistUser();
         $visit = Visit::factory()->create([
             'host_user_id' => $user->id,
-            'substitute_user_id' => $user->id,
+            'substitute_user_id' => null,
         ]);
         $visitor = Visitor::factory()->create();
 
@@ -63,7 +63,7 @@ class OverviewNotificationTest extends TestCase
         $user = (new PermissionHelper)->getReceptionistUser();
         $visit = Visit::factory()->create([
             'host_user_id' => $user->id,
-            'substitute_user_id' => $user->id,
+            'substitute_user_id' => null,
         ]);
         $visitor = Visitor::factory()->create();
 
@@ -84,7 +84,7 @@ class OverviewNotificationTest extends TestCase
         $user = (new PermissionHelper)->getReceptionistUser();
         $visit = Visit::factory()->create([
             'host_user_id' => $user->id,
-            'substitute_user_id' => $user->id,
+            'substitute_user_id' => null,
         ]);
         $visitor = Visitor::factory()->create();
 
@@ -111,7 +111,7 @@ class OverviewNotificationTest extends TestCase
         $user = (new PermissionHelper)->getReceptionistUser();
         $visit = Visit::factory()->create([
             'host_user_id' => $user->id,
-            'substitute_user_id' => $user->id,
+            'substitute_user_id' => null,
         ]);
         $visitor = Visitor::factory()->create([
             'first_name' => 'Lisa',

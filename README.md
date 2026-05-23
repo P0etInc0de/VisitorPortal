@@ -41,9 +41,9 @@ VisitorPortal is designed for one organization per instance.
 Multiple sites/locations within one organization are supported.
 For legally separate organizations, run separate instances unless full multi-tenancy is explicitly implemented and audited.
 
-Sites represent physical locations such as receptions, plants, offices, or buildings. Visits, monitors, reception views, and host/responsible user selections are scoped by site so one reception desk does not automatically see operational data from another location.
+Sites represent physical locations such as receptions, plants, offices, or buildings. Visits, monitors, reception views, and host/substitute selections are scoped by site so one reception desk does not automatically see operational data from another location.
 
-Visitor master records are organization-wide contacts. Site isolation applies to visits, monitors, operational visibility, and host/responsible assignments, not to the visitor contact record itself.
+Visitor master records are organization-wide contacts. Site isolation applies to visits, monitors, operational visibility, and host/substitute assignments, not to the visitor contact record itself.
 
 ## Tech Stack
 

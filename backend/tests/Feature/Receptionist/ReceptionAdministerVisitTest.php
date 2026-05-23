@@ -124,28 +124,28 @@ class ReceptionAdministerVisitTest extends TestCase
             $upcomingVisit = Visit::factory()->create([
                 'title' => 'Badge Window Visit',
                 'host_user_id' => $receptionist->id,
-                'substitute_user_id' => $receptionist->id,
+                'substitute_user_id' => null,
                 'status' => VisitStatusEnum::Planned->value,
                 'scheduled_from' => now()->copy()->addHours(20),
                 'scheduled_until' => now()->copy()->addHours(21),
             ]);
             $tooFarVisit = Visit::factory()->create([
                 'host_user_id' => $receptionist->id,
-                'substitute_user_id' => $receptionist->id,
+                'substitute_user_id' => null,
                 'status' => VisitStatusEnum::Planned->value,
                 'scheduled_from' => now()->copy()->addHours(25),
                 'scheduled_until' => now()->copy()->addHours(26),
             ]);
             $endedVisit = Visit::factory()->create([
                 'host_user_id' => $receptionist->id,
-                'substitute_user_id' => $receptionist->id,
+                'substitute_user_id' => null,
                 'status' => VisitStatusEnum::Planned->value,
                 'scheduled_from' => now()->copy()->subHours(2),
                 'scheduled_until' => now()->copy()->subHour(),
             ]);
             $draftVisit = Visit::factory()->create([
                 'host_user_id' => $receptionist->id,
-                'substitute_user_id' => $receptionist->id,
+                'substitute_user_id' => null,
                 'status' => VisitStatusEnum::Draft->value,
                 'scheduled_from' => now()->copy()->addHours(2),
                 'scheduled_until' => now()->copy()->addHours(3),

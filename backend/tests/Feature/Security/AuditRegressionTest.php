@@ -30,7 +30,7 @@ class AuditRegressionTest extends TestCase
         $owner = (new PermissionHelper)->getUserUser();
         $visit = Visit::factory()->create([
             'host_user_id' => $owner->id,
-            'substitute_user_id' => $owner->id,
+            'substitute_user_id' => null,
         ]);
 
         $this->actingAs($user)
@@ -44,7 +44,7 @@ class AuditRegressionTest extends TestCase
         $owner = (new PermissionHelper)->getUserUser();
         $visit = Visit::factory()->create([
             'host_user_id' => $owner->id,
-            'substitute_user_id' => $owner->id,
+            'substitute_user_id' => null,
         ]);
 
         $this->assertNull($manager->department_id);
@@ -92,7 +92,7 @@ class AuditRegressionTest extends TestCase
         Visit::query()->create([
             'title' => 'Missing Site Visit',
             'host_user_id' => $host->id,
-            'substitute_user_id' => $host->id,
+            'substitute_user_id' => null,
             'scheduled_from' => now()->addDay(),
             'scheduled_until' => now()->addDay()->addHour(),
             'status' => VisitStatusEnum::Planned->value,
@@ -109,7 +109,7 @@ class AuditRegressionTest extends TestCase
         RecurringVisitSeries::query()->create([
             'title' => 'Missing Site Series',
             'host_user_id' => $host->id,
-            'substitute_user_id' => $host->id,
+            'substitute_user_id' => null,
             'created_by_user_id' => $host->id,
             'status' => VisitStatusEnum::Planned->value,
             'starts_at' => now()->addDay(),
@@ -146,7 +146,7 @@ class AuditRegressionTest extends TestCase
         $visitor = Visitor::factory()->create();
         $visit = Visit::factory()->create([
             'host_user_id' => $owner->id,
-            'substitute_user_id' => $owner->id,
+            'substitute_user_id' => null,
             'status' => VisitStatusEnum::Planned->value,
         ]);
         $visit->visitors()->attach($visitor->id);
@@ -155,7 +155,7 @@ class AuditRegressionTest extends TestCase
             ->patch(route('portal.visits.update', $visit), [
                 'title' => 'Blocked Update',
                 'host_user_id' => $owner->id,
-                'substitute_user_id' => $owner->id,
+                'substitute_user_id' => null,
                 'scheduled_from' => now()->addDay()->format('Y-m-d H:i:s'),
                 'scheduled_until' => now()->addDay()->addHour()->format('Y-m-d H:i:s'),
                 'status' => VisitStatusEnum::Planned->value,
@@ -297,7 +297,7 @@ class AuditRegressionTest extends TestCase
         $visitor = Visitor::factory()->create(['created_by_user_id' => $user->id]);
         $visit = Visit::factory()->create([
             'host_user_id' => $user->id,
-            'substitute_user_id' => $user->id,
+            'substitute_user_id' => null,
             'status' => VisitStatusEnum::Planned->value,
         ]);
         $visit->visitors()->attach($visitor->id, [
@@ -353,7 +353,7 @@ class AuditRegressionTest extends TestCase
         $hiddenVisit = Visit::factory()->create([
             'site_id' => $otherSite->id,
             'host_user_id' => $otherHost->id,
-            'substitute_user_id' => $otherHost->id,
+            'substitute_user_id' => null,
             'scheduled_from' => now()->addHour(),
             'scheduled_until' => now()->addHours(2),
             'status' => VisitStatusEnum::Planned->value,
@@ -400,7 +400,7 @@ class AuditRegressionTest extends TestCase
         $visitor = Visitor::factory()->create();
         $visit = Visit::factory()->create([
             'host_user_id' => $owner->id,
-            'substitute_user_id' => $owner->id,
+            'substitute_user_id' => null,
         ]);
         $visit->visitors()->attach($visitor->id);
 
@@ -516,7 +516,7 @@ class AuditRegressionTest extends TestCase
             'title' => 'Expired recurring visit',
             'site_id' => $host->site_id,
             'host_user_id' => $host->id,
-            'substitute_user_id' => $host->id,
+            'substitute_user_id' => null,
             'created_by_user_id' => $host->id,
             'status' => VisitStatusEnum::Planned->value,
             'notes' => 'Old series note',
@@ -547,7 +547,7 @@ class AuditRegressionTest extends TestCase
             'title' => 'Active recurring visit',
             'site_id' => $host->site_id,
             'host_user_id' => $host->id,
-            'substitute_user_id' => $host->id,
+            'substitute_user_id' => null,
             'created_by_user_id' => $host->id,
             'status' => VisitStatusEnum::Planned->value,
             'notes' => 'Keep this series',
@@ -561,7 +561,7 @@ class AuditRegressionTest extends TestCase
             'recurring_visit_series_id' => $series->id,
             'recurrence_occurrence_number' => 999,
             'host_user_id' => $host->id,
-            'substitute_user_id' => $host->id,
+            'substitute_user_id' => null,
             'scheduled_from' => now()->addDay(),
             'scheduled_until' => now()->addDay()->addHour(),
         ]);

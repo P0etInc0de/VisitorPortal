@@ -347,7 +347,7 @@ class VisitManagementTest extends TestCase
         Visit::factory()->create([
             'title' => 'Fremder Besuch',
             'host_user_id' => $otherUser->id,
-            'substitute_user_id' => $otherUser->id,
+            'substitute_user_id' => null,
         ]);
 
         $this
@@ -398,7 +398,7 @@ class VisitManagementTest extends TestCase
         $visit = Visit::factory()->create([
             'title' => 'Eigener Besuch mit Teilnehmenden',
             'host_user_id' => $user->id,
-            'substitute_user_id' => $user->id,
+            'substitute_user_id' => null,
         ]);
 
         $visit->visitors()->sync([$visitor->id]);
@@ -421,7 +421,7 @@ class VisitManagementTest extends TestCase
         $user = (new PermissionHelper)->getUserUser();
         $visit = Visit::factory()->create([
             'host_user_id' => $user->id,
-            'substitute_user_id' => $user->id,
+            'substitute_user_id' => null,
             'scheduled_from' => now()->addDay(),
             'scheduled_until' => now()->addDay()->addHour(),
         ]);
