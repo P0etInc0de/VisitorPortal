@@ -4,6 +4,7 @@ namespace Database\Seeders;
 
 use App\Models\Monitor;
 use App\Models\Site;
+use App\Tasks\WelcomeMonitorAutoGeneration;
 use Illuminate\Database\Seeder;
 
 class MonitorSeeder extends Seeder
@@ -19,9 +20,15 @@ class MonitorSeeder extends Seeder
 
         $site = Site::default();
 
-        Monitor::query()->updateOrCreate([
+        $monitor = Monitor::query()->updateOrCreate([
             'site_id' => $site->id,
             'name' => 'WillkommensMonitor',
-        ], Monitor::defaultSettings());
+        ], [
+            ...Monitor::defaultSettings(),
+            'auto_generation' => true,
+            'auto_generation_window_minutes' => 180,
+        ]);
+
+        app(WelcomeMonitorAutoGeneration::class)($monitor);
     }
 }

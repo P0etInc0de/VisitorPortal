@@ -32,52 +32,52 @@ class VisitSeeder extends Seeder
             'title' => 'Morning operations briefing',
             'host' => 'employee@example.org',
             'substitute' => 'reception@example.org',
-            'from' => $today->copy()->setTime(8, 30),
-            'until' => $today->copy()->setTime(9, 0),
+            'from' => $now->copy()->subHours(3),
+            'until' => $now->copy()->subHours(2),
             'status' => VisitStatusEnum::Completed,
             'notes' => 'Completed demo visit with check-in and check-out timestamps.',
         ], [
             'alice.reed@example.com' => [
-                'badge_printed_at' => $today->copy()->setTime(8, 10),
-                'checked_in_at' => $today->copy()->setTime(8, 20),
+                'badge_printed_at' => $now->copy()->subHours(3)->subMinutes(20),
+                'checked_in_at' => $now->copy()->subHours(3)->subMinutes(10),
                 'checked_in_by_user_id' => $reception->id,
-                'checked_out_at' => $today->copy()->setTime(9, 4),
+                'checked_out_at' => $now->copy()->subHours(2)->addMinutes(4),
                 'checked_out_by_user_id' => $reception->id,
             ],
             'dorothy.lane@example.org' => [
-                'checked_in_at' => $today->copy()->setTime(8, 22),
+                'checked_in_at' => $now->copy()->subHours(3)->subMinutes(8),
                 'checked_in_by_user_id' => $reception->id,
-                'checked_out_at' => $today->copy()->setTime(9, 2),
+                'checked_out_at' => $now->copy()->subHours(2)->addMinutes(2),
                 'checked_out_by_user_id' => $reception->id,
             ],
         ]);
 
         $this->seedVisit([
             'title' => 'Supplier onboarding review',
-            'host' => 'manager@example.org',
+            'host' => 'admin@example.org',
             'substitute' => 'reception@example.org',
-            'from' => $today->copy()->setTime(9, 30),
-            'until' => $today->copy()->setTime(10, 15),
+            'from' => $now->copy()->addHour(),
+            'until' => $now->copy()->addHours(2),
             'status' => VisitStatusEnum::Planned,
-            'notes' => 'Planned visit for monitor and reception workflows.',
+            'notes' => 'Ada Avery demo visit for dashboard, reception, and check-in workflows.',
         ], ['clara.bennett@example.net']);
 
         $this->seedVisit([
             'title' => 'Engineering partner workshop',
-            'host' => 'demo.user04@example.org',
+            'host' => 'admin@example.org',
             'substitute' => 'security@example.org',
-            'from' => $today->copy()->setTime(10, 30),
-            'until' => $today->copy()->setTime(12, 0),
+            'from' => $now->copy()->addHours(4),
+            'until' => $now->copy()->addHours(5)->addMinutes(30),
             'status' => VisitStatusEnum::Planned,
-            'notes' => 'Multi-participant planned visit.',
+            'notes' => 'Ada Avery multi-participant planned visit.',
         ], ['arthur.blake@example.com', 'emily.wright@example.org']);
 
         $this->seedVisit([
             'title' => 'Logistics planning session',
             'host' => 'demo.user01@example.org',
             'substitute' => 'reception@example.org',
-            'from' => $today->copy()->setTime(11, 30),
-            'until' => $today->copy()->setTime(12, 15),
+            'from' => $now->copy()->addMinutes(90),
+            'until' => $now->copy()->addMinutes(135),
             'status' => VisitStatusEnum::Planned,
             'notes' => 'Single visitor planned visit.',
         ], ['john.spencer@example.net']);
@@ -86,8 +86,8 @@ class VisitSeeder extends Seeder
             'title' => 'Manufacturing quality review',
             'host' => 'demo.user09@example.net',
             'substitute' => 'reception@example.org',
-            'from' => $today->copy()->setTime(14, 0),
-            'until' => $today->copy()->setTime(16, 0),
+            'from' => $now->copy()->addHours(6),
+            'until' => $now->copy()->addHours(8),
             'status' => VisitStatusEnum::Planned,
             'notes' => 'Larger group visit for dashboards and monitor pagination.',
         ], $this->firstVisitorEmails(10));
@@ -111,12 +111,12 @@ class VisitSeeder extends Seeder
 
         $this->seedVisit([
             'title' => 'Safety audit preparation',
-            'host' => 'security@example.org',
+            'host' => 'admin@example.org',
             'substitute' => 'reception@example.org',
-            'from' => $today->copy()->addDay()->setTime(10, 0),
-            'until' => $today->copy()->addDay()->setTime(11, 0),
+            'from' => $now->copy()->addHours(22),
+            'until' => $now->copy()->addHours(23),
             'status' => VisitStatusEnum::Planned,
-            'notes' => 'Tomorrow visit for 48-hour reception board coverage.',
+            'notes' => 'Ada Avery visit for next-day reception board coverage.',
         ], ['thomas.green@example.org', 'lucy.walker@example.net']);
 
         $this->seedVisit([
