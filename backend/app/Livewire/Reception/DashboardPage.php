@@ -138,11 +138,7 @@ class DashboardPage extends Component
                 return filled($visitor->pivot->checked_in_at) && blank($visitor->pivot->checked_out_at);
             })->count();
         });
-        $openClarifications = $todayVisits->sum(function (Visit $visit) {
-            return $visit->visitors->filter(function (Visitor $visitor) use ($visit) {
-                return blank($visitor->pivot->badge_printed_at) || $visit->status === VisitStatusEnum::Draft->value;
-            })->count();
-        });
+        $unpreparedBadges = $this->unpreparedBadgesCount();
 
         return [
             [
@@ -156,11 +152,34 @@ class DashboardPage extends Component
                 'meta' => __('Personen mit Check-in ohne Check-out'),
             ],
             [
-                'label' => __('Offene Klärungen'),
-                'value' => (string) $openClarifications,
-                'meta' => __('Ausweise, Entwürfe oder offene Vorbereitung'),
+                'label' => __('Ausweise vorzubereiten'),
+                'value' => (string) $unpreparedBadges,
+                'meta' => __('Nicht gedruckte Ausweise im Vorbereitungszeitraum'),
             ],
         ];
+    }
+
+    private function unpreparedBadgesCount(): int
+    {
+        $user = auth()->user();
+        abort_unless($user instanceof User, 403);
+        $referenceNow = now();
+
+        return (int) Visit::query()
+            ->visibleTo($user)
+            ->where('status', VisitStatusEnum::Planned->value)
+            ->where('scheduled_from', '<=', $referenceNow->copy()->addHours($this->badgePreparationWindowHours()))
+            ->where('scheduled_until', '>=', $referenceNow)
+            ->withCount([
+                'visitors as unprepared_badges_count' => fn ($query) => $query->whereNull('visit_visitor.badge_printed_at'),
+            ])
+            ->get()
+            ->sum('unprepared_badges_count');
+    }
+
+    private function badgePreparationWindowHours(): int
+    {
+        return max(0, (int) config('reception.badge_preparation_window_hours', 48));
     }
 
     private function visits($todayVisits)

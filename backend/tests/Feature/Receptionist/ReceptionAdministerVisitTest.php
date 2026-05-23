@@ -106,6 +106,74 @@ class ReceptionAdministerVisitTest extends TestCase
         }
     }
 
+    public function test_dashboard_counts_unprepared_badges_in_configured_window(): void
+    {
+        $originalWindow = config('reception.badge_preparation_window_hours');
+
+        Carbon::setTestNow(Carbon::create(2026, 5, 1, 10, 0, 0, config('app.timezone')));
+        config(['reception.badge_preparation_window_hours' => 24]);
+
+        try {
+            $receptionist = (new PermissionHelper)->getReceptionistUser();
+            $unpreparedVisitor = Visitor::factory()->create(['first_name' => 'Una', 'name' => 'Unprepared']);
+            $preparedVisitor = Visitor::factory()->create(['first_name' => 'Paula', 'name' => 'Prepared']);
+            $tooFarVisitor = Visitor::factory()->create(['first_name' => 'Fiona', 'name' => 'Future']);
+            $endedVisitor = Visitor::factory()->create(['first_name' => 'Erik', 'name' => 'Ended']);
+            $draftVisitor = Visitor::factory()->create(['first_name' => 'Dora', 'name' => 'Draft']);
+            $upcomingVisit = Visit::factory()->create([
+                'title' => 'Badge Window Visit',
+                'user_id' => $receptionist->id,
+                'responsible_user_id' => $receptionist->id,
+                'status' => VisitStatusEnum::Planned->value,
+                'scheduled_from' => now()->copy()->addHours(20),
+                'scheduled_until' => now()->copy()->addHours(21),
+            ]);
+            $tooFarVisit = Visit::factory()->create([
+                'user_id' => $receptionist->id,
+                'responsible_user_id' => $receptionist->id,
+                'status' => VisitStatusEnum::Planned->value,
+                'scheduled_from' => now()->copy()->addHours(25),
+                'scheduled_until' => now()->copy()->addHours(26),
+            ]);
+            $endedVisit = Visit::factory()->create([
+                'user_id' => $receptionist->id,
+                'responsible_user_id' => $receptionist->id,
+                'status' => VisitStatusEnum::Planned->value,
+                'scheduled_from' => now()->copy()->subHours(2),
+                'scheduled_until' => now()->copy()->subHour(),
+            ]);
+            $draftVisit = Visit::factory()->create([
+                'user_id' => $receptionist->id,
+                'responsible_user_id' => $receptionist->id,
+                'status' => VisitStatusEnum::Draft->value,
+                'scheduled_from' => now()->copy()->addHours(2),
+                'scheduled_until' => now()->copy()->addHours(3),
+            ]);
+
+            $upcomingVisit->visitors()->attach($unpreparedVisitor->id);
+            $upcomingVisit->visitors()->attach($preparedVisitor->id, [
+                'badge_printed_at' => now(),
+            ]);
+            $tooFarVisit->visitors()->attach($tooFarVisitor->id);
+            $endedVisit->visitors()->attach($endedVisitor->id);
+            $draftVisit->visitors()->attach($draftVisitor->id);
+
+            $component = Livewire::actingAs($receptionist)
+                ->test(DashboardPage::class)
+                ->assertSee(__('Ausweise vorzubereiten'))
+                ->assertSee(__('Nicht gedruckte Ausweise im Vorbereitungszeitraum'))
+                ->assertDontSee(__('Offene Klärungen'));
+
+            $this->assertMatchesRegularExpression(
+                '/Ausweise vorzubereiten.*?>1<.*?Nicht gedruckte Ausweise im Vorbereitungszeitraum/s',
+                $component->html()
+            );
+        } finally {
+            config(['reception.badge_preparation_window_hours' => $originalWindow]);
+            Carbon::setTestNow();
+        }
+    }
+
     /**
      * @throws \JsonException
      */
