@@ -1,0 +1,115 @@
+name: Bug report
+description: Report a reproducible defect in VisitorPortal.
+title: "[Bug]: "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for reporting a bug. Please include enough detail to reproduce it.
+
+        Do not include secrets, passwords, tokens, private keys, production visitor data, or personal data.
+
+  - type: textarea
+    id: summary
+    attributes:
+      label: Summary
+      description: What is broken?
+      placeholder: "Example: The check-in button is missing for planned visits on the reception dashboard."
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      description: Describe the exact steps.
+      placeholder: |
+        1. Log in as ...
+        2. Open ...
+        3. Click ...
+        4. See ...
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+      description: What should happen?
+    validations:
+      required: true
+
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual behavior
+      description: What happens instead?
+    validations:
+      required: true
+
+  - type: dropdown
+    id: area
+    attributes:
+      label: Affected area
+      multiple: true
+      options:
+        - Authentication / Login
+        - SSO / OIDC
+        - MFA / Recovery codes
+        - Portal dashboard / My visits
+        - Reception / Check-in-out
+        - All visits / Visit management
+        - Visitor badge / PDF / Gotenberg
+        - Welcome monitor
+        - Admin panel / Filament
+        - Notifications / Mail
+        - Privacy / Retention
+        - Demo data / Seeders
+        - Docker / Setup / Operations
+        - UI / Styling
+        - Other
+    validations:
+      required: true
+
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment
+      description: Provide relevant version and runtime details.
+      placeholder: |
+        VisitorPortal version / commit:
+        Browser:
+        Docker:
+        PHP:
+        Database:
+        Operating system:
+    validations:
+      required: false
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs
+      description: Paste relevant logs. Redact secrets and personal data.
+      render: shell
+    validations:
+      required: false
+
+  - type: textarea
+    id: screenshots
+    attributes:
+      label: Screenshots or screen recordings
+      description: Optional, but helpful for UI, PDF, monitor, badge, and reception issues. Redact personal data.
+    validations:
+      required: false
+
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Checklist
+      options:
+        - label: I checked that this issue does not contain secrets or personal data.
+          required: true
+        - label: I searched existing issues before opening this one.
+          required: true

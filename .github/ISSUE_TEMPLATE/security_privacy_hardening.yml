@@ -1,0 +1,80 @@
+name: Security or privacy hardening
+description: Propose a security, privacy, or operational hardening improvement. Do not report vulnerabilities here.
+title: "[Security/Privacy]: "
+labels: ["security", "privacy"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Do not report exploitable vulnerabilities in public issues.
+        Use the repository security policy for confidential vulnerability reports.
+
+        This template is for hardening tasks, privacy improvements, retention improvements, and security architecture work.
+
+  - type: textarea
+    id: topic
+    attributes:
+      label: Topic
+      description: What should be improved?
+      placeholder: "Example: Recovery-code access should require fresh step-up authentication."
+    validations:
+      required: true
+
+  - type: dropdown
+    id: category
+    attributes:
+      label: Category
+      multiple: true
+      options:
+        - Authentication
+        - SSO / OIDC
+        - MFA / Recovery codes
+        - Authorization / IDOR
+        - Privacy / Data minimization
+        - Retention / Deletion
+        - Visitor data handling
+        - Upload handling
+        - PDF / Badge generation
+        - Docker / Operations
+        - Logging / Monitoring
+        - Documentation
+        - Other
+    validations:
+      required: true
+
+  - type: textarea
+    id: rationale
+    attributes:
+      label: Risk or rationale
+      description: Why does this matter?
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed change
+      description: Describe the desired change.
+    validations:
+      required: true
+
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: Acceptance criteria
+      placeholder: |
+        - ...
+        - ...
+        - ...
+    validations:
+      required: false
+
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Public issue safety
+      options:
+        - label: This is not an exploitable vulnerability report.
+          required: true
+        - label: This issue does not include secrets, tokens, private data, or exploit details.
+          required: true
