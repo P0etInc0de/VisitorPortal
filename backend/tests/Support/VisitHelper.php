@@ -10,10 +10,10 @@ class VisitHelper
 {
     // returns a visit based on given parameters
     public function makeVisit(
-        int $user_id,
+        int $hostUserId,
         string $title,
         VisitStatusEnum $status,
-        int $responsible_user_id,
+        ?int $substituteUserId,
         ?Collection $visitors = null
     ): Visit {
 
@@ -21,8 +21,9 @@ class VisitHelper
         $visit = Visit::factory()->create([
             'title' => $title,
             'status' => $status,
-            'responsible_user_id' => $responsible_user_id,
-            'user_id' => $user_id,
+            'host_user_id' => $hostUserId,
+            'substitute_user_id' => $substituteUserId,
+            'created_by_user_id' => $hostUserId,
         ]);
 
         // check if visitors parameter is passed and add them, if so

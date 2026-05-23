@@ -31,7 +31,7 @@ class VisitSeeder extends Seeder
         $this->seedVisit([
             'title' => 'Morning operations briefing',
             'host' => 'employee@example.org',
-            'responsible' => 'reception@example.org',
+            'substitute' => 'reception@example.org',
             'from' => $today->copy()->setTime(8, 30),
             'until' => $today->copy()->setTime(9, 0),
             'status' => VisitStatusEnum::Completed,
@@ -55,7 +55,7 @@ class VisitSeeder extends Seeder
         $this->seedVisit([
             'title' => 'Supplier onboarding review',
             'host' => 'manager@example.org',
-            'responsible' => 'reception@example.org',
+            'substitute' => 'reception@example.org',
             'from' => $today->copy()->setTime(9, 30),
             'until' => $today->copy()->setTime(10, 15),
             'status' => VisitStatusEnum::Planned,
@@ -65,7 +65,7 @@ class VisitSeeder extends Seeder
         $this->seedVisit([
             'title' => 'Engineering partner workshop',
             'host' => 'demo.user04@example.org',
-            'responsible' => 'security@example.org',
+            'substitute' => 'security@example.org',
             'from' => $today->copy()->setTime(10, 30),
             'until' => $today->copy()->setTime(12, 0),
             'status' => VisitStatusEnum::Planned,
@@ -75,7 +75,7 @@ class VisitSeeder extends Seeder
         $this->seedVisit([
             'title' => 'Logistics planning session',
             'host' => 'demo.user01@example.org',
-            'responsible' => 'reception@example.org',
+            'substitute' => 'reception@example.org',
             'from' => $today->copy()->setTime(11, 30),
             'until' => $today->copy()->setTime(12, 15),
             'status' => VisitStatusEnum::Planned,
@@ -85,7 +85,7 @@ class VisitSeeder extends Seeder
         $this->seedVisit([
             'title' => 'Manufacturing quality review',
             'host' => 'demo.user09@example.net',
-            'responsible' => 'reception@example.org',
+            'substitute' => 'reception@example.org',
             'from' => $today->copy()->setTime(14, 0),
             'until' => $today->copy()->setTime(16, 0),
             'status' => VisitStatusEnum::Planned,
@@ -95,7 +95,7 @@ class VisitSeeder extends Seeder
         $this->seedVisit([
             'title' => 'Walk-in: documentation pickup',
             'host' => 'employee@example.org',
-            'responsible' => 'security@example.org',
+            'created_by' => 'security@example.org',
             'from' => $now->copy()->subMinutes(10),
             'until' => $now->copy()->addMinutes(50),
             'status' => VisitStatusEnum::Planned,
@@ -112,7 +112,7 @@ class VisitSeeder extends Seeder
         $this->seedVisit([
             'title' => 'Safety audit preparation',
             'host' => 'security@example.org',
-            'responsible' => 'reception@example.org',
+            'substitute' => 'reception@example.org',
             'from' => $today->copy()->addDay()->setTime(10, 0),
             'until' => $today->copy()->addDay()->setTime(11, 0),
             'status' => VisitStatusEnum::Planned,
@@ -122,7 +122,7 @@ class VisitSeeder extends Seeder
         $this->seedVisit([
             'title' => 'Draft: component roadmap',
             'host' => 'demo.user03@example.net',
-            'responsible' => 'admin@example.org',
+            'substitute' => 'admin@example.org',
             'from' => $today->copy()->addDays(2)->setTime(13, 30),
             'until' => $today->copy()->addDays(2)->setTime(14, 30),
             'status' => VisitStatusEnum::Draft,
@@ -132,7 +132,7 @@ class VisitSeeder extends Seeder
         $this->seedVisit([
             'title' => 'Canceled: facility walkthrough',
             'host' => 'demo.user06@example.net',
-            'responsible' => 'reception@example.org',
+            'substitute' => 'reception@example.org',
             'from' => $today->copy()->subDay()->setTime(15, 0),
             'until' => $today->copy()->subDay()->setTime(16, 0),
             'status' => VisitStatusEnum::Canceled,
@@ -144,7 +144,7 @@ class VisitSeeder extends Seeder
         $this->seedVisit([
             'title' => 'Far future systems audit',
             'host' => 'admin@example.org',
-            'responsible' => 'security@example.org',
+            'substitute' => 'security@example.org',
             'from' => $today->copy()->addDays(35)->setTime(12, 0),
             'until' => $today->copy()->addDays(35)->setTime(13, 0),
             'status' => VisitStatusEnum::Planned,
@@ -168,7 +168,7 @@ class VisitSeeder extends Seeder
             ->orderBy('id')
             ->pluck('email')
             ->values();
-        $responsibleEmails = collect(['reception@example.org', 'security@example.org', 'admin@example.org']);
+        $substituteEmails = collect(['reception@example.org', 'security@example.org', 'admin@example.org']);
         $visitorEmails = Visitor::query()->orderBy('id')->pluck('email')->values();
         $topics = ['planning', 'quality', 'operations', 'safety', 'prototype', 'supplier', 'training', 'logistics'];
         $visits = [];
@@ -194,10 +194,17 @@ class VisitSeeder extends Seeder
                 $participants[] = $visitorEmails[($index + $participant) % $visitorEmails->count()];
             }
 
+            $hostEmail = $hostEmails[$index % $hostEmails->count()];
+            $substituteEmail = $substituteEmails[$index % $substituteEmails->count()];
+
+            if ($substituteEmail === $hostEmail) {
+                $substituteEmail = $substituteEmails[($index + 1) % $substituteEmails->count()];
+            }
+
             $visitData = [
                 'title' => sprintf('Demo %02d: %s %s', $index, ucfirst($topics[$index % count($topics)]), $faker->randomElement(['review', 'briefing', 'workshop', 'check-in'])),
-                'host' => $hostEmails[$index % $hostEmails->count()],
-                'responsible' => $responsibleEmails[$index % $responsibleEmails->count()],
+                'host' => $hostEmail,
+                'substitute' => $substituteEmail,
                 'from' => $startsAt,
                 'until' => $startsAt->copy()->addMinutes(45 + (($index % 3) * 15)),
                 'status' => $status,
@@ -223,14 +230,16 @@ class VisitSeeder extends Seeder
     private function seedVisit(array $visitData, array $visitors): Visit
     {
         $host = $this->user($visitData['host']);
-        $responsible = $this->user($visitData['responsible']);
+        $substitute = isset($visitData['substitute']) ? $this->user($visitData['substitute']) : null;
+        $createdBy = isset($visitData['created_by']) ? $this->user($visitData['created_by']) : $host;
 
         $visit = Visit::query()->updateOrCreate(
             ['title' => $visitData['title']],
             [
                 'site_id' => $host->site_id,
-                'user_id' => $host->id,
-                'responsible_user_id' => $responsible->id,
+                'host_user_id' => $host->id,
+                'substitute_user_id' => $substitute?->id,
+                'created_by_user_id' => $createdBy->id,
                 'scheduled_from' => $visitData['from'],
                 'scheduled_until' => $visitData['until'],
                 'status' => $visitData['status']->value,

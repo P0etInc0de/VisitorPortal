@@ -65,13 +65,13 @@ class MultiSiteAccessTest extends TestCase
 
         $visibleVisit = Visit::factory()->create([
             'site_id' => $assignedSite->id,
-            'user_id' => $assignedHost->id,
-            'responsible_user_id' => $assignedHost->id,
+            'host_user_id' => $assignedHost->id,
+            'substitute_user_id' => $assignedHost->id,
         ]);
         $hiddenVisit = Visit::factory()->create([
             'site_id' => $otherSite->id,
-            'user_id' => $otherHost->id,
-            'responsible_user_id' => $otherHost->id,
+            'host_user_id' => $otherHost->id,
+            'substitute_user_id' => $otherHost->id,
         ]);
         $visibleVisit->visitors()->attach($visibleVisitor->id);
         $hiddenVisit->visitors()->attach($hiddenVisitor->id);
@@ -115,7 +115,7 @@ class MultiSiteAccessTest extends TestCase
             ->post(route('portal.visits.store'), [
                 'title' => 'Allowed assigned site visit',
                 'site_id' => $assignedSite->id,
-                'user_id' => $assignedHost->id,
+                'host_user_id' => $assignedHost->id,
                 'scheduled_from' => now()->addDay()->format('Y-m-d H:i:s'),
                 'scheduled_until' => now()->addDay()->addHour()->format('Y-m-d H:i:s'),
                 'status' => VisitStatusEnum::Planned->value,
@@ -131,14 +131,14 @@ class MultiSiteAccessTest extends TestCase
         $this->assertDatabaseHas('visits', [
             'title' => 'Allowed assigned site visit',
             'site_id' => $assignedSite->id,
-            'user_id' => $assignedHost->id,
+            'host_user_id' => $assignedHost->id,
         ]);
 
         $this->actingAs($actor)
             ->post(route('portal.visits.store'), [
                 'title' => 'Blocked foreign site visit',
                 'site_id' => $assignedSite->id,
-                'user_id' => $otherHost->id,
+                'host_user_id' => $otherHost->id,
                 'scheduled_from' => now()->addDay()->format('Y-m-d H:i:s'),
                 'scheduled_until' => now()->addDay()->addHour()->format('Y-m-d H:i:s'),
                 'status' => VisitStatusEnum::Planned->value,
@@ -149,7 +149,7 @@ class MultiSiteAccessTest extends TestCase
                     ],
                 ],
             ])
-            ->assertSessionHasErrors('user_id');
+            ->assertSessionHasErrors('host_user_id');
 
         $this->assertDatabaseMissing('visits', [
             'title' => 'Blocked foreign site visit',
@@ -171,7 +171,7 @@ class MultiSiteAccessTest extends TestCase
             ->post(route('portal.visits.store'), [
                 'title' => 'Inactive site visit',
                 'site_id' => $inactiveSite->id,
-                'user_id' => $host->id,
+                'host_user_id' => $host->id,
                 'scheduled_from' => now()->addDay()->format('Y-m-d H:i:s'),
                 'scheduled_until' => now()->addDay()->addHour()->format('Y-m-d H:i:s'),
                 'status' => VisitStatusEnum::Planned->value,
@@ -209,8 +209,8 @@ class MultiSiteAccessTest extends TestCase
             $visibleVisit = Visit::factory()->create([
                 'title' => 'Assigned Site Visit',
                 'site_id' => $assignedSite->id,
-                'user_id' => $assignedHost->id,
-                'responsible_user_id' => $assignedHost->id,
+                'host_user_id' => $assignedHost->id,
+                'substitute_user_id' => $assignedHost->id,
                 'scheduled_from' => now()->addHour(),
                 'scheduled_until' => now()->addHours(2),
                 'status' => VisitStatusEnum::Planned->value,
@@ -218,8 +218,8 @@ class MultiSiteAccessTest extends TestCase
             $hiddenVisit = Visit::factory()->create([
                 'title' => 'Foreign Site Visit',
                 'site_id' => $otherSite->id,
-                'user_id' => $otherHost->id,
-                'responsible_user_id' => $otherHost->id,
+                'host_user_id' => $otherHost->id,
+                'substitute_user_id' => $otherHost->id,
                 'scheduled_from' => now()->addHour(),
                 'scheduled_until' => now()->addHours(2),
                 'status' => VisitStatusEnum::Planned->value,
@@ -261,7 +261,7 @@ class MultiSiteAccessTest extends TestCase
 
         $this->assertDatabaseHas('visits', [
             'site_id' => $assignedSite->id,
-            'user_id' => $host->id,
+            'host_user_id' => $host->id,
             'is_walk_in' => true,
         ]);
     }
@@ -305,7 +305,7 @@ class MultiSiteAccessTest extends TestCase
             ->post(route('portal.visits.store'), [
                 'title' => 'Recurring assigned site visit',
                 'site_id' => $assignedSite->id,
-                'user_id' => $host->id,
+                'host_user_id' => $host->id,
                 'scheduled_from' => now()->addDay()->format('Y-m-d H:i:s'),
                 'scheduled_until' => now()->addDay()->addHour()->format('Y-m-d H:i:s'),
                 'status' => VisitStatusEnum::Planned->value,
@@ -345,8 +345,8 @@ class MultiSiteAccessTest extends TestCase
         $visit = Visit::factory()->create([
             'title' => 'Assigned site update',
             'site_id' => $assignedSite->id,
-            'user_id' => $originalHost->id,
-            'responsible_user_id' => $originalHost->id,
+            'host_user_id' => $originalHost->id,
+            'substitute_user_id' => $originalHost->id,
             'status' => VisitStatusEnum::Planned->value,
         ]);
         $visit->visitors()->attach($visitor->id);
@@ -355,7 +355,7 @@ class MultiSiteAccessTest extends TestCase
             ->patch(route('portal.visits.update', $visit), [
                 'title' => 'Assigned site update changed',
                 'site_id' => $assignedSite->id,
-                'user_id' => $newHost->id,
+                'host_user_id' => $newHost->id,
                 'scheduled_from' => now()->addDay()->format('Y-m-d H:i:s'),
                 'scheduled_until' => now()->addDay()->addHour()->format('Y-m-d H:i:s'),
                 'status' => VisitStatusEnum::Planned->value,
@@ -368,7 +368,7 @@ class MultiSiteAccessTest extends TestCase
         $visit->refresh();
 
         $this->assertSame($assignedSite->id, $visit->site_id);
-        $this->assertSame($newHost->id, $visit->user_id);
+        $this->assertSame($newHost->id, $visit->host_user_id);
     }
 
     public function test_visit_edit_keeps_current_inactive_site_selectable(): void
@@ -393,8 +393,8 @@ class MultiSiteAccessTest extends TestCase
 
         $visit = Visit::factory()->create([
             'site_id' => $currentInactiveSite->id,
-            'user_id' => $host->id,
-            'responsible_user_id' => $host->id,
+            'host_user_id' => $host->id,
+            'substitute_user_id' => $host->id,
             'status' => VisitStatusEnum::Planned->value,
         ]);
 

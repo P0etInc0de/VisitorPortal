@@ -49,40 +49,40 @@ class CheckInOutBoardTest extends TestCase
 
             $yesterdayVisit = Visit::factory()->create([
                 'title' => 'Vergangener Besuch',
-                'user_id' => $user->id,
-                'responsible_user_id' => $user->id,
+                'host_user_id' => $user->id,
+                'substitute_user_id' => $user->id,
                 'status' => VisitStatusEnum::Planned->value,
                 'scheduled_from' => now()->copy()->subDay()->setTime(10, 0),
                 'scheduled_until' => now()->copy()->subDay()->setTime(11, 0),
             ]);
             $todayVisit = Visit::factory()->create([
                 'title' => 'Heutiger Besuch',
-                'user_id' => $user->id,
-                'responsible_user_id' => $user->id,
+                'host_user_id' => $user->id,
+                'substitute_user_id' => $user->id,
                 'status' => VisitStatusEnum::Planned->value,
                 'scheduled_from' => now()->copy()->setTime(12, 0),
                 'scheduled_until' => now()->copy()->setTime(13, 0),
             ]);
             $endedTodayVisit = Visit::factory()->create([
                 'title' => 'Beendeter Besuch heute',
-                'user_id' => $user->id,
-                'responsible_user_id' => $user->id,
+                'host_user_id' => $user->id,
+                'substitute_user_id' => $user->id,
                 'status' => VisitStatusEnum::Planned->value,
                 'scheduled_from' => now()->copy()->setTime(8, 0),
                 'scheduled_until' => now()->copy()->setTime(9, 0),
             ]);
             $futureVisit = Visit::factory()->create([
                 'title' => 'Baldiger Besuch',
-                'user_id' => $user->id,
-                'responsible_user_id' => $user->id,
+                'host_user_id' => $user->id,
+                'substitute_user_id' => $user->id,
                 'status' => VisitStatusEnum::Planned->value,
                 'scheduled_from' => now()->copy()->addHours(30),
                 'scheduled_until' => now()->copy()->addHours(31),
             ]);
             $tooFarVisit = Visit::factory()->create([
                 'title' => 'Zu ferner Besuch',
-                'user_id' => $user->id,
-                'responsible_user_id' => $user->id,
+                'host_user_id' => $user->id,
+                'substitute_user_id' => $user->id,
                 'status' => VisitStatusEnum::Planned->value,
                 'scheduled_from' => now()->copy()->addHours(49),
                 'scheduled_until' => now()->copy()->addHours(50),
@@ -123,16 +123,16 @@ class CheckInOutBoardTest extends TestCase
             $outsideVisitor = Visitor::factory()->create(['first_name' => 'Oscar', 'name' => 'Outside']);
             $visibleVisit = Visit::factory()->create([
                 'title' => 'Configured Visible Visit',
-                'user_id' => $user->id,
-                'responsible_user_id' => $user->id,
+                'host_user_id' => $user->id,
+                'substitute_user_id' => $user->id,
                 'status' => VisitStatusEnum::Planned->value,
                 'scheduled_from' => now()->copy()->addHours(11),
                 'scheduled_until' => now()->copy()->addHours(12),
             ]);
             $outsideVisit = Visit::factory()->create([
                 'title' => 'Configured Outside Visit',
-                'user_id' => $user->id,
-                'responsible_user_id' => $user->id,
+                'host_user_id' => $user->id,
+                'substitute_user_id' => $user->id,
                 'status' => VisitStatusEnum::Planned->value,
                 'scheduled_from' => now()->copy()->addHours(13),
                 'scheduled_until' => now()->copy()->addHours(14),
@@ -173,24 +173,24 @@ class CheckInOutBoardTest extends TestCase
 
             $plannedSoonVisit = Visit::factory()->create([
                 'title' => 'Geplanter Besuch 10:15',
-                'user_id' => $user->id,
-                'responsible_user_id' => $user->id,
+                'host_user_id' => $user->id,
+                'substitute_user_id' => $user->id,
                 'status' => VisitStatusEnum::Planned->value,
                 'scheduled_from' => now()->copy()->setTime(10, 15),
                 'scheduled_until' => now()->copy()->setTime(11, 0),
             ]);
             $checkedInVisit = Visit::factory()->create([
                 'title' => 'Eingecheckter Besuch bis 10:30',
-                'user_id' => $user->id,
-                'responsible_user_id' => $user->id,
+                'host_user_id' => $user->id,
+                'substitute_user_id' => $user->id,
                 'status' => VisitStatusEnum::Planned->value,
                 'scheduled_from' => now()->copy()->setTime(8, 0),
                 'scheduled_until' => now()->copy()->setTime(10, 30),
             ]);
             $plannedLaterVisit = Visit::factory()->create([
                 'title' => 'Geplanter Besuch 11:00',
-                'user_id' => $user->id,
-                'responsible_user_id' => $user->id,
+                'host_user_id' => $user->id,
+                'substitute_user_id' => $user->id,
                 'status' => VisitStatusEnum::Planned->value,
                 'scheduled_from' => now()->copy()->setTime(11, 0),
                 'scheduled_until' => now()->copy()->setTime(12, 0),
@@ -225,8 +225,8 @@ class CheckInOutBoardTest extends TestCase
             $plannedVisitor = Visitor::factory()->create(['first_name' => 'Zoe', 'name' => 'Planned']);
             $visit = Visit::factory()->create([
                 'title' => 'Shared Training',
-                'user_id' => $user->id,
-                'responsible_user_id' => $user->id,
+                'host_user_id' => $user->id,
+                'substitute_user_id' => $user->id,
                 'status' => VisitStatusEnum::Planned->value,
                 'scheduled_from' => now()->copy()->setTime(10, 15),
                 'scheduled_until' => now()->copy()->setTime(11, 0),
@@ -262,8 +262,8 @@ class CheckInOutBoardTest extends TestCase
             $noShowVisitor = Visitor::factory()->create(['first_name' => 'Nina', 'name' => 'NoShow']);
             $visit = Visit::factory()->create([
                 'title' => 'Ended With Active Checkout',
-                'user_id' => $user->id,
-                'responsible_user_id' => $user->id,
+                'host_user_id' => $user->id,
+                'substitute_user_id' => $user->id,
                 'status' => VisitStatusEnum::Planned->value,
                 'scheduled_from' => now()->copy()->subHours(3),
                 'scheduled_until' => now()->copy()->subHour(),
@@ -293,8 +293,8 @@ class CheckInOutBoardTest extends TestCase
             $user = (new PermissionHelper)->getReceptionistUser();
             $visitor = Visitor::factory()->create();
             $visit = Visit::factory()->create([
-                'user_id' => $user->id,
-                'responsible_user_id' => $user->id,
+                'host_user_id' => $user->id,
+                'substitute_user_id' => $user->id,
                 'status' => VisitStatusEnum::Planned->value,
                 'scheduled_from' => now()->copy()->subHours(3),
                 'scheduled_until' => now()->copy()->subHour(),
@@ -337,24 +337,24 @@ class CheckInOutBoardTest extends TestCase
 
             $todayVisit = Visit::factory()->create([
                 'title' => 'Heutiger Clara Besuch',
-                'user_id' => $user->id,
-                'responsible_user_id' => $user->id,
+                'host_user_id' => $user->id,
+                'substitute_user_id' => $user->id,
                 'status' => VisitStatusEnum::Planned->value,
                 'scheduled_from' => now()->copy()->setTime(14, 0),
                 'scheduled_until' => now()->copy()->setTime(15, 0),
             ]);
             $oldVisit = Visit::factory()->create([
                 'title' => 'Alter Clara Besuch',
-                'user_id' => $user->id,
-                'responsible_user_id' => $user->id,
+                'host_user_id' => $user->id,
+                'substitute_user_id' => $user->id,
                 'status' => VisitStatusEnum::Planned->value,
                 'scheduled_from' => now()->copy()->subDay()->setTime(14, 0),
                 'scheduled_until' => now()->copy()->subDay()->setTime(15, 0),
             ]);
             $tooFarVisit = Visit::factory()->create([
                 'title' => 'Spaeter Clara Besuch',
-                'user_id' => $user->id,
-                'responsible_user_id' => $user->id,
+                'host_user_id' => $user->id,
+                'substitute_user_id' => $user->id,
                 'status' => VisitStatusEnum::Planned->value,
                 'scheduled_from' => now()->copy()->addHours(60),
                 'scheduled_until' => now()->copy()->addHours(61),
@@ -395,8 +395,8 @@ class CheckInOutBoardTest extends TestCase
         $visit = Visit::factory()->create([
             'title' => 'Contact Detail Visit',
             'site_id' => $user->site_id,
-            'user_id' => $user->id,
-            'responsible_user_id' => $user->id,
+            'host_user_id' => $user->id,
+            'substitute_user_id' => $user->id,
             'status' => VisitStatusEnum::Planned->value,
             'scheduled_from' => now()->addHour(),
             'scheduled_until' => now()->addHours(2),
@@ -423,8 +423,8 @@ class CheckInOutBoardTest extends TestCase
             'name' => 'Sample',
         ]);
         $visit = Visit::factory()->create([
-            'user_id' => $user->id,
-            'responsible_user_id' => $user->id,
+            'host_user_id' => $user->id,
+            'substitute_user_id' => $user->id,
             'status' => VisitStatusEnum::Planned->value,
             'scheduled_from' => now()->addHour(),
             'scheduled_until' => now()->addHours(2),
@@ -460,8 +460,8 @@ class CheckInOutBoardTest extends TestCase
             'name' => 'Musterfrau',
         ]);
         $visit = Visit::factory()->create([
-            'user_id' => $user->id,
-            'responsible_user_id' => $user->id,
+            'host_user_id' => $user->id,
+            'substitute_user_id' => $user->id,
             'status' => VisitStatusEnum::Planned->value,
             'scheduled_from' => now()->addHour(),
             'scheduled_until' => now()->addHours(2),

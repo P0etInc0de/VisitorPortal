@@ -21,8 +21,9 @@ class Visit extends Model
         'recurrence_occurrence_number',
         'recurrence_original_scheduled_from',
         'recurrence_is_modified',
-        'user_id',
-        'responsible_user_id',
+        'host_user_id',
+        'substitute_user_id',
+        'created_by_user_id',
         'scheduled_from',
         'scheduled_until',
         'status',
@@ -55,7 +56,7 @@ class Visit extends Model
 
     public function host(): BelongsTo
     {
-        return $this->belongsTo(User::class, 'user_id');
+        return $this->belongsTo(User::class, 'host_user_id');
     }
 
     public function site(): BelongsTo
@@ -63,9 +64,9 @@ class Visit extends Model
         return $this->belongsTo(Site::class);
     }
 
-    public function responsibleUser(): BelongsTo
+    public function substituteUser(): BelongsTo
     {
-        return $this->belongsTo(User::class, 'responsible_user_id');
+        return $this->belongsTo(User::class, 'substitute_user_id');
     }
 
     public function recurringSeries(): BelongsTo
@@ -83,9 +84,9 @@ class Visit extends Model
         return $this->belongsTo(User::class, 'retention_hold_by_user_id');
     }
 
-    public function creator(): BelongsTo
+    public function createdBy(): BelongsTo
     {
-        return $this->belongsTo(User::class, 'user_id');
+        return $this->belongsTo(User::class, 'created_by_user_id');
     }
 
     public function visitors(): BelongsToMany
@@ -136,12 +137,12 @@ class Visit extends Model
 
             if ($canSeeDepartment) {
                 $query->orWhereHas('host', fn (Builder $query) => $query->where('department_id', $user->department_id))
-                    ->orWhereHas('responsibleUser', fn (Builder $query) => $query->where('department_id', $user->department_id));
+                    ->orWhereHas('substituteUser', fn (Builder $query) => $query->where('department_id', $user->department_id));
             }
 
             if ($canSeeOwn) {
-                $query->orWhere('user_id', $user->id)
-                    ->orWhere('responsible_user_id', $user->id);
+                $query->orWhere('host_user_id', $user->id)
+                    ->orWhere('substitute_user_id', $user->id);
             }
         });
     }

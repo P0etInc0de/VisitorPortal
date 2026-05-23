@@ -64,7 +64,7 @@ class ReceptionAdministerVisitTest extends TestCase
         try {
             $receptionist = (new PermissionHelper)->getReceptionistUser();
             $employee = User::factory()->create(['first_name' => 'Edith', 'name' => 'Edwards']);
-            $responsibleUser = User::factory()->create();
+            $substituteUser = User::factory()->create();
             $visitors = new Collection([
                 Visitor::factory()->create(['first_name' => 'Alice', 'name' => 'Alpha']),
                 Visitor::factory()->create(['first_name' => 'Bob', 'name' => 'Beta']),
@@ -76,7 +76,7 @@ class ReceptionAdministerVisitTest extends TestCase
                 $employee->id,
                 'Dashboard Visit',
                 VisitStatusEnum::Planned,
-                $responsibleUser->id,
+                $substituteUser->id,
                 $visitors
             );
             $moreParticipantsLabel = '+ 2 '.__('weitere Teilnehmende');
@@ -123,29 +123,29 @@ class ReceptionAdministerVisitTest extends TestCase
             $draftVisitor = Visitor::factory()->create(['first_name' => 'Dora', 'name' => 'Draft']);
             $upcomingVisit = Visit::factory()->create([
                 'title' => 'Badge Window Visit',
-                'user_id' => $receptionist->id,
-                'responsible_user_id' => $receptionist->id,
+                'host_user_id' => $receptionist->id,
+                'substitute_user_id' => $receptionist->id,
                 'status' => VisitStatusEnum::Planned->value,
                 'scheduled_from' => now()->copy()->addHours(20),
                 'scheduled_until' => now()->copy()->addHours(21),
             ]);
             $tooFarVisit = Visit::factory()->create([
-                'user_id' => $receptionist->id,
-                'responsible_user_id' => $receptionist->id,
+                'host_user_id' => $receptionist->id,
+                'substitute_user_id' => $receptionist->id,
                 'status' => VisitStatusEnum::Planned->value,
                 'scheduled_from' => now()->copy()->addHours(25),
                 'scheduled_until' => now()->copy()->addHours(26),
             ]);
             $endedVisit = Visit::factory()->create([
-                'user_id' => $receptionist->id,
-                'responsible_user_id' => $receptionist->id,
+                'host_user_id' => $receptionist->id,
+                'substitute_user_id' => $receptionist->id,
                 'status' => VisitStatusEnum::Planned->value,
                 'scheduled_from' => now()->copy()->subHours(2),
                 'scheduled_until' => now()->copy()->subHour(),
             ]);
             $draftVisit = Visit::factory()->create([
-                'user_id' => $receptionist->id,
-                'responsible_user_id' => $receptionist->id,
+                'host_user_id' => $receptionist->id,
+                'substitute_user_id' => $receptionist->id,
                 'status' => VisitStatusEnum::Draft->value,
                 'scheduled_from' => now()->copy()->addHours(2),
                 'scheduled_until' => now()->copy()->addHours(3),
@@ -188,13 +188,13 @@ class ReceptionAdministerVisitTest extends TestCase
 
         $employee = User::factory()->create();
 
-        $responsibleUser = User::factory()->create();
+        $substituteUser = User::factory()->create();
 
         // create a visit acting as the receptionist
         $response = $this->actingAs($receptionist)
             ->post(route('portal.visits.store'), [
-                'user_id' => $employee->id,
-                'responsible_user_id' => $responsibleUser->id,
+                'host_user_id' => $employee->id,
+                'substitute_user_id' => $substituteUser->id,
                 'title' => $visitTitle,
                 'scheduled_from' => '2026-04-29 10:00:00',
                 'scheduled_until' => '2026-04-29 11:00:00',
@@ -223,14 +223,14 @@ class ReceptionAdministerVisitTest extends TestCase
 
         $participant = Visitor::factory()->create(['created_by_user_id' => $receptionist->id]);
         $employee = User::factory()->create();
-        $responsibleUser = User::factory()->create();
+        $substituteUser = User::factory()->create();
 
         // create a visit
         $visit = (new VisitHelper)->makeVisit(
             $employee->id,
             'Test Visit',
             VisitStatusEnum::Planned,
-            $responsibleUser->id
+            $substituteUser->id
         );
 
         // updated fields
@@ -242,8 +242,8 @@ class ReceptionAdministerVisitTest extends TestCase
         // send update request
         $response = $this->actingAs($receptionist)
             ->patch(route('portal.visits.update', $visit), [
-                'user_id' => $employee->id,
-                'responsible_user_id' => $responsibleUser->id,
+                'host_user_id' => $employee->id,
+                'substitute_user_id' => $substituteUser->id,
                 'title' => $updatedVisitTitle,
                 'scheduled_from' => $updatedScheduledFrom,
                 'scheduled_until' => $updatedScheduledUntil,
@@ -271,7 +271,7 @@ class ReceptionAdministerVisitTest extends TestCase
         $receptionist = (new PermissionHelper)->getReceptionistUser();
 
         $employee = User::factory()->create();
-        $responsibleUser = User::factory()->create();
+        $substituteUser = User::factory()->create();
 
         $visitTitle = 'Test Visit';
 
@@ -280,7 +280,7 @@ class ReceptionAdministerVisitTest extends TestCase
             $employee->id,
             $visitTitle,
             VisitStatusEnum::Planned,
-            $responsibleUser->id
+            $substituteUser->id
         );
 
         // cancel the visit
@@ -309,7 +309,7 @@ class ReceptionAdministerVisitTest extends TestCase
                 'email' => $visitors[0]->email,
             ]);
 
-            $responsibleUser = User::factory()->create();
+            $substituteUser = User::factory()->create();
             $visitTitle = 'Test Visit';
 
             // create visit with status 'Planned'
@@ -317,7 +317,7 @@ class ReceptionAdministerVisitTest extends TestCase
                 $employee->id,
                 $visitTitle,
                 VisitStatusEnum::Planned,
-                $responsibleUser->id,
+                $substituteUser->id,
                 $visitors
             );
 
@@ -355,7 +355,7 @@ class ReceptionAdministerVisitTest extends TestCase
                 ]);
             }
 
-            $responsibleUser = User::factory()->create();
+            $substituteUser = User::factory()->create();
             $visitTitle = 'Test Visit';
 
             // create visit with status 'Planned'
@@ -363,7 +363,7 @@ class ReceptionAdministerVisitTest extends TestCase
                 $employee->id,
                 $visitTitle,
                 VisitStatusEnum::Planned,
-                $responsibleUser->id,
+                $substituteUser->id,
                 $visitors
             );
 
@@ -430,13 +430,13 @@ class ReceptionAdministerVisitTest extends TestCase
         try {
             $receptionist = (new PermissionHelper)->getReceptionistUser();
             $employee = User::factory()->create();
-            $responsibleUser = User::factory()->create();
+            $substituteUser = User::factory()->create();
             $visitor = Visitor::factory()->create(['first_name' => 'Dorothy', 'name' => 'Gale']);
             $visit = (new VisitHelper)->makeVisit(
                 $employee->id,
                 'Check-In/Out Visit',
                 VisitStatusEnum::Planned,
-                $responsibleUser->id,
+                $substituteUser->id,
                 new Collection([$visitor])
             );
 
@@ -466,13 +466,13 @@ class ReceptionAdministerVisitTest extends TestCase
         try {
             $receptionist = (new PermissionHelper)->getReceptionistUser();
             $employee = User::factory()->create();
-            $responsibleUser = User::factory()->create();
+            $substituteUser = User::factory()->create();
             $visitor = Visitor::factory()->create(['first_name' => 'Dorothy', 'name' => 'Gale']);
             $visit = (new VisitHelper)->makeVisit(
                 $employee->id,
                 'All Visits Ausweis Visit',
                 VisitStatusEnum::Planned,
-                $responsibleUser->id,
+                $substituteUser->id,
                 new Collection([$visitor])
             );
 
@@ -503,13 +503,13 @@ class ReceptionAdministerVisitTest extends TestCase
         try {
             $receptionist = (new PermissionHelper)->getReceptionistUser();
             $employee = User::factory()->create();
-            $responsibleUser = User::factory()->create();
+            $substituteUser = User::factory()->create();
             $visitor = Visitor::factory()->create(['first_name' => 'Clara', 'name' => 'Completed']);
             $visit = (new VisitHelper)->makeVisit(
                 $employee->id,
                 'Completed All Visits',
                 VisitStatusEnum::Completed,
-                $responsibleUser->id,
+                $substituteUser->id,
                 new Collection([$visitor])
             );
             $visit->visitors()->updateExistingPivot($visitor->id, [
@@ -545,7 +545,7 @@ class ReceptionAdministerVisitTest extends TestCase
         try {
             $receptionist = (new PermissionHelper)->getReceptionistUser();
             $employee = User::factory()->create();
-            $responsibleUser = User::factory()->create();
+            $substituteUser = User::factory()->create();
             $visitors = new Collection([
                 Visitor::factory()->create(['first_name' => 'Paula', 'name' => 'Planned']),
                 Visitor::factory()->create(['first_name' => 'Rhea', 'name' => 'Recheck']),
@@ -554,7 +554,7 @@ class ReceptionAdministerVisitTest extends TestCase
                 $employee->id,
                 'Planned All Visits',
                 VisitStatusEnum::Planned,
-                $responsibleUser->id,
+                $substituteUser->id,
                 $visitors
             );
             $visit->visitors()->updateExistingPivot($visitors[1]->id, [
@@ -584,13 +584,13 @@ class ReceptionAdministerVisitTest extends TestCase
         try {
             $receptionist = (new PermissionHelper)->getReceptionistUser();
             $employee = User::factory()->create();
-            $responsibleUser = User::factory()->create();
+            $substituteUser = User::factory()->create();
             $visitor = Visitor::factory()->create();
             $visit = (new VisitHelper)->makeVisit(
                 $employee->id,
                 'Dashboard Visit',
                 VisitStatusEnum::Planned,
-                $responsibleUser->id,
+                $substituteUser->id,
                 new Collection([$visitor])
             );
 
@@ -618,13 +618,13 @@ class ReceptionAdministerVisitTest extends TestCase
         try {
             $receptionist = (new PermissionHelper)->getReceptionistUser();
             $employee = User::factory()->create();
-            $responsibleUser = User::factory()->create();
+            $substituteUser = User::factory()->create();
             $visitor = Visitor::factory()->create();
             $visit = (new VisitHelper)->makeVisit(
                 $employee->id,
                 'Dashboard Visit',
                 VisitStatusEnum::Planned,
-                $responsibleUser->id,
+                $substituteUser->id,
                 new Collection([$visitor])
             );
             $visit->visitors()->updateExistingPivot($visitor->id, [
@@ -655,7 +655,7 @@ class ReceptionAdministerVisitTest extends TestCase
         try {
             $receptionist = (new PermissionHelper)->getReceptionistUser();
             $employee = User::factory()->create();
-            $responsibleUser = User::factory()->create();
+            $substituteUser = User::factory()->create();
             $visitors = new Collection([
                 Visitor::factory()->create(['first_name' => 'Anna', 'name' => 'Ausweis']),
                 Visitor::factory()->create(['first_name' => 'Berta', 'name' => 'Gedruckt']),
@@ -665,7 +665,7 @@ class ReceptionAdministerVisitTest extends TestCase
                 $employee->id,
                 'Dashboard Visit',
                 VisitStatusEnum::Planned,
-                $responsibleUser->id,
+                $substituteUser->id,
                 $visitors
             );
 
@@ -696,13 +696,13 @@ class ReceptionAdministerVisitTest extends TestCase
         try {
             $receptionist = (new PermissionHelper)->getReceptionistUser();
             $employee = User::factory()->create();
-            $responsibleUser = User::factory()->create();
+            $substituteUser = User::factory()->create();
             $visitor = Visitor::factory()->create(['first_name' => 'Anna', 'name' => 'Ausweis']);
             $visit = (new VisitHelper)->makeVisit(
                 $employee->id,
                 'Dashboard Visit',
                 VisitStatusEnum::Planned,
-                $responsibleUser->id,
+                $substituteUser->id,
                 new Collection([$visitor])
             );
 
@@ -728,13 +728,13 @@ class ReceptionAdministerVisitTest extends TestCase
     {
         $receptionist = (new PermissionHelper)->getReceptionistUser();
         $employee = User::factory()->create();
-        $responsibleUser = User::factory()->create();
+        $substituteUser = User::factory()->create();
         $visitor = Visitor::factory()->create();
         $visit = (new VisitHelper)->makeVisit(
             $employee->id,
             'Dashboard Visit',
             VisitStatusEnum::Planned,
-            $responsibleUser->id,
+            $substituteUser->id,
             new Collection([$visitor])
         );
         $visit->visitors()->updateExistingPivot($visitor->id, [
@@ -857,13 +857,13 @@ class ReceptionAdministerVisitTest extends TestCase
         try {
             $receptionist = (new PermissionHelper)->getReceptionistUser();
             $employee = User::factory()->create();
-            $responsibleUser = User::factory()->create();
+            $substituteUser = User::factory()->create();
             $visitor = Visitor::factory()->create(['first_name' => 'Ada', 'name' => 'Lovelace']);
             $visit = (new VisitHelper)->makeVisit(
                 $employee->id,
                 'Badge PDF Visit',
                 VisitStatusEnum::Planned,
-                $responsibleUser->id,
+                $substituteUser->id,
                 new Collection([$visitor])
             );
             $checkedInAt = now()->subMinutes(10);

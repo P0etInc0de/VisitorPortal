@@ -82,13 +82,13 @@ class Visitor extends Model
                     }
 
                     if ($canSeeOwnVisits) {
-                        $query->orWhere('visits.user_id', $user->id)
-                            ->orWhere('visits.responsible_user_id', $user->id);
+                        $query->orWhere('visits.host_user_id', $user->id)
+                            ->orWhere('visits.substitute_user_id', $user->id);
                     }
 
                     if ($canSeeDepartmentVisits) {
                         $query->orWhereHas('host', fn (Builder $query) => $query->where('department_id', $user->department_id))
-                            ->orWhereHas('responsibleUser', fn (Builder $query) => $query->where('department_id', $user->department_id));
+                            ->orWhereHas('substituteUser', fn (Builder $query) => $query->where('department_id', $user->department_id));
                     }
                 });
             });

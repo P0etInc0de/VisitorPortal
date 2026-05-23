@@ -47,8 +47,8 @@ class VisitorBadgeViewTest extends TestCase
         $html = $this->renderBadge(
             hostFirstName: 'Ada',
             hostLastName: 'Avery',
-            responsibleFirstName: 'Rita',
-            responsibleLastName: 'Reed'
+            substituteFirstName: 'Rita',
+            substituteLastName: 'Reed'
         );
 
         $this->assertStringContainsString('Ada Avery', $html);
@@ -134,8 +134,8 @@ class VisitorBadgeViewTest extends TestCase
     private function renderBadge(
         string $hostFirstName = 'Hanna',
         string $hostLastName = 'Host',
-        string $responsibleFirstName = 'Erika',
-        string $responsibleLastName = 'Empfang'
+        string $substituteFirstName = 'Erika',
+        string $substituteLastName = 'Empfang'
     ): string {
         $visitor = new Visitor;
         $visitor->title = 'Dr.';
@@ -147,15 +147,15 @@ class VisitorBadgeViewTest extends TestCase
         $host->first_name = $hostFirstName;
         $host->name = $hostLastName;
 
-        $responsibleUser = new User;
-        $responsibleUser->first_name = $responsibleFirstName;
-        $responsibleUser->name = $responsibleLastName;
+        $substituteUser = new User;
+        $substituteUser->first_name = $substituteFirstName;
+        $substituteUser->name = $substituteLastName;
 
         $visit = new Visit;
         $visit->scheduled_from = Carbon::create(2026, 5, 14, 9, 0, 0, config('app.timezone'));
         $visit->scheduled_until = Carbon::create(2026, 5, 14, 10, 0, 0, config('app.timezone'));
         $visit->setRelation('host', $host);
-        $visit->setRelation('responsibleUser', $responsibleUser);
+        $visit->setRelation('substituteUser', $substituteUser);
 
         return view('pdf.visitor_badge', [
             'visit' => $visit,

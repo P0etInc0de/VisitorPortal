@@ -86,36 +86,36 @@ class VisitPolicy
     {
         return $user->can('ViewDepartment:Visit')
             && $user->department_id !== null
-            && ($user->department_id === $visit->host?->department_id || $user->department_id === $visit->responsibleUser?->department_id);
+            && ($user->department_id === $visit->host?->department_id || $user->department_id === $visit->substituteUser?->department_id);
     }
 
     public function viewOwn(User $user, Visit $visit): bool
     {
-        return $user->can('ViewOwn:Visit') && ($user->id === $visit->user_id || $user->id === $visit->responsible_user_id);
+        return $user->can('ViewOwn:Visit') && ($user->id === $visit->host_user_id || $user->id === $visit->substitute_user_id);
     }
 
     public function editDepartment(User $user, Visit $visit): bool
     {
         return $user->can('EditDepartment:Visit')
             && $user->department_id !== null
-            && ($user->department_id === $visit->host?->department_id || $user->department_id === $visit->responsibleUser?->department_id);
+            && ($user->department_id === $visit->host?->department_id || $user->department_id === $visit->substituteUser?->department_id);
     }
 
     public function editOwn(User $user, Visit $visit): bool
     {
-        return $user->can('EditOwn:Visit') && ($user->id === $visit->user_id || $user->id === $visit->responsible_user_id);
+        return $user->can('EditOwn:Visit') && ($user->id === $visit->host_user_id || $user->id === $visit->substitute_user_id);
     }
 
     public function deleteDepartment(User $user, Visit $visit): bool
     {
         return $user->can('DeleteDepartment:Visit')
             && $user->department_id !== null
-            && ($user->department_id === $visit->host?->department_id || $user->department_id === $visit->responsibleUser?->department_id);
+            && ($user->department_id === $visit->host?->department_id || $user->department_id === $visit->substituteUser?->department_id);
     }
 
     public function deleteOwn(User $user, Visit $visit): bool
     {
-        return $user->can('DeleteOwn:Visit') && ($user->id === $visit->user_id || $user->id === $visit->responsible_user_id);
+        return $user->can('DeleteOwn:Visit') && ($user->id === $visit->host_user_id || $user->id === $visit->substitute_user_id);
     }
 
     private function isHistorical(Visit $visit): bool

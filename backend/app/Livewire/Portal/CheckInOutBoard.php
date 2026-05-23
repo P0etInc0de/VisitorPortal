@@ -138,7 +138,7 @@ class CheckInOutBoard extends Component
 
             $this->visitActionService()->checkInParticipant($visit, $visitor, $user);
 
-            return [$visit->loadMissing('responsibleUser'), $visitor];
+            return [$visit->loadMissing('host'), $visitor];
         });
 
         $this->resetWalkIn();
@@ -220,7 +220,6 @@ class CheckInOutBoard extends Component
             ->visibleTo($actor)
             ->with([
                 'host:id,first_name,name',
-                'responsibleUser:id,first_name,name',
                 'visitors' => fn ($query) => $query->orderBy('first_name')->orderBy('name'),
             ])
             ->where('status', VisitStatusEnum::Planned->value)
@@ -442,8 +441,8 @@ class CheckInOutBoard extends Component
         return Visit::query()->create([
             'title' => __('Walk-in: :name', ['name' => $displayName !== '' ? $displayName : __('Gast')]),
             'site_id' => $siteId,
-            'user_id' => $hostId,
-            'responsible_user_id' => $user->id,
+            'host_user_id' => $hostId,
+            'created_by_user_id' => $user->id,
             'scheduled_from' => now(),
             'scheduled_until' => now()->addHour(),
             'status' => VisitStatusEnum::Planned->value,

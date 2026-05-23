@@ -29,8 +29,8 @@ class AuditRegressionTest extends TestCase
         $user = (new PermissionHelper)->getUserUser();
         $owner = (new PermissionHelper)->getUserUser();
         $visit = Visit::factory()->create([
-            'user_id' => $owner->id,
-            'responsible_user_id' => $owner->id,
+            'host_user_id' => $owner->id,
+            'substitute_user_id' => $owner->id,
         ]);
 
         $this->actingAs($user)
@@ -43,8 +43,8 @@ class AuditRegressionTest extends TestCase
         $manager = (new PermissionHelper)->getManagerUser();
         $owner = (new PermissionHelper)->getUserUser();
         $visit = Visit::factory()->create([
-            'user_id' => $owner->id,
-            'responsible_user_id' => $owner->id,
+            'host_user_id' => $owner->id,
+            'substitute_user_id' => $owner->id,
         ]);
 
         $this->assertNull($manager->department_id);
@@ -91,8 +91,8 @@ class AuditRegressionTest extends TestCase
 
         Visit::query()->create([
             'title' => 'Missing Site Visit',
-            'user_id' => $host->id,
-            'responsible_user_id' => $host->id,
+            'host_user_id' => $host->id,
+            'substitute_user_id' => $host->id,
             'scheduled_from' => now()->addDay(),
             'scheduled_until' => now()->addDay()->addHour(),
             'status' => VisitStatusEnum::Planned->value,
@@ -108,8 +108,8 @@ class AuditRegressionTest extends TestCase
 
         RecurringVisitSeries::query()->create([
             'title' => 'Missing Site Series',
-            'user_id' => $host->id,
-            'responsible_user_id' => $host->id,
+            'host_user_id' => $host->id,
+            'substitute_user_id' => $host->id,
             'created_by_user_id' => $host->id,
             'status' => VisitStatusEnum::Planned->value,
             'starts_at' => now()->addDay(),
@@ -145,8 +145,8 @@ class AuditRegressionTest extends TestCase
         $owner = (new PermissionHelper)->getUserUser();
         $visitor = Visitor::factory()->create();
         $visit = Visit::factory()->create([
-            'user_id' => $owner->id,
-            'responsible_user_id' => $owner->id,
+            'host_user_id' => $owner->id,
+            'substitute_user_id' => $owner->id,
             'status' => VisitStatusEnum::Planned->value,
         ]);
         $visit->visitors()->attach($visitor->id);
@@ -154,8 +154,8 @@ class AuditRegressionTest extends TestCase
         $this->actingAs($user)
             ->patch(route('portal.visits.update', $visit), [
                 'title' => 'Blocked Update',
-                'user_id' => $owner->id,
-                'responsible_user_id' => $owner->id,
+                'host_user_id' => $owner->id,
+                'substitute_user_id' => $owner->id,
                 'scheduled_from' => now()->addDay()->format('Y-m-d H:i:s'),
                 'scheduled_until' => now()->addDay()->addHour()->format('Y-m-d H:i:s'),
                 'status' => VisitStatusEnum::Planned->value,
@@ -192,7 +192,7 @@ class AuditRegressionTest extends TestCase
         $this->actingAs($user)
             ->post(route('portal.visits.store'), [
                 'title' => 'Blocked Visitor Attach',
-                'user_id' => $user->id,
+                'host_user_id' => $user->id,
                 'scheduled_from' => now()->addDay()->format('Y-m-d H:i:s'),
                 'scheduled_until' => now()->addDay()->addHour()->format('Y-m-d H:i:s'),
                 'status' => VisitStatusEnum::Planned->value,
@@ -216,7 +216,7 @@ class AuditRegressionTest extends TestCase
         $this->actingAs($user)
             ->post(route('portal.visits.store'), [
                 'title' => 'Blocked Contact Reuse',
-                'user_id' => $user->id,
+                'host_user_id' => $user->id,
                 'scheduled_from' => now()->addDay()->format('Y-m-d H:i:s'),
                 'scheduled_until' => now()->addDay()->addHour()->format('Y-m-d H:i:s'),
                 'status' => VisitStatusEnum::Planned->value,
@@ -254,7 +254,7 @@ class AuditRegressionTest extends TestCase
         $this->actingAs($user)
             ->post(route('portal.visits.store'), [
                 'title' => 'Blocked Host Status',
-                'user_id' => $otherUser->id,
+                'host_user_id' => $otherUser->id,
                 'scheduled_from' => now()->addDay()->format('Y-m-d H:i:s'),
                 'scheduled_until' => now()->addDay()->addHour()->format('Y-m-d H:i:s'),
                 'status' => VisitStatusEnum::Completed->value,
@@ -265,10 +265,10 @@ class AuditRegressionTest extends TestCase
                     ],
                 ],
             ])
-            ->assertSessionHasErrors(['user_id', 'status']);
+            ->assertSessionHasErrors(['host_user_id', 'status']);
     }
 
-    public function test_regular_user_cannot_assign_arbitrary_responsible_user(): void
+    public function test_regular_user_cannot_assign_arbitrary_substitute_user(): void
     {
         $user = (new PermissionHelper)->getUserUser();
         $otherUser = (new PermissionHelper)->getUserUser();
@@ -276,8 +276,8 @@ class AuditRegressionTest extends TestCase
         $this->actingAs($user)
             ->post(route('portal.visits.store'), [
                 'title' => 'Blocked Substitute',
-                'user_id' => $user->id,
-                'responsible_user_id' => $otherUser->id,
+                'host_user_id' => $user->id,
+                'substitute_user_id' => $otherUser->id,
                 'scheduled_from' => now()->addDay()->format('Y-m-d H:i:s'),
                 'scheduled_until' => now()->addDay()->addHour()->format('Y-m-d H:i:s'),
                 'status' => VisitStatusEnum::Planned->value,
@@ -288,7 +288,7 @@ class AuditRegressionTest extends TestCase
                     ],
                 ],
             ])
-            ->assertSessionHasErrors('responsible_user_id');
+            ->assertSessionHasErrors('substitute_user_id');
     }
 
     public function test_regular_user_cannot_update_visit_after_all_participants_checked_out(): void
@@ -296,8 +296,8 @@ class AuditRegressionTest extends TestCase
         $user = (new PermissionHelper)->getUserUser();
         $visitor = Visitor::factory()->create(['created_by_user_id' => $user->id]);
         $visit = Visit::factory()->create([
-            'user_id' => $user->id,
-            'responsible_user_id' => $user->id,
+            'host_user_id' => $user->id,
+            'substitute_user_id' => $user->id,
             'status' => VisitStatusEnum::Planned->value,
         ]);
         $visit->visitors()->attach($visitor->id, [
@@ -308,7 +308,7 @@ class AuditRegressionTest extends TestCase
         $this->actingAs($user)
             ->patch(route('portal.visits.update', $visit), [
                 'title' => 'Blocked Historical Update',
-                'user_id' => $user->id,
+                'host_user_id' => $user->id,
                 'scheduled_from' => now()->addDay()->format('Y-m-d H:i:s'),
                 'scheduled_until' => now()->addDay()->addHour()->format('Y-m-d H:i:s'),
                 'status' => VisitStatusEnum::Planned->value,
@@ -344,16 +344,16 @@ class AuditRegressionTest extends TestCase
         $hiddenVisitor = Visitor::factory()->create(['first_name' => 'Hidden', 'name' => 'Guest']);
         $visibleVisit = Visit::factory()->create([
             'site_id' => $site->id,
-            'user_id' => $host->id,
-            'responsible_user_id' => $receptionist->id,
+            'host_user_id' => $host->id,
+            'substitute_user_id' => $receptionist->id,
             'scheduled_from' => now()->addHour(),
             'scheduled_until' => now()->addHours(2),
             'status' => VisitStatusEnum::Planned->value,
         ]);
         $hiddenVisit = Visit::factory()->create([
             'site_id' => $otherSite->id,
-            'user_id' => $otherHost->id,
-            'responsible_user_id' => $otherHost->id,
+            'host_user_id' => $otherHost->id,
+            'substitute_user_id' => $otherHost->id,
             'scheduled_from' => now()->addHour(),
             'scheduled_until' => now()->addHours(2),
             'status' => VisitStatusEnum::Planned->value,
@@ -399,8 +399,8 @@ class AuditRegressionTest extends TestCase
         $owner = (new PermissionHelper)->getUserUser();
         $visitor = Visitor::factory()->create();
         $visit = Visit::factory()->create([
-            'user_id' => $owner->id,
-            'responsible_user_id' => $owner->id,
+            'host_user_id' => $owner->id,
+            'substitute_user_id' => $owner->id,
         ]);
         $visit->visitors()->attach($visitor->id);
 
@@ -515,8 +515,8 @@ class AuditRegressionTest extends TestCase
         $series = RecurringVisitSeries::query()->create([
             'title' => 'Expired recurring visit',
             'site_id' => $host->site_id,
-            'user_id' => $host->id,
-            'responsible_user_id' => $host->id,
+            'host_user_id' => $host->id,
+            'substitute_user_id' => $host->id,
             'created_by_user_id' => $host->id,
             'status' => VisitStatusEnum::Planned->value,
             'notes' => 'Old series note',
@@ -546,8 +546,8 @@ class AuditRegressionTest extends TestCase
         $series = RecurringVisitSeries::query()->create([
             'title' => 'Active recurring visit',
             'site_id' => $host->site_id,
-            'user_id' => $host->id,
-            'responsible_user_id' => $host->id,
+            'host_user_id' => $host->id,
+            'substitute_user_id' => $host->id,
             'created_by_user_id' => $host->id,
             'status' => VisitStatusEnum::Planned->value,
             'notes' => 'Keep this series',
@@ -560,8 +560,8 @@ class AuditRegressionTest extends TestCase
         Visit::factory()->create([
             'recurring_visit_series_id' => $series->id,
             'recurrence_occurrence_number' => 999,
-            'user_id' => $host->id,
-            'responsible_user_id' => $host->id,
+            'host_user_id' => $host->id,
+            'substitute_user_id' => $host->id,
             'scheduled_from' => now()->addDay(),
             'scheduled_until' => now()->addDay()->addHour(),
         ]);

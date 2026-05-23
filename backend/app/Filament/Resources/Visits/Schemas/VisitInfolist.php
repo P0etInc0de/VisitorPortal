@@ -11,10 +11,14 @@ class VisitInfolist
     {
         return $schema
             ->components([
-                TextEntry::make('creator.fullName')
+                TextEntry::make('host.fullName')
                     ->label(__('Host')),
-                TextEntry::make('responsibleUser.fullName')
-                    ->label(__('Vertretung')),
+                TextEntry::make('substituteUser.fullName')
+                    ->label(__('Vertretung'))
+                    ->placeholder('-'),
+                TextEntry::make('createdBy.fullName')
+                    ->label(__('Erstellt von'))
+                    ->placeholder('-'),
                 TextEntry::make('title')
                     ->label(__('Titel')),
                 TextEntry::make('scheduled_from')

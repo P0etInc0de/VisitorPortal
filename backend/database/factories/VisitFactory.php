@@ -23,12 +23,13 @@ class VisitFactory extends Factory
     {
         $site = Site::default();
         $host = User::factory()->create(['site_id' => $site->id]);
-        $responsibleUser = User::factory()->create(['site_id' => $site->id]);
+        $createdBy = User::factory()->create(['site_id' => $site->id]);
 
         return [
             'site_id' => $site->id,
-            'responsible_user_id' => $responsibleUser->id,
-            'user_id' => $host->id,
+            'host_user_id' => $host->id,
+            'substitute_user_id' => null,
+            'created_by_user_id' => $createdBy->id,
             'scheduled_from' => Carbon::now(),
             'scheduled_until' => Carbon::now()->addHour(1),
             'status' => VisitStatusEnum::Planned->value,

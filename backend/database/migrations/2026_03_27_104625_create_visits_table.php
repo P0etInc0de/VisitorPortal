@@ -18,8 +18,9 @@ return new class extends Migration
             $table->unsignedInteger('recurrence_occurrence_number')->nullable();
             $table->dateTime('recurrence_original_scheduled_from')->nullable();
             $table->boolean('recurrence_is_modified')->default(false);
-            $table->foreignId('user_id')->constrained('users')->restrictOnDelete();
-            $table->foreignId('responsible_user_id')->nullable()->constrained('users')->nullOnDelete();
+            $table->foreignId('host_user_id')->constrained('users')->restrictOnDelete();
+            $table->foreignId('substitute_user_id')->nullable()->constrained('users')->nullOnDelete();
+            $table->foreignId('created_by_user_id')->nullable()->constrained('users')->nullOnDelete();
             $table->string('title')->nullable();
             $table->datetime('scheduled_from');
             $table->datetime('scheduled_until');

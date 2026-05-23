@@ -69,8 +69,8 @@ class User extends Authenticatable implements FilamentUser
      * Relationship of  tables
      * EXAMPLE HOW TO ACCESS: Get department that user belogs to via foreign key
      *                          --> $department = $user->department->name/location/...
-     * EXAMPLE HOW TO ACCESS: Get vists that user is responsible for
-     *                           --> visits = $user->responsibleVisits
+     * EXAMPLE HOW TO ACCESS: Get visits hosted by a user
+     *                           --> visits = $user->hostedVisits
      */
     public function department(): BelongsTo
     {
@@ -82,14 +82,14 @@ class User extends Authenticatable implements FilamentUser
         return $this->belongsTo(Site::class);
     }
 
-    public function visit(): HasMany
+    public function hostedVisits(): HasMany
     {
-        return $this->hasMany(Visit::class, 'user_id'); // Relationship to visits table id
+        return $this->hasMany(Visit::class, 'host_user_id');
     }
 
-    public function responsibleVisits(): HasMany
+    public function substitutedVisits(): HasMany
     {
-        return $this->hasMany(Visit::class, 'responsible_user_id'); // Relationship to visits table responsible_user_id
+        return $this->hasMany(Visit::class, 'substitute_user_id');
     }
 
     public function canceledVisits(): HasMany

@@ -75,8 +75,8 @@
         $siteIdValue = (string) ($siteOptions->first()?->id ?? $siteIdValue);
     }
 
-    $hostUserIdValue = (string) old('user_id', $visit->user_id ?: auth()->id());
-    $responsibleUserIdValue = (string) old('responsible_user_id', $visit->responsible_user_id);
+    $hostUserIdValue = (string) old('host_user_id', $visit->host_user_id ?: auth()->id());
+    $substituteUserIdValue = (string) old('substitute_user_id', $visit->substitute_user_id);
     $isConfidentialValue = filter_var(old('is_confidential', $visit->is_confidential), FILTER_VALIDATE_BOOL);
     $userCanAccessSelectedSite = fn ($user): bool => $user?->assignedSiteIds()->contains((int) $siteIdValue) ?? false;
     $selectedHost = $hostUsers->firstWhere('id', (int) $hostUserIdValue);
@@ -85,10 +85,10 @@
         $hostUserIdValue = (string) ($hostUsers->first(fn ($user) => $userCanAccessSelectedSite($user))?->id ?? '');
     }
 
-    $selectedResponsibleUser = $responsibleUsers->firstWhere('id', (int) $responsibleUserIdValue);
+    $selectedSubstituteUser = $substituteUsers->firstWhere('id', (int) $substituteUserIdValue);
 
-    if (! $selectedResponsibleUser || ! $userCanAccessSelectedSite($selectedResponsibleUser) || $responsibleUserIdValue === $hostUserIdValue) {
-        $responsibleUserIdValue = '';
+    if (! $selectedSubstituteUser || ! $userCanAccessSelectedSite($selectedSubstituteUser) || $substituteUserIdValue === $hostUserIdValue) {
+        $substituteUserIdValue = '';
     }
 
     $siteSelectOptions = $siteOptions
@@ -110,7 +110,7 @@
         ])
         ->values();
 
-    $responsibleUserOptions = $responsibleUsers
+    $substituteUserOptions = $substituteUsers
         ->map(fn ($user) => [
             'id' => (string) $user->id,
             'label' => $user->fullName,
@@ -133,9 +133,9 @@
         'siteOptions' => $siteSelectOptions,
         'siteId' => $siteIdValue,
         'hostUserOptions' => $hostUserOptions,
-        'responsibleUserOptions' => $responsibleUserOptions,
+        'substituteUserOptions' => $substituteUserOptions,
         'hostId' => $hostUserIdValue,
-        'responsibleUserId' => $responsibleUserIdValue,
+        'substituteUserId' => $substituteUserIdValue,
         'recurrenceEnabled' => filter_var($recurrenceEnabledValue, FILTER_VALIDATE_BOOL),
         'recurrenceFrequency' => $recurrenceFrequencyValue,
         'recurrenceEndType' => $recurrenceEndTypeValue,
