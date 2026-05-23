@@ -83,6 +83,8 @@ class ReceptionAdministerVisitTest extends TestCase
 
             Livewire::actingAs($receptionist)
                 ->test(DashboardPage::class)
+                ->assertSee('sm:grid-cols-[minmax(0,1fr)_auto]', false)
+                ->assertSee('w-fit justify-self-start whitespace-nowrap', false)
                 ->assertSee('Alice Alpha')
                 ->assertSee('Charlie Gamma')
                 ->assertDontSee('Diana Delta')
