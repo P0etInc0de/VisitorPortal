@@ -110,6 +110,56 @@ class CheckInOutBoardTest extends TestCase
         }
     }
 
+    public function test_check_in_out_board_uses_configured_check_in_window(): void
+    {
+        $originalWindow = config('reception.check_in_window_hours');
+
+        Carbon::setTestNow(Carbon::create(2026, 4, 30, 10, 0, 0, config('app.timezone')));
+        config(['reception.check_in_window_hours' => 12]);
+
+        try {
+            $user = (new PermissionHelper)->getReceptionistUser();
+            $visibleVisitor = Visitor::factory()->create(['first_name' => 'Vera', 'name' => 'Visible']);
+            $outsideVisitor = Visitor::factory()->create(['first_name' => 'Oscar', 'name' => 'Outside']);
+            $visibleVisit = Visit::factory()->create([
+                'title' => 'Configured Visible Visit',
+                'user_id' => $user->id,
+                'responsible_user_id' => $user->id,
+                'status' => VisitStatusEnum::Planned->value,
+                'scheduled_from' => now()->copy()->addHours(11),
+                'scheduled_until' => now()->copy()->addHours(12),
+            ]);
+            $outsideVisit = Visit::factory()->create([
+                'title' => 'Configured Outside Visit',
+                'user_id' => $user->id,
+                'responsible_user_id' => $user->id,
+                'status' => VisitStatusEnum::Planned->value,
+                'scheduled_from' => now()->copy()->addHours(13),
+                'scheduled_until' => now()->copy()->addHours(14),
+            ]);
+
+            $visibleVisit->visitors()->attach($visibleVisitor->id);
+            $outsideVisit->visitors()->attach($outsideVisitor->id);
+
+            Livewire::actingAs($user)
+                ->test(CheckInOutBoard::class)
+                ->assertSee('Eincheckbare Termine bis zu 12 Stunden im Voraus')
+                ->assertSee('1 Treffer')
+                ->assertSee('Configured Visible Visit')
+                ->assertDontSee('Configured Outside Visit')
+                ->call('checkIn', $outsideVisit->id, $outsideVisitor->id);
+
+            $this->assertDatabaseHas('visit_visitor', [
+                'visit_id' => $outsideVisit->id,
+                'visitor_id' => $outsideVisitor->id,
+                'checked_in_at' => null,
+            ]);
+        } finally {
+            config(['reception.check_in_window_hours' => $originalWindow]);
+            Carbon::setTestNow();
+        }
+    }
+
     public function test_check_in_out_board_sorts_planned_by_start_and_checked_in_by_end(): void
     {
         Carbon::setTestNow(Carbon::create(2026, 4, 30, 10, 0, 0, config('app.timezone')));

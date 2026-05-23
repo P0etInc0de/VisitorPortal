@@ -59,8 +59,9 @@ class CheckInOutBoard extends Component
         $this->authorize('checkIn', Visitor::class);
 
         [$visit, $visitor, $user] = $this->resolveActionContext($visitId, $visitorId);
+        $referenceNow = now();
 
-        if (! $this->visitIsInCheckInWindow($visit, now(), now()->copy()->addHours(48))) {
+        if (! $this->visitIsInCheckInWindow($visit, $referenceNow, $this->checkInWindowEnd($referenceNow))) {
             return;
         }
 
@@ -158,6 +159,7 @@ class CheckInOutBoard extends Component
             'hosts' => $this->hostOptions(),
             'siteOptions' => $this->siteOptions(),
             'results' => $this->searchResults(),
+            'checkInWindowHours' => $this->checkInWindowHours(),
         ])->layout('layouts.app', [
             'header' => new HtmlString(
                 view('partials.page-header', [
@@ -206,8 +208,8 @@ class CheckInOutBoard extends Component
     {
         $actor = $this->actor();
         $canViewContactDetails = $actor->can('ViewContactDetails:Visitor');
-        $windowEnd = now()->copy()->addHours(48);
         $referenceNow = now();
+        $windowEnd = $this->checkInWindowEnd($referenceNow);
         $search = trim($this->search);
 
         if ($search !== '') {
@@ -282,7 +284,7 @@ class CheckInOutBoard extends Component
         $pivot = $visit->visitors->firstWhere('id', $visitor->id)?->pivot;
         $status = $this->resolveParticipantStatus((string) $visit->status, $pivot);
         $canOperate = $this->visitActionService()->canOperate($visit);
-        $canCheckIn = $canOperate && $this->visitIsInCheckInWindow($visit, $referenceNow, $referenceNow->copy()->addHours(48));
+        $canCheckIn = $canOperate && $this->visitIsInCheckInWindow($visit, $referenceNow, $this->checkInWindowEnd($referenceNow));
         $displayName = trim(implode(' ', array_filter([
             $visitor->title,
             $visitor->first_name,
@@ -360,6 +362,16 @@ class CheckInOutBoard extends Component
             && $visit->scheduled_until instanceof Carbon
             && $visit->scheduled_from->lte($windowEnd)
             && $visit->scheduled_until->gte($referenceNow);
+    }
+
+    private function checkInWindowEnd(?Carbon $referenceNow = null): Carbon
+    {
+        return ($referenceNow ?? now())->copy()->addHours($this->checkInWindowHours());
+    }
+
+    private function checkInWindowHours(): int
+    {
+        return max(0, (int) config('reception.check_in_window_hours', 48));
     }
 
     private function participantMatchesSearch(array $result, string $search): bool
