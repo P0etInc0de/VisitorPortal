@@ -25,7 +25,7 @@
                         @foreach ($visits as $visit)
                             <article wire:key="dashboard-visit-{{ $visit['id'] }}" class="rounded-[1.25rem] border border-base-300 bg-base-100 px-4 py-4">
                                 <div class="flex flex-col gap-3">
-                                    <div class="flex flex-col gap-3 xl:flex-row xl:items-start xl:justify-between">
+                                    <div class="grid gap-3 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-start">
                                         <div class="min-w-0">
                                             <div class="flex flex-wrap items-center gap-2">
                                                 <h3 class="text-[1.4rem] font-semibold leading-tight tracking-tight text-base-content">{{ $visit['title'] }}</h3>
@@ -39,7 +39,7 @@
                                                 <div class="mt-1 text-sm text-base-content/70">{{ $visit['notes'] }}</div>
                                             @endif
                                         </div>
-                                        <a href="{{ route('portal.visits.show', $visit['id']) }}" class="btn btn-outline btn-sm rounded-xl">{{ __('Termin öffnen') }}</a>
+                                        <a href="{{ route('portal.visits.show', $visit['id']) }}" class="btn btn-outline btn-sm w-fit justify-self-start whitespace-nowrap rounded-xl sm:justify-self-end">{{ __('Termin öffnen') }}</a>
                                     </div>
 
                                     <div class="space-y-2">
