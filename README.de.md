@@ -1,5 +1,5 @@
 <p align="center">
-<img width="5197" height="2598" alt="VisitorPortalBannerDE" src="https://github.com/user-attachments/assets/66889b5e-42a6-4427-847b-a64bd64b0386" />
+<img width="5197" height="2598" alt="VisitorPortalBannerDE" src="https://github.com/user-attachments/assets/d0f28de8-2507-4858-9ec9-62cd4c2c9ab4" />
 </p>
 
 # VisitorPortal
