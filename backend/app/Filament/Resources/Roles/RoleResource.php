@@ -1,4 +1,5 @@
 <?php
+
 /**
  * SPDX-FileCopyrightText: 2026 Jonathan Läpple and VisitorPortal contributors
  *
