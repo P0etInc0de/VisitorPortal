@@ -148,6 +148,8 @@ class OverviewNotificationTest extends TestCase
 
     public function test_status_notifications_card_shows_new_database_notification_after_refresh(): void
     {
+        app()->setLocale('de');
+
         $user = (new PermissionHelper)->getReceptionistUser();
         $visit = Visit::factory()->create([
             'host_user_id' => $user->id,
@@ -157,15 +159,16 @@ class OverviewNotificationTest extends TestCase
             'first_name' => 'Nora',
             'name' => 'Polling',
         ]);
+        $message = 'Gast Nora Polling ist soeben eingetroffen.';
 
         $component = Livewire::actingAs($user)
             ->test(StatusNotificationsCard::class)
-            ->assertSee('Aktuell gibt es keine Benachrichtigungen.');
+            ->assertDontSee($message);
 
         Notification::send($user, new GuestCheckedInDatabaseNotification($visit, $visitor));
 
         $component
             ->call('$refresh')
-            ->assertSee('Gast Nora Polling ist soeben eingetroffen.');
+            ->assertSee($message);
     }
 }

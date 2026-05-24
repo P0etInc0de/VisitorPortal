@@ -17,6 +17,13 @@ use Tests\TestCase;
 
 class MailGreetingTest extends TestCase
 {
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        app()->setLocale('de');
+    }
+
     public function test_user_greeting_omits_missing_title_spacing(): void
     {
         $user = new User([
