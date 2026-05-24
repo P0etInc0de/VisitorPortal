@@ -14,16 +14,7 @@ test.describe('Recovery code cache protection', () => {
 
         await resetFixture();
 
-        await login(page, EMAIL);
-        await page.goto('/security/mfa/setup');
-        await confirmPassword(page);
-
-        const secret = await fetchTwoFactorSecret(page);
-
-        await page.goto('/security/mfa/setup');
-        await page.locator('input[name="code"]').fill(currentTotp(secret));
-        await page.locator('form').filter({ has: page.locator('input[name="code"]') }).locator('button[type="submit"]').click();
-        await page.waitForLoadState('networkidle');
+        await completeInitialMfaSetup(page);
 
         await expect.poll(() => new URL(page.url()).pathname).toBe('/security/mfa/recovery-codes');
         const recoveryCode = (await page.locator('code').first().textContent())?.trim();
@@ -41,7 +32,72 @@ test.describe('Recovery code cache protection', () => {
         await expect.poll(() => new URL(page.url()).pathname).not.toBe('/security/mfa/recovery-codes');
         await expect.poll(async () => (await page.locator('body').textContent()) ?? '').not.toContain(recoveryCode as string);
     });
+
+    test('does not show profile recovery codes after navigation away and browser back', async ({ page }) => {
+        test.setTimeout(90_000);
+
+        await resetFixture();
+
+        const { secret, setupCode } = await completeInitialMfaSetup(page);
+
+        await page.getByRole('button', { name: 'Weiter' }).click();
+        await page.waitForLoadState('networkidle');
+        await expect.poll(() => new URL(page.url()).pathname).not.toBe('/security/mfa/recovery-codes');
+
+        await page.goto('/profile/security/recovery-codes');
+        await page.waitForLoadState('networkidle');
+        await expect.poll(() => new URL(page.url()).pathname).toBe('/security/step-up/recovery-codes:view');
+
+        await waitForNextTotp(secret, setupCode);
+        await submitTotp(page, secret);
+        await expect.poll(() => new URL(page.url()).pathname).toBe('/profile/security/recovery-codes');
+
+        const recoveryCode = (await page.locator('code').first().textContent())?.trim();
+
+        expect(recoveryCode).toBeTruthy();
+        await expect(page.locator('body')).toContainText(recoveryCode as string);
+
+        await page.getByRole('link', { name: 'Zurück zur Sicherheit' }).click();
+        await page.waitForLoadState('networkidle');
+        await expect.poll(() => new URL(page.url()).pathname).toBe('/profile/security');
+
+        await page.goBack({ waitUntil: 'networkidle' });
+
+        await expect.poll(async () => (await page.locator('body').textContent()) ?? '').not.toContain(recoveryCode as string);
+        await expect.poll(() => new URL(page.url()).pathname).not.toBe('/profile/security/recovery-codes');
+    });
 });
+
+async function completeInitialMfaSetup(page: Page): Promise<{ secret: string; setupCode: string }> {
+    await login(page, EMAIL);
+    await page.goto('/security/mfa/setup');
+    await confirmPassword(page);
+
+    const secret = await fetchTwoFactorSecret(page);
+
+    const setupCode = currentTotp(secret);
+
+    await page.goto('/security/mfa/setup');
+    await submitTotpCode(page, setupCode);
+
+    return { secret, setupCode };
+}
+
+async function submitTotp(page: Page, secret: string): Promise<void> {
+    await submitTotpCode(page, currentTotp(secret));
+}
+
+async function submitTotpCode(page: Page, code: string): Promise<void> {
+    await page.locator('input[name="code"]').fill(code);
+    await page.locator('form').filter({ has: page.locator('input[name="code"]') }).locator('button[type="submit"]').click();
+    await page.waitForLoadState('networkidle');
+}
+
+async function waitForNextTotp(secret: string, previousCode: string): Promise<void> {
+    while (currentTotp(secret) === previousCode) {
+        await new Promise((resolve) => setTimeout(resolve, 1000));
+    }
+}
 
 async function login(page: Page, email: string): Promise<void> {
     await page.goto('/login');
@@ -161,17 +217,20 @@ async function ensureAdminRole(connection: Connection): Promise<void> {
     );
     await connection.execute(
         `insert into permissions (name, guard_name, created_at, updated_at)
-         values ('ViewAny:Visit', 'web', current_timestamp, current_timestamp)
+         values
+             ('ViewAny:Visit', 'web', current_timestamp, current_timestamp),
+             ('ViewOwn:User', 'web', current_timestamp, current_timestamp)
          on duplicate key update updated_at = current_timestamp`,
     );
 
     const roleId = await roleIdFor(connection, 'admin');
-    const permissionId = await permissionIdFor(connection, 'ViewAny:Visit');
+    const visitPermissionId = await permissionIdFor(connection, 'ViewAny:Visit');
+    const userPermissionId = await permissionIdFor(connection, 'ViewOwn:User');
 
     await connection.execute(
         `insert ignore into role_has_permissions (permission_id, role_id)
-         values (?, ?)`,
-        [permissionId, roleId],
+         values (?, ?), (?, ?)`,
+        [visitPermissionId, roleId, userPermissionId, roleId],
     );
 }
 

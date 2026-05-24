@@ -688,6 +688,16 @@ class MfaTest extends TestCase
             ->assertSee($recoveryCode)
             ->assertSee("window.addEventListener('pageshow'", false)
             ->assertSee('event.persisted', false);
+
+        $repeatedProfileRecoveryCodesResponse = $this
+            ->actingAs($user)
+            ->get(route('profile.security.recovery-codes'));
+
+        $this->assertSensitiveNoStoreHeaders($repeatedProfileRecoveryCodesResponse);
+
+        $repeatedProfileRecoveryCodesResponse
+            ->assertRedirect(route('security.step-up.show', SensitiveActionConfirmation::PURPOSE_RECOVERY_CODES_VIEW))
+            ->assertDontSee($recoveryCode);
     }
 
     public function test_step_up_totp_accepts_multiple_whitespace(): void
@@ -882,6 +892,12 @@ class MfaTest extends TestCase
             ->get(route('profile.security.recovery-codes'))
             ->assertOk()
             ->assertSee($newCodes[0]);
+
+        $this
+            ->actingAs($user)
+            ->get(route('profile.security.recovery-codes'))
+            ->assertRedirect(route('security.step-up.show', SensitiveActionConfirmation::PURPOSE_RECOVERY_CODES_VIEW))
+            ->assertDontSee($newCodes[0]);
     }
 
     public function test_recovery_codes_cannot_be_regenerated_after_recovery_code_step_up(): void
