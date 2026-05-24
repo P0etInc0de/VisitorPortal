@@ -276,13 +276,17 @@ Beiträge sind willkommen. Bitte [CONTRIBUTING.md](CONTRIBUTING.md) lesen, bevor
 
 ## Lizenz
 
+Copyright (C) 2026 Jonathan Läpple and VisitorPortal contributors.
+
 VisitorPortal ist unter der GNU General Public License v3.0 oder später lizenziert. Siehe [LICENSE](LICENSE).
 
 ## Autoren Und Credits
 
 Dieses Projekt entstand ursprünglich im Rahmen eines studentischen Hochschulprojekts. Nach Abschluss der ursprünglichen Projektarbeit wurden die Weiterentwicklung, Bereinigung und technische Verbesserung des Projekts fortgeführt.
 
-### Projektteam
+### Initial Project Authors
+
+Die folgenden Personen sind die ursprünglichen Autorinnen und Autoren aus dem initialen studentischen Projektteam. Spätere Beiträge werden über die Projekthistorie und die jeweiligen Contributions nachvollzogen.
 
 - **Jonathan Läpple** - Projektleitung und Entwicklung
 - **Jannik Schabel** - Entwicklung

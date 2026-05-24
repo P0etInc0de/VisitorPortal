@@ -97,4 +97,6 @@ Do not report security vulnerabilities in public issues or pull requests. Follow
 
 ## Licensing
 
-By contributing, you agree that your contribution will be licensed under the same license as the project: GNU General Public License v3.0 or later.
+By opening a pull request, you confirm that you are authorized to contribute the work under the project license.
+
+Contributions are provided under the same license as the project: GNU General Public License v3.0 or later.

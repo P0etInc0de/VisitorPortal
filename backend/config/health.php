@@ -1,4 +1,9 @@
 <?php
+/**
+ * SPDX-FileCopyrightText: 2026 Jonathan Läpple and VisitorPortal contributors
+ *
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ */
 
 return [
     'cache_store' => env('HEALTH_CACHE_STORE', 'database'),

@@ -17,6 +17,10 @@
 
 <!-- Example: Closes #123 -->
 
+## Contributor confirmation
+
+- [ ] I confirm that I am authorized to contribute this work under the project license.
+
 ## What changed?
 
 <!-- List the relevant changes. Keep this concise but specific. -->
