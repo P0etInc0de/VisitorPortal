@@ -339,7 +339,11 @@ class MultiSiteAccessTest extends TestCase
     {
         $primarySite = Site::factory()->create();
         $assignedSite = Site::factory()->create();
-        $actor = (new PermissionHelper)->getReceptionistUser();
+        $actor = (new PermissionHelper)->getIndividualUser([
+            'ViewSite:Visit',
+            'EditSite:Visit',
+            'ViewSite:Visitor',
+        ], 'multi-site-visit-editor');
         $originalHost = User::factory()->create(['site_id' => $assignedSite->id]);
         $newHost = User::factory()->create(['site_id' => $primarySite->id]);
         $visitor = Visitor::factory()->create();

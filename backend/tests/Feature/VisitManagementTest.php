@@ -438,4 +438,104 @@ class VisitManagementTest extends TestCase
             ->call('saveSchedule')
             ->assertHasErrors(['scheduledUntil' => 'required']);
     }
+
+    public function test_visit_show_keeps_allowed_actions_for_host(): void
+    {
+        Carbon::setTestNow('2026-05-24 10:00:00');
+
+        try {
+            $user = (new PermissionHelper)->getUserUser();
+            $visit = Visit::factory()->create([
+                'host_user_id' => $user->id,
+                'substitute_user_id' => null,
+                'scheduled_from' => now()->addDay(),
+                'scheduled_until' => now()->addDay()->addHour(),
+            ]);
+            $newStart = now()->addDays(2)->format('Y-m-d\TH:i');
+            $newEnd = now()->addDays(2)->addHour()->format('Y-m-d\TH:i');
+
+            Livewire::actingAs($user)
+                ->test(VisitShowPage::class, ['visit' => $visit])
+                ->assertSee(__('Termin verschieben'))
+                ->assertSee(__('Aktionen'))
+                ->assertSee(__('Bearbeiten'))
+                ->assertSee(__('Besuch absagen'))
+                ->set('scheduledFrom', $newStart)
+                ->set('scheduledUntil', $newEnd)
+                ->call('saveSchedule')
+                ->assertHasNoErrors()
+                ->call('cancelVisit')
+                ->assertHasNoErrors();
+
+            $this->assertDatabaseHas('visits', [
+                'id' => $visit->id,
+                'scheduled_from' => '2026-05-26 10:00:00',
+                'scheduled_until' => '2026-05-26 11:00:00',
+                'status' => 'canceled',
+            ]);
+        } finally {
+            Carbon::setTestNow();
+        }
+    }
+
+    public function test_visit_show_keeps_allowed_actions_for_admin_role(): void
+    {
+        Carbon::setTestNow('2026-05-24 10:00:00');
+
+        try {
+            config(['security.mfa.app_required_roles' => []]);
+
+            $this->artisan('visitorportal:sync-permissions')->assertExitCode(0);
+
+            $admin = User::factory()->create(['email' => 'admin@example.org']);
+            $admin->assignRole('admin');
+            $visit = Visit::factory()->create([
+                'scheduled_from' => now()->addDay(),
+                'scheduled_until' => now()->addDay()->addHour(),
+            ]);
+
+            $this
+                ->actingAs($admin)
+                ->get(route('portal.visits.show', $visit))
+                ->assertOk()
+                ->assertSee(__('Termin verschieben'))
+                ->assertSee(__('Aktionen'))
+                ->assertSee(__('Bearbeiten'))
+                ->assertSee(__('Besuch absagen'));
+
+            Livewire::actingAs($admin)
+                ->test(VisitShowPage::class, ['visit' => $visit])
+                ->call('cancelVisit')
+                ->assertHasNoErrors();
+
+            $this->assertDatabaseHas('visits', [
+                'id' => $visit->id,
+                'status' => 'canceled',
+            ]);
+        } finally {
+            Carbon::setTestNow();
+        }
+    }
+
+    public function test_visit_show_without_sidebar_keeps_main_content_constrained(): void
+    {
+        $viewer = (new PermissionHelper)->getIndividualUser([
+            'ViewSite:Visit',
+        ], 'visit-detail-viewer');
+        $visit = Visit::factory()->create([
+            'site_id' => $viewer->site_id,
+        ]);
+
+        $this
+            ->actingAs($viewer)
+            ->get(route('portal.visits.show', $visit))
+            ->assertOk()
+            ->assertSee('data-testid="visit-detail-grid"', false)
+            ->assertSee('xl:grid-cols-3', false)
+            ->assertSee('data-testid="visit-detail-content"', false)
+            ->assertSee('xl:col-span-2', false)
+            ->assertDontSee(__('Termin verschieben'))
+            ->assertDontSee(__('Aktionen'))
+            ->assertDontSee(__('Termin absagen'));
+    }
 }

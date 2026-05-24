@@ -1,5 +1,18 @@
 <div>
+    @php
+        $canUpdateVisit = auth()->user()?->can('update', $visit) ?? false;
+        $canCancelVisit = auth()->user()?->can('cancel', $visit) ?? false;
+        $visitIsCanceled = $visit->status === 'canceled' || filled($visit->canceled_at);
+        $showEditAction = $canUpdateVisit;
+        $showReopenAction = $canUpdateVisit && $visitIsCanceled;
+        $showCancelAction = $canCancelVisit && ! $visitIsCanceled;
+        $showCancelOnlyCard = $showCancelAction && ! $canUpdateVisit;
+        $showActionCard = $showEditAction || $showReopenAction || ($showCancelAction && ! $showCancelOnlyCard);
+        $showSidebar = $recurrenceMeta || $canUpdateVisit || $showActionCard || $showCancelOnlyCard;
+    @endphp
+
     <div
+        data-testid="visit-detail-grid"
         x-data="{
             rescheduleMinHeight: '',
             alignThreshold: 36,
@@ -42,7 +55,10 @@
                 });
             },
         }"
-        class="grid gap-6 xl:grid-cols-3 xl:items-start"
+        @class([
+            'grid gap-6 xl:items-start',
+            'xl:grid-cols-3',
+        ])
     >
         @if (session('status'))
             <div class="alert alert-success rounded-2xl shadow-sm xl:col-span-2">
@@ -50,8 +66,11 @@
             </div>
         @endif
 
-        <div class="grid min-w-0 gap-6 xl:col-span-2">
-            <section x-ref="infoCard" class="rounded-3xl border border-base-300 bg-base-100 p-6 shadow-sm sm:p-7">
+        <div @class([
+            'grid min-w-0 gap-6',
+            'xl:col-span-2',
+        ]) data-testid="visit-detail-content">
+            <section x-ref="infoCard" data-testid="visit-info-card" class="rounded-3xl border border-base-300 bg-base-100 p-6 shadow-sm sm:p-7">
                 <div @class([
                     'grid gap-5 md:grid-cols-2',
                     '2xl:grid-cols-[minmax(7rem,0.65fr)_minmax(15rem,1.45fr)_minmax(12rem,1fr)]' => $recurrenceMeta,
@@ -162,52 +181,72 @@
             </section>
         </div>
 
-        <div class="grid min-w-0 gap-6 xl:sticky xl:top-6">
-            <section x-ref="rescheduleCard" :style="rescheduleMinHeight ? { minHeight: rescheduleMinHeight } : {}" class="rounded-3xl border border-base-300 bg-base-100 p-5 shadow-sm sm:p-6">
-                <h2 class="mb-3 text-xl font-bold text-base-content">{{ __('Termin verschieben') }}</h2>
+        @if ($showSidebar)
+            <div class="grid min-w-0 gap-6 xl:sticky xl:top-6">
+                @if ($canUpdateVisit)
+                    <section x-ref="rescheduleCard" data-testid="visit-reschedule-card" :style="rescheduleMinHeight ? { minHeight: rescheduleMinHeight } : {}" class="rounded-3xl border border-base-300 bg-base-100 p-5 shadow-sm sm:p-6">
+                        <h2 class="mb-3 text-xl font-bold text-base-content">{{ __('Termin verschieben') }}</h2>
 
-                <form wire:submit.prevent="saveSchedule" class="grid gap-3">
-                    <div>
-                        <label class="label px-0 pb-1.5"><span class="label-text font-medium">{{ __('Beginn') }}</span></label>
-                        <input type="datetime-local" wire:model.defer="scheduledFrom" class="input input-bordered w-full @error('scheduledFrom') input-error @enderror">
-                        @error('scheduledFrom')
-                        <div class="mt-2 text-sm text-error">{{ $message }}</div>
-                        @enderror
-                    </div>
+                        <form wire:submit.prevent="saveSchedule" class="grid gap-3">
+                            <div>
+                                <label class="label px-0 pb-1.5"><span class="label-text font-medium">{{ __('Beginn') }}</span></label>
+                                <input type="datetime-local" wire:model.defer="scheduledFrom" class="input input-bordered w-full @error('scheduledFrom') input-error @enderror">
+                                @error('scheduledFrom')
+                                <div class="mt-2 text-sm text-error">{{ $message }}</div>
+                                @enderror
+                            </div>
 
-                    <div>
-                        <label class="label px-0 pb-1.5"><span class="label-text font-medium">{{ __('Ende') }}</span></label>
-                        <input type="datetime-local" wire:model.defer="scheduledUntil" class="input input-bordered w-full @error('scheduledUntil') input-error @enderror">
-                        @error('scheduledUntil')
-                        <div class="mt-2 text-sm text-error">{{ $message }}</div>
-                        @enderror
-                    </div>
+                            <div>
+                                <label class="label px-0 pb-1.5"><span class="label-text font-medium">{{ __('Ende') }}</span></label>
+                                <input type="datetime-local" wire:model.defer="scheduledUntil" class="input input-bordered w-full @error('scheduledUntil') input-error @enderror">
+                                @error('scheduledUntil')
+                                <div class="mt-2 text-sm text-error">{{ $message }}</div>
+                                @enderror
+                            </div>
 
-                    <button type="submit" class="btn btn-primary w-full rounded-xl" wire:loading.attr="disabled" wire:target="saveSchedule">
-                        {{ __('Termin verschieben') }}
-                    </button>
-                </form>
-            </section>
+                            <button type="submit" class="btn btn-primary w-full rounded-xl" wire:loading.attr="disabled" wire:target="saveSchedule">
+                                {{ __('Termin verschieben') }}
+                            </button>
+                        </form>
+                    </section>
+                @endif
 
-            <section class="rounded-3xl border border-base-300 bg-base-100 p-6 shadow-sm sm:p-7">
-                <h2 class="mb-4 text-xl font-bold text-base-content">{{ __('Aktionen') }}</h2>
+                @if ($showActionCard)
+                    <section data-testid="visit-actions-card" class="rounded-3xl border border-base-300 bg-base-100 p-6 shadow-sm sm:p-7">
+                        <h2 class="mb-4 text-xl font-bold text-base-content">{{ __('Aktionen') }}</h2>
 
-                <div class="grid gap-3">
-                    <a href="{{ route('portal.visits.edit', $visit) }}" class="btn btn-outline w-full rounded-xl">
-                        {{ __('Bearbeiten') }}
-                    </a>
+                        <div class="grid gap-3">
+                            @if ($showEditAction)
+                                <a href="{{ route('portal.visits.edit', $visit) }}" class="btn btn-outline w-full rounded-xl">
+                                    {{ __('Bearbeiten') }}
+                                </a>
+                            @endif
 
-                    @if ($visit->status === 'canceled' || filled($visit->canceled_at))
-                        <button type="button" class="btn btn-primary w-full rounded-xl" wire:click="reopenVisit" wire:loading.attr="disabled" wire:target="reopenVisit">
-                            {{ __('Besuch wieder öffnen') }}
-                        </button>
-                    @else
+                            @if ($showReopenAction)
+                                <button type="button" class="btn btn-primary w-full rounded-xl" wire:click="reopenVisit" wire:loading.attr="disabled" wire:target="reopenVisit">
+                                    {{ __('Besuch wieder öffnen') }}
+                                </button>
+                            @endif
+
+                            @if ($showCancelAction && ! $showCancelOnlyCard)
+                                <button type="button" class="btn btn-outline w-full rounded-xl" wire:click="cancelVisit" wire:loading.attr="disabled" wire:target="cancelVisit">
+                                    {{ __('Besuch absagen') }}
+                                </button>
+                            @endif
+                        </div>
+                    </section>
+                @endif
+
+                @if ($showCancelOnlyCard)
+                    <section data-testid="visit-cancel-card" class="rounded-3xl border border-base-300 bg-base-100 p-6 shadow-sm sm:p-7">
+                        <h2 class="mb-4 text-xl font-bold text-base-content">{{ __('Termin absagen') }}</h2>
+
                         <button type="button" class="btn btn-outline w-full rounded-xl" wire:click="cancelVisit" wire:loading.attr="disabled" wire:target="cancelVisit">
                             {{ __('Besuch absagen') }}
                         </button>
-                    @endif
-                </div>
-            </section>
-        </div>
+                    </section>
+                @endif
+            </div>
+        @endif
     </div>
 </div>

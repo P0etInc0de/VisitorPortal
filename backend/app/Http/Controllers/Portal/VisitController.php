@@ -117,7 +117,7 @@ class VisitController extends Controller
 
     public function cancel(Visit $visit): RedirectResponse
     {
-        $this->authorize('delete', $visit);
+        $this->authorize('cancel', $visit);
 
         $visit->update([
             'status' => VisitStatusEnum::Canceled->value,

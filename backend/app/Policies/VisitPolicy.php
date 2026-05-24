@@ -60,6 +60,24 @@ class VisitPolicy
         return $this->deleteSite($user, $visit) || $this->deleteDepartment($user, $visit) || $this->deleteOwn($user, $visit);
     }
 
+    public function cancel(User $user, Visit $visit): bool
+    {
+        if ($this->deleteAny($user) || $user->can('CancelAny:Visit')) {
+            return true;
+        }
+
+        if ($this->isHistorical($visit)) {
+            return false;
+        }
+
+        return $this->cancelSite($user, $visit)
+            || $this->cancelDepartment($user, $visit)
+            || $this->cancelOwn($user, $visit)
+            || $this->deleteSite($user, $visit)
+            || $this->deleteDepartment($user, $visit)
+            || $this->deleteOwn($user, $visit);
+    }
+
     public function deleteAny(User $user): bool
     {
         return $user->can('DeleteAny:Visit');
@@ -85,6 +103,12 @@ class VisitPolicy
     public function deleteSite(User $user, Visit $visit): bool
     {
         return $user->can('DeleteSite:Visit')
+            && $user->canAccessSite($visit->site_id);
+    }
+
+    public function cancelSite(User $user, Visit $visit): bool
+    {
+        return $user->can('CancelSite:Visit')
             && $user->canAccessSite($visit->site_id);
     }
 
@@ -119,9 +143,21 @@ class VisitPolicy
             && ($user->department_id === $visit->host?->department_id || $user->department_id === $visit->substituteUser?->department_id);
     }
 
+    public function cancelDepartment(User $user, Visit $visit): bool
+    {
+        return $user->can('CancelDepartment:Visit')
+            && $user->department_id !== null
+            && ($user->department_id === $visit->host?->department_id || $user->department_id === $visit->substituteUser?->department_id);
+    }
+
     public function deleteOwn(User $user, Visit $visit): bool
     {
         return $user->can('DeleteOwn:Visit') && ($user->id === $visit->host_user_id || $user->id === $visit->substitute_user_id);
+    }
+
+    public function cancelOwn(User $user, Visit $visit): bool
+    {
+        return $user->can('CancelOwn:Visit') && ($user->id === $visit->host_user_id || $user->id === $visit->substitute_user_id);
     }
 
     private function isHistorical(Visit $visit): bool

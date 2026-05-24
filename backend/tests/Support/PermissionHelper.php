@@ -114,6 +114,10 @@ class PermissionHelper
             'DeleteSite:Visit',
             'DeleteDepartment:Visit',
             'DeleteOwn:Visit',
+            'CancelAny:Visit',
+            'CancelSite:Visit',
+            'CancelDepartment:Visit',
+            'CancelOwn:Visit',
             'Restore:Visit',
             'ForceDelete:Visit',
             'ForceDeleteAny:Visit',
@@ -152,7 +156,7 @@ class PermissionHelper
     {
         $userPermissions = [
             'ViewOwn:User', 'EditOwn:User', 'Create:Visit', 'Create:Visitor',
-            'ViewKnown:Visitor', 'ViewOwn:Visit', 'EditOwn:Visit', 'DeleteOwn:Visit',
+            'ViewKnown:Visitor', 'ViewOwn:Visit', 'EditOwn:Visit', 'DeleteOwn:Visit', 'CancelOwn:Visit',
         ];
 
         return $this->getIndividualUser($userPermissions, 'user');
@@ -166,7 +170,7 @@ class PermissionHelper
             'ViewDepartment:Visit', 'EditDepartment:Visit',
             'DeleteDepartment:Visit', 'CreateForDepartment:Visit', 'ViewDepartment:Visitor', 'ViewOwn:User',
             'EditOwn:User', 'Create:Visit', 'Create:Visitor',
-            'ViewKnown:Visitor', 'ViewOwn:Visit', 'EditOwn:Visit', 'DeleteOwn:Visit'];
+            'ViewKnown:Visitor', 'ViewOwn:Visit', 'EditOwn:Visit', 'DeleteOwn:Visit', 'CancelOwn:Visit'];
 
         return $this->getIndividualUser($managerPermissions, 'manager');
     }
@@ -174,13 +178,13 @@ class PermissionHelper
     public function getReceptionistUser(): User
     {
         $receptionistPermissions = [
-            'ViewSite:Visit', 'EditSite:Visit', 'DeleteSite:Visit', 'CreateForSite:Visit',
+            'ViewSite:Visit', 'CreateForSite:Visit', 'CancelSite:Visit',
             'ViewSite:Visitor', 'ViewContactDetails:Visitor', 'UpdateKnown:Visitor',
             'CheckIn:Visitor', 'CheckOut:Visitor', 'Print:Visitor',
             'View:Monitor', 'ViewSite:Monitor', 'ManageSite:Monitor', 'Edit:Monitor', 'View:MonitorSlide', 'Edit:MonitorSlide',
             'ViewOwn:User', 'EditOwn:User',
             'Create:Visit', 'Create:Visitor',
-            'ViewKnown:Visitor', 'ViewOwn:Visit', 'EditOwn:Visit', 'DeleteOwn:Visit'];
+            'ViewKnown:Visitor', 'ViewOwn:Visit'];
 
         return $this->getIndividualUser($receptionistPermissions, 'receptionist');
     }
@@ -219,7 +223,7 @@ class PermissionHelper
     {
         $userPermissions = [
             'ViewOwn:User', 'EditOwn:User', 'Create:Visit', 'Create:Visitor',
-            'ViewKnown:Visitor', 'ViewOwn:Visit', 'EditOwn:Visit', 'DeleteOwn:Visit',
+            'ViewKnown:Visitor', 'ViewOwn:Visit', 'EditOwn:Visit', 'DeleteOwn:Visit', 'CancelOwn:Visit',
             'View:Role', 'DeleteAny:User'];
 
         return $this->getIndividualUser($userPermissions, 'user');
