@@ -1,5 +1,5 @@
-<section class="grid gap-3 xl:grid-cols-[minmax(0,1fr)_minmax(0,2fr)] xl:items-stretch">
-    <div class="grid min-w-0 content-start gap-3 xl:h-full xl:grid-rows-[auto_minmax(0,1fr)]">
+<section class="grid gap-3 xl:grid-cols-[minmax(0,1fr)_minmax(0,2fr)] xl:items-start">
+    <div class="grid min-w-0 content-start gap-3 xl:self-start">
         <div class="min-w-0 overflow-hidden rounded-2xl border border-base-300 bg-base-200 p-3.5">
             <label class="form-control w-full">
                 <div class="label px-0 pb-2">
@@ -31,23 +31,40 @@
             </div>
         </div>
 
-        <div class="flex h-full min-w-0 flex-col rounded-2xl border border-base-300 bg-base-200 p-3.5">
+        <div class="min-w-0 rounded-2xl border border-base-300 bg-base-200 p-3.5">
             <label class="form-control w-full">
                 <div class="label px-0 pb-2">
                     <span class="label-text text-sm font-medium text-base-content">{{ __('Ausgewählte Besucher') }}</span>
                 </div>
             </label>
 
-            <div id="selectedVisitors" class="flex min-h-14 flex-1 flex-wrap content-start gap-2 rounded-xl border border-base-300 bg-base-100 p-2.5">
+            <div id="selectedVisitors" class="flex max-h-64 min-h-14 flex-wrap content-start gap-2 overflow-y-auto rounded-xl border border-base-300 bg-base-100 p-2.5">
                 <!-- selected visitors are put here -->
             </div>
-            <span class="mt-2 block text-sm font-medium text-red-500" id="visitorError"></span>
+
+            <div class="mt-2 flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
+                <span id="visitorCount" class="text-sm font-medium text-base-content/75">
+                    {{ __(':count von :max Besuchern ausgewählt', ['count' => 0, 'max' => 6]) }}
+                </span>
+                <span id="visitorLimitHint" class="text-xs font-medium text-base-content/60">
+                    {{ __('Maximal 6 Besucher je Seite') }}
+                </span>
+            </div>
+
+            <span
+                class="mt-2 @error('visitors') block @else hidden @enderror rounded-xl border border-warning/30 bg-warning/10 px-3 py-2 text-sm font-medium text-warning"
+                id="visitorError"
+                role="status"
+                aria-live="polite"
+                data-duplicate-message="{{ __('Besucher ist bereits hinzugefügt.') }}"
+                data-limit-message="{{ __('Maximal 6 Besucher je Seite erreicht.') }}"
+            >@error('visitors'){{ $message }}@enderror</span>
 
             <input type="hidden" id="visitorsInput" name="visitors">
         </div>
     </div>
 
-    <div class="grid min-w-0 gap-3 xl:h-full xl:grid-rows-[minmax(0,1fr)_auto]">
+    <div class="grid min-w-0 gap-3">
         <div class="min-w-0 rounded-2xl border border-base-300 bg-base-200 p-3.5">
             <h3 class="text-sm font-medium text-base-content">{{ __('Heutige Besuche') }}</h3>
 
