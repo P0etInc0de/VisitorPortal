@@ -5,26 +5,18 @@ SPDX-License-Identifier: GPL-3.0-or-later
 
 @if (auth()->check())
     <x-app-layout>
-        <x-slot name="header">
-            <div>
-                <p class="text-sm font-semibold uppercase tracking-[0.18em] text-base-content/55">403</p>
-                <h1 class="mt-2 text-4xl font-bold leading-none tracking-tight text-base-content lg:text-5xl">
-                    {{ __('Zugriff verweigert') }}
-                </h1>
-            </div>
-        </x-slot>
+        <section class="mx-auto max-w-xl rounded-3xl border border-base-300 bg-base-100 p-7 text-center shadow-sm sm:p-9">
+            <p class="text-6xl font-black tracking-tight text-base-content/20 sm:text-7xl">403</p>
+            <h1 class="mt-4 text-3xl font-bold tracking-tight text-base-content">
+                {{ __('Zugriff verweigert') }}
+            </h1>
 
-        <section class="mx-auto max-w-2xl rounded-3xl border border-base-300 bg-base-100 p-6 shadow-sm sm:p-8">
-            <div class="grid gap-4">
-                <p class="text-lg font-semibold text-base-content">
-                    {{ __('Du hast keine Berechtigung für diese Seite oder Aktion.') }}
-                </p>
-                <p class="leading-7 text-base-content/70">
-                    {{ __('Falls du der Meinung bist, dass du Zugriff benötigst, kontaktiere bitte einen Administrator.') }}
-                </p>
+            <div class="mx-auto mt-4 max-w-md space-y-3 text-base-content/70">
+                <p>{{ __('Du hast keine Berechtigung für diese Seite oder Aktion.') }}</p>
+                <p>{{ __('Falls du der Meinung bist, dass du Zugriff benötigst, kontaktiere bitte einen Administrator.') }}</p>
             </div>
 
-            <div class="mt-6 flex flex-col gap-3 sm:flex-row">
+            <div class="mt-7 flex flex-col items-center justify-center gap-3 sm:flex-row">
                 <button
                     type="button"
                     class="btn btn-outline rounded-xl"
@@ -44,16 +36,16 @@ SPDX-License-Identifier: GPL-3.0-or-later
     </x-app-layout>
 @else
     <x-guest-layout title="{{ __('Zugriff verweigert') }}">
-        <section class="rounded-3xl border border-base-300 bg-base-100 p-6 shadow-sm sm:p-8">
-            <p class="text-sm font-semibold uppercase tracking-[0.18em] text-base-content/55">403</p>
-            <h1 class="mt-2 text-3xl font-bold tracking-tight text-base-content">
+        <section class="mx-auto max-w-xl rounded-3xl border border-base-300 bg-base-100 p-7 text-center shadow-sm sm:p-9">
+            <p class="text-6xl font-black tracking-tight text-base-content/20 sm:text-7xl">403</p>
+            <h1 class="mt-4 text-3xl font-bold tracking-tight text-base-content">
                 {{ __('Zugriff verweigert') }}
             </h1>
-            <p class="mt-4 leading-7 text-base-content/70">
+            <p class="mx-auto mt-4 max-w-md leading-7 text-base-content/70">
                 {{ __('Du hast keine Berechtigung für diese Seite.') }}
             </p>
 
-            <div class="mt-6">
+            <div class="mt-7 flex justify-center">
                 <a href="{{ route('login') }}" class="btn btn-primary rounded-xl">
                     {{ __('Zur Anmeldung') }}
                 </a>

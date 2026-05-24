@@ -457,6 +457,7 @@ class VisitManagementTest extends TestCase
             Livewire::actingAs($user)
                 ->test(VisitShowPage::class, ['visit' => $visit])
                 ->assertSee(__('Termin verschieben'))
+                ->assertSee(__('Aktionen'))
                 ->assertSee(__('Bearbeiten'))
                 ->assertSee(__('Besuch absagen'))
                 ->set('scheduledFrom', $newStart)
@@ -475,5 +476,63 @@ class VisitManagementTest extends TestCase
         } finally {
             Carbon::setTestNow();
         }
+    }
+
+    public function test_visit_show_keeps_allowed_actions_for_admin_role(): void
+    {
+        Carbon::setTestNow('2026-05-24 10:00:00');
+
+        try {
+            config(['security.mfa.app_required_roles' => []]);
+
+            $this->artisan('visitorportal:sync-permissions')->assertExitCode(0);
+
+            $admin = User::factory()->create(['email' => 'admin@example.org']);
+            $admin->assignRole('admin');
+            $visit = Visit::factory()->create([
+                'scheduled_from' => now()->addDay(),
+                'scheduled_until' => now()->addDay()->addHour(),
+            ]);
+
+            $this
+                ->actingAs($admin)
+                ->get(route('portal.visits.show', $visit))
+                ->assertOk()
+                ->assertSee(__('Termin verschieben'))
+                ->assertSee(__('Aktionen'))
+                ->assertSee(__('Bearbeiten'))
+                ->assertSee(__('Besuch absagen'));
+
+            Livewire::actingAs($admin)
+                ->test(VisitShowPage::class, ['visit' => $visit])
+                ->call('cancelVisit')
+                ->assertHasNoErrors();
+
+            $this->assertDatabaseHas('visits', [
+                'id' => $visit->id,
+                'status' => 'canceled',
+            ]);
+        } finally {
+            Carbon::setTestNow();
+        }
+    }
+
+    public function test_visit_show_without_sidebar_keeps_main_content_constrained(): void
+    {
+        $viewer = (new PermissionHelper)->getIndividualUser([
+            'ViewSite:Visit',
+        ], 'visit-detail-viewer');
+        $visit = Visit::factory()->create([
+            'site_id' => $viewer->site_id,
+        ]);
+
+        $this
+            ->actingAs($viewer)
+            ->get(route('portal.visits.show', $visit))
+            ->assertOk()
+            ->assertSee('max-w-5xl', false)
+            ->assertDontSee(__('Termin verschieben'))
+            ->assertDontSee(__('Aktionen'))
+            ->assertDontSee(__('Termin absagen'));
     }
 }

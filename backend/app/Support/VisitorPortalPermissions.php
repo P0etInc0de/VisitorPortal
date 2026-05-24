@@ -36,6 +36,7 @@ class VisitorPortalPermissions
             'ViewOwn:Visit',
             'EditOwn:Visit',
             'DeleteOwn:Visit',
+            'CancelOwn:Visit',
             'View:Role',
         ];
 
@@ -52,9 +53,11 @@ class VisitorPortalPermissions
         $receptionistPermissions = self::unique(array_merge(array_diff($userPermissions, [
             'EditOwn:Visit',
             'DeleteOwn:Visit',
+            'CancelOwn:Visit',
         ]), [
             'ViewSite:Visit',
             'CreateForSite:Visit',
+            'CancelSite:Visit',
             'ViewSite:Visitor',
             'ViewContactDetails:Visitor',
             'UpdateKnown:Visitor',
@@ -115,6 +118,8 @@ class VisitorPortalPermissions
             'ViewAny:Visit',
             'EditAny:Visit',
             'DeleteAny:Visit',
+            'CancelAny:Visit',
+            'CancelDepartment:Visit',
             'CreateForAny:Visit',
             'ViewArchive:Visit',
             'ManageAny:Monitor',

@@ -36,13 +36,14 @@
     $detailLabelClass = 'text-[0.75rem] font-medium uppercase tracking-[0.04em] text-base-content/55';
     $detailValueClass = 'mt-1 text-sm font-medium text-base-content';
     $canUpdateVisit = auth()->user()?->can('update', $visit) ?? false;
-    $canDeleteVisit = auth()->user()?->can('delete', $visit) ?? false;
+    $canCancelVisit = auth()->user()?->can('cancel', $visit) ?? false;
     $visitIsCanceled = $visit->status === 'canceled' || filled($visit->canceled_at);
     $showEditAction = $canUpdateVisit;
     $showReopenAction = $canUpdateVisit && $visitIsCanceled;
-    $showCancelAction = $canDeleteVisit && ! $visitIsCanceled;
-    $showActionCard = $showEditAction || $showReopenAction || $showCancelAction;
-    $showSidebar = $recurrenceMeta || $canUpdateVisit || $showActionCard;
+    $showCancelAction = $canCancelVisit && ! $visitIsCanceled;
+    $showCancelOnlyCard = $showCancelAction && ! $canUpdateVisit;
+    $showActionCard = $showEditAction || $showReopenAction || ($showCancelAction && ! $showCancelOnlyCard);
+    $showSidebar = $recurrenceMeta || $canUpdateVisit || $showActionCard || $showCancelOnlyCard;
     $formatParticipantDateTime = function ($value, $fallback = '-') {
         return filled($value)
             ? \Illuminate\Support\Carbon::parse($value)->format('d.m.Y H:i')
@@ -67,7 +68,10 @@
         </div>
     </x-slot>
 
-    <div class="grid min-w-0 gap-5">
+        <div @class([
+            'grid min-w-0 gap-5',
+            'mx-auto w-full max-w-5xl' => ! $showSidebar,
+        ])>
         @if (session('status'))
             <div class="alert alert-success mb-4 rounded-2xl">
                 <span>{{ session('status') }}</span>
@@ -256,7 +260,7 @@
 
                         @if ($showActionCard)
                         <div class="rounded-2xl border border-base-300 bg-base-100 p-4">
-                            <div class="mb-3 text-base font-semibold text-base-content">{{ __('Terminstatus') }}</div>
+                            <div class="mb-3 text-base font-semibold text-base-content">{{ __('Aktionen') }}</div>
 
                             <div class="grid gap-3">
                                 @if ($showEditAction)
@@ -274,7 +278,7 @@
                                 </form>
                             @endif
 
-                            @if ($showCancelAction)
+                            @if ($showCancelAction && ! $showCancelOnlyCard)
                                 <form method="POST" action="{{ route('portal.visits.cancel', $visit) }}">
                                     @csrf
                                     <button type="submit" class="btn btn-outline w-full">
@@ -283,6 +287,19 @@
                                 </form>
                             @endif
                             </div>
+                        </div>
+                        @endif
+
+                        @if ($showCancelOnlyCard)
+                        <div class="rounded-2xl border border-base-300 bg-base-100 p-4">
+                            <div class="mb-3 text-base font-semibold text-base-content">{{ __('Termin absagen') }}</div>
+
+                            <form method="POST" action="{{ route('portal.visits.cancel', $visit) }}">
+                                @csrf
+                                <button type="submit" class="btn btn-outline w-full">
+                                    {{ __('Besuch absagen') }}
+                                </button>
+                            </form>
                         </div>
                         @endif
                     </div>

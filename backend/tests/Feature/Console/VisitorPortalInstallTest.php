@@ -35,10 +35,12 @@ class VisitorPortalInstallTest extends TestCase
         $receptionistPermissions = $receptionistRole->permissions->pluck('name');
 
         $this->assertTrue($receptionistPermissions->contains('ViewSite:Visit'));
+        $this->assertTrue($receptionistPermissions->contains('CancelSite:Visit'));
         $this->assertFalse($receptionistPermissions->contains('EditSite:Visit'));
         $this->assertFalse($receptionistPermissions->contains('DeleteSite:Visit'));
         $this->assertFalse($receptionistPermissions->contains('EditOwn:Visit'));
         $this->assertFalse($receptionistPermissions->contains('DeleteOwn:Visit'));
+        $this->assertFalse($receptionistPermissions->contains('CancelOwn:Visit'));
 
         foreach (['admin', 'manager', 'receptionist', 'user'] as $roleName) {
             $this->assertFalse(

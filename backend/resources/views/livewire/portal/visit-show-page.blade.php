@@ -1,13 +1,14 @@
 <div>
     @php
         $canUpdateVisit = auth()->user()?->can('update', $visit) ?? false;
-        $canDeleteVisit = auth()->user()?->can('delete', $visit) ?? false;
+        $canCancelVisit = auth()->user()?->can('cancel', $visit) ?? false;
         $visitIsCanceled = $visit->status === 'canceled' || filled($visit->canceled_at);
         $showEditAction = $canUpdateVisit;
         $showReopenAction = $canUpdateVisit && $visitIsCanceled;
-        $showCancelAction = $canDeleteVisit && ! $visitIsCanceled;
-        $showActionCard = $showEditAction || $showReopenAction || $showCancelAction;
-        $showSidebar = $recurrenceMeta || $canUpdateVisit || $showActionCard;
+        $showCancelAction = $canCancelVisit && ! $visitIsCanceled;
+        $showCancelOnlyCard = $showCancelAction && ! $canUpdateVisit;
+        $showActionCard = $showEditAction || $showReopenAction || ($showCancelAction && ! $showCancelOnlyCard);
+        $showSidebar = $recurrenceMeta || $canUpdateVisit || $showActionCard || $showCancelOnlyCard;
     @endphp
 
     <div
@@ -56,6 +57,7 @@
         @class([
             'grid gap-6 xl:items-start',
             'xl:grid-cols-3' => $showSidebar,
+            'mx-auto w-full max-w-5xl' => ! $showSidebar,
         ])
     >
         @if (session('status'))
@@ -226,12 +228,22 @@
                                 </button>
                             @endif
 
-                            @if ($showCancelAction)
+                            @if ($showCancelAction && ! $showCancelOnlyCard)
                                 <button type="button" class="btn btn-outline w-full rounded-xl" wire:click="cancelVisit" wire:loading.attr="disabled" wire:target="cancelVisit">
                                     {{ __('Besuch absagen') }}
                                 </button>
                             @endif
                         </div>
+                    </section>
+                @endif
+
+                @if ($showCancelOnlyCard)
+                    <section class="rounded-3xl border border-base-300 bg-base-100 p-6 shadow-sm sm:p-7">
+                        <h2 class="mb-4 text-xl font-bold text-base-content">{{ __('Termin absagen') }}</h2>
+
+                        <button type="button" class="btn btn-outline w-full rounded-xl" wire:click="cancelVisit" wire:loading.attr="disabled" wire:target="cancelVisit">
+                            {{ __('Besuch absagen') }}
+                        </button>
                     </section>
                 @endif
             </div>

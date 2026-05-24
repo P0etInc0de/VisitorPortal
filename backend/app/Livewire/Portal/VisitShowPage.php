@@ -60,7 +60,7 @@ class VisitShowPage extends Component
 
     public function cancelVisit(): void
     {
-        $this->authorize('delete', $this->visit->fresh());
+        $this->authorize('cancel', $this->visit->fresh());
 
         $this->visit->update([
             'status' => VisitStatusEnum::Canceled->value,

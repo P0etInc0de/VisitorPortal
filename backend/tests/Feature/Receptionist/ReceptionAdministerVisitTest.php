@@ -271,7 +271,7 @@ class ReceptionAdministerVisitTest extends TestCase
         ]);
     }
 
-    public function test_receptionist_cannot_cancel_visit(): void
+    public function test_receptionist_can_cancel_visit(): void
     {
         $receptionist = (new PermissionHelper)->getReceptionistUser();
 
@@ -288,13 +288,15 @@ class ReceptionAdministerVisitTest extends TestCase
             $substituteUser->id
         );
 
-        $this->actingAs($receptionist)
+        $this
+            ->actingAs($receptionist)
+            ->from(route('portal.visits.show', $visit))
             ->post(route('portal.visits.cancel', $visit))
-            ->assertForbidden();
+            ->assertRedirect(route('portal.visits.show', $visit));
 
         $this->assertDatabaseHas('visits', [
             'id' => $visit->id,
-            'status' => VisitStatusEnum::Planned,
+            'status' => VisitStatusEnum::Canceled,
         ]);
     }
 
@@ -316,8 +318,9 @@ class ReceptionAdministerVisitTest extends TestCase
             ->assertSee('Reception visible visit')
             ->assertDontSee(__('Termin verschieben'))
             ->assertDontSee(__('Bearbeiten'))
-            ->assertDontSee(__('Besuch absagen'))
-            ->assertDontSee(__('Aktionen'));
+            ->assertDontSee(__('Aktionen'))
+            ->assertSee(__('Termin absagen'))
+            ->assertSee(__('Besuch absagen'));
     }
 
     public function test_receptionist_can_check_in_visitors(): void
