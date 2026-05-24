@@ -8,6 +8,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Support\AuthRedirector;
 use App\Support\MfaOnboarding;
 use Closure;
 use Illuminate\Http\Request;
@@ -28,7 +29,7 @@ final class EnsureMfaOnboardingIsAllowed
         if (! $onboarding->isFresh($request)) {
             $onboarding->clear($request);
 
-            return redirect()->route('overview');
+            return redirect()->to(app(AuthRedirector::class)->pathFor($user));
         }
 
         if ($user->hasConfirmedTwoFactorAuthentication()) {
@@ -38,7 +39,7 @@ final class EnsureMfaOnboardingIsAllowed
         if (! $onboarding->isRequiredFor($user, $request)) {
             $onboarding->clear($request);
 
-            return redirect()->route('overview');
+            return redirect()->to(app(AuthRedirector::class)->pathFor($user));
         }
 
         return $next($request);

@@ -10,8 +10,8 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\LoginRequest;
-use App\Models\Monitor;
 use App\Models\User;
+use App\Support\AuthRedirector;
 use App\Support\UserPreferences;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -50,25 +50,15 @@ class AuthenticatedSessionController extends Controller
         Cookie::queue(UserPreferences::LOCALE_COOKIE, $locale, 60 * 24 * 365);
         Cookie::queue(UserPreferences::THEME_COOKIE, $themePreference, 60 * 24 * 365);
 
-        return redirect()->intended($this->redirectRoles($user));
-    }
+        if (! $user instanceof User) {
+            return redirect()->route('login');
+        }
 
-    /**
-     * Redirect roles to different pages
-     */
-    public function redirectRoles(User $user): string
-    {
-        $assignedSiteIds = $user->assignedSiteIds();
-        $siteMonitor = Monitor::query()
-            ->whereIn('site_id', $assignedSiteIds->all())
-            ->orderByRaw('CASE WHEN site_id = ? THEN 0 ELSE 1 END', [(int) $user->site_id])
-            ->first();
-
-        return match (true) {
-            $user->hasAnyRole(['welcome monitor', 'welcome_monitor']) && $siteMonitor !== null => route('monitors.show', $siteMonitor, absolute: false),
-            $user->hasAnyRole(['welcome monitor', 'welcome_monitor']) => route('monitors.missing', absolute: false),
-            default => route('overview', absolute: false)
-        };
+        return redirect()->to(app(AuthRedirector::class)->intendedUrlOrDefault(
+            $request,
+            $user,
+            $request->session()->pull('url.intended')
+        ));
     }
 
     /**

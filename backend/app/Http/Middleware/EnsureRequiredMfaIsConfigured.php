@@ -10,6 +10,7 @@ namespace App\Http\Middleware;
 
 use App\Support\AppMfaPolicy;
 use App\Support\AppMfaSession;
+use App\Support\AuthRedirector;
 use App\Support\MfaOnboarding;
 use App\Support\SecurityEventLogger;
 use Closure;
@@ -123,7 +124,7 @@ class EnsureRequiredMfaIsConfigured
             $authMethod,
             $request->isMethod('GET')
                 ? $request->fullUrl()
-                : (string) $request->session()->get('security.mfa.intended_url', route('overview'))
+                : (string) $request->session()->get('security.mfa.intended_url', $this->defaultUrl($request))
         );
     }
 
@@ -135,6 +136,13 @@ class EnsureRequiredMfaIsConfigured
 
         $url = $request->session()->get('security.mfa.challenge_intended_url');
 
-        return is_string($url) && $url !== '' ? $url : route('overview');
+        return is_string($url) && $url !== '' ? $url : $this->defaultUrl($request);
+    }
+
+    private function defaultUrl(Request $request): string
+    {
+        $user = $request->user();
+
+        return $user ? url(app(AuthRedirector::class)->pathFor($user)) : route('overview');
     }
 }

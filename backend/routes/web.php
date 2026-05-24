@@ -17,14 +17,15 @@ use App\Http\Middleware\CheckMonitorAutoGeneration;
 use App\Livewire\Portal\CheckInOutBoard;
 use App\Livewire\Portal\VisitShowPage;
 use App\Livewire\Profile\UserPermissionsPage;
+use App\Support\AuthRedirector;
 use App\Support\UserPreferences;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cookie;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/', function () {
-    return auth()->check()
-        ? redirect()->route('overview')
+Route::get('/', function (Request $request) {
+    return $request->user()
+        ? redirect()->to(app(AuthRedirector::class)->pathFor($request->user()))
         : redirect()->route('login');
 })->name('home');
 

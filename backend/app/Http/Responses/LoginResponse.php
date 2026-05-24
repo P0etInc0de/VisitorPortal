@@ -11,7 +11,6 @@ namespace App\Http\Responses;
 use App\Support\AppMfaSession;
 use App\Support\AuthRedirector;
 use App\Support\MfaOnboarding;
-use App\Support\SafeRedirectUrl;
 use App\Support\SecurityEventLogger;
 use App\Support\UserSessionPreferences;
 use Illuminate\Support\Facades\Auth;
@@ -68,11 +67,13 @@ class LoginResponse implements LoginResponseContract, TwoFactorLoginResponseCont
 
         app(UserSessionPreferences::class)->apply($request, $user);
 
+        $redirector = app(AuthRedirector::class);
+
         if ($user->requiresTwoFactorAuthentication($authMethod) && ! $user->hasConfirmedTwoFactorAuthentication()) {
             app(MfaOnboarding::class)->start(
                 $request,
                 $authMethod,
-                $request->session()->pull('url.intended', url(app(AuthRedirector::class)->pathFor($user)))
+                $redirector->intendedUrlOrDefault($request, $user, $request->session()->pull('url.intended'))
             );
 
             return redirect()
@@ -80,10 +81,10 @@ class LoginResponse implements LoginResponseContract, TwoFactorLoginResponseCont
                 ->with('warning', __('Bitte richte die Zwei-Faktor-Authentifizierung ein, um fortzufahren.'));
         }
 
-        $redirectUrl = app(SafeRedirectUrl::class)->sanitize(
+        $redirectUrl = $redirector->intendedUrlOrDefault(
             $request,
+            $user,
             $request->session()->pull('url.intended'),
-            url(app(AuthRedirector::class)->pathFor($user))
         );
 
         $response = redirect()->to($redirectUrl);

@@ -11,8 +11,8 @@ namespace App\Http\Controllers\Auth;
 use App\Http\Controllers\Controller;
 use App\Support\AppMfaChallenge;
 use App\Support\AppMfaSession;
+use App\Support\AuthRedirector;
 use App\Support\MfaOnboarding;
-use App\Support\SafeRedirectUrl;
 use App\Support\SecurityEventLogger;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -94,7 +94,7 @@ final class SecurityMfaController extends Controller
     public function challenge(Request $request): RedirectResponse|View
     {
         if (! $request->user()->hasConfirmedTwoFactorAuthentication()) {
-            return Redirect::route('overview');
+            return Redirect::to(app(AuthRedirector::class)->pathFor($request->user()));
         }
 
         $appMfa = app(AppMfaSession::class);
@@ -118,7 +118,7 @@ final class SecurityMfaController extends Controller
     public function verifyChallenge(Request $request, AppMfaChallenge $challenge): RedirectResponse
     {
         if (! $request->user()->hasConfirmedTwoFactorAuthentication()) {
-            return Redirect::route('overview');
+            return Redirect::to(app(AuthRedirector::class)->pathFor($request->user()));
         }
 
         $appMfa = app(AppMfaSession::class);
@@ -169,9 +169,11 @@ final class SecurityMfaController extends Controller
 
         $onboarding->clear($request);
 
-        return $intendedUrl
-            ? Redirect::to(app(SafeRedirectUrl::class)->sanitize($request, $intendedUrl))
-            : Redirect::route('overview');
+        return Redirect::to(app(AuthRedirector::class)->intendedUrlOrDefault(
+            $request,
+            $request->user(),
+            $intendedUrl,
+        ));
     }
 
     private function redirectAfterConfiguredMfa(Request $request): RedirectResponse
@@ -184,7 +186,11 @@ final class SecurityMfaController extends Controller
             return $this->redirectAfterMfa($request);
         }
 
-        $appMfa->startChallenge($request, $authMethod, $onboarding->intendedUrl($request) ?? route('overview'));
+        $appMfa->startChallenge(
+            $request,
+            $authMethod,
+            $onboarding->intendedUrl($request) ?? url(app(AuthRedirector::class)->pathFor($request->user()))
+        );
 
         return Redirect::route('security.mfa.challenge');
     }
@@ -196,8 +202,10 @@ final class SecurityMfaController extends Controller
 
         $appMfa->clearChallenge($request);
 
-        return $intendedUrl
-            ? Redirect::to(app(SafeRedirectUrl::class)->sanitize($request, $intendedUrl))
-            : Redirect::route('overview');
+        return Redirect::to(app(AuthRedirector::class)->intendedUrlOrDefault(
+            $request,
+            $request->user(),
+            $intendedUrl,
+        ));
     }
 }

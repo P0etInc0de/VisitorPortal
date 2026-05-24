@@ -486,6 +486,25 @@ class MfaTest extends TestCase
         $this->assertAuthenticatedAs($admin);
     }
 
+    public function test_receptionist_with_confirmed_mfa_login_redirects_to_reception_dashboard(): void
+    {
+        $receptionist = (new PermissionHelper)->getReceptionistUser();
+        $this->confirmMfa($receptionist);
+
+        $this->post('/login', [
+            'email' => $receptionist->email,
+            'password' => 'password',
+        ])->assertRedirect(route('two-factor.login'));
+
+        $this->post(route('two-factor.login'), [
+            'code' => $this->currentTotp($receptionist),
+        ])->assertRedirect(route('reception.dashboard', absolute: false))
+            ->assertSessionHas('auth.app_mfa_satisfied_for_auth_method', 'local')
+            ->assertSessionHas('auth.app_mfa_satisfied_method', 'totp');
+
+        $this->assertAuthenticatedAs($receptionist);
+    }
+
     public function test_login_totp_accepts_grouped_code_with_space(): void
     {
         $admin = (new PermissionHelper)->getSuperAdminUser();
@@ -1245,6 +1264,51 @@ class MfaTest extends TestCase
             'email' => $receptionist->email,
             'password' => 'password',
         ])->assertRedirect(route('security.mfa.required'));
+    }
+
+    public function test_required_mfa_onboarding_without_intended_url_uses_receptionist_default_landing(): void
+    {
+        config(['security.mfa.app_required_roles' => ['receptionist']]);
+
+        $receptionist = (new PermissionHelper)->getReceptionistUser();
+
+        $this->post('/login', [
+            'email' => $receptionist->email,
+            'password' => 'password',
+        ])->assertRedirect(route('security.mfa.required'));
+
+        $this
+            ->get(route('security.mfa.setup'))
+            ->assertOk();
+
+        $receptionist->refresh();
+
+        $this
+            ->post(route('security.mfa.confirm'), [
+                'code' => $this->currentTotp($receptionist),
+            ])
+            ->assertRedirect(route('security.mfa.recovery-codes'));
+
+        $this
+            ->post(route('security.mfa.continue'))
+            ->assertRedirect(url(route('reception.dashboard', absolute: false)));
+    }
+
+    public function test_app_mfa_challenge_without_intended_url_uses_receptionist_default_landing(): void
+    {
+        $receptionist = (new PermissionHelper)->getReceptionistUser();
+        $this->confirmMfa($receptionist);
+
+        $this
+            ->actingAs($receptionist)
+            ->withSession([
+                'auth.method' => 'local',
+                'security.mfa.challenge_auth_method' => 'local',
+            ])
+            ->post(route('security.mfa.challenge.verify'), [
+                'code' => $this->currentTotp($receptionist),
+            ])
+            ->assertRedirect(url(route('reception.dashboard', absolute: false)));
     }
 
     public function test_optional_mfa_can_be_disabled_for_non_required_users(): void
