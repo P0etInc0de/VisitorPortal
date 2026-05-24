@@ -190,9 +190,10 @@ class MonitorSlidesController extends Controller
                 ]);
             }
 
-            $key = $numericId !== null ? 'visit:'.$numericId : 'manual:'.mb_strtolower($name);
+            $idKey = $numericId !== null ? 'visit:'.$numericId : null;
+            $nameKey = 'name:'.mb_strtolower($name);
 
-            if (isset($seen[$key])) {
+            if (($idKey !== null && isset($seen[$idKey])) || isset($seen[$nameKey])) {
                 continue;
             }
 
@@ -200,7 +201,11 @@ class MonitorSlidesController extends Controller
                 'id' => $numericId,
                 'name' => $name,
             ];
-            $seen[$key] = true;
+            if ($idKey !== null) {
+                $seen[$idKey] = true;
+            }
+
+            $seen[$nameKey] = true;
         }
 
         if (count($normalized) > 6) {

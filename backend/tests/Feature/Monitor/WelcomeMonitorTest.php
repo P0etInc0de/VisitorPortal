@@ -320,6 +320,7 @@ class WelcomeMonitorTest extends TestCase
         ]);
 
         $this
+            ->withSession(['locale' => 'de'])
             ->actingAs($user)
             ->get(route('monitors.slides.create', $monitor))
             ->assertOk()
@@ -336,6 +337,161 @@ class WelcomeMonitorTest extends TestCase
             ->assertSee(__('Seite aktiv'))
             ->assertSee(__('Besucheranzeige'))
             ->assertSee(__('Manuell Name hinzufügen'));
+    }
+
+    public function test_monitor_slide_editor_shows_compact_selection_counter_and_feedback_hooks(): void
+    {
+        app()->setLocale('de');
+
+        $user = $this->monitorUser();
+        $monitor = Monitor::query()->create([
+            'name' => 'Empfang',
+            'transition_time_milliseconds' => 5000,
+            'auto_generation' => false,
+        ]);
+        $visitor = Visitor::factory()->create([
+            'first_name' => 'Mira',
+            'name' => 'Chip',
+        ]);
+        $visit = Visit::factory()->create([
+            'site_id' => $monitor->site_id,
+            'is_confidential' => false,
+        ]);
+
+        $visit->visitors()->attach($visitor->id);
+
+        $this
+            ->withSession(['locale' => 'de'])
+            ->actingAs($user)
+            ->get(route('monitors.slides.create', $monitor))
+            ->assertOk()
+            ->assertSee('id="selectedVisitors" class="flex max-h-64 min-h-14', false)
+            ->assertSee('id="visitorCount"', false)
+            ->assertSee('0 von 6 Besuchern ausgewählt')
+            ->assertSee('Maximal 6 Besucher je Seite')
+            ->assertSee('Besucher ist bereits hinzugefügt.')
+            ->assertSee('Maximal 6 Besucher je Seite erreicht.')
+            ->assertSee('function addVisitor(visitor)', false)
+            ->assertSee('function addManualVisitor()', false)
+            ->assertSee('const wasAdded = addVisitor({', false)
+            ->assertSee('onclick="addVisitor(', false)
+            ->assertSee('showVisitorFeedback(duplicateVisitorMessage)', false)
+            ->assertSee('showVisitorFeedback(visitorLimitReachedMessage)', false)
+            ->assertDontSee('xl:items-stretch', false)
+            ->assertDontSee('flex h-full min-w-0 flex-col rounded-2xl', false)
+            ->assertDontSee('flex min-h-14 flex-1 flex-wrap', false);
+    }
+
+    public function test_monitor_slide_store_deduplicates_duplicate_selected_visitors(): void
+    {
+        $user = $this->monitorUser();
+        $monitor = Monitor::query()->create([
+            'name' => 'Empfang',
+            'transition_time_milliseconds' => 5000,
+            'auto_generation' => false,
+        ]);
+        $visitor = Visitor::factory()->create([
+            'first_name' => 'Theo',
+            'name' => 'Pünktlich',
+            'title' => '',
+        ]);
+        $visit = Visit::factory()->create([
+            'site_id' => $monitor->site_id,
+            'is_confidential' => false,
+        ]);
+
+        $visit->visitors()->attach($visitor->id);
+
+        $response = $this
+            ->actingAs($user)
+            ->post(route('monitors.slides.store', $monitor), [
+                'heading' => 'Herzlich willkommen!',
+                'subheading' => 'Schön, dass Sie da sind!',
+                'slide_number' => 1,
+                'is_active' => '1',
+                'show_logo' => '1',
+                'show_date' => '1',
+                'background_source' => 'inherit',
+                'monitor_display_mode' => Monitor::DISPLAY_TITLE_FIRST_NAME_LAST_INITIAL,
+                'visitors' => json_encode([
+                    ['id' => $visitor->id, 'name' => 'Theo Pünktlich'],
+                    ['id' => $visitor->id, 'name' => 'Theo Pünktlich'],
+                    ['id' => null, 'name' => 'Theo Pünktlich'],
+                ]),
+            ]);
+
+        $response->assertRedirect(route('monitors.edit', $monitor).'#monitor-pages');
+
+        $slide = $monitor->monitorSlides()->sole();
+
+        $this->assertSame([
+            ['id' => $visitor->id, 'name' => 'Theo Pünktlich'],
+        ], $slide->visitors);
+    }
+
+    public function test_monitor_slide_store_accepts_six_visitors(): void
+    {
+        $user = $this->monitorUser();
+        $monitor = Monitor::query()->create([
+            'name' => 'Empfang',
+            'transition_time_milliseconds' => 5000,
+            'auto_generation' => false,
+        ]);
+        $visitors = collect(range(1, 6))
+            ->map(fn (int $index): array => ['id' => null, 'name' => 'Gast '.$index])
+            ->all();
+
+        $response = $this
+            ->actingAs($user)
+            ->post(route('monitors.slides.store', $monitor), [
+                'heading' => 'Herzlich willkommen!',
+                'subheading' => 'Schön, dass Sie da sind!',
+                'slide_number' => 1,
+                'is_active' => '1',
+                'show_logo' => '1',
+                'show_date' => '1',
+                'background_source' => 'inherit',
+                'monitor_display_mode' => Monitor::DISPLAY_TITLE_FIRST_NAME_LAST_INITIAL,
+                'visitors' => json_encode($visitors),
+            ]);
+
+        $response->assertRedirect(route('monitors.edit', $monitor).'#monitor-pages');
+
+        $this->assertCount(6, $monitor->monitorSlides()->sole()->visitors);
+    }
+
+    public function test_monitor_slide_store_rejects_more_than_six_visitors(): void
+    {
+        $user = $this->monitorUser();
+        $monitor = Monitor::query()->create([
+            'name' => 'Empfang',
+            'transition_time_milliseconds' => 5000,
+            'auto_generation' => false,
+        ]);
+        $visitors = collect(range(1, 7))
+            ->map(fn (int $index): array => ['id' => null, 'name' => 'Gast '.$index])
+            ->all();
+
+        $response = $this
+            ->actingAs($user)
+            ->from(route('monitors.slides.create', $monitor))
+            ->post(route('monitors.slides.store', $monitor), [
+                'heading' => 'Herzlich willkommen!',
+                'subheading' => 'Schön, dass Sie da sind!',
+                'slide_number' => 1,
+                'is_active' => '1',
+                'show_logo' => '1',
+                'show_date' => '1',
+                'background_source' => 'inherit',
+                'monitor_display_mode' => Monitor::DISPLAY_TITLE_FIRST_NAME_LAST_INITIAL,
+                'visitors' => json_encode($visitors),
+            ]);
+
+        $response
+            ->assertRedirect(route('monitors.slides.create', $monitor))
+            ->assertSessionHasErrors('visitors');
+
+        $this->assertSame(0, $monitor->monitorSlides()->count());
     }
 
     public function test_monitor_slide_rejects_manual_names_longer_than_50_characters(): void
