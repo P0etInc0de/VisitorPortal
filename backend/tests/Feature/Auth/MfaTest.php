@@ -207,8 +207,11 @@ class MfaTest extends TestCase
 
         $recoveryCode = $admin->recoveryCodes()[0];
 
-        $this
-            ->get(route('security.mfa.recovery-codes'))
+        $recoveryCodesResponse = $this->get(route('security.mfa.recovery-codes'));
+
+        $this->assertSensitiveNoStoreHeaders($recoveryCodesResponse);
+
+        $recoveryCodesResponse
             ->assertOk()
             ->assertSee('pb-2 pt-6 text-center', false)
             ->assertSee('mt-5 border-t border-base-300/70', false)
@@ -218,11 +221,18 @@ class MfaTest extends TestCase
             ->assertSee(__('Jeder Code kann nur einmal verwendet werden.'))
             ->assertSee('alert alert-success rounded-2xl', false)
             ->assertSee($recoveryCode)
-            ->assertSee(__('Weiter'));
+            ->assertSee(__('Weiter'))
+            ->assertSee("window.addEventListener('pageshow'", false)
+            ->assertSee('event.persisted', false);
 
         $this
             ->post(route('security.mfa.continue'))
             ->assertRedirect(url('/overview'));
+
+        $this
+            ->get(route('security.mfa.recovery-codes'))
+            ->assertRedirect(url('/overview'))
+            ->assertDontSee($recoveryCode);
     }
 
     public function test_mfa_pages_render_robust_totp_code_input_without_sample_codes(): void
@@ -667,11 +677,17 @@ class MfaTest extends TestCase
             ])
             ->assertRedirect(route('profile.security.recovery-codes'));
 
-        $this
+        $profileRecoveryCodesResponse = $this
             ->actingAs($user)
-            ->get(route('profile.security.recovery-codes'))
+            ->get(route('profile.security.recovery-codes'));
+
+        $this->assertSensitiveNoStoreHeaders($profileRecoveryCodesResponse);
+
+        $profileRecoveryCodesResponse
             ->assertOk()
-            ->assertSee($recoveryCode);
+            ->assertSee($recoveryCode)
+            ->assertSee("window.addEventListener('pageshow'", false)
+            ->assertSee('event.persisted', false);
     }
 
     public function test_step_up_totp_accepts_multiple_whitespace(): void
@@ -780,6 +796,23 @@ class MfaTest extends TestCase
         $this->assertContains($recoveryCode, $user->fresh()->recoveryCodes());
     }
 
+    public function test_profile_recovery_codes_are_not_visible_after_recovery_code_step_up_method(): void
+    {
+        $user = (new PermissionHelper)->getUser();
+        $this->confirmMfa($user);
+        $recoveryCode = $user->fresh()->recoveryCodes()[0];
+
+        $this
+            ->actingAs($user)
+            ->withSession([
+                'security.recovery_codes.just_regenerated' => true,
+                'security.recovery_codes.step_up_method' => 'recovery_code',
+            ])
+            ->get(route('profile.security.recovery-codes'))
+            ->assertRedirect(route('security.step-up.show', SensitiveActionConfirmation::PURPOSE_RECOVERY_CODES_VIEW))
+            ->assertDontSee($recoveryCode);
+    }
+
     public function test_recovery_codes_view_step_up_expires_after_ten_minutes(): void
     {
         $user = (new PermissionHelper)->getUser();
@@ -851,7 +884,7 @@ class MfaTest extends TestCase
             ->assertSee($newCodes[0]);
     }
 
-    public function test_recovery_codes_can_be_regenerated_after_recovery_code_step_up(): void
+    public function test_recovery_codes_cannot_be_regenerated_after_recovery_code_step_up(): void
     {
         $user = (new PermissionHelper)->getUser();
         $this->confirmMfa($user);
@@ -868,30 +901,12 @@ class MfaTest extends TestCase
             ->post(route('security.step-up.verify', SensitiveActionConfirmation::PURPOSE_RECOVERY_CODES_REGENERATE), [
                 'recovery_code' => $usedRecoveryCode,
             ])
-            ->assertRedirect(route('profile.security.recovery-codes'));
-
-        $newRecoveryCodes = $user->fresh()->recoveryCodes();
-
-        $this->assertCount(8, $newRecoveryCodes);
-        $this->assertNotSame($oldRecoveryCodes, $newRecoveryCodes);
-        $this->assertNotContains($usedRecoveryCode, $newRecoveryCodes);
-
-        $this
-            ->actingAs($user)
-            ->post(route('profile.security.recovery-codes.regenerate'))
-            ->assertRedirect(route('security.step-up.show', SensitiveActionConfirmation::PURPOSE_RECOVERY_CODES_REGENERATE));
-
-        $this
-            ->actingAs($user)
-            ->post(route('security.step-up.verify', SensitiveActionConfirmation::PURPOSE_RECOVERY_CODES_REGENERATE), [
-                'recovery_code' => $usedRecoveryCode,
-            ])
             ->assertSessionHasErrors('recovery_code');
 
-        $this->assertSame($newRecoveryCodes, $user->fresh()->recoveryCodes());
+        $this->assertSame($oldRecoveryCodes, $user->fresh()->recoveryCodes());
     }
 
-    public function test_recovery_code_step_up_accepts_recovery_code_with_whitespace(): void
+    public function test_recovery_code_step_up_rejects_recovery_code_with_whitespace(): void
     {
         $user = (new PermissionHelper)->getUser();
         $this->confirmMfa($user);
@@ -908,13 +923,9 @@ class MfaTest extends TestCase
             ->post(route('security.step-up.verify', SensitiveActionConfirmation::PURPOSE_RECOVERY_CODES_REGENERATE), [
                 'recovery_code' => $this->spaceRecoveryCode($usedRecoveryCode),
             ])
-            ->assertRedirect(route('profile.security.recovery-codes'));
+            ->assertSessionHasErrors('recovery_code');
 
-        $newRecoveryCodes = $user->fresh()->recoveryCodes();
-
-        $this->assertCount(8, $newRecoveryCodes);
-        $this->assertNotSame($oldRecoveryCodes, $newRecoveryCodes);
-        $this->assertNotContains($usedRecoveryCode, $newRecoveryCodes);
+        $this->assertSame($oldRecoveryCodes, $user->fresh()->recoveryCodes());
     }
 
     public function test_recovery_code_security_events_are_logged_without_codes_or_secrets(): void
@@ -1522,5 +1533,18 @@ class MfaTest extends TestCase
         foreach (self::MFA_SAMPLE_CODES as $sampleCode) {
             $response->assertDontSee($sampleCode, false);
         }
+    }
+
+    private function assertSensitiveNoStoreHeaders(TestResponse $response): void
+    {
+        $cacheControl = (string) $response->headers->get('Cache-Control');
+
+        foreach (['no-store', 'no-cache', 'private', 'max-age=0', 'must-revalidate'] as $directive) {
+            $this->assertStringContainsString($directive, $cacheControl);
+        }
+
+        $this->assertStringNotContainsString('public', $cacheControl);
+        $response->assertHeader('Pragma', 'no-cache');
+        $response->assertHeader('Expires', '0');
     }
 }

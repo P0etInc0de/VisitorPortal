@@ -117,9 +117,7 @@ final class SecurityStepUpController extends Controller
      */
     private function allowedMethodsFor(string $purpose): array
     {
-        return $purpose === SensitiveActionConfirmation::PURPOSE_RECOVERY_CODES_VIEW
-            ? ['totp']
-            : ['totp', 'recovery_code'];
+        return ['totp'];
     }
 
     private function descriptionFor(string $purpose): string

@@ -60,8 +60,9 @@ class ProfileController extends Controller
         }
 
         $confirmation = app(SensitiveActionConfirmation::class);
-        $allowedAfterRegeneration = $request->session()->pull('security.recovery_codes.just_regenerated', false) === true;
         $regenerationStepUpMethod = $request->session()->pull('security.recovery_codes.step_up_method', 'unknown');
+        $allowedAfterRegeneration = $request->session()->pull('security.recovery_codes.just_regenerated', false) === true
+            && $regenerationStepUpMethod === 'totp';
 
         if (! $allowedAfterRegeneration && ! $confirmation->isFresh($request, SensitiveActionConfirmation::PURPOSE_RECOVERY_CODES_VIEW)) {
             $confirmation->start($request, SensitiveActionConfirmation::PURPOSE_RECOVERY_CODES_VIEW, $request->fullUrl());
