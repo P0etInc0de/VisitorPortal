@@ -12,6 +12,7 @@
     @endphp
 
     <div
+        data-testid="visit-detail-grid"
         x-data="{
             rescheduleMinHeight: '',
             alignThreshold: 36,
@@ -56,8 +57,7 @@
         }"
         @class([
             'grid gap-6 xl:items-start',
-            'xl:grid-cols-3' => $showSidebar,
-            'mx-auto w-full max-w-5xl' => ! $showSidebar,
+            'xl:grid-cols-3',
         ])
     >
         @if (session('status'))
@@ -68,9 +68,9 @@
 
         <div @class([
             'grid min-w-0 gap-6',
-            'xl:col-span-2' => $showSidebar,
-        ])>
-            <section x-ref="infoCard" class="rounded-3xl border border-base-300 bg-base-100 p-6 shadow-sm sm:p-7">
+            'xl:col-span-2',
+        ]) data-testid="visit-detail-content">
+            <section x-ref="infoCard" data-testid="visit-info-card" class="rounded-3xl border border-base-300 bg-base-100 p-6 shadow-sm sm:p-7">
                 <div @class([
                     'grid gap-5 md:grid-cols-2',
                     '2xl:grid-cols-[minmax(7rem,0.65fr)_minmax(15rem,1.45fr)_minmax(12rem,1fr)]' => $recurrenceMeta,
@@ -184,7 +184,7 @@
         @if ($showSidebar)
             <div class="grid min-w-0 gap-6 xl:sticky xl:top-6">
                 @if ($canUpdateVisit)
-                    <section x-ref="rescheduleCard" :style="rescheduleMinHeight ? { minHeight: rescheduleMinHeight } : {}" class="rounded-3xl border border-base-300 bg-base-100 p-5 shadow-sm sm:p-6">
+                    <section x-ref="rescheduleCard" data-testid="visit-reschedule-card" :style="rescheduleMinHeight ? { minHeight: rescheduleMinHeight } : {}" class="rounded-3xl border border-base-300 bg-base-100 p-5 shadow-sm sm:p-6">
                         <h2 class="mb-3 text-xl font-bold text-base-content">{{ __('Termin verschieben') }}</h2>
 
                         <form wire:submit.prevent="saveSchedule" class="grid gap-3">
@@ -212,7 +212,7 @@
                 @endif
 
                 @if ($showActionCard)
-                    <section class="rounded-3xl border border-base-300 bg-base-100 p-6 shadow-sm sm:p-7">
+                    <section data-testid="visit-actions-card" class="rounded-3xl border border-base-300 bg-base-100 p-6 shadow-sm sm:p-7">
                         <h2 class="mb-4 text-xl font-bold text-base-content">{{ __('Aktionen') }}</h2>
 
                         <div class="grid gap-3">
@@ -238,7 +238,7 @@
                 @endif
 
                 @if ($showCancelOnlyCard)
-                    <section class="rounded-3xl border border-base-300 bg-base-100 p-6 shadow-sm sm:p-7">
+                    <section data-testid="visit-cancel-card" class="rounded-3xl border border-base-300 bg-base-100 p-6 shadow-sm sm:p-7">
                         <h2 class="mb-4 text-xl font-bold text-base-content">{{ __('Termin absagen') }}</h2>
 
                         <button type="button" class="btn btn-outline w-full rounded-xl" wire:click="cancelVisit" wire:loading.attr="disabled" wire:target="cancelVisit">

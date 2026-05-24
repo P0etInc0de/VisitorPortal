@@ -70,7 +70,7 @@
 
         <div @class([
             'grid min-w-0 gap-5',
-            'mx-auto w-full max-w-5xl' => ! $showSidebar,
+            'w-full xl:w-2/3' => ! $showSidebar,
         ])>
         @if (session('status'))
             <div class="alert alert-success mb-4 rounded-2xl">

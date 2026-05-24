@@ -323,6 +323,29 @@ class ReceptionAdministerVisitTest extends TestCase
             ->assertSee(__('Besuch absagen'));
     }
 
+    public function test_receptionist_visit_detail_hides_cancel_action_for_completed_site_visit(): void
+    {
+        $receptionist = (new PermissionHelper)->getReceptionistUser();
+        $employee = User::factory()->create(['site_id' => $receptionist->site_id]);
+        $visit = Visit::factory()->create([
+            'site_id' => $receptionist->site_id,
+            'host_user_id' => $employee->id,
+            'substitute_user_id' => null,
+            'status' => VisitStatusEnum::Completed->value,
+            'scheduled_from' => now()->subHours(2),
+            'scheduled_until' => now()->subHour(),
+        ]);
+
+        $this->actingAs($receptionist)
+            ->get(route('portal.visits.show', $visit))
+            ->assertOk()
+            ->assertDontSee(__('Termin absagen'))
+            ->assertDontSee(__('Besuch absagen'))
+            ->assertDontSee(__('Termin verschieben'))
+            ->assertDontSee(__('Bearbeiten'))
+            ->assertDontSee(__('Aktionen'));
+    }
+
     public function test_receptionist_can_check_in_visitors(): void
     {
         Carbon::setTestNow(Carbon::create(2026, 5, 1, 14, 39, 24, config('app.timezone')));

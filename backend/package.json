@@ -5,6 +5,7 @@
     "scripts": {
         "build": "vite build",
         "dev": "vite",
+        "test:e2e:visit-actions": "playwright test tests/e2e/visit-detail-actions.spec.ts --project=chromium",
         "test:e2e:mfa": "playwright test tests/e2e/mfa-code-input.spec.ts --project=chromium",
         "test:e2e:sso": "playwright test tests/e2e/sso-login.spec.ts --project=chromium"
     },

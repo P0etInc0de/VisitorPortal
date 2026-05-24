@@ -530,7 +530,10 @@ class VisitManagementTest extends TestCase
             ->actingAs($viewer)
             ->get(route('portal.visits.show', $visit))
             ->assertOk()
-            ->assertSee('max-w-5xl', false)
+            ->assertSee('data-testid="visit-detail-grid"', false)
+            ->assertSee('xl:grid-cols-3', false)
+            ->assertSee('data-testid="visit-detail-content"', false)
+            ->assertSee('xl:col-span-2', false)
             ->assertDontSee(__('Termin verschieben'))
             ->assertDontSee(__('Aktionen'))
             ->assertDontSee(__('Termin absagen'));
