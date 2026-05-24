@@ -79,9 +79,12 @@ class ProfileController extends Controller
                 : (string) $request->session()->get('security.step_up.method', 'unknown'),
         ]);
 
+        $recoveryCodes = app(RecoveryCodeManager::class)->activeCodes($request->user());
+        $confirmation->clearConfirmation($request, SensitiveActionConfirmation::PURPOSE_RECOVERY_CODES_VIEW);
+
         return view('profile.recovery-codes', [
             'user' => $request->user(),
-            'recoveryCodes' => app(RecoveryCodeManager::class)->activeCodes($request->user()),
+            'recoveryCodes' => $recoveryCodes,
         ]);
     }
 
