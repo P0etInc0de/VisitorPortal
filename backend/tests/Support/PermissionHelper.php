@@ -174,13 +174,13 @@ class PermissionHelper
     public function getReceptionistUser(): User
     {
         $receptionistPermissions = [
-            'ViewSite:Visit', 'EditSite:Visit', 'DeleteSite:Visit', 'CreateForSite:Visit',
+            'ViewSite:Visit', 'CreateForSite:Visit',
             'ViewSite:Visitor', 'ViewContactDetails:Visitor', 'UpdateKnown:Visitor',
             'CheckIn:Visitor', 'CheckOut:Visitor', 'Print:Visitor',
             'View:Monitor', 'ViewSite:Monitor', 'ManageSite:Monitor', 'Edit:Monitor', 'View:MonitorSlide', 'Edit:MonitorSlide',
             'ViewOwn:User', 'EditOwn:User',
             'Create:Visit', 'Create:Visitor',
-            'ViewKnown:Visitor', 'ViewOwn:Visit', 'EditOwn:Visit', 'DeleteOwn:Visit'];
+            'ViewKnown:Visitor', 'ViewOwn:Visit'];
 
         return $this->getIndividualUser($receptionistPermissions, 'receptionist');
     }

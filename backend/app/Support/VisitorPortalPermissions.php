@@ -49,10 +49,11 @@ class VisitorPortalPermissions
             'ViewDepartment:Visitor',
         ]));
 
-        $receptionistPermissions = self::unique(array_merge($userPermissions, [
+        $receptionistPermissions = self::unique(array_merge(array_diff($userPermissions, [
+            'EditOwn:Visit',
+            'DeleteOwn:Visit',
+        ]), [
             'ViewSite:Visit',
-            'EditSite:Visit',
-            'DeleteSite:Visit',
             'CreateForSite:Visit',
             'ViewSite:Visitor',
             'ViewContactDetails:Visitor',

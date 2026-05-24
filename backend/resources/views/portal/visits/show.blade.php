@@ -35,6 +35,14 @@
     $detailCardClass = 'rounded-2xl border border-base-300 bg-base-100/90 px-4 py-3';
     $detailLabelClass = 'text-[0.75rem] font-medium uppercase tracking-[0.04em] text-base-content/55';
     $detailValueClass = 'mt-1 text-sm font-medium text-base-content';
+    $canUpdateVisit = auth()->user()?->can('update', $visit) ?? false;
+    $canDeleteVisit = auth()->user()?->can('delete', $visit) ?? false;
+    $visitIsCanceled = $visit->status === 'canceled' || filled($visit->canceled_at);
+    $showEditAction = $canUpdateVisit;
+    $showReopenAction = $canUpdateVisit && $visitIsCanceled;
+    $showCancelAction = $canDeleteVisit && ! $visitIsCanceled;
+    $showActionCard = $showEditAction || $showReopenAction || $showCancelAction;
+    $showSidebar = $recurrenceMeta || $canUpdateVisit || $showActionCard;
     $formatParticipantDateTime = function ($value, $fallback = '-') {
         return filled($value)
             ? \Illuminate\Support\Carbon::parse($value)->format('d.m.Y H:i')
@@ -49,11 +57,13 @@
                 <h1 class="text-4xl font-bold leading-none tracking-tight text-base-content lg:text-5xl">{{ $visit->display_title }}</h1>
             </div>
 
-            <div class="flex flex-wrap gap-3">
-                <a href="{{ route('portal.visits.edit', $visit) }}" class="btn btn-outline btn-sm rounded-xl">
-                    {{ __('Bearbeiten') }}
-                </a>
-            </div>
+            @if ($canUpdateVisit)
+                <div class="flex flex-wrap gap-3">
+                    <a href="{{ route('portal.visits.edit', $visit) }}" class="btn btn-outline btn-sm rounded-xl">
+                        {{ __('Bearbeiten') }}
+                    </a>
+                </div>
+            @endif
         </div>
     </x-slot>
 
@@ -105,7 +115,10 @@
                     </div>
                 @endif
 
-                <div class="grid gap-4 xl:grid-cols-[minmax(0,1fr)_340px]">
+                <div @class([
+                    'grid gap-4',
+                    'xl:grid-cols-[minmax(0,1fr)_340px]' => $showSidebar,
+                ])>
                     <div class="min-w-0">
                         <div class="mb-3 flex items-center justify-between gap-3">
                             <h2 class="text-xl font-semibold tracking-tight text-base-content">{{ __('Teilnehmende') }}</h2>
@@ -178,6 +191,7 @@
                         @endif
                     </div>
 
+                    @if ($showSidebar)
                     <div class="grid gap-4">
                         @if ($recurrenceMeta)
                             <div class="rounded-2xl border {{ $recurrenceMeta['is_modified'] ? 'border-warning/40 bg-warning/5' : 'border-base-300 bg-base-100' }} p-4">
@@ -208,6 +222,7 @@
                             </div>
                         @endif
 
+                        @if ($canUpdateVisit)
                         <details class="rounded-2xl border border-base-300 bg-base-100" open>
                             <summary class="cursor-pointer list-none px-4 py-3 text-base font-semibold text-base-content">
                                 {{ __('Termin verschieben') }}
@@ -237,18 +252,29 @@
                                 </form>
                             </div>
                         </details>
+                        @endif
 
+                        @if ($showActionCard)
                         <div class="rounded-2xl border border-base-300 bg-base-100 p-4">
                             <div class="mb-3 text-base font-semibold text-base-content">{{ __('Terminstatus') }}</div>
 
-                            @if ($visit->status === 'canceled' || filled($visit->canceled_at))
+                            <div class="grid gap-3">
+                                @if ($showEditAction)
+                                    <a href="{{ route('portal.visits.edit', $visit) }}" class="btn btn-outline w-full">
+                                        {{ __('Bearbeiten') }}
+                                    </a>
+                                @endif
+
+                            @if ($showReopenAction)
                                 <form method="POST" action="{{ route('portal.visits.reopen', $visit) }}">
                                     @csrf
                                     <button type="submit" class="btn btn-outline w-full">
                                         {{ __('Besuch wieder öffnen') }}
                                     </button>
                                 </form>
-                            @else
+                            @endif
+
+                            @if ($showCancelAction)
                                 <form method="POST" action="{{ route('portal.visits.cancel', $visit) }}">
                                     @csrf
                                     <button type="submit" class="btn btn-outline w-full">
@@ -256,8 +282,11 @@
                                     </button>
                                 </form>
                             @endif
+                            </div>
                         </div>
+                        @endif
                     </div>
+                    @endif
                 </div>
             </div>
         </section>

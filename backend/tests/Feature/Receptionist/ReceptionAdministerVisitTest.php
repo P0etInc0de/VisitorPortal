@@ -223,7 +223,7 @@ class ReceptionAdministerVisitTest extends TestCase
     /**
      * @throws \JsonException
      */
-    public function test_receptionist_can_edit_visit(): void
+    public function test_receptionist_cannot_edit_visit(): void
     {
         $receptionist = (new PermissionHelper)->getReceptionistUser();
 
@@ -245,8 +245,11 @@ class ReceptionAdministerVisitTest extends TestCase
         $updatedScheduledUntil = '2026-04-29 11:00:00';
         $updatedVisitNotes = 'Updated Visit Notes';
 
-        // send update request
-        $response = $this->actingAs($receptionist)
+        $this->actingAs($receptionist)
+            ->get(route('portal.visits.edit', $visit))
+            ->assertForbidden();
+
+        $response = $this
             ->patch(route('portal.visits.update', $visit), [
                 'host_user_id' => $employee->id,
                 'substitute_user_id' => $substituteUser->id,
@@ -260,19 +263,15 @@ class ReceptionAdministerVisitTest extends TestCase
                 ],
             ]);
 
-        $response->assertSessionHasNoErrors();
+        $response->assertForbidden();
 
-        // check if database contains updated values
-        $this->assertDatabaseHas('visits', [
+        $this->assertDatabaseMissing('visits', [
             'id' => $visit->id,
             'title' => $updatedVisitTitle,
-            'scheduled_from' => $updatedScheduledFrom,
-            'scheduled_until' => $updatedScheduledUntil,
-            'notes' => $updatedVisitNotes,
         ]);
     }
 
-    public function test_receptionist_can_cancel_visit(): void
+    public function test_receptionist_cannot_cancel_visit(): void
     {
         $receptionist = (new PermissionHelper)->getReceptionistUser();
 
@@ -289,15 +288,36 @@ class ReceptionAdministerVisitTest extends TestCase
             $substituteUser->id
         );
 
-        // cancel the visit
-        $response = $this->actingAs($receptionist)
-            ->post(route('portal.visits.cancel', $visit));
+        $this->actingAs($receptionist)
+            ->post(route('portal.visits.cancel', $visit))
+            ->assertForbidden();
 
-        // check if the status is now set to 'Canceled'
         $this->assertDatabaseHas('visits', [
             'id' => $visit->id,
-            'status' => VisitStatusEnum::Canceled,
+            'status' => VisitStatusEnum::Planned,
         ]);
+    }
+
+    public function test_receptionist_visit_detail_hides_administrative_actions(): void
+    {
+        $receptionist = (new PermissionHelper)->getReceptionistUser();
+        $employee = User::factory()->create();
+        $substituteUser = User::factory()->create();
+        $visit = (new VisitHelper)->makeVisit(
+            $employee->id,
+            'Reception visible visit',
+            VisitStatusEnum::Planned,
+            $substituteUser->id
+        );
+
+        $this->actingAs($receptionist)
+            ->get(route('portal.visits.show', $visit))
+            ->assertOk()
+            ->assertSee('Reception visible visit')
+            ->assertDontSee(__('Termin verschieben'))
+            ->assertDontSee(__('Bearbeiten'))
+            ->assertDontSee(__('Besuch absagen'))
+            ->assertDontSee(__('Aktionen'));
     }
 
     public function test_receptionist_can_check_in_visitors(): void
@@ -793,7 +813,7 @@ class ReceptionAdministerVisitTest extends TestCase
         ]);
     }
 
-    public function test_reception_can_reschedule_appointments(): void
+    public function test_reception_cannot_reschedule_appointments(): void
     {
         $receptionist = (new PermissionHelper)->getReceptionistUser();
 
@@ -817,23 +837,22 @@ class ReceptionAdministerVisitTest extends TestCase
         $scheduledFromTimeStampUpdated = now();
         $scheduledToTimeStampUpdated = now()->addMinutes(60);
 
-        // reschedule visit with new timestamps
         $this->actingAs($receptionist)
             ->patch(route('portal.visits.reschedule', $visit), [
                 'scheduled_from' => $scheduledFromTimeStampUpdated,
                 'scheduled_until' => $scheduledToTimeStampUpdated,
-            ]);
+            ])
+            ->assertForbidden();
 
-        // check if visit has been rescheduled
         $this->assertDatabaseHas('visits', [
             'id' => $visit->id,
-            'scheduled_from' => $scheduledFromTimeStampUpdated,
-            'scheduled_until' => $scheduledToTimeStampUpdated,
+            'scheduled_from' => $scheduledFromTimeStamp,
+            'scheduled_until' => $scheduledToTimeStamp,
         ]);
 
     }
 
-    public function test_reception_reschedule_requires_end_time(): void
+    public function test_reception_reschedule_is_forbidden_before_validation(): void
     {
         $receptionist = (new PermissionHelper)->getReceptionistUser();
         $scheduledFromTimeStamp = now()->subDay();
@@ -848,7 +867,7 @@ class ReceptionAdministerVisitTest extends TestCase
                 'scheduled_from' => now(),
                 'scheduled_until' => null,
             ])
-            ->assertSessionHasErrors('scheduled_until');
+            ->assertForbidden();
 
         $this->assertDatabaseHas('visits', [
             'id' => $visit->id,

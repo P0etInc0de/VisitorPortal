@@ -438,4 +438,42 @@ class VisitManagementTest extends TestCase
             ->call('saveSchedule')
             ->assertHasErrors(['scheduledUntil' => 'required']);
     }
+
+    public function test_visit_show_keeps_allowed_actions_for_host(): void
+    {
+        Carbon::setTestNow('2026-05-24 10:00:00');
+
+        try {
+            $user = (new PermissionHelper)->getUserUser();
+            $visit = Visit::factory()->create([
+                'host_user_id' => $user->id,
+                'substitute_user_id' => null,
+                'scheduled_from' => now()->addDay(),
+                'scheduled_until' => now()->addDay()->addHour(),
+            ]);
+            $newStart = now()->addDays(2)->format('Y-m-d\TH:i');
+            $newEnd = now()->addDays(2)->addHour()->format('Y-m-d\TH:i');
+
+            Livewire::actingAs($user)
+                ->test(VisitShowPage::class, ['visit' => $visit])
+                ->assertSee(__('Termin verschieben'))
+                ->assertSee(__('Bearbeiten'))
+                ->assertSee(__('Besuch absagen'))
+                ->set('scheduledFrom', $newStart)
+                ->set('scheduledUntil', $newEnd)
+                ->call('saveSchedule')
+                ->assertHasNoErrors()
+                ->call('cancelVisit')
+                ->assertHasNoErrors();
+
+            $this->assertDatabaseHas('visits', [
+                'id' => $visit->id,
+                'scheduled_from' => '2026-05-26 10:00:00',
+                'scheduled_until' => '2026-05-26 11:00:00',
+                'status' => 'canceled',
+            ]);
+        } finally {
+            Carbon::setTestNow();
+        }
+    }
 }
