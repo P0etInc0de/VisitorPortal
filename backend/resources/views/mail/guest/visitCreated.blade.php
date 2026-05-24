@@ -1,19 +1,12 @@
 @php
     use Carbon\Carbon;
-    use \App\Enums\SalutationEnum;
     $privacyNoticeUrl = config('privacy.notice_url');
  @endphp
 
 <x-mail.message_component :message="$message">
 # {{__('Termin für Ihren Besuch')}}
 
-@if($visitor->salutation == SalutationEnum::Mr)
-{{__('Sehr geehrter Herr')}} {{$visitor->title . ' '}} {{ $visitor->name }},
-@elseif($visitor->salutation == SalutationEnum::Ms)
-{{__('Sehr geehrter Frau')}} {{$visitor->title . ' '}}{{ $visitor->name  }},
-@else
-{{__('Guten Tag')}} {{$visitor->title. ' '}}{{$visitor->first_name}} {{$visitor->name}},
-@endif
+{{ $greeting }}
 
 {{__('wir freuen uns sehr über Ihren Besuch')}}.
 

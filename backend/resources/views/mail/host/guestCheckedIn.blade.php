@@ -1,18 +1,8 @@
-@php
-    use App\Enums\GenderEnum;
-@endphp
-
 <x-mail.message_component :message="$message">
 
 # {{__('Besuch eingetroffen')}}
 
-@if($user->gender == GenderEnum::Male)
-{{__('Guten Tag Herr')}} {{$user->title . ' '}} {{ $user->name }},
-@elseif($user->gender == GenderEnum::Female)
-{{__('Guten Tag Frau')}} {{$user->title . ' '}} {{ $user->name }},
-@else
-{{__('Guten Tag')}} {{$user->title . ' '}}{{ $user->first_name }} {{ $user->name }},
-@endif
+{{ $greeting }}
 
 {{__('soeben ist folgender Besucher bei uns eingetroffen')}}:
 

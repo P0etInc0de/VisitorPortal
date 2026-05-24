@@ -10,6 +10,7 @@ namespace App\Mail\Host;
 
 use App\Models\User;
 use App\Models\Visit;
+use App\Support\MailGreeting;
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
 use Illuminate\Mail\Mailables\Attachment;
@@ -54,6 +55,7 @@ class VisitReminderDailyMail extends Mailable
         ))
             ->with('visitCollection', $this->visitCollection)
             ->with('visitorCollection', $this->visitorCollection)
+            ->with('greeting', MailGreeting::forUser($this->user))
             ->with('user', $this->user);
     }
 

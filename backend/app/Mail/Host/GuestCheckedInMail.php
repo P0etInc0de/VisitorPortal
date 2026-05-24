@@ -10,6 +10,7 @@ namespace App\Mail\Host;
 
 use App\Models\User;
 use App\Models\Visitor;
+use App\Support\MailGreeting;
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
 use Illuminate\Mail\Mailables\Attachment;
@@ -47,6 +48,7 @@ class GuestCheckedInMail extends Mailable
         return (new Content(
             markdown: 'mail.host.guestCheckedIn',
         ))
+            ->with('greeting', MailGreeting::forUser($this->user))
             ->with('user', $this->user)
             ->with('visitor', $this->visitor);
     }
