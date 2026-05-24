@@ -2,13 +2,14 @@
     "compilerOptions": {
         "target": "ES2022",
         "lib": ["ES2022", "DOM"],
-        "types": ["node", "@playwright/test"],
+        "types": ["node", "@playwright/test", "vite/client"],
         "module": "ESNext",
         "moduleResolution": "Bundler",
         "noEmit": true
     },
     "include": [
         "playwright.config.ts",
+        "resources/js/**/*.ts",
         "tests/e2e/**/*.ts"
     ]
 }

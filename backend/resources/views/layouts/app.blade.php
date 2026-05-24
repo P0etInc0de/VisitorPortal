@@ -56,6 +56,9 @@
 
     @livewireStyles
     @vite(['resources/css/app.css', 'resources/js/app.js'])
+    @if (config('visitorportal.easter_egg.enabled') && (! app()->environment('production') || config('visitorportal.easter_egg.show_in_production')))
+        @vite('resources/js/easter-egg.ts')
+    @endif
 </head>
 <body class="min-h-screen bg-base-200 text-base-content antialiased" style="background-color: {{ $themeBackground }};">
 <div class="min-h-screen" x-data="{ navOpen: false }">

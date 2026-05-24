@@ -88,6 +88,14 @@ class AdminPanelProvider extends PanelProvider
                 fn (): string => Blade::render('<x-filament.admin-theme-head />')
             )
             ->renderHook(
+                PanelsRenderHook::HEAD_END,
+                fn (): string => Blade::render(<<<'BLADE'
+                    @if (config('visitorportal.easter_egg.enabled') && (! app()->environment('production') || config('visitorportal.easter_egg.show_in_production')))
+                        @vite('resources/js/easter-egg.ts')
+                    @endif
+                    BLADE)
+            )
+            ->renderHook(
                 PanelsRenderHook::SIDEBAR_NAV_END,
                 fn (): string => Blade::render('filament.sidebar-footer')
             );
