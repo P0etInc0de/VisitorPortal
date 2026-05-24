@@ -15,7 +15,6 @@ use App\Http\Controllers\Controller;
 use App\Support\AppMfaSession;
 use App\Support\AuthRedirector;
 use App\Support\MfaOnboarding;
-use App\Support\SafeRedirectUrl;
 use App\Support\UserSessionPreferences;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Http\RedirectResponse;
@@ -74,11 +73,13 @@ final class OidcAuthController extends Controller
             'role_sync_enabled' => (bool) config('sso.oidc.sync_roles', false),
         ]);
 
+        $redirector = app(AuthRedirector::class);
+
         if ($user->requiresTwoFactorAuthentication('sso')) {
-            $intendedUrl = app(SafeRedirectUrl::class)->sanitize(
+            $intendedUrl = $redirector->intendedUrlOrDefault(
                 $request,
-                $request->session()->pull('url.intended'),
-                url(app(AuthRedirector::class)->pathFor($user))
+                $user,
+                $request->session()->pull('url.intended')
             );
 
             if (! $user->hasConfirmedTwoFactorAuthentication()) {
@@ -96,10 +97,10 @@ final class OidcAuthController extends Controller
                 ->with('warning', __('Bitte bestätige die lokale Zwei-Faktor-Authentifizierung, um fortzufahren.'));
         }
 
-        return redirect()->to(app(SafeRedirectUrl::class)->sanitize(
+        return redirect()->to($redirector->intendedUrlOrDefault(
             $request,
+            $user,
             $request->session()->pull('url.intended'),
-            url(app(AuthRedirector::class)->pathFor($user))
         ));
     }
 

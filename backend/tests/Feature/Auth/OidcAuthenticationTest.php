@@ -103,6 +103,18 @@ class OidcAuthenticationTest extends TestCase
         $this->assertSame('subject-123', session('auth.oidc.subject'));
     }
 
+    public function test_sso_receptionist_default_redirects_to_reception_dashboard(): void
+    {
+        $this->configureSso();
+        $receptionist = (new PermissionHelper)->getReceptionistUser();
+        $this->bindSsoIdentityFor($receptionist);
+
+        $this->get(route('auth.oidc.callback'))
+            ->assertRedirect(route('reception.dashboard', absolute: false));
+
+        $this->assertAuthenticatedAs($receptionist);
+    }
+
     public function test_disabled_user_cannot_login_with_valid_sso_identity(): void
     {
         config([
@@ -319,8 +331,15 @@ class OidcAuthenticationTest extends TestCase
             $admin->refresh();
         }
 
+        $this->bindSsoIdentityFor($admin);
+
+        return $admin;
+    }
+
+    private function bindSsoIdentityFor(User $user): void
+    {
         UserIdentity::query()->create([
-            'user_id' => $admin->id,
+            'user_id' => $user->id,
             'provider' => 'oidc',
             'provider_user_id' => 'subject-123',
             'issuer' => 'https://idp.example.test',
@@ -330,16 +349,14 @@ class OidcAuthenticationTest extends TestCase
         $identity = new OidcIdentity(
             issuer: 'https://idp.example.test',
             subject: 'subject-123',
-            email: $admin->email,
+            email: $user->email,
             emailVerified: true,
-            displayName: $admin->full_name,
+            displayName: $user->full_name,
             groups: [],
             claims: [],
         );
 
         $this->app->bind(OidcAuthenticator::class, fn () => new FakeOidcAuthenticator($identity));
-
-        return $admin;
     }
 
     private function confirmMfa(User $user): void

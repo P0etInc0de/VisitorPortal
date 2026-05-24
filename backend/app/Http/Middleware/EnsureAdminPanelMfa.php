@@ -10,6 +10,7 @@ namespace App\Http\Middleware;
 
 use App\Support\AppMfaPolicy;
 use App\Support\AppMfaSession;
+use App\Support\AuthRedirector;
 use App\Support\MfaOnboarding;
 use Closure;
 use Illuminate\Http\Request;
@@ -33,7 +34,9 @@ class EnsureAdminPanelMfa
             return $next($request);
         }
 
-        $intendedUrl = $request->isMethod('GET') ? $request->fullUrl() : route('overview');
+        $intendedUrl = $request->isMethod('GET')
+            ? $request->fullUrl()
+            : url(app(AuthRedirector::class)->pathFor($user));
 
         if ($user->hasConfirmedTwoFactorAuthentication()) {
             $appMfa = app(AppMfaSession::class);

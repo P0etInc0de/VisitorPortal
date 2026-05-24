@@ -90,6 +90,61 @@ class AuthenticationTest extends TestCase
             ->assertCookie(UserPreferences::THEME_COOKIE, 'dark');
     }
 
+    public function test_receptionist_without_intended_url_is_redirected_to_reception_dashboard(): void
+    {
+        $receptionist = (new PermissionHelper)->getReceptionistUser();
+
+        $this->post('/login', [
+            'email' => $receptionist->email,
+            'password' => 'password',
+        ])->assertRedirect(route('reception.dashboard', absolute: false));
+
+        $this->assertAuthenticatedAs($receptionist);
+    }
+
+    public function test_admin_without_intended_url_is_redirected_to_overview(): void
+    {
+        config(['security.mfa.app_required_roles' => []]);
+
+        $admin = (new PermissionHelper)->getIndividualUser(['ViewAny:Visit'], 'admin');
+
+        $this->post('/login', [
+            'email' => $admin->email,
+            'password' => 'password',
+        ])->assertRedirect(route('overview', absolute: false));
+
+        $this->assertAuthenticatedAs($admin);
+    }
+
+    public function test_manager_and_user_without_intended_url_are_redirected_to_overview(): void
+    {
+        foreach ([(new PermissionHelper)->getManagerUser(), (new PermissionHelper)->getUser()] as $user) {
+            $this->post('/login', [
+                'email' => $user->email,
+                'password' => 'password',
+            ])->assertRedirect(route('overview', absolute: false));
+
+            $this->assertAuthenticatedAs($user);
+            $this->post('/logout');
+        }
+    }
+
+    public function test_admin_stale_reception_intended_url_falls_back_to_overview(): void
+    {
+        config(['security.mfa.app_required_roles' => []]);
+
+        $admin = (new PermissionHelper)->getIndividualUser(['ViewAny:Visit'], 'admin');
+
+        $this
+            ->withSession(['url.intended' => route('reception.dashboard')])
+            ->post('/login', [
+                'email' => $admin->email,
+                'password' => 'password',
+            ])->assertRedirect(route('overview', absolute: false));
+
+        $this->assertAuthenticatedAs($admin);
+    }
+
     public function test_users_can_not_authenticate_with_invalid_password(): void
     {
         $user = User::factory()->create();
