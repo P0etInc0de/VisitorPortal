@@ -10,6 +10,7 @@ namespace App\Mail\Guest;
 
 use App\Models\Visit;
 use App\Models\Visitor;
+use App\Support\MailGreeting;
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
 use Illuminate\Mail\Mailables\Attachment;
@@ -49,6 +50,7 @@ class VisitCreatedMail extends Mailable
         return (new Content(
             markdown: 'mail.guest.visitCreated',
         ))
+            ->with('greeting', MailGreeting::forVisitor($this->visitor))
             ->with('visitor', $this->visitor)
             ->with('visit', $this->visit);
     }

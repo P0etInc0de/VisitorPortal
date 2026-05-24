@@ -8,21 +8,14 @@
 
 namespace App\Notifications\Host;
 
-use App\Mail\Host\GuestCheckedInMail;
 use App\Models\User;
 use App\Models\Visit;
 use App\Models\Visitor;
 use App\Support\PortalNotificationData;
-use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Mail\Mailable;
 use Illuminate\Notifications\Notification;
-use Illuminate\Support\Facades\Log;
 
-class GuestCheckedIn extends Notification implements ShouldQueue
+class GuestCheckedInDatabaseNotification extends Notification
 {
-    use Queueable;
-
     /**
      * Create a new notification instance.
      */
@@ -38,21 +31,7 @@ class GuestCheckedIn extends Notification implements ShouldQueue
      */
     public function via(User $notifiable): array
     {
-        return ['mail', 'database'];
-    }
-
-    /**
-     * Get the mail representation of the notification.
-     */
-    public function toMail(User $notifiable): Mailable
-    {
-        Log::info('Notifying User that GuestCheckedIn', [
-            'user_id' => $notifiable->id,
-            'visitor_id' => $this->visitor->id,
-            'class' => get_class(),
-        ]);
-
-        return (new GuestCheckedInMail($notifiable, $this->visitor))->to($notifiable->email);
+        return ['database'];
     }
 
     /**

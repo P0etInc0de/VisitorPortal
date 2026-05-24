@@ -13,13 +13,17 @@ use App\Models\User;
 use App\Models\Visit;
 use App\Models\Visitor;
 use App\Notifications\Guest\SingleVisitReminder as GuestSingleVisitReminder;
-use App\Notifications\Host\GuestCheckedIn;
+use App\Notifications\Host\GuestCheckedInDatabaseNotification;
+use App\Notifications\Host\GuestCheckedInMailNotification;
 use App\Notifications\Host\VisitCreated;
 use App\Notifications\Host\VisitReminderDaily;
 use App\Tasks\DailyVisitorReminder;
 use Carbon\Carbon;
+use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Notifications\SendQueuedNotifications;
 use Illuminate\Support\Facades\Notification;
+use Illuminate\Support\Facades\Queue;
 use Tests\Support\PermissionHelper;
 use Tests\TestCase;
 
@@ -30,7 +34,7 @@ class NotificationTest extends TestCase
     /**
      * A basic feature test example.
      */
-    public function test_guest_checked_in_notification()
+    public function test_guest_checked_in_database_notification(): void
     {
         $user = User::factory()->create();
         $visit = Visit::factory()->create([
@@ -38,32 +42,9 @@ class NotificationTest extends TestCase
         ]);
         $visitor = Visitor::factory()->create();
 
-        // Send the notification
-        Notification::send($user, new GuestCheckedIn($visit, $visitor));
+        Notification::send($user, new GuestCheckedInDatabaseNotification($visit, $visitor));
 
-        // Extract the array of sent messages from Laravel's underlying Symfony Mailer
-        $messages = app('mailer')->getSymfonyTransport()->messages();
-
-        // See message
-        // dd($messages);
-
-        // Assert the array is not empty (an email was generated)
-        $this->assertCount(1, $messages);
-
-        // Grab the first email from the array
-        $email = $messages[0];
-
-        // Check the recipient
-        $this->assertEquals($user->email, $email->getOriginalMessage()->getTo()[0]->getAddress());
-
-        // Check the subject
-        $this->assertEquals('Gast eingecheckt', $email->getOriginalMessage()->getSubject());
-
-        // Check if the visitor's name is actually inside the rendered email body
-        $this->assertStringContainsString(
-            $visitor->first_name,
-            $email->getOriginalMessage()->getBody()->bodyToString()
-        );
+        $this->assertCount(0, app('mailer')->getSymfonyTransport()->messages());
 
         $notification = $user->fresh()->notifications()->first();
 
@@ -77,8 +58,54 @@ class NotificationTest extends TestCase
         );
     }
 
-    public function test_check_in_action_creates_portal_notification(): void
+    public function test_guest_checked_in_mail_notification(): void
     {
+        $user = User::factory()->create();
+        $visit = Visit::factory()->create([
+            'host_user_id' => $user->id,
+        ]);
+        $visitor = Visitor::factory()->create();
+
+        Notification::send($user, new GuestCheckedInMailNotification($visit, $visitor));
+
+        $messages = app('mailer')->getSymfonyTransport()->messages();
+
+        $this->assertCount(1, $messages);
+
+        $email = $messages[0];
+
+        $this->assertEquals($user->email, $email->getOriginalMessage()->getTo()[0]->getAddress());
+        $this->assertEquals('Gast eingecheckt', $email->getOriginalMessage()->getSubject());
+        $this->assertStringContainsString(
+            $visitor->first_name,
+            $email->getOriginalMessage()->getBody()->bodyToString()
+        );
+        $this->assertCount(0, $user->fresh()->notifications);
+    }
+
+    public function test_guest_checked_in_notifications_use_separate_channels(): void
+    {
+        $user = User::factory()->create();
+        $visit = Visit::factory()->create([
+            'host_user_id' => $user->id,
+        ]);
+        $visitor = Visitor::factory()->create();
+
+        $databaseNotification = new GuestCheckedInDatabaseNotification($visit, $visitor);
+        $mailNotification = new GuestCheckedInMailNotification($visit, $visitor);
+
+        $this->assertSame(['database'], $databaseNotification->via($user));
+        $this->assertNotInstanceOf(ShouldQueue::class, $databaseNotification);
+
+        $this->assertSame(['mail'], $mailNotification->via($user));
+        $this->assertInstanceOf(ShouldQueue::class, $mailNotification);
+        $this->assertTrue($mailNotification->afterCommit);
+    }
+
+    public function test_check_in_action_creates_database_notification_without_running_mail_queue(): void
+    {
+        Queue::fake();
+
         $host = User::factory()->create();
         $receptionist = (new PermissionHelper)->getReceptionistUser();
         $visit = Visit::factory()->create([
@@ -101,6 +128,12 @@ class NotificationTest extends TestCase
         $this->assertSame('guest_checked_in', $notification->data['type']);
         $this->assertSame('Gast :name ist soeben eingetroffen.', $notification->data['message_key']);
         $this->assertSame('Mira Sample', $notification->data['message_replacements']['name']);
+
+        Queue::assertPushed(SendQueuedNotifications::class, function (SendQueuedNotifications $job): bool {
+            return $job->notification instanceof GuestCheckedInMailNotification
+                && $job->channels === ['mail']
+                && $job->afterCommit === true;
+        });
     }
 
     public function test_check_in_action_does_not_notify_inactive_host(): void
@@ -124,7 +157,37 @@ class NotificationTest extends TestCase
             ->post(route('reception.participants.check-in', [$visit, $visitor]))
             ->assertStatus(302);
 
-        Notification::assertNotSentTo($host, GuestCheckedIn::class);
+        Notification::assertNotSentTo($host, GuestCheckedInDatabaseNotification::class);
+        Notification::assertNotSentTo($host, GuestCheckedInMailNotification::class);
+    }
+
+    public function test_check_in_action_does_not_notify_substitute_automatically(): void
+    {
+        Notification::fake();
+
+        $host = User::factory()->create();
+        $substitute = User::factory()->create();
+        $receptionist = (new PermissionHelper)->getReceptionistUser();
+        $visit = Visit::factory()->create([
+            'host_user_id' => $host->id,
+            'substitute_user_id' => $substitute->id,
+            'status' => VisitStatusEnum::Planned->value,
+        ]);
+        $visitor = Visitor::factory()->create([
+            'first_name' => 'Mira',
+            'name' => 'HostOnly',
+        ]);
+
+        $visit->visitors()->attach($visitor->id);
+
+        $this->actingAs($receptionist)
+            ->post(route('reception.participants.check-in', [$visit, $visitor]))
+            ->assertStatus(302);
+
+        Notification::assertSentTo($host, GuestCheckedInDatabaseNotification::class);
+        Notification::assertSentTo($host, GuestCheckedInMailNotification::class);
+        Notification::assertNotSentTo($substitute, GuestCheckedInDatabaseNotification::class);
+        Notification::assertNotSentTo($substitute, GuestCheckedInMailNotification::class);
     }
 
     public function test_daily_notification()

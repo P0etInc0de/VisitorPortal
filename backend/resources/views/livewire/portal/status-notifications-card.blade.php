@@ -1,4 +1,4 @@
-<aside class="rounded-3xl border border-base-300 bg-base-100 shadow-sm rounded-[1.35rem] lg:flex lg:h-full lg:min-h-0 lg:flex-col lg:overflow-hidden">
+<aside wire:poll.10s.visible class="rounded-3xl border border-base-300 bg-base-100 shadow-sm rounded-[1.35rem] lg:flex lg:h-full lg:min-h-0 lg:flex-col lg:overflow-hidden">
     <div class="px-4 pt-4 sm:px-[1.05rem] sm:pt-[1.05rem]">
         <h2 class="mb-3 text-[1.35rem] font-bold leading-tight tracking-tight text-base-content">
             {{ __('Status & Benachrichtigungen') }}

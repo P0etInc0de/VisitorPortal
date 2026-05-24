@@ -12,7 +12,8 @@ use App\Enums\VisitStatusEnum;
 use App\Models\User;
 use App\Models\Visit;
 use App\Models\Visitor;
-use App\Notifications\Host\GuestCheckedIn;
+use App\Notifications\Host\GuestCheckedInDatabaseNotification;
+use App\Notifications\Host\GuestCheckedInMailNotification;
 use Illuminate\Support\Facades\Notification;
 use Illuminate\Validation\ValidationException;
 
@@ -132,6 +133,7 @@ class VisitActionService
             return;
         }
 
-        Notification::send($recipient, (new GuestCheckedIn($visit, $visitor))->afterCommit());
+        Notification::send($recipient, new GuestCheckedInDatabaseNotification($visit, $visitor));
+        Notification::send($recipient, new GuestCheckedInMailNotification($visit, $visitor));
     }
 }

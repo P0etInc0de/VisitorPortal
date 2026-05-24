@@ -11,7 +11,7 @@ namespace Tests\Feature\Portal;
 use App\Livewire\Portal\StatusNotificationsCard;
 use App\Models\Visit;
 use App\Models\Visitor;
-use App\Notifications\Host\GuestCheckedIn;
+use App\Notifications\Host\GuestCheckedInDatabaseNotification;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Notification;
 use Livewire\Livewire;
@@ -34,7 +34,7 @@ class OverviewNotificationTest extends TestCase
             'name' => 'Sample',
         ]);
 
-        Notification::send($user, new GuestCheckedIn($visit, $visitor));
+        Notification::send($user, new GuestCheckedInDatabaseNotification($visit, $visitor));
 
         $this->withSession(['locale' => 'de'])
             ->actingAs($user)
@@ -53,7 +53,7 @@ class OverviewNotificationTest extends TestCase
         ]);
         $visitor = Visitor::factory()->create();
 
-        Notification::send($user, new GuestCheckedIn($visit, $visitor));
+        Notification::send($user, new GuestCheckedInDatabaseNotification($visit, $visitor));
 
         $notification = $user->notifications()->firstOrFail();
 
@@ -73,7 +73,7 @@ class OverviewNotificationTest extends TestCase
         ]);
         $visitor = Visitor::factory()->create();
 
-        Notification::send($user, new GuestCheckedIn($visit, $visitor));
+        Notification::send($user, new GuestCheckedInDatabaseNotification($visit, $visitor));
 
         $notification = $user->notifications()->firstOrFail();
         $notification->markAsRead();
@@ -94,7 +94,7 @@ class OverviewNotificationTest extends TestCase
         ]);
         $visitor = Visitor::factory()->create();
 
-        Notification::send($user, new GuestCheckedIn($visit, $visitor));
+        Notification::send($user, new GuestCheckedInDatabaseNotification($visit, $visitor));
 
         $notification = $user->notifications()->firstOrFail();
         $message = __('Gast :name ist soeben eingetroffen.', [
@@ -124,7 +124,7 @@ class OverviewNotificationTest extends TestCase
             'name' => 'Punctual',
         ]);
 
-        Notification::send($user, new GuestCheckedIn($visit, $visitor));
+        Notification::send($user, new GuestCheckedInDatabaseNotification($visit, $visitor));
 
         $this->withSession(['locale' => 'en'])
             ->actingAs($user)
@@ -134,5 +134,38 @@ class OverviewNotificationTest extends TestCase
             ->assertSee('Visit arrived')
             ->assertSee('Guest Lisa Punctual has just arrived.')
             ->assertSee('More information');
+    }
+
+    public function test_status_notifications_card_polls_while_visible(): void
+    {
+        $user = (new PermissionHelper)->getReceptionistUser();
+
+        $this->actingAs($user)
+            ->get(route('overview'))
+            ->assertOk()
+            ->assertSee('wire:poll.10s.visible', false);
+    }
+
+    public function test_status_notifications_card_shows_new_database_notification_after_refresh(): void
+    {
+        $user = (new PermissionHelper)->getReceptionistUser();
+        $visit = Visit::factory()->create([
+            'host_user_id' => $user->id,
+            'substitute_user_id' => null,
+        ]);
+        $visitor = Visitor::factory()->create([
+            'first_name' => 'Nora',
+            'name' => 'Polling',
+        ]);
+
+        $component = Livewire::actingAs($user)
+            ->test(StatusNotificationsCard::class)
+            ->assertSee('Aktuell gibt es keine Benachrichtigungen.');
+
+        Notification::send($user, new GuestCheckedInDatabaseNotification($visit, $visitor));
+
+        $component
+            ->call('$refresh')
+            ->assertSee('Gast Nora Polling ist soeben eingetroffen.');
     }
 }
