@@ -14,7 +14,7 @@
     lang="{{ str_replace('_', '-', app()->getLocale()) }}"
     data-theme="{{ $theme }}"
     data-theme-preference="{{ $themePreference }}"
-    style="--bp-theme-background: {{ $themeBackground }}; background-color: var(--bp-theme-background); color-scheme: {{ $themeColorScheme }};"
+    style="--bp-theme-background: {{ $themeBackground }}; background-color: {{ $themeBackground }}; color-scheme: {{ $themeColorScheme }};"
 >
 <head>
     <style>
@@ -57,7 +57,7 @@
     @livewireStyles
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
-<body class="min-h-screen bg-base-200 text-base-content antialiased" style="background-color: var(--bp-theme-background);">
+<body class="min-h-screen bg-base-200 text-base-content antialiased" style="background-color: {{ $themeBackground }};">
 <div class="min-h-screen" x-data="{ navOpen: false }">
     @include('layouts.navigation')
 
