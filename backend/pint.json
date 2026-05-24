@@ -1,0 +1,18 @@
+{
+    "preset": "laravel",
+    "exclude": [
+        "bootstrap/cache",
+        "node_modules",
+        "public/build",
+        "storage",
+        "vendor"
+    ],
+    "rules": {
+        "header_comment": {
+            "header": "SPDX-FileCopyrightText: 2026 Jonathan Läpple and VisitorPortal contributors\n\nSPDX-License-Identifier: GPL-3.0-or-later",
+            "comment_type": "PHPDoc",
+            "location": "after_open",
+            "separate": "both"
+        }
+    }
+}

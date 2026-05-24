@@ -1,5 +1,11 @@
 <?php
 
+/**
+ * SPDX-FileCopyrightText: 2026 Jonathan Läpple and VisitorPortal contributors
+ *
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ */
+
 namespace App\Notifications\Guest;
 
 use App\Mail\Guest\VisitCreatedMail;

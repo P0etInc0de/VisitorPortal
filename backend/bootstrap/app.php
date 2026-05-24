@@ -1,5 +1,11 @@
 <?php
 
+/**
+ * SPDX-FileCopyrightText: 2026 Jonathan Läpple and VisitorPortal contributors
+ *
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ */
+
 use App\Http\Middleware\ApplyUserPreferences;
 use App\Http\Middleware\EnsureRequiredMfaIsConfigured;
 use App\Http\Middleware\NormalizeMfaCodeInputs;

@@ -1,5 +1,11 @@
 <?php
 
+/**
+ * SPDX-FileCopyrightText: 2026 Jonathan Läpple and VisitorPortal contributors
+ *
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ */
+
 return [
     'images' => [
         'max_size_kb' => (int) env('UPLOAD_IMAGE_MAX_SIZE_KB', 20480),

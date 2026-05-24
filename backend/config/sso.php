@@ -1,5 +1,11 @@
 <?php
 
+/**
+ * SPDX-FileCopyrightText: 2026 Jonathan Läpple and VisitorPortal contributors
+ *
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ */
+
 $csv = static function (?string $value, string $default = ''): array {
     return array_values(array_filter(
         array_map('trim', explode(',', $value ?: $default)),
