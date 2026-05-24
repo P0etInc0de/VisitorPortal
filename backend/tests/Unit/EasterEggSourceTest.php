@@ -64,6 +64,27 @@ class EasterEggSourceTest extends TestCase
         }
     }
 
+    public function test_easter_egg_uses_expanded_message_pool_with_dosed_repeats(): void
+    {
+        $source = $this->source('resources/js/easter-egg.ts');
+
+        foreach ([
+            'Badgebert sagt: Check-in ist kein Gefühl, sondern ein Status.',
+            'Badgebert am Empfang: Erst suchen, dann einchecken, dann triumphieren.',
+            'Badgebert stempelt: Ausweis wird nur für echte Teilnehmer erzeugt.',
+            'Badgebert begrüßt: Heute auf dem Monitor, morgen in der Datenbankhistorie.',
+            'Gatekeeper Badgebert: Sichtbarkeit ist nett, Policy ist besser.',
+            'Pint war hier. Es sieht jetzt zumindest formatiert aus.',
+        ] as $message) {
+            $this->assertStringContainsString($message, $source);
+        }
+
+        $this->assertStringContainsString('const navigationCooldownMilliseconds = 90_000;', $source);
+        $this->assertStringContainsString('const sessionMessageLimit = 18;', $source);
+        $this->assertStringContainsString("document.addEventListener('livewire:navigated'", $source);
+        $this->assertStringContainsString('message.used.${context}', $source);
+    }
+
     public function test_old_runtime_channel_is_not_referenced(): void
     {
         $this->assertFileDoesNotExist(base_path('resources/js/runtime/channel.js'));
