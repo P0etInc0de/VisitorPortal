@@ -16,6 +16,7 @@ use App\Http\Controllers\Auth\SecurityStepUpController;
 use App\Http\Controllers\Auth\ThemePreferenceController;
 use App\Http\Controllers\Auth\VerifyEmailController;
 use App\Http\Middleware\EnsureMfaOnboardingIsAllowed;
+use App\Http\Middleware\PreventSensitivePageCaching;
 use App\Support\SensitiveActionConfirmation;
 use Illuminate\Support\Facades\Route;
 
@@ -36,6 +37,7 @@ Route::middleware('auth')->group(function () {
     Route::get('profile/security', [ProfileController::class, 'security'])->name('profile.security');
 
     Route::get('profile/security/recovery-codes', [ProfileController::class, 'recoveryCodes'])
+        ->middleware(PreventSensitivePageCaching::class)
         ->name('profile.security.recovery-codes');
 
     Route::post('profile/security/recovery-codes/regenerate', [ProfileController::class, 'regenerateRecoveryCodes'])
@@ -59,6 +61,7 @@ Route::middleware('auth')->group(function () {
             ->name('security.mfa.confirm');
 
         Route::get('security/mfa/recovery-codes', [SecurityMfaController::class, 'recoveryCodes'])
+            ->middleware(PreventSensitivePageCaching::class)
             ->name('security.mfa.recovery-codes');
 
         Route::match(['get', 'post'], 'security/mfa/continue', [SecurityMfaController::class, 'complete'])
