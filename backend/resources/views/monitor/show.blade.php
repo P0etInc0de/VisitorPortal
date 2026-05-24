@@ -23,6 +23,9 @@
 
     @livewireStyles
     @vite(['resources/css/app.css', 'resources/js/app.js'])
+    @if (config('visitorportal.easter_egg.enabled') && (! app()->environment('production') || config('visitorportal.easter_egg.show_in_production')))
+        @vite('resources/js/easter-egg.ts')
+    @endif
 </head>
 <body class="h-screen w-screen overflow-hidden" style="margin: 0; background: #eef2f8;">
     <livewire:monitor.monitor-slides :monitor="$monitor"/>

@@ -40,6 +40,9 @@
     <title>{{ $title ?? config('branding.name', 'VisitorPortal') }}</title>
 
     @vite(['resources/css/app.css', 'resources/js/app.js'])
+    @if (config('visitorportal.easter_egg.enabled') && (! app()->environment('production') || config('visitorportal.easter_egg.show_in_production')))
+        @vite('resources/js/easter-egg.ts')
+    @endif
 </head>
 <body class="min-h-screen bg-base-200 text-base-content antialiased">
 <div class="relative flex min-h-screen items-center justify-center overflow-hidden px-4 py-8 sm:px-6 lg:px-8">

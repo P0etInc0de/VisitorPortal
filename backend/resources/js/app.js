@@ -5,12 +5,6 @@ import focus from '@alpinejs/focus';
 import TomSelect from 'tom-select';
 import { visitForm } from './portal/visit-form';
 
-if (import.meta.env.DEV) {
-    import('./runtime/channel').then(({ installRuntimeChannel }) => {
-        installRuntimeChannel();
-    });
-}
-
 const initializeTomSelect = () => {
     document.querySelectorAll('[data-bp-tom-select]').forEach((select) => {
         if (select.tomselect) {
