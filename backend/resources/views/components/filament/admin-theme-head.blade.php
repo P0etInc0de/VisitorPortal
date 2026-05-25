@@ -5,6 +5,8 @@
     $trueBlackLabel = __('True Black (OLED)');
 @endphp
 
+@includeIf('partials.favicons')
+
 @include('filament.partials.admin-theme-script', [
     'themePreference' => $themePreference,
     'themeSyncUrl' => $themeSyncUrl,
