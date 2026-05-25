@@ -31,6 +31,8 @@ class ProfileTest extends TestCase
             ->assertSee(__('Theme'))
             ->assertSee('🇩🇪 Deutsch', false)
             ->assertSee('🇬🇧 English', false)
+            ->assertSee('🇫🇷 Français', false)
+            ->assertSee('🇨🇿 Čeština', false)
             ->assertSee(__('True Black (OLED)'))
             ->assertDontSee(__('Konto löschen'));
     }
@@ -97,6 +99,25 @@ class ProfileTest extends TestCase
         $response
             ->assertOk()
             ->assertSee('Sprache');
+    }
+
+    public function test_french_and_czech_locales_are_supported(): void
+    {
+        $user = (new PermissionHelper)->getUser();
+
+        foreach (['fr', 'cs'] as $locale) {
+            $this
+                ->actingAs($user)
+                ->patch('/profile', [
+                    'locale' => $locale,
+                    'theme_preference' => 'system',
+                ])
+                ->assertSessionHasNoErrors()
+                ->assertRedirect('/profile')
+                ->assertCookie(UserPreferences::LOCALE_COOKIE, $locale);
+
+            $this->assertSame($locale, $user->fresh()->locale);
+        }
     }
 
     public function test_theme_preference_can_be_updated_via_sync_endpoint(): void
