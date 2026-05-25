@@ -26,8 +26,8 @@ Die Anwendung verarbeitet potenziell personenbezogene Daten wie Namen, Unternehm
 - Check-In/Out-Übersicht für den Empfang
 - Willkommensmonitor für geplante Besucher
 - Rollenbasierte Rechteverwaltung mit eigenen Berechtigungen
-- Optionale MFA fuer Nutzer und verpflichtende MFA fuer privilegierte Admin-Rollen
-- Optionales generisches OpenID-Connect-SSO fuer Enterprise-Identity-Provider
+- Optionale MFA für Nutzer und verpflichtende MFA für privilegierte Admin-Rollen
+- Optionales generisches OpenID-Connect-SSO für Enterprise-Identity-Provider
 - Adminbereich für Benutzer, Abteilungen, Rollen, Rechte, Besucher, Besuche, Monitore und Monitorseiten
 - Benachrichtigungen für Gastgeber per E-Mail und in der Anwendung
 - Queue- und Scheduler-Unterstützung für Hintergrundaufgaben
@@ -35,13 +35,13 @@ Die Anwendung verarbeitet potenziell personenbezogene Daten wie Namen, Unternehm
 - White-Label-Branding per Umgebungsvariablen
 - Docker-basiertes Demo-Setup mit fertigem App-Image
 
-## Organisations- Und Standortmodell
+## Organisations- und Standortmodell
 
-VisitorPortal ist fuer eine Organisation pro Instanz gedacht. Mehrere Standorte innerhalb dieser Organisation werden unterstuetzt. Fuer rechtlich getrennte Organisationen sollten getrennte Instanzen betrieben werden, solange keine vollstaendige Multi-Tenancy explizit implementiert und auditiert wurde.
+VisitorPortal ist für eine Organisation pro Instanz gedacht. Mehrere Standorte innerhalb dieser Organisation werden unterstützt. Für rechtlich getrennte Organisationen sollten getrennte Instanzen betrieben werden, solange keine vollständige Multi-Tenancy explizit implementiert und auditiert wurde.
 
-Standorte bilden physische Orte wie Empfaenge, Werke, Bueros oder Gebaeude ab. Besuche, Monitore, Empfangsansichten und Host-/Vertretungsauswahl werden nach Standort begrenzt, damit ein Empfang nicht automatisch operative Daten anderer Standorte sieht.
+Standorte bilden physische Orte wie Empfänge, Werke, Büros oder Gebäude ab. Besuche, Monitore, Empfangsansichten und Host-/Vertretungsauswahl werden nach Standort begrenzt, damit ein Empfang nicht automatisch operative Daten anderer Standorte sieht.
 
-Besucher-Stammdaten sind organisationsweite Kontakte. Die Standortisolation gilt fuer Besuche, Monitore, operative Sichtbarkeit und Host-/Vertretungszuordnungen, nicht fuer den Besucher-Kontaktdatensatz selbst.
+Besucher-Stammdaten sind organisationsweite Kontakte. Die Standortisolation gilt für Besuche, Monitore, operative Sichtbarkeit und Host-/Vertretungszuordnungen, nicht für den Besucher-Kontaktdatensatz selbst.
 
 ## Tech Stack
 
@@ -53,15 +53,23 @@ Besucher-Stammdaten sind organisationsweite Kontakte. Die Standortisolation gilt
 - Tailwind CSS 4
 - daisyUI 5
 - Alpine.js
-- Node.js 24 fuer Frontend-Build-Tools
+- Node.js 24 für Frontend-Build-Tools
 - Filament 5
 - Spatie Laravel Permission
 - Filament Shield
 - Spatie Laravel PDF
-- Gotenberg 8.32 fuer PDF-Erzeugung
+- Gotenberg 8.32 für PDF-Erzeugung
 - Mailhog für lokale und Demo-E-Mail-Tests
 - Docker und Docker Compose v2
 - GitHub Actions
+
+## Welches ZIP soll ich herunterladen?
+
+- `VisitorPortal-demo-vX.Y.Z.zip`: für eine schnelle lokale Demo mit Docker und den mitgelieferten Startskripten.
+- `besucherportal-vX.Y.Z.zip`: für Source-Code-Review oder source-basierte Deployments.
+- GitHubs automatisch erzeugte `Source code`-Archive: nur verwenden, wenn ausdrücklich der rohe Repository-Snapshot benötigt wird.
+
+Demo-Zugangsdaten und Demo-Seed-Daten dürfen nicht in Produktion verwendet werden. Weitere Details stehen in [Release Artifacts](docs/release-artifacts.md).
 
 ## Schnellstart: Demo-Setup
 
@@ -110,7 +118,7 @@ sh update.sh
 
 Windows-Nutzer können jeweils die passenden `.bat`-Skripte verwenden.
 
-Im Source-Repository enthaelt `.env.demo.example` den Platzhalter `RELEASE_VERSION_PLACEHOLDER`. Offizielle Release-ZIPs ersetzen diesen Platzhalter durch den veroeffentlichten Release-Tag, damit Demos reproduzierbar bleiben:
+Im Source-Repository enthält `.env.demo.example` den Platzhalter `RELEASE_VERSION_PLACEHOLDER`. Offizielle Release-ZIPs ersetzen diesen Platzhalter durch den veröffentlichten Release-Tag, damit Demos reproduzierbar bleiben:
 
 ```env
 VISITORPORTAL_VERSION=v1.0.2
@@ -153,7 +161,7 @@ Vite Dev Server:
 
 Weitere Details stehen in [docs/setup.md](docs/setup.md). Hinweise zu Betrieb, Monitoring und Healthchecks stehen in [docs/operations.md](docs/operations.md).
 
-## Tests Und Qualität
+## Tests und Qualität
 
 Tests im Entwicklungscontainer ausführen:
 
@@ -179,17 +187,17 @@ Frontend-Assets bauen:
 docker compose run --rm node npm run build
 ```
 
-Der GitHub-Actions-Workflow richtet PHP ein, fuehrt Pint aus, migriert die Datenbank und startet die Tests gegen MariaDB.
+Der GitHub-Actions-Workflow richtet PHP ein, führt Pint aus, migriert die Datenbank und startet die Tests gegen MariaDB.
 
-## Konfiguration Und White Labeling
+## Konfiguration und White Labeling
 
 VisitorPortal nutzt eine zentrale Branding-Konfiguration in `backend/config/branding.php`.
 
 ### Single Sign-On
 
-VisitorPortal kann fuer generisches OpenID-Connect-SSO konfiguriert werden. Die Implementierung ist providerunabhaengig und fuer Enterprise-Identity-Provider wie Microsoft Entra ID, Keycloak, Authentik, Okta und andere OIDC-kompatible Systeme gedacht.
+VisitorPortal kann für generisches OpenID-Connect-SSO konfiguriert werden. Die Implementierung ist providerunabhängig und für Enterprise-Identity-Provider wie Microsoft Entra ID, Keycloak, Authentik, Okta und andere OIDC-kompatible Systeme gedacht.
 
-SSO ist standardmaessig deaktiviert. Lokale Authentifizierung bleibt verfuegbar, ausser `AUTH_MODE=sso_only` wird gesetzt. In `sso_only` ist lokaler Login nur fuer Break-glass-Konten mit der Permission `LoginLocallyInSsoOnlyMode` erlaubt.
+SSO ist standardmäßig deaktiviert. Lokale Authentifizierung bleibt verfügbar, außer `AUTH_MODE=sso_only` wird gesetzt. In `sso_only` ist lokaler Login nur für Break-glass-Konten mit der Permission `LoginLocallyInSsoOnlyMode` erlaubt.
 
 Wichtige Umgebungsvariablen:
 
@@ -232,24 +240,23 @@ Für produktionsnahe Deployments müssen insbesondere diese Demo-Defaults geprü
 - `docker-compose.yml` - source-mounted Entwicklungssetup
 - `docker-compose.demo.yml` - Demo-Setup mit fertigem Image
 - `.github/workflows/` - CI und Image-Build-Workflows
-- `docs/` - zusätzliche Dokumentation und Architekturentscheidungen
+- `docs/` - englische Release-, Setup-, Deployment- und Betriebsdokumentation
 
 ## Dokumentation
 
 - [Setup Guide](docs/setup.md)
+- [Release Artifacts](docs/release-artifacts.md)
 - [Configuration](docs/configuration.md)
 - [Deployment](docs/deployment.md)
+- [Go-Live Checklist](docs/go-live-checklist.md)
 - [Betrieb und Monitoring](docs/operations.md)
-- [Roles And Permissions](docs/roles.md)
+- [Roles and Permissions](docs/roles.md)
 - [Queue](docs/queue.md)
 - [Scheduler](docs/scheduler.md)
-- [Mail](docs/mails.md)
-- [Notifications](docs/notifications.md)
 - [Welcome Monitor](docs/welcome_monitor.md)
-- [UI Notes](docs/UI.md)
-- [Architecture Decisions](docs/decisions.md)
 - [Security Hardening](docs/security-hardening.md)
 - [Single Sign-On](docs/sso.md)
+- [Known Limitations](docs/known-limitations.md)
 
 ## Roadmap
 
@@ -260,9 +267,7 @@ Mögliche nächste Schritte:
 - Vollständiges Activity Logging in der Datenbank ergänzen, zusätzlich zu technischen Datei-Logs
 - Autorisierung und Sicherheitsprüfungen weiter härten
 - Testabdeckung für Edge Cases und Browser-Interaktionen verbessern
-- Weitere Produktions-Deployment-Dokumentation ergänzen
-- Konfigurierbare Aufbewahrungs- und Datenschutzoptionen ergänzen
-- Onboarding- und Release-Dokumentation verbessern
+- Screenshots und visuelle Feature-Dokumentation ergänzen
 
 ## Sicherheit
 
@@ -280,11 +285,11 @@ Copyright (C) 2026 Jonathan Läpple and VisitorPortal contributors.
 
 VisitorPortal ist unter der GNU General Public License v3.0 oder später lizenziert. Siehe [LICENSE](LICENSE).
 
-## Autoren Und Credits
+## Autoren und Credits
 
 Dieses Projekt entstand ursprünglich im Rahmen eines studentischen Hochschulprojekts. Nach Abschluss der ursprünglichen Projektarbeit wurden die Weiterentwicklung, Bereinigung und technische Verbesserung des Projekts fortgeführt.
 
-### Initial Project Authors
+### Ursprüngliches Projektteam
 
 Die folgenden Personen sind die ursprünglichen Autorinnen und Autoren aus dem initialen studentischen Projektteam. Spätere Beiträge werden über die Projekthistorie und die jeweiligen Contributions nachvollzogen.
 

@@ -1,43 +1,92 @@
 # Scheduler
 
-## Einrichten von Remindern
+The scheduler runs time-based application tasks. Production deployments must run it continuously.
 
-Manche Benachrichtigungen müssen zu bestimmten Uhrzeiten angestoßen werden. Dafür können wir den Scheduler von Laravel nutzen.
+## What The Scheduler Does
 
-- Der Befehl `schedule:work` kann in einem separaten Docker Container ausgeführt werden.
-- Dadurch werden automatisch die definierten Tasks zur richtigen Uhrzeit ausgeführt.
-    - Tasks werden in `routes/console.php` mit der "Scheduler-Facade" aufgerufen.
-### Definieren von Schedulern
+Scheduled tasks are defined in `backend/routes/console.php`:
 
-- Zunächst definieren wir ein invokable-Objekt
-    - Invokable-Objekte sind einfache PHP Klassen mit einer `__invoke()` Methode.
-    - Diese Klassen kommen in `app/Tasks`
-    - Darin kann dann die Datenbank abgefragt werden und entsprechende Notifications können versendet werden.
-- Dann können wir das Objekt mittels der "Scheduler-Facade" aufrufen.
-- Der Aufruf erfolgt in `routes/console.php`
+- `DailyVisitorReminder`: daily at `07:00`; sends host reminders for today's visits.
+- `WelcomeMonitorAutoGeneration`: every minute; refreshes generated welcome-monitor slides when auto generation is enabled.
+- `CompleteFinishedVisits`: every minute; completes visits whose scheduled window has ended when applicable.
+- `RecurringVisitSeriesExpansion`: daily at `02:30`; expands recurring visit series.
+- Scheduler heartbeat: every minute; updates operational health state.
+- `visits:purge-expired`: daily at `03:15` when `PRIVACY_PURGE_ENABLED=true`.
+- `privacy:purge-technical-data`: daily at `03:45` when `PRIVACY_TECHNICAL_RETENTION_ENABLED=true`.
 
-```PHP
-Schedule::call(new DailyVisitorReminder())->daily();
+## Required Runtime
+
+Docker demo and production stacks run a dedicated `scheduler` service:
+
+```bash
+php artisan schedule:work
 ```
 
-## Manage Scheduler
+For LAMP deployments, run Laravel's scheduler once per minute through cron or systemd:
 
-- `php artisan schedule:list`
-  - Auflisten der Scheduler
-- `php artisan schedule:test`
-  - Ausführen eines Schedulers
+```cron
+* * * * * cd /path/to/backend && php artisan schedule:run >> /dev/null 2>&1
+```
 
-## Retention
+Do not rely on web requests to trigger scheduled work.
 
-- `visits:purge-expired` bereinigt abgelaufene Besuche nach der konfigurierten Frist.
-- `php artisan visits:purge-expired --dry-run` zählt betroffene Datensätze ohne Löschung.
-- Der Scheduler führt den Command täglich aus, wenn `PRIVACY_PURGE_ENABLED=true` gesetzt ist.
-- Der Command bereinigt zusätzlich abgelaufene wiederkehrende Serien ohne relevante Visits, alte Notifications, verwaiste Visitors, alte auto-generierte Monitor-Slides und alte manuelle Monitor-Besuchernamen.
-- Referenzen auf gelöschte Visitors werden aus Monitor-Slides entfernt.
-- Ein `retention_hold_reason` ohne `retention_hold_until` gilt als unbefristeter Legal Hold und wird im Retention-Run gezählt.
-- Alte Retention-Laufprotokolle werden nach `DATA_RETENTION_RUN_LOG_DAYS` gelöscht.
-- Technische Tabellen und Betriebsdaten wie `sessions`, `failed_jobs`, Logs und Backups brauchen eigene Betreiber-Retention. Siehe `docs/deployment.md`.
+## Commands
 
-## Quellen
+List scheduled tasks:
 
-- Laravel Scheduler: https://laravel.com/docs/12.x/scheduling#introduction
+```bash
+php artisan schedule:list
+```
+
+Run the scheduler once:
+
+```bash
+php artisan schedule:run
+```
+
+Check scheduler health:
+
+```bash
+php artisan visitorportal:health scheduler
+```
+
+Demo logs:
+
+```bash
+docker compose --env-file .env.demo -f docker-compose.demo.yml logs -f scheduler
+```
+
+Production logs:
+
+```bash
+docker compose -f docker-compose.prod.yml logs -f scheduler
+```
+
+## Retention Jobs
+
+Visit retention:
+
+```bash
+php artisan visits:purge-expired --dry-run
+php artisan visits:purge-expired
+```
+
+`visits:purge-expired` removes expired visit data after `PRIVACY_VISIT_RETENTION_DAYS` unless a legal hold is active. It also removes related expired operational data such as old notifications, generated monitor slides and obsolete manual monitor visitor names where it is safe to do so.
+
+Technical retention:
+
+```bash
+php artisan privacy:purge-technical-data --dry-run
+php artisan privacy:purge-technical-data
+```
+
+`privacy:purge-technical-data` covers old database sessions, `failed_jobs`, `job_batches`, health heartbeat cache rows that are safely identifiable, and old daily log files below `storage/logs`. It does not delete backups, Docker volumes, reverse-proxy logs, Docker daemon logs, host logs, SIEM data or `storage/logs/laravel.log` when `LOG_CHANNEL=single` is used.
+
+## Troubleshooting
+
+- Scheduler health is stale: confirm the `scheduler` service or cron entry is running.
+- Retention did not run: check `PRIVACY_PURGE_ENABLED` and `PRIVACY_TECHNICAL_RETENTION_ENABLED`, then inspect scheduler logs.
+- Commands overlap: the retention commands use `withoutOverlapping`; check for long-running previous executions.
+- Time appears wrong: verify container or server timezone and `APP_TIMEZONE`.
+
+Reference: [Laravel 12 Task Scheduling](https://laravel.com/docs/12.x/scheduling).

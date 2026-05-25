@@ -125,7 +125,7 @@ Concurrent first logins for the same unlinked SSO identity should be treated as 
 Before enabling SSO in production, run at least one real-provider smoke test. A local Keycloak instance is sufficient:
 
 ```bash
-docker run --rm -p 8081:8080 -e KEYCLOAK_ADMIN=admin -e KEYCLOAK_ADMIN_PASSWORD=admin quay.io/keycloak/keycloak:latest start-dev
+docker run --rm -p 8081:8080 -e KEYCLOAK_ADMIN=admin -e KEYCLOAK_ADMIN_PASSWORD=admin quay.io/keycloak/keycloak:26.0.8 start-dev
 ```
 
 Create a `visitorportal` realm, a confidential `visitorportal` client, enable the standard authorization-code flow and set the redirect URI to `${APP_URL}/auth/oidc/callback`.

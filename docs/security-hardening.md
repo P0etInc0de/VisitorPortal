@@ -111,7 +111,7 @@ The default CSP is Livewire/Alpine compatible and therefore allows `unsafe-inlin
 
 In `APP_ENV=local`, the CSP also allows the Vite dev server at `http://localhost:5173` and `ws://localhost:5173` so local hot reload works. Production does not include these development origins.
 
-## Branding And Monitor Image Uploads
+## Branding and Monitor Image Uploads
 
 Branding, logo and welcome-monitor image uploads are treated as public display assets, not as a private document store. Depending on the configured storage disk and `php artisan storage:link`, uploaded monitor backgrounds can be publicly reachable under `/storage/...`. Do not upload confidential, personal or otherwise sensitive information as branding, logo or monitor images.
 

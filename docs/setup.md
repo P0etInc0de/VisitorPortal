@@ -1,15 +1,18 @@
 # Setup
 
-Dieses Projekt bietet zwei Setup-Wege:
+VisitorPortal has two supported setup paths:
 
-- **Demo-Setup fuer normale Nutzer:** ein Script starten, fertig.
-- **Entwickler-Setup:** Source-Code mounten, Vite Dev Server nutzen, selbst bauen.
+- Demo setup: start the released Docker image with the bundled scripts.
+- Development setup: mount the source tree with `docker-compose.yml` and build locally.
 
-## Demo-Setup: ein Befehl
+## Demo Setup
 
-Voraussetzung:
+Use the demo setup when you want to try VisitorPortal without installing PHP, Composer, npm or Node.js on your machine.
 
-- Aktuelles Docker Desktop oder Docker Engine mit Docker Compose v2 ist installiert und gestartet.
+Requirements:
+
+- Docker Desktop or Docker Engine is installed and running.
+- Docker Compose v2 is available as `docker compose`.
 
 Windows:
 
@@ -23,138 +26,79 @@ macOS/Linux:
 sh start.sh
 ```
 
-Das Script macht automatisch:
+The start script:
 
-- Docker-Images herunterladen
-- Container starten
-- Datenbankverbindung abwarten
-- Migrationen ausfuehren
-- Demo-Daten laden
-- Queue und Scheduler starten
+- creates `.env.demo` from `.env.demo.example` when needed,
+- checks Docker and Docker Compose v2,
+- pulls the VisitorPortal image,
+- starts the app, queue, scheduler, database, Mailhog and Gotenberg containers,
+- runs setup inside the app container,
+- loads demo data.
 
-Nach erfolgreichem Start:
+After startup:
 
 - App: [http://localhost:8080](http://localhost:8080)
-- Mailhog UI: [http://localhost:8025](http://localhost:8025)
+- Mailhog: [http://localhost:8025](http://localhost:8025)
 
-Beim ersten Start erstellt das Skript eine lokale `.env.demo` aus `.env.demo.example`. Falls diese Ports belegt sind, koennen `APP_PORT` und `MAILHOG_PORT` in `.env.demo` angepasst werden.
+If the default ports are already used, set different host ports in `.env.demo`:
 
-Login:
-
-- `admin@example.org`
-- Passwort: `ChangeMe-42!`
-
-Weitere Demo-Accounts:
-
-- `reception@example.org`
-- `employee@example.org`
-- `manager@example.org`
-- `welcome@example.org`
-- `security@example.org`
-
-Alle verwenden `ChangeMe-42!`.
-
-Die Demo-Daten nutzen ausschließlich reservierte `example.org`-, `example.com`- und `example.net`-E-Mail-Domains. Telefonnummern sind entweder leer oder als eindeutig fiktive E.164-Nummern aus reservierten Medien-/Demo-Bereichen hinterlegt. Zusätzlich zu den festen Demo-Accounts werden englische Faker-Daten für weitere Benutzer, Besucher und Besuche erzeugt. Demo-Seeding ist in `APP_ENV=production` blockiert.
-
-## Demo stoppen
-
-Windows:
-
-```bat
-stop.bat
+```env
+APP_PORT=8081
+MAILHOG_PORT=8026
 ```
 
-macOS/Linux:
+## Demo Accounts
+
+All demo accounts use `ChangeMe-42!`.
+
+| Role | Email |
+| --- | --- |
+| Admin | `admin@example.org` |
+| Reception | `reception@example.org` |
+| Employee | `employee@example.org` |
+| Manager | `manager@example.org` |
+| Welcome monitor | `welcome@example.org` |
+| Security/reception | `security@example.org` |
+
+Demo users, visitors and visits use reserved `example.org`, `example.com` and `example.net` domains. Demo seeders are blocked in `APP_ENV=production`. Do not use demo credentials in production.
+
+## Stop, Reset And Update
+
+Stop the demo while keeping local volumes:
 
 ```bash
 sh stop.sh
 ```
 
-Die Daten bleiben dabei erhalten.
-
-## Demo zuruecksetzen
-
-Loescht lokale Demo-Datenbank und Storage-Volume und startet frisch.
-
-Windows:
-
-```bat
-reset-demo.bat
-```
-
-macOS/Linux:
+Reset the demo database and storage volumes:
 
 ```bash
 sh reset-demo.sh
 ```
 
-## Demo aktualisieren
-
-Windows:
-
-```bat
-update.bat
-```
-
-macOS/Linux:
+Pull and restart the configured demo image:
 
 ```bash
 sh update.sh
 ```
 
-## Version pinnen
+Windows users can use the matching `.bat` scripts.
 
-Das Demo-Setup liest die lokale `.env.demo`. Wenn sie fehlt, wird sie aus `.env.demo.example` erstellt.
+## Release Version Pinning
 
-Im Source-Repository steht in `.env.demo.example` `RELEASE_VERSION_PLACEHOLDER`. Der Release-ZIP-Workflow ersetzt diesen Platzhalter beim Veroeffentlichen automatisch durch den Release-Tag, zum Beispiel:
-
-```env
-VISITORPORTAL_VERSION=v1.0.2
-```
-
-So bleiben Demos reproduzierbar und werden nicht versehentlich durch ein neues `latest`-Image veraendert. Wenn ein ZIP manuell erstellt wird, muss der Platzhalter vor dem Verpacken ersetzt werden.
-
-## Auto-Setup steuern
-
-Fuer lokale Demos sind automatische Migrationen und Seed-Daten gewollt:
+Official demo ZIPs contain `.env.demo.example` with the published release tag:
 
 ```env
-AUTO_MIGRATE=true
-AUTO_SEED=true
+VISITORPORTAL_VERSION=v1.2.0
 ```
 
-Fuer echten produktiven Betrieb sollte das bewusst gesteuert werden, z. B.:
+This keeps demos reproducible. Source checkouts contain `RELEASE_VERSION_PLACEHOLDER` until the release workflow replaces it. If you build a demo package manually, replace the placeholder before publishing it.
 
-```env
-AUTO_MIGRATE=false
-AUTO_SEED=false
-```
+See [Release Artifacts](release-artifacts.md) for which ZIP to download.
 
-Migrationen koennen dann kontrolliert ausgefuehrt werden:
+## Development Setup
 
-```bash
-docker compose --env-file .env.demo -f docker-compose.demo.yml exec app php artisan migrate --force
-```
-
-## Was laeuft in Docker?
-
-Das Demo-Compose startet:
-
-- App-Container mit Apache/PHP/Laravel
-- MariaDB 11.4
-- Queue Worker
-- Scheduler
-- Mailhog
-- Gotenberg 8.32 fuer PDF-Ausweise
-
-Persistente Volumes:
-
-- `dbdata`: MariaDB-Daten
-- `app_storage`: Laravel Storage
-
-## Entwickler-Setup
-
-Das bestehende `docker-compose.yml` ist weiterhin fuer Entwicklung gedacht:
+The development stack uses `docker-compose.yml`. Its web service is named `web`.
 
 ```bash
 cp backend/.env.example backend/.env
@@ -164,74 +108,84 @@ docker compose exec web php artisan key:generate
 docker compose exec web php artisan migrate:fresh --seed
 ```
 
-App:
+Development URLs:
 
-- [http://localhost:8080](http://localhost:8080)
+- App: [http://localhost:8080](http://localhost:8080)
+- Vite dev server: [http://localhost:5173](http://localhost:5173)
+- Mailhog: [http://localhost:8025](http://localhost:8025)
 
-Vite Dev Server:
+Development services:
 
-- [http://localhost:5173](http://localhost:5173)
+- `web`: Apache, PHP 8.4 and Laravel
+- `node`: Node.js 24 frontend tooling
+- `db`: MariaDB 11.4
+- `queue`: Laravel queue worker
+- `scheduler`: Laravel scheduler worker
+- `mailhog`: local mail testing
+- `gotenberg`: PDF rendering
 
-## Running Artisan locally without Docker
+## Useful Commands
 
-Docker-first is the recommended setup. If you run Artisan directly in WSL/Ubuntu, the local PHP CLI must provide the required extensions.
-
-Required examples:
-
-- pdo_mysql
-- dom
-- mbstring
-- xml
-- xmlwriter
-
-Ubuntu/WSL:
-
-```bash
-sudo apt update
-sudo apt install php-mysql php-xml php-mbstring
-```
-
-For version-specific PHP installations:
-
-```bash
-sudo apt install php8.4-mysql php8.4-xml php8.4-mbstring
-```
-
-Check:
-
-```bash
-php -m | grep -E 'PDO|pdo_mysql|dom|mbstring|xml|xmlwriter'
-```
-
-## Nuetzliche Docker-Befehle
-
-Containerstatus:
+Demo stack status:
 
 ```bash
 docker compose --env-file .env.demo -f docker-compose.demo.yml ps
 ```
 
-App-Logs:
+Demo app logs:
 
 ```bash
 docker compose --env-file .env.demo -f docker-compose.demo.yml logs --tail=120 app
 ```
 
-Alle Logs:
+Development app logs:
 
 ```bash
-docker compose --env-file .env.demo -f docker-compose.demo.yml logs --tail=120
+docker compose logs --tail=120 web
 ```
 
-## Stolperfallen
-
-- Docker Desktop muss wirklich laufen.
-- Standard-Port `8080` muss frei sein, oder `APP_PORT` muss in `.env.demo` angepasst werden.
-- Standard-Port `8025` muss frei sein, oder `MAILHOG_PORT` muss in `.env.demo` angepasst werden.
-- Wenn das App-Setup fehlschlaegt, zuerst die App-Logs pruefen:
+Run tests in the development container:
 
 ```bash
-docker compose --env-file .env.demo -f docker-compose.demo.yml logs --tail=120 app
+docker compose exec web php artisan test
 ```
 
-Der Entrypoint loggt die Schritte bewusst deutlich, z. B. Datenbankcheck, Migrationen und Seed-Daten.
+Run Pint in the development container:
+
+```bash
+docker compose exec web ./vendor/bin/pint --test
+```
+
+Build frontend assets:
+
+```bash
+docker compose run --rm node npm run build
+```
+
+## First-Run Troubleshooting
+
+- Docker is not running: start Docker Desktop or the Docker daemon and run the script again.
+- `Docker Compose v2 is required.`: update Docker Desktop or install the Docker Compose plugin.
+- Port `8080` or `8025` is already used: change `APP_PORT` or `MAILHOG_PORT` in `.env.demo`, then restart.
+- Image pull failed: check network access to GitHub Container Registry and the configured `VISITORPORTAL_VERSION`. The script continues if the image is already available locally.
+- App is unhealthy after startup: wait a little longer on first boot, then inspect `app` and `db` logs. The demo app healthcheck has a longer startup grace period because migrations and seeding can take time.
+- Database is still starting: inspect `docker compose --env-file .env.demo -f docker-compose.demo.yml logs --tail=120 db` and retry after the DB is healthy.
+- You want a clean demo: run `reset-demo.sh` or `reset-demo.bat`. This deletes local demo volumes.
+- You want a newer release: download the new demo ZIP or set `VISITORPORTAL_VERSION` in `.env.demo`, then run the update script.
+
+## Running Artisan Without Docker
+
+Docker is the recommended development environment. If you run Artisan directly on the host, the local PHP CLI must provide the required extensions, including `pdo_mysql`, `dom`, `mbstring`, `xml`, `xmlwriter`, `intl`, `zip`, `fileinfo` and `gmp`.
+
+Ubuntu/WSL example:
+
+```bash
+sudo apt update
+sudo apt install php8.4-mysql php8.4-xml php8.4-mbstring php8.4-intl php8.4-zip php8.4-gmp
+```
+
+Check loaded extensions:
+
+```bash
+php -m | grep -E 'PDO|pdo_mysql|dom|mbstring|xml|xmlwriter|intl|zip|gmp'
+```

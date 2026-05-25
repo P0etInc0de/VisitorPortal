@@ -1,59 +1,73 @@
-# Queues
+# Queue
 
-## Queuing
+The queue worker is required for host notifications, mail delivery and background work. Production deployments must run a queue worker continuously.
 
-- Die Queue ist erforderlich fuer Benachrichtigungen und Hintergrundjobs.
-- Das direkte Versenden einer Benachrichtigung oder E-Mail aus PHP heraus kann die Antwortzeit der Anwendung verschlechtern.
-- Wir nutzen Queues und einen Worker, um den Versandprozess im Hintergrund auszufuehren.
+## Driver
 
-Eine Benachrichtigung kann gesendet werden, indem sie das Interface `ShouldQueue` implementiert:
+VisitorPortal uses Laravel's database queue by default:
 
-```php
-Notification::send($request->user(), new VisitReminderDaily());
+```env
+QUEUE_CONNECTION=database
+DB_QUEUE_RETRY_AFTER=180
 ```
 
-## Worker
+The queue tables are created by the normal migrations. Jobs are stored in `jobs`; failed jobs are stored in `failed_jobs`.
 
-Empfohlener Worker-Befehl:
+## Worker Command
+
+Recommended worker command:
 
 ```bash
 php artisan queue:work --sleep=3 --tries=3 --timeout=120 --max-time=3600 --max-jobs=1000 --memory=128
 ```
 
-`DB_QUEUE_RETRY_AFTER` muss groesser als `--timeout` sein. Der Docker-Default ist:
+`DB_QUEUE_RETRY_AFTER` must be greater than `--timeout`. The shipped Docker default is `180`, which is greater than the `120` second worker timeout.
 
-```env
-DB_QUEUE_RETRY_AFTER=180
-```
+Docker Compose uses the `queue` service for this command in demo and production.
 
-## Konfiguration
+## Operations
 
-- Wir verwenden die Datenbank-Queue von Laravel.
-- In `config/queue.php` kann die Konfiguration angepasst werden.
-- Die Queue nutzt die Datenbanktabelle `jobs`.
-- Fehlgeschlagene Jobs werden in `failed_jobs` gespeichert.
-- Alle erforderlichen Datenbanktabellen sind bereits vorhanden.
-
-## Betrieb
-
-Failed Jobs pruefen:
+Check failed jobs:
 
 ```bash
 php artisan queue:failed
 ```
 
-Logs pruefen:
-
-```bash
-docker compose logs -f queue
-```
-
-Health pruefen:
+Check queue health:
 
 ```bash
 php artisan visitorportal:health queue
 ```
 
-## Quellen
+Demo logs:
 
-- Laravel Queues: https://laravel.com/docs/12.x/queues#main-content
+```bash
+docker compose --env-file .env.demo -f docker-compose.demo.yml logs -f queue
+```
+
+Production logs:
+
+```bash
+docker compose -f docker-compose.prod.yml logs -f queue
+```
+
+Development logs:
+
+```bash
+docker compose logs -f queue
+```
+
+Restart workers after deployments so they load new code:
+
+```bash
+php artisan queue:restart
+```
+
+## Troubleshooting
+
+- Notifications or e-mails are delayed: confirm the `queue` service is running and healthy.
+- Jobs fail repeatedly: inspect `php artisan queue:failed`, application logs and SMTP settings.
+- Jobs are retried too early: ensure `DB_QUEUE_RETRY_AFTER` is greater than the worker `--timeout`.
+- Deployment completed but old behavior remains: restart the queue worker with `php artisan queue:restart` or restart the container.
+
+Reference: [Laravel 12 Queues](https://laravel.com/docs/12.x/queues).

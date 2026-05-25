@@ -1,94 +1,184 @@
+# Configuration
 
-# Konfiguration
+VisitorPortal is configured through environment files. Do not commit real `.env` files or secrets.
 
-Konfiguration erfolgt über `backend/.env`. Diese Datei wird nicht versioniert und darf nicht committed werden.
+## Environment Files
 
-Vorlagen:
-- `.env.demo.example` fuer das Demo-Compose im Projektroot. Die Demo-Skripte erzeugen daraus lokal `.env.demo`.
-- `backend/.env.example` für lokale Entwicklung.
-- `backend/.env.production.example` als sichere Orientierung für produktive Deployments.
-- Fuer Docker-Produktion wird diese Vorlage als `.env` im Projektroot neben `docker-compose.prod.yml` verwendet; fuer LAMP-Deployments als `backend/.env`.
+- `.env.demo.example`: template for the released demo stack. The scripts create `.env.demo` from it.
+- `backend/.env.example`: local development template for `docker-compose.yml`.
+- `backend/.env.production.example`: production-oriented template. For Docker production, copy it to `.env` in the repository root next to `docker-compose.prod.yml`. For LAMP deployments, use it as `backend/.env`.
 
-## Wichtige Variablen (Docker / lokal)
-- APP_URL
-- DB_CONNECTION, DB_HOST, DB_PORT, DB_DATABASE, DB_USERNAME, DB_PASSWORD
-- MAIL_MAILER, MAIL_HOST, MAIL_PORT, MAIL_FROM_ADDRESS, MAIL_FROM_NAME
-- MFA_ENABLED (`true`/`false`)
-- MFA_OPTIONAL_FOR_USERS (`true`/`false`; wenn `false`, koennen nicht verpflichtete Nutzer MFA nicht selbst aktivieren)
-- APP_MFA_REQUIRED_ROLES (Default: `admin,super_admin`)
-- APP_MFA_REQUIRED_FOR_AUTH_METHODS (Default: `local`)
-- APP_MFA_REQUIRED_FOR_ADMIN_PANEL_AUTH_METHODS (Default: `local,sso`)
-- APP_MFA_SESSION_TTL_MINUTES (Default: `720`)
-- AUTH_MODE (`local`, `local_and_sso`, `sso_only`)
-- SSO_ENABLED (`true`/`false`)
-- OIDC_ISSUER_URL, OIDC_CLIENT_ID, OIDC_CLIENT_SECRET
-- OIDC_PROVISIONING_MODE (`disabled`, `invited_only`, `auto`)
-- OIDC_SYNC_ROLES (`true`/`false`)
-- VISITOR_CONTACT_REQUIREMENT (`optional`, `require_one`, `require_email`, `require_phone`)
-- PRIVACY_VISIT_RETENTION_DAYS (Default: `365`)
-- PRIVACY_PURGE_ENABLED (`true`/`false`)
-- PRIVACY_SEARCH_RATE_LIMIT_PER_MINUTE (Default: `60`)
-- PRIVACY_WALK_IN_CONFIDENTIAL_DEFAULT (Default: `true`)
-- PRIVACY_NOTICE_URL (optional, vorbereitet für Betreiber-Dokumentation oder spätere externe Flows)
-- BRANDING_MONITOR_AUTO_GENERATION (Default: `false`)
-- BRANDING_MONITOR_DISPLAY_MODE (Default: `title_first_initial_last_name`)
+## Version Baseline
 
-Docker-Hinweis:
-- `DB_HOST` ist der Service-Name aus `docker-compose.yml` (bei uns `db`), nicht `127.0.0.1`.
-- `DB_CONNECTION` ist standardmaessig `mariadb`; Laravel nutzt dafuer intern den mysql-kompatiblen PDO-Treiber.
-- `MAIL_HOST` ist der Service-Name (bei uns `mailhog`), Port `1025`.
+Documentation should refer to supported major versions, not `latest`:
 
-## Wichtige Variablen (LAMP / Server)
-- APP_ENV=production
-- APP_DEBUG=false
-- APP_URL=<Produktiv-URL>
-- DB_* (entsprechend Server-Datenbank)
-- MAIL_* (SMTP Zugangsdaten des Unternehmens)
+- PHP 8.4
+- Node.js 24
+- MariaDB 11.4
+- Laravel 12
+- Gotenberg 8.32
 
-## Datenschutz und Kontaktpflicht
-- Standard: Besucher benötigen weder E-Mail-Adresse noch Telefonnummer (`VISITOR_CONTACT_REQUIREMENT=optional`).
-- Wenn fachlich erforderlich, kann genau ein Kontaktweg oder ein bestimmtes Feld erzwungen werden.
-- Abgelaufene Besuche werden nach `PRIVACY_VISIT_RETENTION_DAYS` Tagen durch `visits:purge-expired` bereinigt, sofern kein Legal Hold gesetzt ist.
-- Der Retention-Lauf unterstützt `--dry-run` für auditierbare Probeläufe ohne Datenänderung.
-- Weitere Betreiberpflichten und eine Vorlage für Besucherinformationen stehen in `PRIVACY.md`.
-- `PRIVACY_NOTICE_URL` wird aktuell nicht automatisch in internen Mitarbeitenden-Formularen angezeigt. Wenn externe Besucher-Mails genutzt werden, enthalten diese den Link optional. Betreiber können Besucher zusätzlich außerhalb des Portals informieren, z. B. per Aushang, QR-Code, Website oder Einladung.
+Current dependency patches are controlled by `composer.lock`, `package-lock.json` and the Docker image build.
 
-## Authentifizierung und MFA
+## Core Variables
 
-- Lokale Authentifizierung laeuft ueber Laravel Fortify.
-- MFA ist fuer normale Nutzer optional und fuer Rollen aus `APP_MFA_REQUIRED_ROLES` verpflichtend, wenn die Login-Art in `APP_MFA_REQUIRED_FOR_AUTH_METHODS` enthalten ist.
-- Das Filament-Adminpanel verlangt eine App-MFA-bestaetigte Session fuer Rollen aus `APP_MFA_REQUIRED_ROLES`, wenn die Login-Art in `APP_MFA_REQUIRED_FOR_ADMIN_PANEL_AUTH_METHODS` enthalten ist.
-- `APP_MFA_REQUIRED_FOR_ADMIN_PANEL_AUTH_METHODS` bedeutet nicht, dass bei jedem Wechsel in den Adminbereich erneut MFA abgefragt wird. Wurde App-MFA bereits beim Login oder durch eine App-MFA-Challenge in derselben Session bestaetigt, darf der Benutzer ohne zweite Abfrage zwischen Userbereich und Adminbereich wechseln.
-- `APP_MFA_SESSION_TTL_MINUTES` begrenzt, wie lange eine lokale App-MFA-Bestaetigung innerhalb derselben Web-Session gueltig bleibt. Nach Ablauf muss die App-MFA-Challenge erneut bestanden werden; endet die Web-Session frueher, endet auch die App-MFA-Bestaetigung frueher.
-- Der Wert `sso` in diesen `APP_MFA_*`-Settings bedeutet: VisitorPortal verlangt auch nach SSO-Login zusaetzlich lokale App-MFA. Das beschreibt nicht die MFA-Erwartung im externen Identity Provider.
-- Listenartige `APP_MFA_*`-Settings koennen mit einem leeren Wert oder `none` bewusst deaktiviert werden.
-- Der QR-Code und das Secret einer freiwilligen, noch unbestätigten Profil-MFA-Einrichtung werden weiterhin nur nach erneuter Passwortbestätigung angezeigt.
-- Recovery Codes werden im Profil nur nach frischem, zweckgebundenem App-MFA-Step-up angezeigt. Für SSO-only Benutzer ist dafür keine lokale Passwortbestätigung erforderlich. Die Anzeige akzeptiert TOTP, aber keinen Recovery Code; die Regeneration akzeptiert TOTP oder Recovery Code.
-- `MFA_ENABLED=false` deaktiviert die Rollen-Erzwingung, bestehende bestaetigte MFA wird beim Login aber weiterhin abgefragt.
-- E-Mail-Verifikation ist in diesem Schritt bewusst nicht erzwungen. `MustVerifyEmail` ist nicht am User-Model aktiv.
-- Optionales SSO laeuft ueber generisches OpenID Connect. Es ist standardmaessig deaktiviert und wird ueber `config/sso.php` sowie die Tabelle `user_identities` gesteuert.
-- Externe SSO-Identitaeten werden ueber `provider + issuer + subject` verknuepft, nicht ueber E-Mail als dauerhaften Primaerschluessel.
-- Auto-Provisioning und Rollen-Sync sind standardmaessig deaktiviert.
-- Auto-provisionierte SSO-Nutzer erhalten `local_login_allowed=false`, damit lokale Passwortwege den IdP nicht umgehen.
-- Details stehen in `docs/sso.md`.
+Application:
 
-Adminpanel-MFA-Beispiele:
-- Lokaler Admin meldet sich mit Passwort und App-MFA an. Die Session ist bereits App-MFA-bestaetigt; der Wechsel in den Adminbereich erfordert keine zweite MFA-Abfrage.
-- SSO-Admin meldet sich per SSO an. Wenn `sso` in `APP_MFA_REQUIRED_FOR_ADMIN_PANEL_AUTH_METHODS` enthalten ist und diese Session noch keine lokale VisitorPortal-App-MFA bestaetigt hat, erscheint beim Zugriff auf `/admin` eine App-MFA-Challenge.
-- Admin ohne eingerichtete App-MFA wird beim Zugriff auf `/admin` durch die MFA-Einrichtung gefuehrt.
-- Nach erfolgreicher App-MFA-Challenge darf der Benutzer innerhalb derselben Session zwischen Userbereich und Adminbereich wechseln, ohne erneut MFA einzugeben.
+- `APP_ENV`: `local` for development/demo, `production` for production.
+- `APP_DEBUG`: must be `false` in production.
+- `APP_KEY`: required secret; generate once and keep it stable.
+- `APP_URL`: canonical external URL, including HTTPS in production.
+- `APP_LOCALE`, `APP_FALLBACK_LOCALE`: UI locale defaults.
 
-## Organisation und Standorte
-- Eine Installation ist für genau eine Organisation/Firma gedacht.
-- Mehrere Standorte innerhalb dieser Organisation werden über `sites` abgebildet.
-- Benutzer haben einen Primärstandort (`users.site_id`) und zugeordnete Standorte (`site_user`). Ein Wechsel des Primärstandorts entfernt bestehende zusätzliche Standortzuordnungen nicht automatisch.
-- Für rechtlich getrennte Organisationen sollten getrennte Instanzen betrieben werden, solange keine vollständige Multi-Tenancy explizit implementiert und auditiert wurde.
-- Neue Installationen erhalten automatisch einen `Default Site`; bestehende Daten werden bei der Migration diesem Standort zugeordnet.
-- Besucher bleiben organisationsweit als Person/Kontakt erhalten. Sichtbarkeit entsteht über berechtigte Besuche, Abteilungen und Standorte.
+Database:
 
-## Cache-Hinweise
-- In der Entwicklung `config:cache` möglichst nicht verwenden.
-- Wenn `.env` geändert wurde:
+- `DB_CONNECTION=mariadb`
+- `DB_HOST=db` in Docker, not `127.0.0.1`.
+- `DB_DATABASE`, `DB_USERNAME`, `DB_PASSWORD`
+- `DB_ROOT_PASSWORD` for the production MariaDB container.
+
+Mail:
+
+- `MAIL_MAILER=smtp`
+- `MAIL_HOST`, `MAIL_PORT`, `MAIL_USERNAME`, `MAIL_PASSWORD`, `MAIL_ENCRYPTION`
+- `MAIL_FROM_ADDRESS`, `MAIL_FROM_NAME`
+
+Queue and health:
+
+- `QUEUE_CONNECTION=database`
+- `DB_QUEUE_RETRY_AFTER=180`
+- `HEALTH_CACHE_STORE=database`
+- `HEALTH_QUEUE_STALE_AFTER=300`
+- `HEALTH_SCHEDULER_STALE_AFTER=300`
+- `HEALTH_HEARTBEAT_TTL=600`
+
+## Authentication And MFA
+
+Local authentication uses Laravel Fortify. MFA is enabled by default and required for privileged roles.
+
+Recommended production defaults:
+
+```env
+MFA_ENABLED=true
+MFA_OPTIONAL_FOR_USERS=true
+APP_MFA_REQUIRED_ROLES=admin,super_admin
+APP_MFA_REQUIRED_FOR_AUTH_METHODS=local
+APP_MFA_REQUIRED_FOR_ADMIN_PANEL_AUTH_METHODS=local,sso
+APP_MFA_SESSION_TTL_MINUTES=720
+```
+
+`APP_MFA_REQUIRED_FOR_ADMIN_PANEL_AUTH_METHODS` requires an App-MFA-confirmed session for `/admin`. It does not prompt again if App-MFA was already confirmed in the current web session. The value `sso` means VisitorPortal also requires local App-MFA after SSO login before privileged admin-panel access.
+
+`MFA_ENABLED=false` disables role-based enforcement, but users with already configured MFA are still challenged during login.
+
+## Single Sign-On
+
+SSO is disabled by default.
+
+```env
+AUTH_MODE=local
+SSO_ENABLED=false
+SSO_DRIVER=oidc
+OIDC_PROVISIONING_MODE=disabled
+OIDC_SYNC_ROLES=false
+```
+
+Supported `AUTH_MODE` values:
+
+- `local`: local login only.
+- `local_and_sso`: local login and OIDC login.
+- `sso_only`: SSO for normal users; local login only for accounts with `LoginLocallyInSsoOnlyMode`.
+
+See [Single Sign-On](sso.md) before enabling SSO in production.
+
+## Privacy And Retention
+
+Visitor contact fields are optional by default.
+
+```env
+VISITOR_CONTACT_REQUIREMENT=optional
+PRIVACY_VISIT_RETENTION_DAYS=365
+PRIVACY_PURGE_ENABLED=true
+PRIVACY_NOTIFICATION_RETENTION_DAYS=365
+PRIVACY_WALK_IN_CONFIDENTIAL_DEFAULT=true
+PRIVACY_NOTICE_URL=
+```
+
+Supported `VISITOR_CONTACT_REQUIREMENT` values:
+
+- `optional`
+- `require_one`
+- `require_email`
+- `require_phone`
+
+Technical retention is separate from visit retention:
+
+```env
+PRIVACY_TECHNICAL_RETENTION_ENABLED=true
+PRIVACY_SESSION_RETENTION_DAYS=30
+PRIVACY_FAILED_JOB_RETENTION_DAYS=30
+PRIVACY_JOB_BATCH_RETENTION_DAYS=30
+PRIVACY_LOG_RETENTION_DAYS=30
+PRIVACY_HEALTH_CACHE_RETENTION_DAYS=7
+```
+
+`PRIVACY_NOTICE_URL` is an operator-owned privacy notice URL. VisitorPortal is not legal advice and does not make a deployment privacy-compliant by itself.
+
+## Organization And Sites
+
+One VisitorPortal instance is intended for one legal organization. Multiple physical locations can be modeled as sites.
+
+- Users have a primary site and can be assigned to additional sites.
+- Visits, monitors, reception views and recurring visit series are site-scoped.
+- Visitors are organization-wide master records to reduce duplicates.
+- For legally separate organizations, run separate instances unless full multi-tenancy has been implemented and audited.
+
+## Branding And Welcome Monitor
+
+Branding values are configured in `backend/config/branding.php` and can be overridden with environment variables:
+
+- `BRANDING_NAME`
+- `BRANDING_LOGO_LIGHT`
+- `BRANDING_LOGO_DARK`
+- `BRANDING_MAIL_LOGO`
+- `BRANDING_BADGE_LOGO`
+- `BRANDING_BADGE_DESIGN`
+- `BRANDING_BADGE_ACCENT_COLOR`
+- `BRANDING_MONITOR_FALLBACK_HEADING`
+- `BRANDING_MONITOR_FALLBACK_SUBHEADING`
+- `BRANDING_MONITOR_SLIDE_HEADING`
+- `BRANDING_MONITOR_AUTO_GENERATION=false`
+- `BRANDING_MONITOR_DISPLAY_MODE=title_first_initial_last_name`
+
+Automatic welcome-monitor generation is disabled by default for privacy. See [Welcome Monitor](welcome_monitor.md).
+
+## Upload Guardrails
+
+Monitor and branding images are public display assets, not private document storage.
+
+```env
+UPLOAD_IMAGE_MAX_SIZE_KB=20480
+UPLOAD_IMAGE_MAX_WIDTH=20000
+UPLOAD_IMAGE_MAX_HEIGHT=20000
+UPLOAD_IMAGE_MAX_PIXELS=150000000
+```
+
+JPEG, PNG and WebP uploads are validated and normalized before storage. SVG uploads are not accepted through the monitor upload forms.
+
+## Cache After Changes
+
+In development, avoid `config:cache` unless you are explicitly testing production behavior.
+
+After changing `.env` in production, rebuild caches:
+
 ```bash
-php artisan config:clear
-php artisan cache:clear
+php artisan config:cache
+php artisan route:cache
+php artisan view:cache
+```
+
+In Docker production, run the same commands through the `app` service:
+
+```bash
+docker compose -f docker-compose.prod.yml exec app php artisan config:cache
+```

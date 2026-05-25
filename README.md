@@ -35,7 +35,7 @@ The application processes potentially personal data such as visitor names, compa
 - White-label branding via environment configuration
 - Docker-based demo setup with prebuilt application image
 
-## Organization And Site Model
+## Organization and Site Model
 
 VisitorPortal is designed for one organization per instance.
 Multiple sites/locations within one organization are supported.
@@ -64,6 +64,14 @@ Visitor master records are organization-wide contacts. Site isolation applies to
 - Mailhog for local/demo email testing
 - Docker and Docker Compose v2
 - GitHub Actions
+
+## Which ZIP Should I Download?
+
+- `VisitorPortal-demo-vX.Y.Z.zip`: use this for a quick local demo with Docker and the bundled start scripts.
+- `besucherportal-vX.Y.Z.zip`: use this for source-based review or deployment work.
+- GitHub's auto-generated `Source code` archives: use only when you specifically want the raw repository snapshot.
+
+Do not use demo credentials or demo seed data in production. See [Release Artifacts](docs/release-artifacts.md) for details.
 
 ## Quick Start: Demo Setup
 
@@ -155,7 +163,7 @@ Vite development server:
 
 More setup details are documented in [docs/setup.md](docs/setup.md). Operational monitoring and health checks are documented in [docs/operations.md](docs/operations.md).
 
-## Tests And Quality Checks
+## Tests and Quality Checks
 
 Run the test suite inside the development container:
 
@@ -183,7 +191,7 @@ docker compose run --rm node npm run build
 
 The GitHub Actions workflow runs PHP setup, Pint, migrations, and tests against MariaDB.
 
-## Configuration And White Labeling
+## Configuration and White Labeling
 
 VisitorPortal has a central branding configuration in `backend/config/branding.php`.
 
@@ -234,24 +242,23 @@ For production-like deployments, explicitly review these demo defaults:
 - `docker-compose.yml` - source-mounted development setup
 - `docker-compose.demo.yml` - prebuilt-image demo setup
 - `.github/workflows/` - CI and image build workflows
-- `docs/` - additional documentation and architecture notes
+- `docs/` - release, setup, deployment and operations documentation
 
 ## Documentation
 
 - [Setup Guide](docs/setup.md)
+- [Release Artifacts](docs/release-artifacts.md)
 - [Configuration](docs/configuration.md)
 - [Deployment](docs/deployment.md)
+- [Go-Live Checklist](docs/go-live-checklist.md)
 - [Monitoring and Operations](docs/operations.md)
-- [Roles And Permissions](docs/roles.md)
+- [Roles and Permissions](docs/roles.md)
 - [Queue](docs/queue.md)
 - [Scheduler](docs/scheduler.md)
-- [Mail](docs/mails.md)
-- [Notifications](docs/notifications.md)
 - [Welcome Monitor](docs/welcome_monitor.md)
-- [UI Notes](docs/UI.md)
-- [Architecture Decisions](docs/decisions.md)
 - [Security Hardening](docs/security-hardening.md)
 - [Single Sign-On](docs/sso.md)
+- [Known Limitations](docs/known-limitations.md)
 
 ## Roadmap
 
@@ -262,9 +269,7 @@ Possible next steps:
 - Add full activity logging in the database, beyond technical file logs
 - Harden authorization and security checks further
 - Improve automated test coverage for edge cases and browser-level interactions
-- Add more production deployment documentation
-- Add data retention and privacy configuration options
-- Improve onboarding and release documentation
+- Add screenshots and visual feature documentation
 
 ## Security
 

@@ -1,228 +1,128 @@
-# Architecture Decisions (ADR)
+# Historical Architecture Decisions
 
-Kurze Architekturentscheidungen und Begründungen für das Projekt **VisitorPortal**.
+This file keeps short historical ADR notes. It is not the primary operator documentation. Public release documentation is maintained in English; `README.de.md` is the only German top-level user document.
 
-## ADR-001 Projekt- und Sprachkonventionen
+## ADR-001 Language And Project Conventions
 
-- **Datum:** 2026-03-03
-- **Status:** Accepted
-- **Entscheidung:**
-  - Entwicklungskonventionen primär auf **Englisch**
-    - Code: Klassen, Variablen, Methoden
-    - Branches, Commits, Pull Requests
-    - technische Tickets
-  - Dokumentation und UI-Texte primär auf **Deutsch**
-  - Mehrsprachigkeit grundsätzlich vorgesehen, initial jedoch Fokus auf **Deutsch** für UI und Projektdokumentation
-- **Begründung:**
-  - Laravel-Dokumentation, Fehlermeldungen und Community-Ressourcen sind überwiegend englischsprachig
-  - Debugging, Recherche und Troubleshooting werden dadurch erleichtert
-  - Der Auftraggeber ist deutschsprachig, daher sind deutsche UI-Texte und Dokumentation für Verständlichkeit und Abnahme sinnvoll
-  - Zusätzlich bevorzugt der Auftraggeber englischsprachigen Code, da auch Entwickler im Ausland beteiligt sind
-- **Quellen:**
-  - Laravel Documentation: https://laravel.com/docs
+Status: superseded for public documentation.
 
----
+Decision:
 
-## ADR-002 Rollenbasiertes Berechtigungsmodell
+- Code, class names, variables, methods, branches, commits and technical tickets use English.
+- Public documentation in `README.md` and `docs/` uses English.
+- `README.de.md` remains as the German entry point.
+- UI strings are translatable and may be localized through Laravel language files.
 
-- **Datum:** 2026-03-05
-- **Status:** Accepted
-- **Entscheidung:**
-  - Einsatz von **spatie/laravel-permission** als Basis für Rollen und Berechtigungen
-  - Verwaltung der Rollen im Admin-Panel über Filament Shield
-- **Begründung:**
-  - etablierte Standardlösung im Laravel-Umfeld
-  - **MIT-lizenziert**
-  - aktiv gepflegt und gut dokumentiert
-  - gute Integration mit Laravel **Gate**, **Blade-Directives** und **Policies**
-  - flexibler und wartbarer als eine selbst entwickelte einfache Rollenlogik
-  - geeignet für eine schlanke, erweiterbare Rechteverwaltung in VisitorPortal
-- **Quellen:**
-  - Spatie Laravel Permission, Introduction: https://spatie.be/docs/laravel-permission/v7/introduction
-  - Spatie Laravel Permission, Blade Directives: https://spatie.be/docs/laravel-permission/v7/basic-usage/blade-directives
-  - Spatie Laravel Permission, Using Policies: https://spatie.be/docs/laravel-permission/v7/best-practices/using-policies
-  - GitHub Repository: https://github.com/spatie/laravel-permission
-  - Filament Shield: https://filamentphp.com/plugins/bezhansalleh-shield
+Reason:
 
----
+- Laravel and most ecosystem documentation are English.
+- Open-source release material should be understandable internationally.
+- German remains useful for local users through `README.de.md` and UI translations.
 
-## ADR-003 Docker-first Development Setup
+## ADR-002 Permission System
 
-- **Datum:** 2026-03-19
-- **Status:** Accepted
-- **Entscheidung:**
-  - Entwicklung und lokales Setup erfolgen **Docker-first**
-  - Das Projekt wird standardmäßig über **Docker Compose** gestartet und betrieben
-- **Begründung:**
-  - vom Auftraggeber **optional, aber bevorzugt**
-  - einheitliches Entwicklungssetup für alle Teammitglieder
-  - geringere Unterschiede zwischen lokalen Umgebungen
-  - schnellere Einarbeitung und reproduzierbarer Projektstart
-  - Services wie Webserver, Datenbank und weitere Abhängigkeiten lassen sich gemeinsam definieren und mit einem Befehl starten
-  - Containerisierung vereinfacht Übergabe, Wartung und spätere Weiterentwicklung
-  - die Vorteile wurden vom Team erkannt und bewusst in die Projektumsetzung übernommen
-- **Quellen:**
-  - Docker Compose Overview: https://docs.docker.com/compose/
-  - Why use Compose?: https://docs.docker.com/compose/intro/features-uses/
-  - How Compose works: https://docs.docker.com/compose/intro/compose-application-model/
-  - Compose file reference: https://docs.docker.com/reference/compose-file/
+Status: accepted.
 
----
+Decision:
 
-## ADR-004 UI-Stack (Projektstandard)
+- Use `spatie/laravel-permission` for roles and permissions.
+- Use Filament Shield for admin-panel permission integration.
+- Keep application authorization in Laravel policies and permission checks.
 
-- **Datum:** 2026-03-19
-- **Status:** Accepted
-- **Entscheidung:**
-  - Einsatz von **daisyUI** als Component Library
-  - **kein Livewire-first-Ansatz** als Projektstandard
-  - Standard-Stack für die Oberfläche:
-    - **Laravel Blade**
-    - **Tailwind CSS**
-    - **daisyUI**
-- **Begründung:**
-  - konsistente und wiederverwendbare UI-Bausteine für Formulare, Tabellen, Cards, Modals und Alerts
-  - geringerer Implementierungsaufwand gegenüber einer vollständigen Eigenentwicklung der UI-Komponenten
-  - **daisyUI** ist **MIT-lizenziert**, aktiv gepflegt und gut mit Laravel nutzbar
-  - daisyUI ist als Tailwind-CSS-Plugin allgemeiner und weniger bindend als eine Livewire-spezifische Lösung
-  - dadurch bleibt die UI-Schicht einfacher, flexibler und wartungsärmer
-  - **Mary UI** war ein Favorit, wurde aber nicht gewählt, da es auf **Livewire** ausgerichtet ist und damit eine stärkere Architekturbindung erzeugt
-  - Es wurde bewusst **gegen Livewire als Projektstandard** entschieden, um zusätzliche Architekturkomplexität zu vermeiden
-  - Für VisitorPortal ist ein Standard mit Blade + Tailwind + daisyUI ausreichend und für das MVP zweckmäßig
-- **Quellen:**
-  - daisyUI Homepage: https://daisyui.com/
-  - daisyUI Laravel Installation: https://daisyui.com/docs/install/laravel/
-  - Mary UI Homepage: https://mary-ui.com/
-  - Mary UI Installation: https://mary-ui.com/docs/installation
-  - Laravel Livewire Quickstart: https://livewire.laravel.com/docs/4.x/quickstart
-  - Laravel Livewire Installation: https://livewire.laravel.com/docs/4.x/installation
-  - GitHub Repository daisyUI: https://github.com/saadeghi/daisyui
-  - GitHub Repository Mary UI: https://github.com/robsontenorio/mary
+Reason:
 
----
+- Mature Laravel ecosystem package.
+- Integrates with gates, policies and Blade directives.
+- More maintainable than a custom role system.
 
-## ADR-005 Admin-Panel für interne Verwaltungsfunktionen
+Current project version: `spatie/laravel-permission` 6.x.
 
-- **Datum:** 2026-03-19
-- **Status:** Accepted
-- **Entscheidung:**
-  - Einsatz von **Laravel Filament** als Admin-Panel für interne Verwaltungsfunktionen unter `/admin`
-  - Einsatzbereich insbesondere für:
-    - Benutzerverwaltung
-    - Rollen- und Rechteverwaltung (mittels Plugin Filament Shield / Spatie)
-    - Standard-CRUD für administrative Daten
-    - interne Übersichts- und Pflegeoberflächen
-- **Begründung:**
-  - Für das Projekt werden interne Adminfunktionen benötigt, z. B. Benutzer bearbeiten, Datensätze verwalten und administrative Standardprozesse umsetzen
-  - Das riesige Plugin-Ökosystem (z. B. Filament Shield für eine sofort einsatzbereite Spatie-Rechteverwaltung) reduziert den Entwicklungsaufwand massiv
-  - Filament bringt extrem mächtige Kernkomponenten mit (Form Builder, Table Builder), die komplexe Anforderungen (Filter, Relationen, Repeater) out-of-the-box abdecken
-  - Filament ist MIT-lizenziert und damit frei nutzbar, auch für spätere kommerzielle Weiterentwicklung
-  - Sehr große, aktive Community, was langfristigen Support garantiert
-- **Abgrenzung:**
-  - Filament wird als Lösung für den **internen Adminbereich** eingesetzt
-  - Die eigentliche Portaloberfläche für reguläre Nutzer bleibt davon getrennt und wird nicht auf Laravel Filament aufgebaut
-- **Verworfene Alternativen:**
-  - MoonShine: Wurde als leichtgewichtige Alternative evaluiert. Die Entscheidung fiel jedoch gegen MoonShine und für Filament, da Filament ein deutlich größeres Plugin-Ökosystem bietet. Zudem ist die Verbreitung von Filament im Laravel-Umfeld spürbar höher. 
-  - Vollständige Eigenentwicklung: Wurde verworfen, da der initiale Entwicklungs- und spätere Wartungsaufwand für Standard-Admin-Funktionen (Tabellen, Formulare, Auth) in keinem wirtschaftlichen Verhältnis zum Nutzen steht.
-- **Quellen:**
-  - Filament offizielle Website und Dokumentation (filamentphp.com)
-  - Filament GitHub-Repository
+References:
 
-## ADR-006 PDF-Generierung mit Laravel PDF und Gotenberg
-- **Datum:** 2026-04-15
-- **Status:** Accepted
-- **Entscheidung:**
-  - Einsatz von **Spatie Laravel PDF** (`spatie/laravel-pdf`) zur PDF-Erzeugung innerhalb der Laravel-Anwendung
-  - Einsatz von **Gotenberg** als externer Rendering-Service
-  - PDF-Dokumente werden auf Basis von **Blade-Templates (HTML/CSS)** generiert
-  - Einsatzbereich: Erstellung der druckfähigen Besucherausweise
-- **Begründung:**
-  - **Gotenberg** bietet zuverlässiges Chromium-basiertes PDF-Rendering mit modernem CSS-Support
-  - Serverseitige Generierung sorgt für reproduzierbare Ergebnisse unabhängig vom Endgerät oder Browser des Nutzers
-  - **Spatie Laravel PDF** ist speziell für Laravel entwickelt und integriert sich nahtlos in die bestehende Entwicklung.
-  - Es sind keine zusätzlichen Kenntnisse in separaten PDF-Technologien erforderlich
-  - Layouts lassen sich mit HTML/CSS einfach pflegen, erweitern und gestalten
-  - **Gotenberg** ist Open Source und unter der **MIT License** veröffentlicht
-  - **Spatie Laravel PDF** ist ebenfalls unter der **MIT License** veröffentlicht
-  
-- **Verworfene Alternativen:**
-  - **dompdf:** Nur eingeschränkter CSS-Support für komplexere Layouts, für gewünschte Zwecke nicht ausreichend
-  - **Direkter Einsatz von Puppeteer:** Ursprünglich in Betracht gezogen. Verworfen, da zusätzlicher Node.js-Stack, eigener Wartungsaufwand und direktere Prozessverwaltung erforderlich gewesen wären und allgemein zu schwergewichtig wäre.
-- **Quellen:**
-  - Spatie Laravel PDF: https://spatie.be/docs/laravel-pdf/v2/introduction
-  - GitHub Repository Spatie Laravel PDF: https://github.com/spatie/laravel-pdf
-  - Gotenberg: https://gotenberg.dev/
-  - GitHub Repository Gotenberg: https://github.com/gotenberg/gotenberg
+- [Spatie Laravel Permission v6 Introduction](https://spatie.be/docs/laravel-permission/v6/introduction)
+- [Blade Directives](https://spatie.be/docs/laravel-permission/v6/basic-usage/blade-directives)
+- [Using Policies](https://spatie.be/docs/laravel-permission/v6/best-practices/using-policies)
+- [Filament Shield](https://filamentphp.com/plugins/bezhansalleh-shield)
 
-  ## ADR-007 Optionale Kontaktdaten für Besucher
+## ADR-003 Docker-First Development
 
-- **Datum:** 2026-05-15
-- **Status:** Accepted
-- **Entscheidung:**
-  - Das System erzwingt standardmäßig **keine E-Mail-Adresse** und **keine Telefonnummer** für Besucher.
-  - Beide Felder werden im Besucherdatensatz als **optional** geführt.
-  - Die eindeutige technische Identifikation von Besuchern erfolgt über interne technische IDs, nicht über E-Mail-Adresse oder Telefonnummer.
-  - Eine automatische Deduplizierung über E-Mail oder Telefonnummer wird nicht vorausgesetzt.
-  - Die Suche nach bestehenden Besuchern kann unterstützend über Name, Firma und weitere vorhandene Angaben erfolgen.
-  - Potenzielle Dubletten werden fachlich akzeptiert, sofern die Zuordnung zum konkreten Besuch weiterhin eindeutig ist.
-  - Für Betreiber, Standorte oder Einsatzszenarien mit dokumentierter fachlicher Notwendigkeit kann konfiguriert werden, dass mindestens eine Kontaktmöglichkeit erforderlich ist.
-  - Standardkonfiguration:
-    - E-Mail: optional
-    - Telefon: optional
-    - Kontaktpflicht: deaktiviert
+Status: accepted.
 
-- **Begründung:**
-  - Nicht jeder Besuchsfall erfordert eine direkte Kontaktaufnahme mit dem Besucher.
-  - Besonders bei Walk-ins, Handwerkern, Lieferanten oder Begleitpersonen ist es in der Empfangspraxis nicht immer realistisch oder erforderlich, eine E-Mail-Adresse oder Telefonnummer zu erfassen.
-  - Werden Kontaktfelder ohne zwingenden fachlichen Zweck verpflichtend gemacht, besteht das Risiko, dass am Empfang Platzhalterwerte oder erfundene Daten eingetragen werden, z. B. `keine@mail.de` oder `000000`.
-  - Dadurch würde die Datenqualität sinken und der DSGVO-Grundsatz der Richtigkeit personenbezogener Daten beeinträchtigt.
-  - Die DSGVO fordert, dass personenbezogene Daten dem Zweck angemessen und auf das notwendige Maß beschränkt sind. Eine verpflichtende Erhebung von Kontaktdaten allein zur technischen Deduplizierung ist daher nicht ausreichend begründet.
-  - Die technische Eindeutigkeit wird bereits über interne Datenbank-IDs sichergestellt.
-  - Für das Besuchermanagement ist eine perfekte automatische Deduplizierung nicht zwingend erforderlich, solange der konkrete Besuch, der Host, der Check-in-Status und der Besuchszeitraum korrekt dokumentiert werden.
-  - Eine datenschutzfreundliche Standardkonfiguration entspricht dem Prinzip Privacy by Default.
-  - Wenn ein Betreiber aus Sicherheits-, Organisations- oder Prozessgründen eine Kontaktmöglichkeit benötigt, kann diese Anforderung bewusst aktiviert und in der Datenschutzinformation entsprechend beschrieben werden.
+Decision:
 
-- **Konfiguration:**
-  - Die Kontaktpflicht wird konfigurierbar umgesetzt.
-  - Für das MVP kann die Konfiguration über eine Umgebungsvariable oder zentrale Konfigurationsdatei erfolgen.
-  - Für einen produktiven oder mandantenfähigen Betrieb sollte die Einstellung später über den Adminbereich pro Betreiber oder Standort verwaltbar sein.
+- Local development is Docker-first.
+- `docker-compose.yml` mounts the source tree and provides PHP, Node.js, MariaDB, Mailhog, queue, scheduler and Gotenberg services.
 
-  Beispiel für eine einfache Konfiguration:
+Reason:
 
-  ```env
-  VISITOR_CONTACT_REQUIREMENT=optional
+- Reproducible onboarding.
+- Fewer host-specific dependency issues.
+- Better parity between local services and deployment dependencies.
 
-  Mögliche Werte:
-  - optional
-  - require_one
-  - require_email
-  - require_phone
-  ```
+## ADR-004 UI Stack
 
----
+Status: accepted.
 
-## ADR-008 Generic OpenID Connect SSO
+Decision:
 
-- **Datum:** 2026-05-17
-- **Status:** Accepted
-- **Entscheidung:**
-  - VisitorPortal implementiert optionales Single Sign-On ueber generisches OpenID Connect.
-  - Die initiale OIDC-Client-Library ist `facile-it/php-openid-client`.
-  - Die Library wird ausschliesslich hinter einem internen Adapter verwendet.
-  - Externe Identitaeten werden ueber `provider + issuer + subject` gespeichert.
-  - E-Mail-Adressen werden nicht als primaerer externer Identitaetsschluessel genutzt.
-- **Begründung:**
-  - OpenID Connect ist fuer Enterprise-SSO passender als provider-spezifische Social-Login-Integrationen.
-  - VisitorPortal soll mit OIDC-kompatiblen Providern wie Microsoft Entra ID, Keycloak, Authentik, Okta, Auth0, Google Workspace oder GitLab OIDC nutzbar sein.
-  - Der interne Adapter reduziert Vendor Lock-in, da `facile-it/php-openid-client` unter Version 1.0 liegt und spaeter austauschbar bleiben muss.
-- **Sicherheitsregeln:**
-  - Authorization Code Flow mit `state`, `nonce` und PKCE S256.
-  - Issuer, Audience, ID-Token-Signatur und Lifetime Claims werden validiert.
-  - Tokens werden nicht dauerhaft gespeichert und nicht geloggt.
-  - Auto-Provisioning und Rollen-Sync sind standardmaessig deaktiviert.
-  - Adminrechte duerfen nicht aus E-Mail-Domains abgeleitet werden.
-  - Auto-provisionierte SSO-Nutzer duerfen lokale Passwortwege nicht als IdP-Bypass nutzen.
-- **Konsequenzen:**
-  - Providerunabhaengige SSO-Architektur.
-  - Hoeherer Implementierungs- und Testaufwand als bei Socialite.
-  - Provider-spezifische Besonderheiten wie Entra-Gruppen-Overage werden dokumentiert, aber nicht automatisch ueber Provider-APIs aufgeloest.
+- Use Laravel Blade, Tailwind CSS and daisyUI for the portal UI.
+- Use Livewire where it provides clear value, but do not make the whole UI Livewire-first by default.
+- Use Filament for the internal admin panel.
+
+Reason:
+
+- Blade plus Tailwind/daisyUI is simple and flexible for the main portal.
+- Filament is efficient for internal CRUD/admin workflows.
+- This keeps the user-facing portal separate from the admin panel.
+
+## ADR-005 PDF Generation
+
+Status: accepted.
+
+Decision:
+
+- Use Spatie Laravel PDF with Gotenberg for badge PDFs.
+- Generate PDFs from Blade/HTML/CSS templates.
+
+Reason:
+
+- Gotenberg provides Chromium-based rendering with modern CSS support.
+- Server-side PDF generation is reproducible across browsers and devices.
+
+References:
+
+- [Spatie Laravel PDF v2](https://spatie.be/docs/laravel-pdf/v2/introduction)
+- [Gotenberg](https://gotenberg.dev/)
+
+## ADR-006 Optional Visitor Contact Data
+
+Status: accepted.
+
+Decision:
+
+- Visitor e-mail and phone are optional by default.
+- Visitor identity is based on internal database IDs, not e-mail or phone.
+- Operators can require contact data through `VISITOR_CONTACT_REQUIREMENT` when they have a documented operational need.
+
+Reason:
+
+- Not every visit requires direct visitor contact.
+- Mandatory contact fields can encourage fake placeholders and lower data quality.
+- Optional defaults are better aligned with data minimization.
+
+## ADR-007 Generic OpenID Connect SSO
+
+Status: accepted.
+
+Decision:
+
+- Implement provider-independent OpenID Connect SSO.
+- Store external identities by `provider + issuer + subject`.
+- Do not use e-mail as the primary external identity key.
+- Keep auto-provisioning and role sync disabled by default.
+
+Reason:
+
+- OIDC fits enterprise SSO better than provider-specific social login integrations.
+- The internal adapter reduces vendor lock-in.
+- Security-sensitive identity linking must not rely on mutable e-mail addresses alone.

@@ -1,119 +1,203 @@
 # Monitoring and Operations
 
-VisitorPortal does not include an active monitoring system. Operators are responsible for integrating the application into their monitoring stack.
+VisitorPortal does not include a full monitoring or alerting system. Operators must connect it to their own monitoring stack.
 
-## Recommended checks
+## Services
 
-- HTTP check: GET `/up`
-- Container state: `app` in demo/production or `web` in development, plus `queue`, `scheduler`, `db` (MariaDB), and `gotenberg`
-- Docker health status
-- Queue backlog
-- Failed jobs
-- Scheduler heartbeat
-- Disk usage for storage and database volumes
-- SMTP delivery
-- Database backups
+Service names depend on the Compose file:
 
-## Health endpoints and commands
+- Development (`docker-compose.yml`): web service `web`.
+- Demo (`docker-compose.demo.yml`): web service `app`.
+- Production (`docker-compose.prod.yml`): web service `app`.
 
-- `GET /up`
-- `php artisan visitorportal:health app`
-- `php artisan visitorportal:health queue`
-- `php artisan visitorportal:health scheduler`
+Shared service names:
 
-The web service name depends on the Compose file:
+- `queue`: Laravel queue worker.
+- `scheduler`: Laravel scheduler worker.
+- `db`: MariaDB.
+- `gotenberg`: PDF renderer.
+- `mailhog`: demo/development mail testing only.
 
-- Demo and production use `app` (`docker-compose.demo.yml`, `docker-compose.prod.yml`).
-- Development uses `web` (`docker-compose.yml`).
+## Recommended Checks
 
-Development example:
+- HTTP check: `GET /up`.
+- Docker container state and Docker health status.
+- App health: `php artisan visitorportal:health app`.
+- Queue health: `php artisan visitorportal:health queue`.
+- Scheduler health: `php artisan visitorportal:health scheduler`.
+- Queue backlog and failed jobs.
+- Scheduler heartbeat freshness.
+- Disk usage for database and storage volumes.
+- SMTP delivery.
+- Database backups and restore tests.
+- Retention dry-runs.
+
+Docker Compose does not restart a container only because it is unhealthy. Observe health status through monitoring and alerting.
+
+## Health Commands
+
+Development:
 
 ```bash
 docker compose exec web php artisan visitorportal:health app
+docker compose exec queue php artisan visitorportal:health queue
+docker compose exec scheduler php artisan visitorportal:health scheduler
 ```
-
-## Docker
-
-Use a current Docker Engine or Docker Desktop version with Docker Compose v2.
-
-Use restart policies:
-
-```yaml
-restart: unless-stopped
-```
-
-Docker Compose does not automatically restart a container only because it is unhealthy. Health status must be observed by an operator or monitoring system.
-
-## Queue
-
-The queue worker is required for notifications and background jobs.
-
-Recommended command:
-
-```bash
-php artisan queue:work --sleep=3 --tries=3 --timeout=120 --max-time=3600 --max-jobs=1000 --memory=128
-```
-
-Ensure `DB_QUEUE_RETRY_AFTER` is greater than the worker timeout.
-
-## Privacy Retention
-
-VisitorPortal purges business visit data with `php artisan visits:purge-expired` according to the privacy retention settings. It also schedules `php artisan privacy:purge-technical-data` when `PRIVACY_TECHNICAL_RETENTION_ENABLED=true` to remove old technical data outside the visit/visitor retention flow.
-
-`privacy:purge-technical-data` covers database sessions, `failed_jobs`, `job_batches`, expired health heartbeat cache rows when they are safely identifiable, and old daily log files below `storage/logs`. It does not delete `storage/logs/laravel.log` when `LOG_CHANNEL=single` is used. It supports `--dry-run` and only prints aggregate counts, never session payloads, job payloads, log contents, secrets or personal data.
-
-Use these commands for manual checks:
-
-```bash
-php artisan privacy:purge-technical-data --dry-run
-php artisan privacy:purge-technical-data
-```
-
-This command is application retention only. It does not replace backup retention, Docker volume retention, database backup retention, reverse-proxy log retention, Docker daemon or host log retention, or retention in external SIEM, monitoring and log aggregation systems. Operators must configure those retention policies separately.
-
-## Troubleshooting
-
-Use the same Compose file and environment file options that were used to start the stack. The web service is named `app` for demo/production and `web` for development.
 
 Demo:
 
 ```bash
-docker compose --env-file .env.demo -f docker-compose.demo.yml ps
-docker compose --env-file .env.demo -f docker-compose.demo.yml logs -f app
-docker compose --env-file .env.demo -f docker-compose.demo.yml logs -f queue
-docker compose --env-file .env.demo -f docker-compose.demo.yml logs -f scheduler
 docker compose --env-file .env.demo -f docker-compose.demo.yml exec app php artisan visitorportal:health app
-docker compose --env-file .env.demo -f docker-compose.demo.yml exec --user www-data app php artisan visitorportal:health app
 docker compose --env-file .env.demo -f docker-compose.demo.yml exec queue php artisan visitorportal:health queue
 docker compose --env-file .env.demo -f docker-compose.demo.yml exec scheduler php artisan visitorportal:health scheduler
-docker compose --env-file .env.demo -f docker-compose.demo.yml exec app php artisan queue:failed
 ```
 
 Production:
 
 ```bash
-docker compose -f docker-compose.prod.yml ps
-docker compose -f docker-compose.prod.yml logs -f app
-docker compose -f docker-compose.prod.yml logs -f queue
-docker compose -f docker-compose.prod.yml logs -f scheduler
 docker compose -f docker-compose.prod.yml exec app php artisan visitorportal:health app
-docker compose -f docker-compose.prod.yml exec --user www-data app php artisan visitorportal:health app
 docker compose -f docker-compose.prod.yml exec queue php artisan visitorportal:health queue
 docker compose -f docker-compose.prod.yml exec scheduler php artisan visitorportal:health scheduler
-docker compose -f docker-compose.prod.yml exec app php artisan queue:failed
 ```
+
+For stricter storage permission checks in demo or production, run app health as the web server user when the container permits it:
+
+```bash
+docker compose --env-file .env.demo -f docker-compose.demo.yml exec --user www-data app php artisan visitorportal:health app
+docker compose -f docker-compose.prod.yml exec --user www-data app php artisan visitorportal:health app
+```
+
+## Logs
 
 Development:
 
 ```bash
-docker compose ps
 docker compose logs -f web
 docker compose logs -f queue
 docker compose logs -f scheduler
-docker compose exec web php artisan visitorportal:health app
-docker compose exec queue php artisan visitorportal:health queue
-docker compose exec scheduler php artisan visitorportal:health scheduler
-docker compose exec web php artisan queue:failed
 ```
 
-Use `exec --user www-data app` for a stricter storage permission check when the container permits it.
+Demo:
+
+```bash
+docker compose --env-file .env.demo -f docker-compose.demo.yml logs -f app
+docker compose --env-file .env.demo -f docker-compose.demo.yml logs -f queue
+docker compose --env-file .env.demo -f docker-compose.demo.yml logs -f scheduler
+```
+
+Production:
+
+```bash
+docker compose -f docker-compose.prod.yml logs -f app
+docker compose -f docker-compose.prod.yml logs -f queue
+docker compose -f docker-compose.prod.yml logs -f scheduler
+```
+
+## Queue Operations
+
+The queue worker is required for notifications and background jobs.
+
+Check failed jobs:
+
+```bash
+php artisan queue:failed
+```
+
+Restart workers after deployments:
+
+```bash
+php artisan queue:restart
+```
+
+Recommended worker command:
+
+```bash
+php artisan queue:work --sleep=3 --tries=3 --timeout=120 --max-time=3600 --max-jobs=1000 --memory=128
+```
+
+`DB_QUEUE_RETRY_AFTER` must be greater than the worker timeout. The Docker default is `180`.
+
+## Scheduler Operations
+
+The scheduler is required for reminders, monitor auto generation, recurring visits, completion tasks, retention jobs and health heartbeat updates.
+
+List tasks:
+
+```bash
+php artisan schedule:list
+```
+
+Run once:
+
+```bash
+php artisan schedule:run
+```
+
+Docker uses the `scheduler` service with `php artisan schedule:work`.
+
+## Retention Checks
+
+Visit retention dry-run:
+
+```bash
+php artisan visits:purge-expired --dry-run
+```
+
+Technical retention dry-run:
+
+```bash
+php artisan privacy:purge-technical-data --dry-run
+```
+
+Retention output contains aggregate counts only. It must not be treated as a replacement for backup, database, Docker, host, reverse-proxy or SIEM retention policies.
+
+## Backup Checks
+
+Backups must cover:
+
+- MariaDB data.
+- `backend/storage` or the equivalent Docker `app_storage` volume.
+- Production `.env` secrets stored securely outside the application checkout.
+- Uploaded branding and welcome-monitor assets.
+
+Test restores regularly. A backup that has never been restored is not an operationally verified backup.
+
+## Troubleshooting
+
+Container status:
+
+```bash
+docker compose ps
+docker compose --env-file .env.demo -f docker-compose.demo.yml ps
+docker compose -f docker-compose.prod.yml ps
+```
+
+App does not become healthy:
+
+- Check `app` or `web` logs.
+- Check database health and credentials.
+- Confirm `APP_KEY` is set.
+- Confirm writable `storage` and `bootstrap/cache`.
+- On first demo start, allow time for migrations and seed data.
+
+Queue health is stale:
+
+- Confirm the `queue` service is running.
+- Inspect failed jobs.
+- Check SMTP connectivity if mail jobs fail.
+
+Scheduler health is stale:
+
+- Confirm the `scheduler` service or cron entry is running.
+- Check `schedule:list` and scheduler logs.
+
+Port conflicts in the demo:
+
+- Change `APP_PORT` or `MAILHOG_PORT` in `.env.demo`.
+- Restart the demo.
+
+Reset the local demo:
+
+```bash
+sh reset-demo.sh
+```

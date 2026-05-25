@@ -59,6 +59,8 @@ jobs:
           cp docker-compose.demo.yml "$PACKAGE_DIR/"
           cp start.bat start.sh stop.bat stop.sh reset-demo.bat reset-demo.sh update.bat update.sh "$PACKAGE_DIR/"
           cp docs/setup.md "$PACKAGE_DIR/README.md"
+          sed -i 's](release-artifacts.md)](docs/release-artifacts.md)]' "$PACKAGE_DIR/README.md"
+          cp -R docs "$PACKAGE_DIR/docs"
 
           cat > "$PACKAGE_DIR/.env.demo.example" <<EOF
           VISITORPORTAL_VERSION=${TAG}
