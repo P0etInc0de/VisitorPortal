@@ -21,6 +21,13 @@ if errorlevel 1 (
     exit /b 1
 )
 
+docker compose version >nul 2>&1
+if errorlevel 1 (
+    echo Docker Compose v2 is required.
+    echo Please update Docker Desktop or install the Docker Compose plugin.
+    exit /b 1
+)
+
 echo [1/3] Pulling Besucherportal images...
 docker compose --env-file "%ENV_FILE%" -f "%COMPOSE_FILE%" pull
 if errorlevel 1 echo Image pull failed. Continuing with locally available images if present.

@@ -5,7 +5,7 @@ VisitorPortal does not include an active monitoring system. Operators are respon
 ## Recommended checks
 
 - HTTP check: GET `/up`
-- Container state: app, queue, scheduler, db (MariaDB), gotenberg
+- Container state: `app` in demo/production or `web` in development, plus `queue`, `scheduler`, `db` (MariaDB), and `gotenberg`
 - Docker health status
 - Queue backlog
 - Failed jobs
@@ -21,7 +21,12 @@ VisitorPortal does not include an active monitoring system. Operators are respon
 - `php artisan visitorportal:health queue`
 - `php artisan visitorportal:health scheduler`
 
-For the default development compose file, use `web` instead of `app`:
+The web service name depends on the Compose file:
+
+- Demo and production use `app` (`docker-compose.demo.yml`, `docker-compose.prod.yml`).
+- Development uses `web` (`docker-compose.yml`).
+
+Development example:
 
 ```bash
 docker compose exec web php artisan visitorportal:health app
@@ -68,15 +73,47 @@ This command is application retention only. It does not replace backup retention
 
 ## Troubleshooting
 
-For a stricter storage permission check, run the app health command as the web server user when the container permits it.
+Use the same Compose file and environment file options that were used to start the stack. The web service is named `app` for demo/production and `web` for development.
+
+Demo:
+
+```bash
+docker compose --env-file .env.demo -f docker-compose.demo.yml ps
+docker compose --env-file .env.demo -f docker-compose.demo.yml logs -f app
+docker compose --env-file .env.demo -f docker-compose.demo.yml logs -f queue
+docker compose --env-file .env.demo -f docker-compose.demo.yml logs -f scheduler
+docker compose --env-file .env.demo -f docker-compose.demo.yml exec app php artisan visitorportal:health app
+docker compose --env-file .env.demo -f docker-compose.demo.yml exec --user www-data app php artisan visitorportal:health app
+docker compose --env-file .env.demo -f docker-compose.demo.yml exec queue php artisan visitorportal:health queue
+docker compose --env-file .env.demo -f docker-compose.demo.yml exec scheduler php artisan visitorportal:health scheduler
+docker compose --env-file .env.demo -f docker-compose.demo.yml exec app php artisan queue:failed
+```
+
+Production:
+
+```bash
+docker compose -f docker-compose.prod.yml ps
+docker compose -f docker-compose.prod.yml logs -f app
+docker compose -f docker-compose.prod.yml logs -f queue
+docker compose -f docker-compose.prod.yml logs -f scheduler
+docker compose -f docker-compose.prod.yml exec app php artisan visitorportal:health app
+docker compose -f docker-compose.prod.yml exec --user www-data app php artisan visitorportal:health app
+docker compose -f docker-compose.prod.yml exec queue php artisan visitorportal:health queue
+docker compose -f docker-compose.prod.yml exec scheduler php artisan visitorportal:health scheduler
+docker compose -f docker-compose.prod.yml exec app php artisan queue:failed
+```
+
+Development:
 
 ```bash
 docker compose ps
+docker compose logs -f web
 docker compose logs -f queue
 docker compose logs -f scheduler
-docker compose exec app php artisan visitorportal:health app
-docker compose exec --user www-data app php artisan visitorportal:health app
+docker compose exec web php artisan visitorportal:health app
 docker compose exec queue php artisan visitorportal:health queue
 docker compose exec scheduler php artisan visitorportal:health scheduler
-docker compose exec app php artisan queue:failed
+docker compose exec web php artisan queue:failed
 ```
+
+Use `exec --user www-data app` for a stricter storage permission check when the container permits it.

@@ -21,6 +21,12 @@ if ! docker info >/dev/null 2>&1; then
     exit 1
 fi
 
+if ! docker compose version >/dev/null 2>&1; then
+    echo "Docker Compose v2 is required."
+    echo "Please update Docker Desktop or install the Docker Compose plugin."
+    exit 1
+fi
+
 echo "[1/3] Pulling Besucherportal images..."
 docker compose --env-file "$ENV_FILE" -f "$COMPOSE_FILE" pull || echo "Image pull failed. Continuing with locally available images if present."
 
