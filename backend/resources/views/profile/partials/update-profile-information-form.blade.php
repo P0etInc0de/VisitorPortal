@@ -15,6 +15,8 @@
                 <select id="locale" name="locale" class="select select-bordered h-12 min-h-12 w-full rounded-xl leading-normal">
                     <option value="de" @selected(old('locale', $user->locale ?? app()->getLocale()) === 'de')>🇩🇪 Deutsch</option>
                     <option value="en" @selected(old('locale', $user->locale ?? app()->getLocale()) === 'en')>🇬🇧 English</option>
+                    <option value="fr" @selected(old('locale', $user->locale ?? app()->getLocale()) === 'fr')>🇫🇷 Français</option>
+                    <option value="cs" @selected(old('locale', $user->locale ?? app()->getLocale()) === 'cs')>🇨🇿 Čeština</option>
                 </select>
                 <x-input-error class="mt-2" :messages="$errors->get('locale')" />
             </div>

@@ -41,12 +41,34 @@ class AuthenticationTest extends TestCase
     public function test_login_screen_falls_back_to_english_for_unknown_browser_locale(): void
     {
         $response = $this->withHeaders([
-            'Accept-Language' => 'zz-ZZ,fr;q=0.9',
+            'Accept-Language' => 'zz-ZZ,xx;q=0.9',
         ])->get('/login');
 
         $response
             ->assertStatus(200)
             ->assertSee('Login');
+    }
+
+    public function test_login_screen_supports_french_browser_locale(): void
+    {
+        $response = $this->withHeaders([
+            'Accept-Language' => 'fr-FR,fr;q=0.9,en;q=0.8',
+        ])->get('/login');
+
+        $response
+            ->assertStatus(200)
+            ->assertSee('Connexion');
+    }
+
+    public function test_login_screen_supports_czech_browser_locale(): void
+    {
+        $response = $this->withHeaders([
+            'Accept-Language' => 'cs-CZ,cs;q=0.9,en;q=0.8',
+        ])->get('/login');
+
+        $response
+            ->assertStatus(200)
+            ->assertSee('Přihlásit se');
     }
 
     public function test_guest_layout_uses_theme_cookie(): void

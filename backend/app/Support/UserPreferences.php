@@ -30,6 +30,10 @@ class UserPreferences
 
     public const LOCALE_DE = 'de';
 
+    public const LOCALE_FR = 'fr';
+
+    public const LOCALE_CS = 'cs';
+
     /**
      * @return list<string>
      */
@@ -62,6 +66,8 @@ class UserPreferences
         return [
             self::LOCALE_DE,
             self::LOCALE_EN,
+            self::LOCALE_FR,
+            self::LOCALE_CS,
         ];
     }
 

@@ -8,6 +8,7 @@
 
 namespace App\Console\Commands;
 
+use App\Support\UserPreferences;
 use Illuminate\Console\Command;
 
 class ExtractTranslations extends Command
@@ -24,7 +25,7 @@ class ExtractTranslations extends Command
      *
      * @var string
      */
-    protected $description = 'Extract translation keys from project and update de.json';
+    protected $description = 'Extract translation keys from project and update JSON language files';
 
     /**
      * Execute the console command.
@@ -70,38 +71,24 @@ class ExtractTranslations extends Command
             }
         }
 
-        $path = lang_path('de.json');
-        $path_en = lang_path('en.json');
+        foreach (UserPreferences::supportedLocales() as $locale) {
+            $path = lang_path($locale.'.json');
+            $existing = file_exists($path)
+                ? json_decode(file_get_contents($path), true)
+                : [];
 
-        $existing = file_exists($path)
-            ? json_decode(file_get_contents($path), true)
-            : [];
+            if (! is_array($existing)) {
+                $existing = [];
+            }
 
-        $existing_en = file_exists($path_en)
-            ? json_decode(file_get_contents($path_en), true)
-            : [];
+            $merged = array_merge($foundKeys, $existing);
+            ksort($merged);
 
-        if (! is_array($existing)) {
-            $existing = [];
+            file_put_contents(
+                $path,
+                json_encode($merged, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES)
+            );
         }
-
-        if (! is_array($existing_en)) {
-            $existing_en = [];
-        }
-        $merged = array_merge($foundKeys, $existing);
-        $merged_en = array_merge($foundKeys, $existing_en);
-
-        ksort($merged);
-        ksort($merged_en);
-
-        file_put_contents(
-            $path,
-            json_encode($merged, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES)
-        );
-        file_put_contents(
-            $path_en,
-            json_encode($merged_en, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES)
-        );
 
         $this->info('Translations extracted!');
     }
