@@ -10,7 +10,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>{{ __('Live-Anzeige') }}</title>
-    @include('partials.favicons')
+    @includeIf('partials.favicons')
     <style>
         html, body { width: 100%; height: 100%; margin: 0; overflow: hidden; background: #eef2f8; }
         [x-cloak] { display: none !important; }
