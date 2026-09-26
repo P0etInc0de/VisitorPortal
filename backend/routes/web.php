@@ -14,6 +14,8 @@ use App\Http\Controllers\Reception\DashboardController;
 use App\Http\Controllers\Reception\VisitController as ReceptionVisitController;
 use App\Http\Controllers\Reception\VisitParticipantActionController;
 use App\Http\Middleware\CheckMonitorAutoGeneration;
+use App\Http\Middleware\PreventSensitivePageCaching;
+use App\Livewire\Kiosk\KioskTerminal;
 use App\Livewire\Portal\CheckInOutBoard;
 use App\Livewire\Portal\VisitShowPage;
 use App\Livewire\Profile\UserPermissionsPage;
@@ -44,6 +46,11 @@ Route::get('/lang', function (Request $request) {
 
     return redirect()->to(url()->previous());
 });
+
+Route::get('/kiosk/{token}', KioskTerminal::class)
+    ->where('token', '[A-Za-z0-9]+')
+    ->middleware(['throttle:120,1', PreventSensitivePageCaching::class])
+    ->name('kiosk.show');
 
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/overview', [OverviewController::class, 'index'])->name('overview');

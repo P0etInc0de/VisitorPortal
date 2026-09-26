@@ -136,6 +136,26 @@
                 @endif
             </section>
 
+            @if ($checkInQrSvg)
+                <section data-testid="visit-check-in-qr" class="rounded-3xl border border-base-300 bg-base-100 p-6 shadow-sm sm:p-7">
+                    <div class="flex flex-col gap-6 sm:flex-row sm:items-center">
+                        <div class="shrink-0 self-start rounded-2xl border border-base-300 bg-white p-3">
+                            {!! $checkInQrSvg !!}
+                        </div>
+                        <div class="min-w-0">
+                            <h2 class="text-2xl font-bold tracking-tight text-base-content">{{ __('Self-Check-in am Kiosk') }}</h2>
+                            <p class="mt-2 text-base leading-7 text-base-content/70">
+                                {{ __('Zeigen Sie diesen QR-Code am Kiosk-Terminal vor, um sich selbst einzuchecken.') }}
+                            </p>
+                            @if ($checkInCode)
+                                <p class="mt-3 text-sm text-base-content/60">{{ __('Alternativ können Sie diesen Code am Kiosk eingeben:') }}</p>
+                                <p class="mt-1 break-all font-mono text-lg font-semibold tracking-wide text-base-content">{{ $checkInCode }}</p>
+                            @endif
+                        </div>
+                    </div>
+                </section>
+            @endif
+
             <section class="rounded-3xl border border-base-300 bg-base-100 p-6 shadow-sm sm:p-7">
                 <div class="mb-6">
                     <h2 class="text-2xl font-bold tracking-tight text-base-content">{{ __('Teilnehmende') }}</h2>
@@ -174,6 +194,20 @@
                                         <div class="mt-1.5 text-base text-base-content">{{ $participant['company'] ?: '–' }}</div>
                                     </div>
                                 </div>
+
+                                @if (! empty($participant['signature']))
+                                    <div class="mt-4 border-t border-base-300 pt-4">
+                                        <div class="text-xs font-semibold uppercase tracking-[0.18em] text-base-content/50">{{ __('Unterschrift') }}</div>
+                                        <img
+                                            src="{{ $participant['signature'] }}"
+                                            alt="{{ __('Unterschrift') }}"
+                                            class="mt-2 h-24 w-auto rounded-lg border border-base-300 bg-white"
+                                        >
+                                        @if (! empty($participant['signed_at']))
+                                            <div class="mt-1 text-xs text-base-content/60">{{ __('Unterzeichnet am :date', ['date' => $participant['signed_at']]) }}</div>
+                                        @endif
+                                    </div>
+                                @endif
                             </article>
                         @endforeach
                     </div>

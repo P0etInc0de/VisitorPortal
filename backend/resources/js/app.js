@@ -3,7 +3,11 @@ import 'tom-select/dist/css/tom-select.default.css';
 
 import focus from '@alpinejs/focus';
 import TomSelect from 'tom-select';
+import { initKioskSignature } from './kiosk-signature';
 import { visitForm } from './portal/visit-form';
+
+window.kioskSignatureInit = initKioskSignature;
+window.kioskSignatureClear = (canvas) => canvas?.__kioskSignature?.clear();
 
 const initializeTomSelect = () => {
     document.querySelectorAll('[data-bp-tom-select]').forEach((select) => {

@@ -295,6 +295,27 @@ SVG;
             text-overflow: ellipsis;
         }
 
+        .signature {
+            position: absolute;
+            left: 0;
+            bottom: 0.4mm;
+            width: 34mm;
+            height: 9mm;
+            object-fit: contain;
+            object-position: left bottom;
+        }
+
+        .signature-label {
+            position: absolute;
+            left: 35mm;
+            bottom: 0.4mm;
+            color: #5f5f5f;
+            font-size: 2.4mm;
+            font-weight: 800;
+            line-height: 9mm;
+            white-space: nowrap;
+        }
+
         .badge--photo_qr .visitor-name { font-size: 4.85mm; }
         .badge--photo_qr .detail-label,
         .badge--photo_qr .detail-value { font-size: 2.35mm; }
@@ -302,6 +323,8 @@ SVG;
         .badge--photo_qr .separator { width: 44mm; }
         .badge--photo_qr .visit-date { font-size: 3.3mm; }
         .badge--photo_qr .visit-time { left: 16mm; font-size: 2.1mm; }
+        .badge--photo_qr .signature { width: 20mm; height: 7mm; }
+        .badge--photo_qr .signature-label { left: 21mm; font-size: 2mm; line-height: 7mm; }
 
         .media-column {
             position: absolute;
@@ -398,6 +421,12 @@ SVG;
 
         <div class="visit-date">{{ $visitDate }}</div>
         <div class="visit-time">{{ $visitTimeRange }}</div>
+
+        @php $signatureData = data_get($visitor, 'pivot.signature_data'); @endphp
+        @if (is_string($signatureData) && str_starts_with($signatureData, 'data:image/'))
+            <img class="signature" src="{{ $signatureData }}" alt="{{ __('Unterschrift') }}">
+            <div class="signature-label">{{ __('Unterschrift') }}</div>
+        @endif
     </div>
 
     @if ($badgeDesign === 'photo_qr')

@@ -12,11 +12,13 @@ use App\Enums\VisitStatusEnum;
 use App\Models\User;
 use App\Models\Visit;
 use App\Models\Visitor;
+use App\Notifications\Guest\GuestCheckedIn;
 use App\Notifications\Guest\SingleVisitReminder as GuestSingleVisitReminder;
 use App\Notifications\Host\GuestCheckedInDatabaseNotification;
 use App\Notifications\Host\GuestCheckedInMailNotification;
 use App\Notifications\Host\VisitCreated;
 use App\Notifications\Host\VisitReminderDaily;
+use App\Services\VisitActionService;
 use App\Tasks\DailyVisitorReminder;
 use Carbon\Carbon;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -83,6 +85,27 @@ class NotificationTest extends TestCase
         $this->assertCount(0, $user->fresh()->notifications);
     }
 
+    public function test_guest_checked_in_mail_notification_attaches_signature(): void
+    {
+        $user = User::factory()->create();
+        $visit = Visit::factory()->create([
+            'host_user_id' => $user->id,
+        ]);
+        $visitor = Visitor::factory()->create();
+        $signature = 'data:image/png;base64,'.base64_encode('signature');
+
+        Notification::send($user, new GuestCheckedInMailNotification($visit, $visitor, $signature));
+
+        $messages = app('mailer')->getSymfonyTransport()->messages();
+
+        $this->assertCount(1, $messages);
+
+        $attachments = $messages[0]->getOriginalMessage()->getAttachments();
+        $filenames = array_map(static fn ($attachment): ?string => $attachment->getFilename(), $attachments);
+
+        $this->assertContains('unterschrift.png', $filenames);
+    }
+
     public function test_guest_checked_in_notifications_use_separate_channels(): void
     {
         $user = User::factory()->create();
@@ -134,6 +157,52 @@ class NotificationTest extends TestCase
                 && $job->channels === ['mail']
                 && $job->afterCommit === true;
         });
+    }
+
+    public function test_check_in_with_signature_notifies_host_and_guest(): void
+    {
+        Notification::fake();
+
+        $host = User::factory()->create();
+        $visit = Visit::factory()->create([
+            'host_user_id' => $host->id,
+        ]);
+        $visitor = Visitor::factory()->create([
+            'email' => 'signed-guest@example.test',
+        ]);
+        $visit->visitors()->attach($visitor->id);
+
+        $signature = 'data:image/png;base64,'.base64_encode('signature');
+
+        app(VisitActionService::class)->checkInParticipant($visit, $visitor, null, $signature);
+
+        Notification::assertSentTo($host, GuestCheckedInDatabaseNotification::class);
+        Notification::assertSentTo($host, GuestCheckedInMailNotification::class);
+        Notification::assertSentTo($visitor, GuestCheckedIn::class);
+
+        $pivot = $visit->visitors()->where('visitor_id', $visitor->id)->first()->pivot;
+
+        $this->assertNotNull($pivot->checked_in_at);
+        $this->assertNotNull($pivot->signed_at);
+        $this->assertSame($signature, $pivot->signature_data);
+    }
+
+    public function test_check_in_without_guest_email_does_not_notify_guest(): void
+    {
+        Notification::fake();
+
+        $host = User::factory()->create();
+        $visit = Visit::factory()->create([
+            'host_user_id' => $host->id,
+        ]);
+        $visitor = Visitor::factory()->create([
+            'email' => null,
+        ]);
+        $visit->visitors()->attach($visitor->id);
+
+        app(VisitActionService::class)->checkInParticipant($visit, $visitor);
+
+        Notification::assertNotSentTo($visitor, GuestCheckedIn::class);
     }
 
     public function test_check_in_action_does_not_notify_inactive_host(): void

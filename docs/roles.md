@@ -35,10 +35,11 @@ The command is idempotent.
 - Can print visitor badges.
 - Can view contact details needed for reception work.
 - Can manage welcome monitors and monitor slides for assigned sites.
+- Can view kiosk terminals for assigned sites.
 
 `admin`:
 
-- Administrative role for users, roles, departments, sites, visitors, visits and monitors.
+- Administrative role for users, roles, departments, sites, visitors, visits, monitors and kiosk terminals.
 - Has broad application permissions synchronized by `visitorportal:sync-permissions`.
 - Is also configured as the Filament Shield super-admin role in `config/filament-shield.php`.
 

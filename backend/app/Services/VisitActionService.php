@@ -12,6 +12,7 @@ use App\Enums\VisitStatusEnum;
 use App\Models\User;
 use App\Models\Visit;
 use App\Models\Visitor;
+use App\Notifications\Guest\GuestCheckedIn;
 use App\Notifications\Host\GuestCheckedInDatabaseNotification;
 use App\Notifications\Host\GuestCheckedInMailNotification;
 use Illuminate\Support\Facades\Notification;
@@ -19,7 +20,7 @@ use Illuminate\Validation\ValidationException;
 
 class VisitActionService
 {
-    public function checkInParticipant(Visit $visit, Visitor $visitor, User $actionBy): Visitor
+    public function checkInParticipant(Visit $visit, Visitor $visitor, ?User $actionBy = null, ?string $signature = null): Visitor
     {
         $this->ensureVisitCanBeOperated($visit);
 
@@ -30,9 +31,14 @@ class VisitActionService
         if (blank($pivot->checked_in_at) || filled($pivot->checked_out_at)) {
             $payload = [
                 'checked_in_at' => now(),
-                'checked_in_by_user_id' => $actionBy->id,
+                'checked_in_by_user_id' => $actionBy?->id,
                 'updated_at' => now(),
             ];
+
+            if (filled($signature)) {
+                $payload['signature_data'] = $signature;
+                $payload['signed_at'] = now();
+            }
 
             if (filled($pivot->checked_out_at)) {
                 $payload['checked_out_at'] = null;
@@ -46,13 +52,14 @@ class VisitActionService
         $participant = $this->resolveParticipant($visit, $visitor);
 
         if ($didCheckIn) {
-            $this->notifyHostAboutCheckIn($visit, $participant);
+            $this->notifyHostAboutCheckIn($visit, $participant, $signature);
+            $this->notifyGuestAboutCheckIn($visit, $participant, $signature);
         }
 
         return $participant;
     }
 
-    public function checkOutParticipant(Visit $visit, Visitor $visitor, User $actionBy): Visitor
+    public function checkOutParticipant(Visit $visit, Visitor $visitor, ?User $actionBy = null): Visitor
     {
         $this->ensureVisitCanBeOperated($visit);
 
@@ -61,7 +68,7 @@ class VisitActionService
         if (filled($participant->pivot->checked_in_at) && blank($participant->pivot->checked_out_at)) {
             $visit->visitors()->updateExistingPivot($visitor->id, [
                 'checked_out_at' => now(),
-                'checked_out_by_user_id' => $actionBy->id,
+                'checked_out_by_user_id' => $actionBy?->id,
                 'updated_at' => now(),
             ]);
         }
@@ -125,7 +132,7 @@ class VisitActionService
         ]);
     }
 
-    private function notifyHostAboutCheckIn(Visit $visit, Visitor $visitor): void
+    private function notifyHostAboutCheckIn(Visit $visit, Visitor $visitor, ?string $signature = null): void
     {
         $recipient = $visit->loadMissing('host')->host;
 
@@ -134,6 +141,15 @@ class VisitActionService
         }
 
         Notification::send($recipient, new GuestCheckedInDatabaseNotification($visit, $visitor));
-        Notification::send($recipient, new GuestCheckedInMailNotification($visit, $visitor));
+        Notification::send($recipient, new GuestCheckedInMailNotification($visit, $visitor, $signature));
+    }
+
+    private function notifyGuestAboutCheckIn(Visit $visit, Visitor $visitor, ?string $signature = null): void
+    {
+        if (blank($visitor->email) || blank($signature)) {
+            return;
+        }
+
+        Notification::send($visitor, new GuestCheckedIn($visit, $signature));
     }
 }

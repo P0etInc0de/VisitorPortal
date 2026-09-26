@@ -27,7 +27,8 @@ class GuestCheckedInMailNotification extends Notification implements ShouldQueue
      */
     public function __construct(
         protected Visit $visit,
-        protected Visitor $visitor
+        protected Visitor $visitor,
+        protected ?string $signature = null,
     ) {
         $this->afterCommit();
     }
@@ -54,7 +55,7 @@ class GuestCheckedInMailNotification extends Notification implements ShouldQueue
             'class' => get_class(),
         ]);
 
-        return (new GuestCheckedInMail($notifiable, $this->visitor))->to($notifiable->email);
+        return (new GuestCheckedInMail($notifiable, $this->visitor, $this->signature))->to($notifiable->email);
     }
 
     /**

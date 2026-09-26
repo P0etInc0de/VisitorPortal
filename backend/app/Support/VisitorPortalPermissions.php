@@ -75,6 +75,7 @@ class VisitorPortalPermissions
             'Update:MonitorSlide',
             'Delete:MonitorSlide',
             'Delete:Monitor',
+            'ViewSite:Kiosk',
         ]));
 
         $adminPermissions = self::unique(array_merge($receptionistPermissions, [
@@ -162,6 +163,10 @@ class VisitorPortalPermissions
             'Restore:MonitorSlide',
             'RestoreAny:MonitorSlide',
             'View:UserPermissions',
+            'Create:Kiosk',
+            'Update:Kiosk',
+            'Delete:Kiosk',
+            'ManageAny:Kiosk',
         ]));
 
         return [

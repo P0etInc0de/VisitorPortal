@@ -14,6 +14,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Str;
 use LogicException;
 
 class Visit extends Model
@@ -33,6 +34,7 @@ class Visit extends Model
         'scheduled_from',
         'scheduled_until',
         'status',
+        'check_in_code',
         'is_confidential',
         'is_walk_in',
         'notes',
@@ -58,6 +60,10 @@ class Visit extends Model
         'display_title',
         'participant_count',
         'badge_pending_count',
+    ];
+
+    protected $hidden = [
+        'check_in_code',
     ];
 
     public function host(): BelongsTo
@@ -106,6 +112,8 @@ class Visit extends Model
                 'checked_in_by_user_id',
                 'checked_out_by_user_id',
                 'notes',
+                'signature_data',
+                'signed_at',
             ])
             ->withTimestamps();
     }
@@ -116,7 +124,16 @@ class Visit extends Model
             if (blank($visit->site_id)) {
                 throw new LogicException('Visit site_id must be set explicitly.');
             }
+
+            if (blank($visit->check_in_code)) {
+                $visit->check_in_code = self::generateCheckInCode();
+            }
         });
+    }
+
+    public static function generateCheckInCode(): string
+    {
+        return Str::lower(Str::random(40));
     }
 
     public function scopeVisibleTo(Builder $query, User $user): Builder

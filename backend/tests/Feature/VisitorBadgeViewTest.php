@@ -11,6 +11,7 @@ namespace Tests\Feature;
 use App\Models\User;
 use App\Models\Visit;
 use App\Models\Visitor;
+use App\Models\VisitVisitor;
 use App\Support\BadgePdfDimensions;
 use Illuminate\Support\Carbon;
 use Tests\TestCase;
@@ -137,17 +138,43 @@ class VisitorBadgeViewTest extends TestCase
         $this->assertStringNotContainsString('class="badge-photo', $html);
     }
 
+    public function test_badge_renders_signature_when_present(): void
+    {
+        config()->set('branding.badge_design', 'standard');
+
+        $signature = 'data:image/png;base64,'.base64_encode('signature');
+        $html = $this->renderBadge(signature: $signature);
+
+        $this->assertStringContainsString('class="signature"', $html);
+        $this->assertStringContainsString($signature, $html);
+        $this->assertStringContainsString(__('Unterschrift'), $html);
+    }
+
+    public function test_badge_omits_signature_when_absent(): void
+    {
+        config()->set('branding.badge_design', 'standard');
+
+        $html = $this->renderBadge();
+
+        $this->assertStringNotContainsString('class="signature"', $html);
+    }
+
     private function renderBadge(
         string $hostFirstName = 'Hanna',
         string $hostLastName = 'Host',
         string $substituteFirstName = 'Erika',
-        string $substituteLastName = 'Empfang'
+        string $substituteLastName = 'Empfang',
+        ?string $signature = null,
     ): string {
         $visitor = new Visitor;
         $visitor->title = 'Dr.';
         $visitor->first_name = 'Anna';
         $visitor->name = 'Ausweis';
         $visitor->company = 'VisitorPortal GmbH';
+
+        if ($signature !== null) {
+            $visitor->setRelation('pivot', new VisitVisitor(['signature_data' => $signature]));
+        }
 
         $host = new User;
         $host->first_name = $hostFirstName;
