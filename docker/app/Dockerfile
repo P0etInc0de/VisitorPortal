@@ -1,6 +1,6 @@
 # syntax=docker/dockerfile:1
 
-FROM php:8.4-apache AS php-base
+FROM php:8.4.27-apache AS php-base
 
 RUN a2enmod rewrite headers \
     && apt-get update \
