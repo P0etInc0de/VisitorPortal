@@ -43,6 +43,8 @@ jobs:
           context: .
           file: docker/app/Dockerfile
           push: true
+          pull: true
+          no-cache-filters: php-base
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha
