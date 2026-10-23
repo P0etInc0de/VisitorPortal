@@ -112,7 +112,7 @@ Reset demo data:
 sh reset-demo.sh
 ```
 
-Update the demo image:
+Update the demo image after selecting the new release tag in the existing `.env.demo` (`VISITORPORTAL_VERSION`). If `VISITORPORTAL_IMAGE` is set, update that image reference instead:
 
 ```bash
 sh update.sh
@@ -120,11 +120,19 @@ sh update.sh
 
 Windows users can use the matching `.bat` scripts.
 
+The update script pulls the configured version; it does not select a newer release automatically. Keep the existing configuration and volumes to preserve demo data. `reset-demo.sh` and `reset-demo.bat` delete the demo database and uploaded files.
+
 In the source repository, `.env.demo.example` contains `RELEASE_VERSION_PLACEHOLDER`. Official release ZIPs replace that placeholder with the published release tag so demos are reproducible:
 
 ```env
-VISITORPORTAL_VERSION=v1.0.2
+VISITORPORTAL_VERSION=vX.Y.Z
 ```
+
+## Updating An Existing Installation
+
+For production Docker or source/LAMP installations, follow the [production update procedure](docs/deployment.md#updates). Keep the existing database, storage and `APP_KEY`, and update the app, queue and scheduler together.
+
+The [v0.9.1 release notes](docs/releases/v0.9.1.md) describe the security updates and the upgrade from v0.9.0. Source/LAMP installations require PHP `>=8.4.27,<8.5`; the official Docker image includes the patched runtime.
 
 ## Demo Accounts
 
