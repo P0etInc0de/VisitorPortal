@@ -12,7 +12,7 @@ VisitorPortal is configured through environment files. Do not commit real `.env`
 
 Documentation should refer to supported major versions, not `latest`:
 
-- PHP 8.4
+- PHP 8.4.27 or newer within the 8.4 series
 - Node.js 24
 - MariaDB 11.4
 - Laravel 12

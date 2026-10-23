@@ -4,7 +4,7 @@ This guide describes a production bootstrap without demo users or demo seed data
 
 ## Requirements
 
-- PHP 8.4 with `pdo_mysql`, `mbstring`, `intl`, `zip`, `fileinfo`, `dom`, `xml`, `xmlwriter` and `gmp` for LAMP deployments.
+- PHP 8.4.27 or newer within the 8.4 series with `pdo_mysql`, `mbstring`, `intl`, `zip`, `fileinfo`, `dom`, `xml`, `xmlwriter` and `gmp` for LAMP deployments.
 - MariaDB 11.4 as the default database.
 - Composer for LAMP deployments.
 - Node.js 24 only when frontend assets are built on the target system.
@@ -220,6 +220,18 @@ php artisan privacy:purge-technical-data
 Application retention does not replace backup retention, Docker volume retention, database backup retention, reverse-proxy log retention, Docker daemon log retention, host log retention or SIEM retention. Configure those separately.
 
 ## Updates
+
+### PHP And Dependency Security Updates
+
+The Docker images and CI use PHP 8.4.27. This is the minimum supported patch release and includes the critical bailout state-corruption fixes [GHSA-w8hw-w9fx-j79w](https://github.com/php/php-src/security/advisories/GHSA-w8hw-w9fx-j79w) and [GHSA-6wmf-4rv5-p3rp](https://github.com/php/php-src/security/advisories/GHSA-6wmf-4rv5-p3rp).
+
+For source-based Docker deployments, rebuild the application images with the updated base image (`docker compose build --pull` for development; `docker build --pull --target app -f docker/app/Dockerfile -t <release-image> .` for production). Deploy the rebuilt image to the app, queue and scheduler services. For prebuilt deployments, publish and select a new release image containing these updates.
+
+Composer's post-autoload hook runs `filament:upgrade` to refresh published Filament assets and clear stale framework caches. The production Docker build copies these generated assets from the vendor stage into the final image. When updating dependencies on LAMP, run `composer install --no-dev --optimize-autoloader` with scripts enabled before rebuilding the runtime caches.
+
+For LAMP deployments, update both CLI and Apache/PHP-FPM to a supported PHP 8.4 patch release before installing the committed `composer.lock`. Restart the PHP/web services and queue workers so all processes use the patched runtime and dependencies. Verify with `php -v`, `composer check-platform-reqs` and `composer audit`; also verify the web server's PHP runtime if it uses a different installation from the CLI.
+
+### Application Update Procedure
 
 Recommended update flow:
 

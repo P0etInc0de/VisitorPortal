@@ -36,7 +36,7 @@ jobs:
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
-          php-version: "8.4"
+          php-version: "8.4.27"
           extensions: mbstring, pdo_mysql, intl, zip, dom, xml, xmlwriter, gmp
           coverage: none
 
@@ -50,8 +50,14 @@ jobs:
       - name: Copy .env
         run: php -r "file_exists('.env') || copy('.env.example', '.env');"
 
+      - name: Validate Composer files
+        run: composer validate --strict
+
       - name: Install Dependencies
         run: composer install --no-interaction --prefer-dist
+
+      - name: Check PHP platform requirements
+        run: composer check-platform-reqs
 
       - name: Composer security audit
         run: composer audit

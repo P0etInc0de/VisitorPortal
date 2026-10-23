@@ -45,7 +45,7 @@ Besucher-Stammdaten sind organisationsweite Kontakte. Die Standortisolation gilt
 
 ## Tech Stack
 
-- PHP 8.4
+- PHP 8.4.27 oder neuer innerhalb der 8.4-Reihe
 - Laravel 12
 - Laravel Livewire
 - MariaDB 11.4 als Standard (`pdo_mysql`-Treiber)

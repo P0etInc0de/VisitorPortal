@@ -47,7 +47,7 @@ Visitor master records are organization-wide contacts. Site isolation applies to
 
 ## Tech Stack
 
-- PHP 8.4
+- PHP 8.4.27 or newer within the 8.4 series
 - Laravel 12
 - Laravel Livewire
 - MariaDB 11.4 by default (`pdo_mysql` driver)
