@@ -1,4 +1,4 @@
-FROM php:8.4-apache
+FROM php:8.4.27-apache
 
 # Apache: URL-Rewrites für Laravel
 RUN a2enmod rewrite

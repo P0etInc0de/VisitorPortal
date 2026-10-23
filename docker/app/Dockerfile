@@ -1,6 +1,6 @@
 # syntax=docker/dockerfile:1
 
-FROM php:8.4-apache AS php-base
+FROM php:8.4.27-apache AS php-base
 
 RUN a2enmod rewrite headers \
     && apt-get update \
@@ -57,7 +57,7 @@ RUN npm ci --no-audit --no-fund --ignore-scripts \
 
 COPY --from=vendor /var/www/html/backend/vendor/laravel/framework/src/Illuminate/Pagination/resources/views ./vendor/laravel/framework/src/Illuminate/Pagination/resources/views
 COPY backend/resources ./resources
-COPY backend/public ./public
+COPY --from=vendor /var/www/html/backend/public ./public
 COPY backend/vite.config.js ./vite.config.js
 RUN npm run build \
     && npm cache clean --force
@@ -75,6 +75,7 @@ ENV APP_ENV=production \
 COPY backend ./
 COPY --from=vendor /var/www/html/backend/vendor ./vendor
 COPY --from=vendor /var/www/html/backend/bootstrap/cache ./bootstrap/cache
+COPY --from=vendor /var/www/html/backend/public ./public
 COPY --from=assets /app/backend/public/build ./public/build
 COPY docker/app/entrypoint.sh /usr/local/bin/besucherportal-entrypoint
 

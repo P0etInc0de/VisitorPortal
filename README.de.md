@@ -45,7 +45,7 @@ Besucher-Stammdaten sind organisationsweite Kontakte. Die Standortisolation gilt
 
 ## Tech Stack
 
-- PHP 8.4
+- PHP 8.4.27 oder neuer innerhalb der 8.4-Reihe
 - Laravel 12
 - Laravel Livewire
 - MariaDB 11.4 als Standard (`pdo_mysql`-Treiber)
@@ -110,7 +110,7 @@ Demo-Daten zurücksetzen:
 sh reset-demo.sh
 ```
 
-Demo-Image aktualisieren:
+Demo-Image aktualisieren, nachdem in der bestehenden `.env.demo` der neue Release-Tag unter `VISITORPORTAL_VERSION` eingetragen wurde. Falls `VISITORPORTAL_IMAGE` gesetzt ist, stattdessen diese Image-Referenz aktualisieren:
 
 ```bash
 sh update.sh
@@ -118,11 +118,19 @@ sh update.sh
 
 Windows-Nutzer können jeweils die passenden `.bat`-Skripte verwenden.
 
+Das Update-Skript lädt die konfigurierte Version; es wählt nicht automatisch einen neueren Release aus. Bestehende Konfiguration und Volumes beibehalten, um Demo-Daten zu erhalten. `reset-demo.sh` und `reset-demo.bat` löschen die Demo-Datenbank und hochgeladene Dateien.
+
 Im Source-Repository enthält `.env.demo.example` den Platzhalter `RELEASE_VERSION_PLACEHOLDER`. Offizielle Release-ZIPs ersetzen diesen Platzhalter durch den veröffentlichten Release-Tag, damit Demos reproduzierbar bleiben:
 
 ```env
-VISITORPORTAL_VERSION=v1.0.2
+VISITORPORTAL_VERSION=vX.Y.Z
 ```
+
+## Bestehende Installation aktualisieren
+
+Für produktive Docker- oder Source-/LAMP-Installationen die [Produktionsupdate-Anleitung](docs/deployment.md#updates) verwenden. Bestehende Datenbank, Storage und `APP_KEY` beibehalten und App, Queue und Scheduler gemeinsam aktualisieren.
+
+Die [Release Notes zu v0.9.1](docs/releases/v0.9.1.md) beschreiben die Sicherheitsupdates und den Wechsel von v0.9.0. Source-/LAMP-Installationen benötigen PHP `>=8.4.27,<8.5`; das offizielle Docker-Image enthält die gepatchte Laufzeit bereits.
 
 ## Demo-Zugangsdaten
 

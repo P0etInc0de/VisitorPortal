@@ -3,3 +3,6 @@ Dockerfile text eol=lf
 *.yml text eol=lf
 *.yaml text eol=lf
 *.env text eol=lf
+
+# Published third-party assets retain upstream formatting.
+backend/public/js/filament/** -whitespace

@@ -76,11 +76,17 @@ Reset the demo database and storage volumes:
 sh reset-demo.sh
 ```
 
-Pull and restart the configured demo image:
+Reset deletes the demo database and uploaded files. Use the update procedure below to retain existing data.
+
+To update an existing demo, edit its existing `.env.demo` and set `VISITORPORTAL_VERSION` to the desired published release tag. If `VISITORPORTAL_IMAGE` is set, update that image reference instead; it takes precedence over `VISITORPORTAL_VERSION`. Then pull and restart the configured demo image:
 
 ```bash
 sh update.sh
 ```
+
+The update script does not change the configured version automatically. Keep the existing `.env.demo`, Compose project name and volumes. The app applies pending migrations automatically in the demo and retains the seed-completion marker in storage; leave `FORCE_SEED=false` for an existing demo. Changing only `.env.demo.example` or extracting a new ZIP does not change the version in an existing `.env.demo`.
+
+Production installations use a separate update procedure linked from [Release Artifacts](release-artifacts.md).
 
 Windows users can use the matching `.bat` scripts.
 
@@ -89,10 +95,10 @@ Windows users can use the matching `.bat` scripts.
 Official demo ZIPs contain `.env.demo.example` with the published release tag:
 
 ```env
-VISITORPORTAL_VERSION=v1.2.0
+VISITORPORTAL_VERSION=vX.Y.Z
 ```
 
-This keeps demos reproducible. Source checkouts contain `RELEASE_VERSION_PLACEHOLDER` until the release workflow replaces it. If you build a demo package manually, replace the placeholder before publishing it.
+`vX.Y.Z` is a documentation placeholder; the downloaded ZIP contains an actual release tag. This keeps demos reproducible. Source checkouts contain `RELEASE_VERSION_PLACEHOLDER` until the release workflow replaces it. If you build a demo package manually, replace the placeholder before publishing it.
 
 See [Release Artifacts](release-artifacts.md) for which ZIP to download.
 
@@ -116,7 +122,7 @@ Development URLs:
 
 Development services:
 
-- `web`: Apache, PHP 8.4 and Laravel
+- `web`: Apache, PHP 8.4.27 and Laravel
 - `node`: Node.js 24 frontend tooling
 - `db`: MariaDB 11.4
 - `queue`: Laravel queue worker
@@ -175,7 +181,7 @@ docker compose run --rm node npm run build
 
 ## Running Artisan Without Docker
 
-Docker is the recommended development environment. If you run Artisan directly on the host, the local PHP CLI must provide the required extensions, including `pdo_mysql`, `dom`, `mbstring`, `xml`, `xmlwriter`, `intl`, `zip`, `fileinfo` and `gmp`.
+Docker is the recommended development environment. If you run Artisan directly on the host, the local PHP CLI must be PHP 8.4.27 or newer within the 8.4 series and provide the required extensions, including `pdo_mysql`, `dom`, `mbstring`, `xml`, `xmlwriter`, `intl`, `zip`, `fileinfo` and `gmp`.
 
 Ubuntu/WSL example:
 

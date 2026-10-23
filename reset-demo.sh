@@ -15,7 +15,7 @@ fi
 case "$answer" in
     y|Y|yes|YES)
         docker compose --env-file "$ENV_FILE" -f docker-compose.demo.yml down -v
-        ./start.sh
+        sh ./start.sh
         ;;
     *)
         echo "Reset cancelled."
