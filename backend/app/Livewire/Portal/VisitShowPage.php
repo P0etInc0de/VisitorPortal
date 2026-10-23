@@ -13,6 +13,7 @@ use App\Models\RecurringVisitSeries;
 use App\Models\User;
 use App\Models\Visit;
 use App\Models\Visitor;
+use App\Support\KioskQrCode;
 use Illuminate\Contracts\View\View;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Support\HtmlString;
@@ -97,6 +98,8 @@ class VisitShowPage extends Component
             'recurrenceMeta' => $this->recurrenceMeta(),
             'visitStatus' => $this->resolveVisitStatus(),
             'visitMeta' => $this->visitMeta(),
+            'checkInQrSvg' => $this->checkInQrSvg(),
+            'checkInCode' => $this->checkInCode(),
         ])->layout('layouts.app', [
             'header' => new HtmlString(
                 view('partials.page-header', [
@@ -126,10 +129,35 @@ class VisitShowPage extends Component
                     'email' => $visitor->email,
                     'phone' => $visitor->phone,
                     'status' => $this->resolveParticipantStatus((string) $this->visit->status, $pivot),
+                    'signature' => filled($pivot->signature_data) ? $pivot->signature_data : null,
+                    'signed_at' => $pivot->signed_at?->format('d.m.Y H:i'),
                 ];
             })
             ->values()
             ->all();
+    }
+
+    private function checkInQrSvg(): ?string
+    {
+        if (! $this->visitCanBeCheckedIn() || blank($this->visit->check_in_code)) {
+            return null;
+        }
+
+        return KioskQrCode::svg((string) $this->visit->check_in_code, 260, 2);
+    }
+
+    private function checkInCode(): ?string
+    {
+        if (! $this->visitCanBeCheckedIn() || blank($this->visit->check_in_code)) {
+            return null;
+        }
+
+        return (string) $this->visit->check_in_code;
+    }
+
+    private function visitCanBeCheckedIn(): bool
+    {
+        return $this->visit->status === VisitStatusEnum::Planned->value;
     }
 
     /**

@@ -538,4 +538,33 @@ class VisitManagementTest extends TestCase
             ->assertDontSee(__('Aktionen'))
             ->assertDontSee(__('Termin absagen'));
     }
+
+    public function test_visit_show_displays_captured_signature(): void
+    {
+        $viewer = (new PermissionHelper)->getIndividualUser([
+            'ViewSite:Visit',
+        ], 'visit-signature-viewer');
+        $visit = Visit::factory()->create([
+            'site_id' => $viewer->site_id,
+        ]);
+        $visitor = Visitor::factory()->create([
+            'title' => '',
+            'first_name' => 'Ines',
+            'name' => 'Ink',
+        ]);
+
+        $signature = 'data:image/png;base64,'.base64_encode('signature');
+
+        $visit->visitors()->attach($visitor->id, [
+            'signature_data' => $signature,
+            'signed_at' => now(),
+        ]);
+
+        $this
+            ->actingAs($viewer)
+            ->get(route('portal.visits.show', $visit))
+            ->assertOk()
+            ->assertSee(__('Unterschrift'))
+            ->assertSee($signature, false);
+    }
 }

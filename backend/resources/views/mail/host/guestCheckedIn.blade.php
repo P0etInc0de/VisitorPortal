@@ -12,6 +12,10 @@
     | {{$visitor->first_name}} | {{$visitor->name}} | {{$visitor->title}} |{{$visitor->company}}
 </x-mail::table>
 
+@if($signature)
+{{ __('Die Unterschrift des Gastes ist als Anhang beigefügt.') }}
+@endif
+
 <x-mail::button :url='route("overview")'>
     {{__('Weitere Informationen')}}
 </x-mail::button>

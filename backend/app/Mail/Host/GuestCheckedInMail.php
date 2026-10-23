@@ -11,6 +11,7 @@ namespace App\Mail\Host;
 use App\Models\User;
 use App\Models\Visitor;
 use App\Support\MailGreeting;
+use App\Support\SignatureAttachment;
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
 use Illuminate\Mail\Mailables\Attachment;
@@ -28,6 +29,7 @@ class GuestCheckedInMail extends Mailable
     public function __construct(
         protected User $user,
         protected Visitor $visitor,
+        protected ?string $signature = null,
     ) {}
 
     /**
@@ -50,7 +52,8 @@ class GuestCheckedInMail extends Mailable
         ))
             ->with('greeting', MailGreeting::forUser($this->user))
             ->with('user', $this->user)
-            ->with('visitor', $this->visitor);
+            ->with('visitor', $this->visitor)
+            ->with('signature', $this->signature);
     }
 
     /**
@@ -60,6 +63,6 @@ class GuestCheckedInMail extends Mailable
      */
     public function attachments(): array
     {
-        return [];
+        return SignatureAttachment::fromDataUrl($this->signature);
     }
 }

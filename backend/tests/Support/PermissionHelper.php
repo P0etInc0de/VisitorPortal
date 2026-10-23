@@ -143,6 +143,16 @@ class PermissionHelper
             'Delete:Monitor',
             'Test:Monitor',
 
+            // Kiosk
+            'ViewAny:Kiosk',
+            'View:Kiosk',
+            'ViewSite:Kiosk',
+            'ManageSite:Kiosk',
+            'Create:Kiosk',
+            'Update:Kiosk',
+            'Delete:Kiosk',
+            'ManageAny:Kiosk',
+
             'View:UserPermissions',
         ];
     }
@@ -182,11 +192,22 @@ class PermissionHelper
             'ViewSite:Visitor', 'ViewContactDetails:Visitor', 'UpdateKnown:Visitor',
             'CheckIn:Visitor', 'CheckOut:Visitor', 'Print:Visitor',
             'View:Monitor', 'ViewSite:Monitor', 'ManageSite:Monitor', 'Edit:Monitor', 'View:MonitorSlide', 'Edit:MonitorSlide',
+            'ViewSite:Kiosk',
             'ViewOwn:User', 'EditOwn:User',
             'Create:Visit', 'Create:Visitor',
             'ViewKnown:Visitor', 'ViewOwn:Visit'];
 
         return $this->getIndividualUser($receptionistPermissions, 'receptionist');
+    }
+
+    public function getKioskManagerUser(): User
+    {
+        $kioskManagerPermissions = [
+            'ViewAny:Kiosk', 'View:Kiosk', 'Create:Kiosk', 'Update:Kiosk',
+            'Delete:Kiosk', 'ManageAny:Kiosk',
+        ];
+
+        return $this->getIndividualUser($kioskManagerPermissions, 'kiosk_manager');
     }
 
     public function getWelcomeMonitorUser(): User

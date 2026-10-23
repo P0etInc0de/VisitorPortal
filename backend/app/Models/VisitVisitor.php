@@ -26,6 +26,8 @@ class VisitVisitor extends Pivot
         'checked_in_by_user_id',
         'checked_out_by_user_id',
         'notes',
+        'signature_data',
+        'signed_at',
     ];
 
     protected function casts(): array
@@ -34,6 +36,7 @@ class VisitVisitor extends Pivot
             'badge_printed_at' => 'datetime',
             'checked_in_at' => 'datetime',
             'checked_out_at' => 'datetime',
+            'signed_at' => 'datetime',
         ];
     }
 

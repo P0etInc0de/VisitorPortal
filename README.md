@@ -24,11 +24,12 @@ The application processes potentially personal data such as visitor names, compa
 - Visitor check-in and check-out
 - Printable visitor badges as PDFs
 - Check-in/out overview for reception desks
+- Public kiosk terminals for self-check-in, walk-in self-registration, QR-code check-in, signature capture (also on the badge and check-in emails) and self-check-out
 - Welcome monitor for scheduled visitors
 - Role-based access control with custom permissions
 - Optional MFA for users and required MFA for privileged admin roles
 - Optional generic OpenID Connect SSO for enterprise identity providers
-- Admin panel for users, departments, roles, permissions, visitors, visits, monitors, and monitor slides
+- Admin panel for users, departments, roles, permissions, visitors, visits, monitors, monitor slides, and kiosk terminals
 - Host notifications by email and in-app notifications
 - Queue and scheduler support for background tasks
 - Light, dark, system, and true black themes
@@ -264,6 +265,7 @@ For production-like deployments, explicitly review these demo defaults:
 - [Queue](docs/queue.md)
 - [Scheduler](docs/scheduler.md)
 - [Welcome Monitor](docs/welcome_monitor.md)
+- [Kiosk Mode and Self-Check-In](docs/kiosk.md)
 - [Security Hardening](docs/security-hardening.md)
 - [Single Sign-On](docs/sso.md)
 - [Known Limitations](docs/known-limitations.md)
