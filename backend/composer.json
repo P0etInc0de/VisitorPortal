@@ -6,13 +6,13 @@
     "keywords": ["visitor-management", "visitor-portal", "laravel", "livewire"],
     "license": "GPL-3.0-or-later",
     "require": {
-        "php": "^8.4",
+        "php": "~8.4.27",
         "bezhansalleh/filament-shield": "^4.1",
         "facile-it/php-openid-client": "^0.4.0",
         "fakerphp/faker": "^1.23",
-        "filament/filament": "^5.0",
+        "filament/filament": "^5.8.3",
         "laravel/fortify": "^1.37",
-        "laravel/framework": "^12.0",
+        "laravel/framework": "^12.69",
         "laravel/tinker": "^2.10.1",
         "spatie/laravel-pdf": "^2.5",
         "spatie/laravel-permission": "^6.25"
@@ -56,7 +56,8 @@
         ],
         "post-autoload-dump": [
             "Illuminate\\Foundation\\ComposerScripts::postAutoloadDump",
-            "@php artisan package:discover --ansi"
+            "@php artisan package:discover --ansi",
+            "@php artisan filament:upgrade --ansi"
         ],
         "post-update-cmd": [
             "@php artisan vendor:publish --tag=laravel-assets --ansi --force"

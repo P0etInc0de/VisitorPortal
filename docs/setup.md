@@ -116,7 +116,7 @@ Development URLs:
 
 Development services:
 
-- `web`: Apache, PHP 8.4 and Laravel
+- `web`: Apache, PHP 8.4.27 and Laravel
 - `node`: Node.js 24 frontend tooling
 - `db`: MariaDB 11.4
 - `queue`: Laravel queue worker
@@ -175,7 +175,7 @@ docker compose run --rm node npm run build
 
 ## Running Artisan Without Docker
 
-Docker is the recommended development environment. If you run Artisan directly on the host, the local PHP CLI must provide the required extensions, including `pdo_mysql`, `dom`, `mbstring`, `xml`, `xmlwriter`, `intl`, `zip`, `fileinfo` and `gmp`.
+Docker is the recommended development environment. If you run Artisan directly on the host, the local PHP CLI must be PHP 8.4.27 or newer within the 8.4 series and provide the required extensions, including `pdo_mysql`, `dom`, `mbstring`, `xml`, `xmlwriter`, `intl`, `zip`, `fileinfo` and `gmp`.
 
 Ubuntu/WSL example:
 
